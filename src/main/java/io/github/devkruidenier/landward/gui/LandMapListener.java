@@ -4,6 +4,7 @@ import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.command.LandCommand;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.ChunkPosition;
+import io.github.devkruidenier.landward.model.LandType;
 import io.github.devkruidenier.landward.storage.StorageException;
 import org.bukkit.entity.Player;
 
@@ -36,12 +37,30 @@ public final class LandMapListener implements Listener {
         var existingLand = landManager.landAt(position);
         if (existingLand.isPresent()) {
             if (holder.administrator()) {
-                new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position, true);
+                boolean administrative = landManager.typeOf(existingLand.get()) == LandType.ADMIN;
+                if (administrative == holder.administrativeClaims()) {
+                    new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position, true, holder.administrativeClaims());
+                }
             } else if (existingLand.get().ownerId().equals(player.getUniqueId())) {
-                new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position, false);
+                new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position, false, false);
             }
             return;
         }
+        if (holder.administrativeClaims()) {
+            try {
+                String configuredName = plugin.getConfig().getString("admin-claims.default-name", "").strip();
+                String name = configuredName.isEmpty()
+                        ? plugin.localeService().message(plugin.localeService().localeFor(player), "gui.admin-default-name")
+                        : configuredName;
+                landManager.claimAdministration(name, position);
+                plugin.syncMapIntegrations();
+                new LandMapGui(plugin, landManager).openAdminClaims(player);
+            } catch (StorageException exception) {
+                player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
+            }
+            return;
+        }
+        if (holder.administrator()) return;
         try { command.claimFromMenu(player, position); new LandMapGui(plugin, landManager).open(player); }
         catch (StorageException exception) { player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error")); }
     }
@@ -62,7 +81,8 @@ public final class LandMapListener implements Listener {
             }
         }
         if (event.getRawSlot() == 11 || event.getRawSlot() == 15 || event.getRawSlot() == 26) {
-            if (confirmation.administrator()) new LandMapGui(plugin, landManager).openAdmin(player);
+            if (confirmation.administrator() && confirmation.administrativeClaims()) new LandMapGui(plugin, landManager).openAdminClaims(player);
+            else if (confirmation.administrator()) new LandMapGui(plugin, landManager).openAdmin(player);
             else new LandMapGui(plugin, landManager).open(player);
         }
     }

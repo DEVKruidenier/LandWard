@@ -9,11 +9,13 @@ import org.jetbrains.annotations.NotNull;
 public final class UnclaimConfirmationHolder implements InventoryHolder {
     private final ChunkPosition position;
     private final boolean administrator;
+    private final boolean administrativeClaims;
     private Inventory inventory;
 
-    public UnclaimConfirmationHolder(ChunkPosition position, boolean administrator) {
+    public UnclaimConfirmationHolder(ChunkPosition position, boolean administrator, boolean administrativeClaims) {
         this.position = position;
         this.administrator = administrator;
+        this.administrativeClaims = administrativeClaims;
     }
 
     public ChunkPosition position() {
@@ -21,6 +23,7 @@ public final class UnclaimConfirmationHolder implements InventoryHolder {
     }
 
     boolean administrator() { return administrator; }
+    boolean administrativeClaims() { return administrativeClaims; }
 
     void setInventory(Inventory inventory) {
         this.inventory = inventory;

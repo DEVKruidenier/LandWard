@@ -50,6 +50,26 @@ claims:
   # Example: disabled-worlds: [myworld]
   disabled-worlds: []
 
+admin-claims:
+  # Name of the first server-owned administrative land. Leave empty to use the selected LandWard language.
+  # Example: "Safe Zone" or "Veilige Zone". Configure this before creating the first admin claim.
+  default-name: ""
+  protection:
+    # Allow player-versus-player combat inside administrative claims.
+    allow-pvp: false
+    # Allow players to kill hostile mobs in administrative claims.
+    allow-hostile-mob-kills: false
+    # Allow players to kill passive mobs such as cows and pigs in administrative claims.
+    allow-passive-mob-kills: true
+    # Allow opening chests, Ender Chests and compatible crate inventories in administrative claims.
+    allow-containers: false
+    # Allow using doors and trapdoors in administrative claims.
+    allow-doors: false
+    # Allow using signs, buttons and levers in administrative claims.
+    allow-interactions: false
+    # Allow hostile mobs to naturally spawn in administrative claims.
+    allow-hostile-mob-spawns: false
+
 notifications:
   claim-boundaries:
     # Show an actionbar message only when a player crosses into or out of a claimed chunk.

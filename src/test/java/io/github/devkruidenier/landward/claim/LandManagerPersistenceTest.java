@@ -1,6 +1,7 @@
 package io.github.devkruidenier.landward.claim;
 
 import io.github.devkruidenier.landward.model.ChunkPosition;
+import io.github.devkruidenier.landward.model.LandType;
 import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.storage.sqlite.SqliteLandStorage;
 import org.junit.jupiter.api.Test;
@@ -154,6 +155,33 @@ class LandManagerPersistenceTest {
         assertEquals(0, manager.totalClaimCount());
         assertTrue(manager.land(created.land().id()).isEmpty());
         assertTrue(manager.members(created.land().id()).isEmpty());
+    }
+
+    @Test
+    void administrativeClaimsPersistSeparatelyFromPlayerOwnership() throws Exception {
+        SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("admin-claims.db"));
+        storage.initialize();
+        LandManager manager = new LandManager(storage);
+        manager.load();
+        UUID world = UUID.randomUUID();
+        ChunkPosition first = new ChunkPosition(world, 6, -3);
+        ChunkPosition second = new ChunkPosition(world, 20, -15);
+
+        LandManager.AdminClaimResult created = manager.claimAdministration(first);
+        assertEquals(LandManager.AdminClaimStatus.CREATED, created.status());
+        assertEquals(LandType.ADMIN, manager.typeOf(created.land()));
+        assertTrue(manager.ownedBy(created.land().ownerId()).isEmpty());
+
+        assertEquals(LandManager.AdminClaimStatus.CLAIMED, manager.claimAdministration(second).status());
+        UUID trustedMember = UUID.randomUUID();
+        assertEquals(LandManager.MemberStatus.ADDED, manager.addAdministrativeMember(trustedMember).status());
+        LandManager reloaded = new LandManager(storage);
+        reloaded.load();
+        assertEquals(LandType.ADMIN, reloaded.typeOf(reloaded.landAt(first).orElseThrow()));
+        assertEquals(LandType.ADMIN, reloaded.typeOf(reloaded.landAt(second).orElseThrow()));
+        assertEquals(2, reloaded.claimCount(created.land().id()));
+        assertEquals(MemberPermissions.FULL, reloaded.permissions(trustedMember, created.land().id()));
+        assertEquals(LandManager.MemberStatus.REMOVED, reloaded.removeAdministrativeMember(trustedMember).status());
     }
 
     @Test

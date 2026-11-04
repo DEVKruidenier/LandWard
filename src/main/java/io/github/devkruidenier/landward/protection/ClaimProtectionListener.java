@@ -5,6 +5,7 @@ import io.github.devkruidenier.landward.combat.CombatTagService;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.Land;
+import io.github.devkruidenier.landward.model.LandType;
 import io.github.devkruidenier.landward.model.MemberPermissions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -12,6 +13,8 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Enemy;
+import org.bukkit.entity.Animals;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -27,6 +30,7 @@ import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
@@ -35,6 +39,7 @@ import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.Tag;
 
 import java.util.Map;
 import java.util.Objects;
@@ -77,6 +82,11 @@ public final class ClaimProtectionListener implements Listener {
         Block clicked = event.getClickedBlock();
         boolean spawningEntity = event.getItem() != null && event.getItem().getType().name().endsWith("_SPAWN_EGG");
         if (clicked != null) {
+            Optional<Land> land = landAt(clicked.getLocation());
+            if (land.isPresent() && landManager.typeOf(land.get()) == LandType.ADMIN) {
+                if (!adminAllowedToInteract(event.getPlayer(), land.get(), clicked)) event.setCancelled(true);
+                return;
+            }
             MemberPermissions.Permission permission = spawningEntity
                     ? MemberPermissions.Permission.ENTITIES
                     : clicked.getState() instanceof InventoryHolder
@@ -131,11 +141,23 @@ public final class ClaimProtectionListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
+            if (adminDamageAllowed(player, event.getEntity(), event.getEntity().getLocation())) return;
             if (event.getEntity() instanceof Player victim && combatTags.mayFightInClaim(player, victim)) return;
             denyIfNeeded(player, event.getEntity().getLocation(), MemberPermissions.Permission.ENTITIES, event::setCancelled);
         } else if (event.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof Player player) {
+            if (adminDamageAllowed(player, event.getEntity(), event.getEntity().getLocation())) return;
             if (event.getEntity() instanceof Player victim && combatTags.mayFightInClaim(player, victim)) return;
             denyIfNeeded(player, event.getEntity().getLocation(), MemberPermissions.Permission.ENTITIES, event::setCancelled);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onCreatureSpawn(CreatureSpawnEvent event) {
+        Optional<Land> land = landAt(event.getLocation());
+        if (land.isPresent() && landManager.typeOf(land.get()) == LandType.ADMIN
+                && event.getEntity() instanceof Enemy
+                && !plugin.getConfig().getBoolean("admin-claims.protection.allow-hostile-mob-spawns", false)) {
+            event.setCancelled(true);
         }
     }
 
@@ -216,11 +238,45 @@ public final class ClaimProtectionListener implements Listener {
             return true;
         }
         MemberPermissions permissions = landManager.permissions(player.getUniqueId(), land.id());
+        if (landManager.typeOf(land) == LandType.ADMIN) {
+            if (!permissions.equals(MemberPermissions.NONE)) return true;
+            return permission == MemberPermissions.Permission.CONTAINERS
+                    && plugin.getConfig().getBoolean("admin-claims.protection.allow-containers", false);
+        }
         return switch (permission) {
             case BUILD -> permissions.build();
             case CONTAINERS -> permissions.containers();
             case ENTITIES -> permissions.entities();
         };
+    }
+
+    private boolean adminDamageAllowed(Player player, org.bukkit.entity.Entity target, Location location) {
+        Optional<Land> land = landAt(location);
+        if (land.isEmpty() || landManager.typeOf(land.get()) != LandType.ADMIN) return false;
+        if (player.hasPermission("landward.bypass") || !landManager.permissions(player.getUniqueId(), land.get().id()).equals(MemberPermissions.NONE)) return true;
+        boolean allowed = target instanceof Player
+                ? plugin.getConfig().getBoolean("admin-claims.protection.allow-pvp", false)
+                : target instanceof Enemy
+                ? plugin.getConfig().getBoolean("admin-claims.protection.allow-hostile-mob-kills", false)
+                : target instanceof Animals
+                ? plugin.getConfig().getBoolean("admin-claims.protection.allow-passive-mob-kills", true)
+                : false;
+        return allowed;
+    }
+
+    private boolean adminAllowedToInteract(Player player, Land land, Block block) {
+        if (player.hasPermission("landward.bypass") || !landManager.permissions(player.getUniqueId(), land.id()).equals(MemberPermissions.NONE)) return true;
+        org.bukkit.Material type = block.getType();
+        if (block.getState() instanceof InventoryHolder || type == org.bukkit.Material.ENDER_CHEST) {
+            return plugin.getConfig().getBoolean("admin-claims.protection.allow-containers", false);
+        }
+        if (type.name().endsWith("_DOOR") || type.name().endsWith("_TRAPDOOR")) {
+            return plugin.getConfig().getBoolean("admin-claims.protection.allow-doors", false);
+        }
+        if (Tag.SIGNS.isTagged(type) || type.name().endsWith("_BUTTON") || type.name().endsWith("_PRESSURE_PLATE") || type == org.bukkit.Material.LEVER) {
+            return plugin.getConfig().getBoolean("admin-claims.protection.allow-interactions", false);
+        }
+        return false;
     }
 
     private boolean pistonMovementAllowed(java.util.List<Block> blocks, int deltaX, int deltaY, int deltaZ) {

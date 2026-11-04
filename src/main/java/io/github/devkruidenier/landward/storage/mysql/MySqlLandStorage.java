@@ -85,6 +85,12 @@ public final class MySqlLandStorage implements LandStorage {
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                         """);
                 statement.execute("""
+                        CREATE TABLE IF NOT EXISTS admin_lands (
+                            land_id CHAR(36) PRIMARY KEY,
+                            CONSTRAINT fk_admin_lands_land FOREIGN KEY (land_id) REFERENCES lands(id) ON DELETE CASCADE
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                        """);
+                statement.execute("""
                         CREATE TABLE IF NOT EXISTS land_members (
                             land_id CHAR(36) NOT NULL,
                             player_uuid CHAR(36) NOT NULL,
@@ -107,12 +113,16 @@ public final class MySqlLandStorage implements LandStorage {
         List<Land> lands = new ArrayList<>();
         List<ClaimedChunk> claims = new ArrayList<>();
         List<LandMember> members = new ArrayList<>();
+        List<UUID> adminLandIds = new ArrayList<>();
         try (Connection connection = connection()) {
             try (Statement statement = connection.createStatement(); ResultSet result = statement.executeQuery("SELECT id, owner_uuid, name, created_at FROM lands")) {
                 while (result.next()) {
                     lands.add(new Land(UUID.fromString(result.getString("id")), UUID.fromString(result.getString("owner_uuid")),
                             result.getString("name"), Instant.ofEpochMilli(result.getLong("created_at"))));
                 }
+            }
+            try (Statement statement = connection.createStatement(); ResultSet result = statement.executeQuery("SELECT land_id FROM admin_lands")) {
+                while (result.next()) adminLandIds.add(UUID.fromString(result.getString("land_id")));
             }
             try (Statement statement = connection.createStatement(); ResultSet result = statement.executeQuery("SELECT world_uuid, chunk_x, chunk_z, land_id FROM claims")) {
                 while (result.next()) {
@@ -126,7 +136,7 @@ public final class MySqlLandStorage implements LandStorage {
                             new MemberPermissions(result.getBoolean("can_build"), result.getBoolean("can_containers"), result.getBoolean("can_entities"))));
                 }
             }
-            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members));
+            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members), List.copyOf(adminLandIds));
         } catch (SQLException | IllegalArgumentException exception) {
             throw new StorageException("Could not load MySQL data", exception);
         }
@@ -148,6 +158,24 @@ public final class MySqlLandStorage implements LandStorage {
             }
         } catch (SQLException exception) {
             throw new StorageException("Could not save land and initial claim", exception);
+        }
+    }
+
+    @Override
+    public void insertAdminLandWithClaim(Land land, ClaimedChunk claim) throws StorageException {
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                try (PreparedStatement statement = connection.prepareStatement("INSERT INTO lands(id, owner_uuid, name, created_at) VALUES (?, ?, ?, ?)")) { bindLand(statement, land); statement.executeUpdate(); }
+                try (PreparedStatement statement = connection.prepareStatement("INSERT INTO claims(world_uuid, chunk_x, chunk_z, land_id) VALUES (?, ?, ?, ?)")) { bindClaim(statement, claim); statement.executeUpdate(); }
+                try (PreparedStatement statement = connection.prepareStatement("INSERT INTO admin_lands(land_id) VALUES (?)")) { statement.setString(1, land.id().toString()); statement.executeUpdate(); }
+                connection.commit();
+            } catch (SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
+        } catch (SQLException exception) {
+            throw new StorageException("Could not save administrative land and initial claim", exception);
         }
     }
 

@@ -55,6 +55,12 @@ public final class SqliteLandStorage implements LandStorage {
                         """);
                 statement.execute("CREATE INDEX IF NOT EXISTS idx_claims_land_id ON claims(land_id)");
                 statement.execute("""
+                        CREATE TABLE IF NOT EXISTS admin_lands (
+                            land_id TEXT PRIMARY KEY,
+                            FOREIGN KEY (land_id) REFERENCES lands(id) ON DELETE CASCADE
+                        )
+                        """);
+                statement.execute("""
                         CREATE TABLE IF NOT EXISTS land_members (
                             land_id TEXT NOT NULL,
                             player_uuid TEXT NOT NULL,
@@ -76,6 +82,7 @@ public final class SqliteLandStorage implements LandStorage {
         List<Land> lands = new ArrayList<>();
         List<ClaimedChunk> claims = new ArrayList<>();
         List<LandMember> members = new ArrayList<>();
+        List<UUID> adminLandIds = new ArrayList<>();
         try (Connection connection = connection()) {
             try (Statement statement = connection.createStatement();
                  ResultSet result = statement.executeQuery("SELECT id, owner_uuid, name, created_at FROM lands")) {
@@ -87,6 +94,10 @@ public final class SqliteLandStorage implements LandStorage {
                             Instant.ofEpochMilli(result.getLong("created_at"))
                     ));
                 }
+            }
+            try (Statement statement = connection.createStatement();
+                 ResultSet result = statement.executeQuery("SELECT land_id FROM admin_lands")) {
+                while (result.next()) adminLandIds.add(UUID.fromString(result.getString("land_id")));
             }
             try (Statement statement = connection.createStatement();
                  ResultSet result = statement.executeQuery(
@@ -119,7 +130,7 @@ public final class SqliteLandStorage implements LandStorage {
                     ));
                 }
             }
-            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members));
+            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members), List.copyOf(adminLandIds));
         } catch (SQLException | IllegalArgumentException exception) {
             throw new StorageException("Could not load SQLite data", exception);
         }
@@ -169,6 +180,26 @@ public final class SqliteLandStorage implements LandStorage {
             }
         } catch (SQLException exception) {
             throw new StorageException("Could not save land and initial claim", exception);
+        }
+    }
+
+    @Override
+    public void insertAdminLandWithClaim(Land land, ClaimedChunk claim) throws StorageException {
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                insertLandAndClaim(connection, land, claim);
+                try (PreparedStatement statement = connection.prepareStatement("INSERT INTO admin_lands(land_id) VALUES (?)")) {
+                    statement.setString(1, land.id().toString());
+                    statement.executeUpdate();
+                }
+                connection.commit();
+            } catch (SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
+        } catch (SQLException exception) {
+            throw new StorageException("Could not save administrative land and initial claim", exception);
         }
     }
 
@@ -283,6 +314,23 @@ public final class SqliteLandStorage implements LandStorage {
             statement.executeUpdate();
         } catch (SQLException exception) {
             throw new StorageException(failureMessage, exception);
+        }
+    }
+
+    private static void insertLandAndClaim(Connection connection, Land land, ClaimedChunk claim) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO lands(id, owner_uuid, name, created_at) VALUES (?, ?, ?, ?)")) {
+            statement.setString(1, land.id().toString());
+            statement.setString(2, land.ownerId().toString());
+            statement.setString(3, land.name());
+            statement.setLong(4, land.createdAt().toEpochMilli());
+            statement.executeUpdate();
+        }
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO claims(world_uuid, chunk_x, chunk_z, land_id) VALUES (?, ?, ?, ?)")) {
+            statement.setString(1, claim.position().worldId().toString());
+            statement.setInt(2, claim.position().x());
+            statement.setInt(3, claim.position().z());
+            statement.setString(4, claim.landId().toString());
+            statement.executeUpdate();
         }
     }
 }

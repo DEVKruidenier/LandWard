@@ -4,6 +4,7 @@ import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.ClaimedChunk;
 import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.LandMember;
+import io.github.devkruidenier.landward.model.LandType;
 import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.storage.LandStorage;
 import io.github.devkruidenier.landward.storage.StorageException;
@@ -11,6 +12,7 @@ import io.github.devkruidenier.landward.storage.StorageSnapshot;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +31,7 @@ public final class LandManager {
     private final Map<ChunkPosition, UUID> claims = new HashMap<>();
     private final Map<UUID, Integer> claimCounts = new HashMap<>();
     private final Map<UUID, Map<UUID, MemberPermissions>> membersByLand = new HashMap<>();
+    private final java.util.Set<UUID> administrativeLandIds = new HashSet<>();
 
     public LandManager(LandStorage storage) {
         this.storage = storage;
@@ -42,10 +45,12 @@ public final class LandManager {
         claims.clear();
         claimCounts.clear();
         membersByLand.clear();
+        administrativeLandIds.clear();
+        administrativeLandIds.addAll(snapshot.adminLandIds());
 
         for (Land land : snapshot.lands()) {
             landsById.put(land.id(), land);
-            landsByOwner.put(land.ownerId(), land);
+            if (!administrativeLandIds.contains(land.id())) landsByOwner.put(land.ownerId(), land);
             landsByName.put(normalizedName(land.name()), land);
         }
         for (ClaimedChunk claim : snapshot.claims()) {
@@ -127,6 +132,41 @@ public final class LandManager {
         return new ClaimResult(ClaimStatus.CLAIMED, land, currentCount + 1);
     }
 
+    /**
+     * Adds a chunk to the single server-owned administrative land. Administrative
+     * claims deliberately have no adjacency, per-player limit or player payment.
+     */
+    public synchronized AdminClaimResult claimAdministration(ChunkPosition position) throws StorageException {
+        return claimAdministration("Safe Zone", position);
+    }
+
+    /** Adds a chunk to a server-owned administrative land, creating it when needed. */
+    public synchronized AdminClaimResult claimAdministration(String requestedName, ChunkPosition position) throws StorageException {
+        UUID existing = claims.get(position);
+        if (existing != null) return new AdminClaimResult(AdminClaimStatus.ALREADY_CLAIMED, landsById.get(existing));
+
+        Land administrativeLand = administrativeLandIds.stream()
+                .map(landsById::get)
+                .filter(java.util.Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+        if (administrativeLand == null) {
+            String name = nextAdministrativeName(requestedName);
+            administrativeLand = new Land(UUID.randomUUID(), UUID.randomUUID(), name, Instant.now());
+            storage.insertAdminLandWithClaim(administrativeLand, new ClaimedChunk(position, administrativeLand.id()));
+            landsById.put(administrativeLand.id(), administrativeLand);
+            landsByName.put(normalizedName(administrativeLand.name()), administrativeLand);
+            administrativeLandIds.add(administrativeLand.id());
+            claims.put(position, administrativeLand.id());
+            claimCounts.put(administrativeLand.id(), 1);
+            return new AdminClaimResult(AdminClaimStatus.CREATED, administrativeLand);
+        }
+        storage.insertClaim(new ClaimedChunk(position, administrativeLand.id()));
+        claims.put(position, administrativeLand.id());
+        claimCounts.merge(administrativeLand.id(), 1, Integer::sum);
+        return new AdminClaimResult(AdminClaimStatus.CLAIMED, administrativeLand);
+    }
+
     public synchronized UnclaimResult unclaim(UUID ownerId, ChunkPosition position) throws StorageException {
         Land land = landsByOwner.get(ownerId);
         if (land == null) {
@@ -153,14 +193,19 @@ public final class LandManager {
     public synchronized Optional<Land> deleteOwnedLand(UUID ownerId) throws StorageException {
         Land land = landsByOwner.get(ownerId);
         if (land == null) return Optional.empty();
+        deleteLand(land);
+        return Optional.of(land);
+    }
+
+    private void deleteLand(Land land) throws StorageException {
         storage.deleteLand(land.id());
         claims.entrySet().removeIf(entry -> entry.getValue().equals(land.id()));
         claimCounts.remove(land.id());
         landsById.remove(land.id());
-        landsByOwner.remove(ownerId);
+        landsByOwner.remove(land.ownerId());
         landsByName.remove(normalizedName(land.name()));
         membersByLand.remove(land.id());
-        return Optional.of(land);
+        administrativeLandIds.remove(land.id());
     }
 
     /** Removes a claim regardless of ownership. Intended only for the protected administrator GUI. */
@@ -170,7 +215,7 @@ public final class LandManager {
         Land land = landsById.get(landId);
         int count = claimCount(landId);
         if (count <= 1) {
-            deleteOwnedLand(land.ownerId());
+            deleteLand(land);
             return new AdminUnclaimResult(AdminUnclaimStatus.LAND_DELETED, land, 0);
         }
         storage.deleteClaim(new ClaimedChunk(position, landId));
@@ -237,6 +282,41 @@ public final class LandManager {
 
     public synchronized Optional<Land> land(UUID landId) {
         return Optional.ofNullable(landsById.get(landId));
+    }
+
+    public synchronized LandType typeOf(Land land) {
+        return administrativeLandIds.contains(land.id()) ? LandType.ADMIN : LandType.PLAYER;
+    }
+
+    public synchronized boolean isAdministrative(Land land) {
+        return typeOf(land) == LandType.ADMIN;
+    }
+
+    public synchronized Optional<Land> administrativeLand() {
+        return administrativeLandIds.stream().map(landsById::get).filter(java.util.Objects::nonNull).findFirst();
+    }
+
+    /** Adds a trusted player with full access to the server-owned administrative land. */
+    public synchronized MemberResult addAdministrativeMember(UUID memberId) throws StorageException {
+        Land land = administrativeLand().orElse(null);
+        if (land == null) return new MemberResult(MemberStatus.NO_LAND, null, MemberPermissions.NONE);
+        Map<UUID, MemberPermissions> members = membersByLand.computeIfAbsent(land.id(), ignored -> new HashMap<>());
+        if (members.containsKey(memberId)) return new MemberResult(MemberStatus.ALREADY_MEMBER, land, members.get(memberId));
+        LandMember member = new LandMember(land.id(), memberId, MemberPermissions.FULL);
+        storage.insertMember(member);
+        members.put(memberId, member.permissions());
+        return new MemberResult(MemberStatus.ADDED, land, member.permissions());
+    }
+
+    /** Removes a trusted player's administrative-land access. */
+    public synchronized MemberResult removeAdministrativeMember(UUID memberId) throws StorageException {
+        Land land = administrativeLand().orElse(null);
+        if (land == null) return new MemberResult(MemberStatus.NO_LAND, null, MemberPermissions.NONE);
+        Map<UUID, MemberPermissions> members = membersByLand.getOrDefault(land.id(), Map.of());
+        if (!members.containsKey(memberId)) return new MemberResult(MemberStatus.NOT_MEMBER, land, MemberPermissions.NONE);
+        storage.deleteMember(land.id(), memberId);
+        membersByLand.get(land.id()).remove(memberId);
+        return new MemberResult(MemberStatus.REMOVED, land, MemberPermissions.NONE);
     }
 
     public synchronized List<LandMember> members(UUID landId) {
@@ -321,6 +401,17 @@ public final class LandManager {
         return name.toLowerCase(Locale.ROOT);
     }
 
+    private String nextAdministrativeName(String requestedName) {
+        String base = requestedName == null ? "Safe Zone" : requestedName.strip();
+        if (!VALID_NAME.matcher(base).matches()) base = "Safe Zone";
+        if (!landsByName.containsKey(normalizedName(base))) return base;
+        for (int number = 2; number < 10_000; number++) {
+            String candidate = base + " " + number;
+            if (!landsByName.containsKey(normalizedName(candidate))) return candidate;
+        }
+        throw new IllegalStateException("Could not find an available administrative land name");
+    }
+
     public record CreateResult(CreateStatus status, Land land) {
     }
 
@@ -373,6 +464,15 @@ public final class LandManager {
         CLAIM_REMOVED,
         LAND_DELETED,
         UNCLAIMED
+    }
+
+    public record AdminClaimResult(AdminClaimStatus status, Land land) {
+    }
+
+    public enum AdminClaimStatus {
+        CREATED,
+        CLAIMED,
+        ALREADY_CLAIMED
     }
 
     public record MemberResult(MemberStatus status, Land land, MemberPermissions permissions) {

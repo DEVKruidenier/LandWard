@@ -9,15 +9,18 @@ import java.util.Map;
 
 public final class LandMapHolder implements InventoryHolder {
 
-    private final boolean administrator;
+    enum Mode { PLAYER, ADMIN_PLAYER_CLAIMS, ADMIN_CLAIMS }
+
+    private final Mode mode;
     private Inventory inventory;
     private final Map<Integer, ChunkPosition> chunksBySlot = new HashMap<>();
 
-    public LandMapHolder() { this(false); }
+    public LandMapHolder() { this(Mode.PLAYER); }
 
-    public LandMapHolder(boolean administrator) { this.administrator = administrator; }
+    public LandMapHolder(Mode mode) { this.mode = mode; }
 
-    boolean administrator() { return administrator; }
+    boolean administrator() { return mode != Mode.PLAYER; }
+    boolean administrativeClaims() { return mode == Mode.ADMIN_CLAIMS; }
 
     void setInventory(Inventory inventory) {
         this.inventory = inventory;

@@ -8,7 +8,7 @@ LandWard is GUI-first: players normally only need /claim.
 | /claim info | Shows the installed LandWard version and author. |
 | /claim menu | Opens the same land management GUI explicitly. |
 | /claim help | Shows the compact command reference. |
-| /claimadmin | Opens administration: claim moderation and active-world controls; requires landward.admin. |
+| /claimadmin | Opens administration: separate player-claim moderation, admin claims and active-world controls; requires landward.admin. |
 | /claimadmin reload | Reloads config, language files and map layers; requires landward.admin. |
 
 ## In-game flow
@@ -23,6 +23,10 @@ LandWard is GUI-first: players normally only need /claim.
 
 Former typed mutation subcommands are intentionally redirected to the GUI, so every
 player uses the same confirmation and permission flow.
+
+## Administrative claims
+
+The **Admin claims** card is reserved for server-owned protected areas such as spawn. Its map uses purple tiles. Clicking an unclaimed chunk creates or extends the server-owned administrative area; it intentionally bypasses WorldGuard and vanilla spawn-overlap checks. The separate **Player claims** card can only review or remove player claims, and the Admin claims card can only remove administrative claims.
 
 The admin reload does not replace the active storage backend. Change `storage.type`
 or its database connection settings only while the server is stopped.

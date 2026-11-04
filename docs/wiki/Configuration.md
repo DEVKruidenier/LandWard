@@ -15,6 +15,23 @@ claims:
 
 LandWard is active in every world except those explicitly listed under `disabled-worlds`.
 
+## Admin claims
+
+```yaml
+admin-claims:
+  default-name: "" # empty uses the configured language, e.g. Safe Zone / Veilige Zone
+  protection:
+    allow-pvp: false
+    allow-hostile-mob-kills: false
+    allow-passive-mob-kills: true
+    allow-containers: false
+    allow-doors: false
+    allow-interactions: false
+    allow-hostile-mob-spawns: false
+```
+
+Admin claims are server-owned purple areas, designed for spawn and other server facilities. They are created only from the **Admin claims** map and may overlap WorldGuard and vanilla spawn-protection regions. Trusted members added through Admin claim settings always have full access. The public-access toggles can also be changed in that GUI.
+
 ## Payments
 
 ```yaml

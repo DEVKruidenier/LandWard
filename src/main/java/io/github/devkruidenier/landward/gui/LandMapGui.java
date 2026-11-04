@@ -5,6 +5,7 @@ import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.MemberPermissions;
+import io.github.devkruidenier.landward.model.LandType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -35,20 +36,28 @@ public final class LandMapGui {
     }
 
     public void open(Player player) {
-        open(player, false);
+        open(player, LandMapHolder.Mode.PLAYER);
     }
 
     public void openAdmin(Player player) {
-        open(player, true);
+        open(player, LandMapHolder.Mode.ADMIN_PLAYER_CLAIMS);
     }
 
-    private void open(Player player, boolean administrator) {
+    public void openAdminClaims(Player player) {
+        open(player, LandMapHolder.Mode.ADMIN_CLAIMS);
+    }
+
+    private void open(Player player, LandMapHolder.Mode mode) {
         String locale = plugin.localeService().localeFor(player);
-        LandMapHolder holder = new LandMapHolder(administrator);
+        LandMapHolder holder = new LandMapHolder(mode);
         Inventory inventory = Bukkit.createInventory(
                 holder,
                 SIZE,
-                Component.text(plugin.localeService().message(locale, administrator ? "gui.admin-map-title" : "gui.map-title"), NamedTextColor.DARK_AQUA)
+                Component.text(plugin.localeService().message(locale, switch (mode) {
+                    case PLAYER -> "gui.map-title";
+                    case ADMIN_PLAYER_CLAIMS -> "gui.admin-player-claims-title";
+                    case ADMIN_CLAIMS -> "gui.admin-claims-title";
+                }), NamedTextColor.DARK_AQUA)
         );
         holder.setInventory(inventory);
 
@@ -62,9 +71,9 @@ public final class LandMapGui {
         player.openInventory(inventory);
     }
 
-    public void openUnclaimConfirmation(Player player, ChunkPosition position, boolean administrator) {
+    public void openUnclaimConfirmation(Player player, ChunkPosition position, boolean administrator, boolean administrativeClaims) {
         String locale = plugin.localeService().localeFor(player);
-        UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position, administrator);
+        UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position, administrator, administrativeClaims);
         Inventory inventory = Bukkit.createInventory(holder, 27, Component.text(plugin.localeService().message(locale, administrator ? "gui.admin-confirm-title" : "gui.unclaim-confirm-title"), NamedTextColor.DARK_AQUA));
         holder.setInventory(inventory);
         ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
@@ -116,6 +125,11 @@ public final class LandMapGui {
             color = NamedTextColor.GRAY;
             title = plugin.localeService().message(locale, "gui.unclaimed");
             status = plugin.localeService().message(locale, "gui.status-unclaimed");
+        } else if (landManager.typeOf(land.get()) == LandType.ADMIN) {
+            material = Material.PURPLE_STAINED_GLASS_PANE;
+            color = NamedTextColor.LIGHT_PURPLE;
+            title = land.get().name();
+            status = plugin.localeService().message(locale, "gui.status-admin");
         } else if (land.get().ownerId().equals(player.getUniqueId())
                 || !landManager.permissions(player.getUniqueId(), land.get().id()).equals(MemberPermissions.NONE)) {
             material = Material.LIME_STAINED_GLASS_PANE;

@@ -29,15 +29,21 @@ commands:
     description: Opens LandWard or manages land claims.
     usage: /claim
     aliases: [land, landward]
-    permission: landward.command
+    permission: landward.use
   claimadmin:
     description: Opens the LandWard administrator claim map.
     usage: /claimadmin
     permission: landward.admin
 permissions:
-  landward.command:
-    description: Allows use of the main LandWard command.
+  landward.use:
+    description: Allows use of the main LandWard command and its aliases.
     default: true
+  # Kept as an inheritance alias for servers that configured the pre-release node.
+  landward.command:
+    description: Legacy alias for landward.use.
+    default: true
+    children:
+      landward.use: true
   landward.admin:
     description: Grants access to LandWard administration features.
     default: op

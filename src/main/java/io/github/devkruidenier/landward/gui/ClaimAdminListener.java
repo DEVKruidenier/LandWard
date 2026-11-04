@@ -13,6 +13,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 
+import java.util.UUID;
+
 /** Handles the administrative claim menu without exposing mutating actions to players. */
 public final class ClaimAdminListener implements Listener {
     private final LandWardPlugin plugin;
@@ -28,15 +30,67 @@ public final class ClaimAdminListener implements Listener {
         if (!player.hasPermission("landward.admin")) { player.closeInventory(); return; }
         ClaimAdminGui gui = new ClaimAdminGui(plugin, lands);
         if (holder.screen() == ClaimAdminHolder.Screen.MAIN) {
-            if (event.getRawSlot() == 11) new LandMapGui(plugin, lands).openAdmin(player);
-            else if (event.getRawSlot() == 13) {
+            if (event.getRawSlot() == 9) new LandMapGui(plugin, lands).openAdmin(player);
+            else if (event.getRawSlot() == 11) new LandMapGui(plugin, lands).openAdminClaims(player);
+            else if (event.getRawSlot() == 13) gui.openAdminSettings(player);
+            else if (event.getRawSlot() == 15) {
                 plugin.reloadLandWard();
                 player.sendMessage(Component.text("LandWard » ", NamedTextColor.GOLD)
                         .append(Component.text(plugin.localeService().message(plugin.localeService().localeFor(player), "general.reloaded"), NamedTextColor.GREEN)));
                 gui.openMain(player);
             }
-            else if (event.getRawSlot() == 15) gui.openWorlds(player);
+            else if (event.getRawSlot() == 17) gui.openWorlds(player);
             else if (event.getRawSlot() == 26) player.closeInventory();
+            return;
+        }
+        if (holder.screen() == ClaimAdminHolder.Screen.ADMIN_SETTINGS) {
+            if (event.getRawSlot() == 26) { gui.openMain(player); return; }
+            if (event.getRawSlot() == 19) { gui.openAdminMemberChoices(player); return; }
+            if (event.getRawSlot() == 21) { gui.openAdminMemberList(player); return; }
+            String key = switch (event.getRawSlot()) {
+                case 10 -> "protection.allow-pvp";
+                case 11 -> "protection.allow-hostile-mob-kills";
+                case 12 -> "protection.allow-passive-mob-kills";
+                case 14 -> "protection.allow-containers";
+                case 15 -> "protection.allow-doors";
+                case 16 -> "protection.allow-interactions";
+                case 17 -> "protection.allow-hostile-mob-spawns";
+                default -> null;
+            };
+            if (key != null) {
+                String path = "admin-claims." + key;
+                plugin.getConfig().set(path, !plugin.getConfig().getBoolean(path, false));
+                plugin.saveConfig();
+                gui.openAdminSettings(player);
+            }
+            return;
+        }
+        if (holder.screen() == ClaimAdminHolder.Screen.ADMIN_ADD_MEMBERS) {
+            if (event.getRawSlot() == 53) { gui.openAdminSettings(player); return; }
+            UUID member = holder.playersBySlot().get(event.getRawSlot());
+            if (member != null) {
+                try {
+                    lands.addAdministrativeMember(member);
+                    plugin.refreshAnalyticsIntegration();
+                } catch (io.github.devkruidenier.landward.storage.StorageException exception) {
+                    player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
+                }
+                gui.openAdminMemberList(player);
+            }
+            return;
+        }
+        if (holder.screen() == ClaimAdminHolder.Screen.ADMIN_MEMBERS) {
+            if (event.getRawSlot() == 53) { gui.openAdminSettings(player); return; }
+            UUID member = holder.playersBySlot().get(event.getRawSlot());
+            if (member != null) {
+                try {
+                    lands.removeAdministrativeMember(member);
+                    plugin.refreshAnalyticsIntegration();
+                } catch (io.github.devkruidenier.landward.storage.StorageException exception) {
+                    player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
+                }
+                gui.openAdminMemberList(player);
+            }
             return;
         }
         if (event.getRawSlot() == 53) { gui.openMain(player); return; }
