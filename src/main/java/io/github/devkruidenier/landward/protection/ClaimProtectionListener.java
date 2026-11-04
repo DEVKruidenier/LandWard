@@ -10,13 +10,20 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
@@ -26,7 +33,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.InventoryHolder;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public final class ClaimProtectionListener implements Listener {
 
@@ -102,6 +111,46 @@ public final class ClaimProtectionListener implements Listener {
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
             denyIfNeeded(player, event.getEntity().getLocation(), MemberPermissions.Permission.ENTITIES, event::setCancelled);
+        } else if (event.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof Player player) {
+            denyIfNeeded(player, event.getEntity().getLocation(), MemberPermissions.Permission.ENTITIES, event::setCancelled);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onFluidFlow(BlockFromToEvent event) {
+        if (!sameProtectionDomain(event.getBlock().getLocation(), event.getToBlock().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onPistonExtend(BlockPistonExtendEvent event) {
+        if (!pistonMovementAllowed(event.getBlocks(), event.getDirection().getModX(), event.getDirection().getModY(), event.getDirection().getModZ())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onPistonRetract(BlockPistonRetractEvent event) {
+        if (!pistonMovementAllowed(event.getBlocks(), event.getDirection().getModX(), event.getDirection().getModY(), event.getDirection().getModZ())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onEntityExplode(EntityExplodeEvent event) {
+        event.blockList().removeIf(block -> landManager.landAt(position(block.getLocation())).isPresent());
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onBlockExplode(BlockExplodeEvent event) {
+        event.blockList().removeIf(block -> landManager.landAt(position(block.getLocation())).isPresent());
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+        if (landManager.landAt(position(event.getBlock().getLocation())).isPresent()) {
+            event.setCancelled(true);
         }
     }
 
@@ -132,6 +181,22 @@ public final class ClaimProtectionListener implements Listener {
             case CONTAINERS -> permissions.containers();
             case ENTITIES -> permissions.entities();
         };
+    }
+
+    private boolean pistonMovementAllowed(java.util.List<Block> blocks, int deltaX, int deltaY, int deltaZ) {
+        for (Block block : blocks) {
+            Location destination = block.getLocation().add(deltaX, deltaY, deltaZ);
+            if (!sameProtectionDomain(block.getLocation(), destination)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean sameProtectionDomain(Location first, Location second) {
+        UUID firstLand = landManager.landAt(position(first)).map(Land::id).orElse(null);
+        UUID secondLand = landManager.landAt(position(second)).map(Land::id).orElse(null);
+        return Objects.equals(firstLand, secondLand);
     }
 
     private ChunkPosition position(Location location) {
