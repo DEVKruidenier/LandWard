@@ -15,6 +15,9 @@ storage:
     ssl: false
     pool-size: 10
 
+metrics:
+  enabled: true
+
 claims:
   require-adjacent-chunks: true
   maximum-lands-per-player: 3

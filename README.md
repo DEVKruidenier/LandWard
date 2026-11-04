@@ -17,6 +17,15 @@ LandWard is an open-source chunk-claiming plugin for Paper survival servers. It 
 - Integrate with WorldGuard, BlueMap, and Dynmap when installed.
 - Localize every player-facing and administrative message.
 
+## Anonymous metrics
+
+LandWard includes bStats for anonymous, aggregated usage statistics such as server
+counts, software versions, and country-level adoption. It never collects player
+names, chat, world data, server addresses, or exact locations. Metrics can be
+disabled in LandWard's configuration or in the server-wide bStats configuration.
+
+[View LandWard on bStats](https://bstats.org/plugin/bukkit/LandWard/35128)
+
 ## Requirements
 
 - Paper 26.2 or newer
@@ -28,7 +37,8 @@ LandWard is an open-source chunk-claiming plugin for Paper survival servers. It 
 ./gradlew build
 ```
 
-The plugin JAR is written to `build/libs/`.
+The distributable plugin JAR is written to `build/libs/LandWard-<version>.jar`.
+The `-unshaded` JAR is a development artifact and does not include bStats.
 
 ## Project status
 

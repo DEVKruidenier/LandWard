@@ -1,5 +1,6 @@
 plugins {
     java
+    id("com.gradleup.shadow") version "9.6.1"
 }
 
 group = "io.github.devkruidenier"
@@ -16,6 +17,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.112-stable")
+    implementation("org.bstats:bstats-bukkit:3.2.1")
 
     testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -37,6 +39,13 @@ tasks {
         filesMatching("plugin.yml") {
             expand("version" to pluginVersion)
         }
+        from("LICENSE") {
+            into("META-INF")
+            rename { "LICENSE-LandWard.txt" }
+        }
+        from("THIRD_PARTY_NOTICES.md") {
+            into("META-INF")
+        }
     }
 
     test {
@@ -45,8 +54,29 @@ tasks {
 
     jar {
         archiveBaseName.set("LandWard")
+        archiveClassifier.set("unshaded")
         manifest {
             attributes["paperweight-mappings-namespace"] = "mojang"
         }
+    }
+
+    shadowJar {
+        archiveBaseName.set("LandWard")
+        archiveClassifier.set("")
+        configurations = project.configurations.runtimeClasspath.map { setOf(it) }
+        dependencies {
+            exclude { it.moduleGroup != "org.bstats" }
+        }
+        relocate(
+            "org.bstats",
+            "io.github.devkruidenier.landward.libs.bstats",
+        )
+        manifest {
+            attributes["paperweight-mappings-namespace"] = "mojang"
+        }
+    }
+
+    build {
+        dependsOn(shadowJar)
     }
 }
