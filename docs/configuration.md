@@ -10,6 +10,13 @@ A player can own one land and may be a member of any number of other lands.
 `claims.maximum-chunks-per-land` limits the chunks belonging to that owned land.
 Set the value to `-1` to allow unlimited chunks.
 
+## Claim payments
+
+Set `payments.mode` to `free` (default) for no cost or `experience` to charge
+raw XP points for every claimed chunk. `payments.experience-points-per-chunk`
+defaults to 150. Vault economy support is configured through the same mode
+setting and is added only when Vault is installed.
+
 ## Anonymous metrics
 
 LandWard uses [bStats](https://bstats.org/plugin/bukkit/LandWard/35128) to collect
