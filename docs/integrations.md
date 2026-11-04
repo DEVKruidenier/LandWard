@@ -27,6 +27,14 @@ the layer after a claim is created, removed or renamed. BlueMap, Dynmap, Squarem
 and Pl3xMap are all optional. Pl3xMap receives a managed JSON layer in its markers
 directory; the other maps use their supported runtime marker APIs.
 
+Install only the map plugin(s) your server needs and leave the matching
+`integrations.<map>.enabled` option enabled. If more than one map plugin is used
+on the same server, configure a different web port for each map in that map
+plugin's own configuration. LandWard never opens a web port itself.
+
+BlueMap may ask the server owner to accept its own Mojang-resource download before
+BlueMap can render maps. This is a BlueMap requirement, not a LandWard setting.
+
 ## Plan
 
 When [Plan](https://github.com/plan-player-analytics/plan) is installed and
