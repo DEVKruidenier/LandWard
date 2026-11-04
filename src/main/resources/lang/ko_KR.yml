@@ -11,7 +11,6 @@ territory:
   entered: "{name}의 보호된 땅에 들어왔습니다."
   left: "{name}을(를) 떠나 보호되지 않은 땅에 들어왔습니다."
 command:
-  info-version: "버전: {version}"
   info-author: "제작자: DEVKruidenier"
   header: "LandWard {version}"
   description: "서바이벌 서버를 위한 간단한 청크 영지와 안정적인 보호 기능입니다."

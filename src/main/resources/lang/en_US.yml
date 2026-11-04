@@ -11,7 +11,6 @@ territory:
   entered: "You entered the claimed land of {name}."
   left: "You left {name} and entered unclaimed land."
 command:
-  info-version: "Version: {version}"
   info-author: "Author: DEVKruidenier"
   header: "LandWard {version}"
   description: "Simple chunk claims and reliable protection for survival servers."

@@ -11,7 +11,6 @@ territory:
   entered: "Você entrou na terra reivindicada de {name}."
   left: "Você saiu de {name} e entrou em terra não reivindicada."
 command:
-  info-version: "Versão: {version}"
   info-author: "Criador: DEVKruidenier"
   header: "LandWard {version}"
   description: "Claims de chunks simples e proteção confiável para servidores survival."

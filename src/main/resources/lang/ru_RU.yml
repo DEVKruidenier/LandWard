@@ -11,7 +11,6 @@ territory:
   entered: "Вы вошли на территорию {name}."
   left: "Вы покинули {name} и вошли на незанятую территорию."
 command:
-  info-version: "Версия: {version}"
   info-author: "Создатель: DEVKruidenier"
   header: "LandWard {version}"
   description: "Простые приваты чанков и надёжная защита для survival-серверов."

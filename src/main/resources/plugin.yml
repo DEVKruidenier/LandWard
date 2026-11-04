@@ -38,12 +38,6 @@ permissions:
   landward.use:
     description: Allows use of the main LandWard command and its aliases.
     default: true
-  # Kept as an inheritance alias for servers that configured the pre-release node.
-  landward.command:
-    description: Legacy alias for landward.use.
-    default: true
-    children:
-      landward.use: true
   landward.admin:
     description: Grants access to LandWard administration features.
     default: op

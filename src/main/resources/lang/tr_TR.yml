@@ -11,7 +11,6 @@ territory:
   entered: "{name} adlı sahipli araziye girdiniz."
   left: "{name} adlı araziden ayrıldınız ve sahipsiz araziye girdiniz."
 command:
-  info-version: "Sürüm: {version}"
   info-author: "Yapımcı: DEVKruidenier"
   header: "LandWard {version}"
   description: "Hayatta kalma sunucuları için basit chunk claimleri ve güvenilir koruma."

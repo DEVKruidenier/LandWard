@@ -252,7 +252,6 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
     private boolean info(Player player) {
         player.sendMessage(message(player, "command.header", Map.of("version", plugin.getPluginMeta().getVersion())));
-        player.sendMessage(message(player, "command.info-version", Map.of("version", plugin.getPluginMeta().getVersion())));
         player.sendMessage(message(player, "command.info-author"));
         return true;
     }

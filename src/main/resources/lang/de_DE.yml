@@ -11,7 +11,6 @@ territory:
   entered: "Du betrittst das beanspruchte Gebiet von {name}."
   left: "Du verlässt {name} und betrittst unbeanspruchtes Gebiet."
 command:
-  info-version: "Version: {version}"
   info-author: "Ersteller: DEVKruidenier"
   header: "LandWard {version}"
   description: "Einfache Chunk-Claims und zuverlässiger Schutz für Survival-Server."
