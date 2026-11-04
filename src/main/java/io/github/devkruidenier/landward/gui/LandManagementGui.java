@@ -18,6 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,23 +34,26 @@ public final class LandManagementGui {
         Optional<Land> optionalLand = landManager.ownedBy(player.getUniqueId());
         if (optionalLand.isEmpty()) { player.sendMessage(message(player, "claim.no-land")); return; }
         Land land = optionalLand.get();
-        LandManagementHolder holder = holder(LandManagementHolder.Screen.MAIN, null, player, "LandWard • " + land.name());
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.MAIN, null, player, message(player, "gui.management-title", Map.of("name", land.name())));
         Inventory inventory = holder.getInventory();
-        inventory.setItem(4, item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of("Claimed chunks: " + landManager.claimCount(land.id()), "Owner: " + player.getName())));
-        inventory.setItem(45, item(Material.LIME_DYE, "Add member", NamedTextColor.GREEN, List.of("Choose an online player")));
-        inventory.setItem(53, item(Material.FILLED_MAP, "Chunk map", NamedTextColor.AQUA, List.of("Open nearby chunks")));
+        inventory.setItem(4, item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of(
+                message(player, "gui.management-claimed-chunks", Map.of("count", landManager.claimCount(land.id()))),
+                message(player, "gui.management-owner", Map.of("name", player.getName()))
+        )));
+        inventory.setItem(45, item(Material.LIME_DYE, message(player, "gui.management-add-member"), NamedTextColor.GREEN, List.of(message(player, "gui.management-choose-online"))));
+        inventory.setItem(53, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
         int slot = 9;
         for (LandMember member : landManager.members(land.id())) {
             if (slot >= 45) break;
             holder.playersBySlot().put(slot, member.playerId());
-            inventory.setItem(slot++, playerHead(member.playerId(), name(member.playerId()), "Click to manage rights"));
+            inventory.setItem(slot++, playerHead(member.playerId(), name(member.playerId()), message(player, "gui.management-manage-rights")));
         }
-        if (slot == 9) inventory.setItem(22, item(Material.GRAY_DYE, "No members yet", NamedTextColor.GRAY, List.of("Use the green dye to add one")));
+        if (slot == 9) inventory.setItem(22, item(Material.GRAY_DYE, message(player, "gui.management-no-members"), NamedTextColor.GRAY, List.of(message(player, "gui.management-add-member-hint"))));
         player.openInventory(inventory);
     }
 
     public void openMembers(Player player) {
-        LandManagementHolder holder = holder(LandManagementHolder.Screen.MEMBERS, null, player, "LandWard • Add member");
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.MEMBERS, null, player, message(player, "gui.management-add-title"));
         Inventory inventory = holder.getInventory();
         int slot = 0;
         for (Player target : Bukkit.getOnlinePlayers()) {
@@ -58,9 +62,9 @@ public final class LandManagementGui {
             if (landManager.members(land.id()).stream().anyMatch(member -> member.playerId().equals(target.getUniqueId()))) continue;
             if (slot >= 45) break;
             holder.playersBySlot().put(slot, target.getUniqueId());
-            inventory.setItem(slot++, playerHead(target.getUniqueId(), target.getName(), "Click to add this player"));
+            inventory.setItem(slot++, playerHead(target.getUniqueId(), target.getName(), message(player, "gui.management-add-player")));
         }
-        inventory.setItem(49, item(Material.ARROW, "Back", NamedTextColor.YELLOW, List.of()));
+        inventory.setItem(49, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 
@@ -68,14 +72,14 @@ public final class LandManagementGui {
         Optional<Land> optionalLand = landManager.ownedBy(player.getUniqueId());
         if (optionalLand.isEmpty()) return;
         MemberPermissions permissions = landManager.permissions(memberId, optionalLand.get().id());
-        LandManagementHolder holder = holder(LandManagementHolder.Screen.RIGHTS, memberId, player, "LandWard • Member rights");
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.RIGHTS, memberId, player, message(player, "gui.management-rights-title"));
         Inventory inventory = holder.getInventory();
-        inventory.setItem(4, playerHead(memberId, name(memberId), "Configure this member"));
-        inventory.setItem(20, permissionItem(Material.IRON_PICKAXE, "Build", permissions.build()));
-        inventory.setItem(22, permissionItem(Material.CHEST, "Containers", permissions.containers()));
-        inventory.setItem(24, permissionItem(Material.CREEPER_SPAWN_EGG, "Entities", permissions.entities()));
-        inventory.setItem(49, item(Material.ARROW, "Back", NamedTextColor.YELLOW, List.of()));
-        inventory.setItem(53, item(Material.BARRIER, "Remove member", NamedTextColor.RED, List.of("This removes all their land rights")));
+        inventory.setItem(4, playerHead(memberId, name(memberId), message(player, "gui.management-configure-member")));
+        inventory.setItem(20, permissionItem(player, Material.IRON_PICKAXE, message(player, "gui.management-build"), permissions.build()));
+        inventory.setItem(22, permissionItem(player, Material.CHEST, message(player, "gui.management-containers"), permissions.containers()));
+        inventory.setItem(24, permissionItem(player, Material.CREEPER_SPAWN_EGG, message(player, "gui.management-entities"), permissions.entities()));
+        inventory.setItem(49, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        inventory.setItem(53, item(Material.BARRIER, message(player, "gui.management-remove-member"), NamedTextColor.RED, List.of(message(player, "gui.management-remove-hint"))));
         player.openInventory(inventory);
     }
 
@@ -85,9 +89,10 @@ public final class LandManagementGui {
         holder.inventory(inventory);
         return holder;
     }
-    private ItemStack permissionItem(Material material, String label, boolean enabled) { return item(material, label + ": " + (enabled ? "Allowed" : "Denied"), enabled ? NamedTextColor.GREEN : NamedTextColor.RED, List.of("Click to toggle")); }
+    private ItemStack permissionItem(Player player, Material material, String label, boolean enabled) { return item(material, label + ": " + message(player, enabled ? "gui.management-allowed" : "gui.management-denied"), enabled ? NamedTextColor.GREEN : NamedTextColor.RED, List.of(message(player, "gui.management-toggle"))); }
     private ItemStack playerHead(UUID id, String label, String lore) { ItemStack item = item(Material.PLAYER_HEAD, label, NamedTextColor.AQUA, List.of(lore)); SkullMeta meta = (SkullMeta) item.getItemMeta(); meta.setOwningPlayer(Bukkit.getOfflinePlayer(id)); item.setItemMeta(meta); return item; }
     private ItemStack item(Material material, String label, NamedTextColor color, List<String> lore) { ItemStack item = new ItemStack(material); ItemMeta meta = item.getItemMeta(); meta.displayName(Component.text(label, color).decoration(TextDecoration.ITALIC, false)); meta.lore(lore.stream().map(text -> Component.text(text, NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)).toList()); item.setItemMeta(meta); return item; }
     private String name(UUID id) { OfflinePlayer player = Bukkit.getOfflinePlayer(id); return player.getName() == null ? id.toString().substring(0, 8) : player.getName(); }
     private String message(Player player, String key) { return plugin.localeService().message(plugin.localeService().localeFor(player), key); }
+    private String message(Player player, String key, Map<String, ?> placeholders) { return plugin.localeService().message(plugin.localeService().localeFor(player), key, placeholders); }
 }
