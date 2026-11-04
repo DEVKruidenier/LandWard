@@ -42,6 +42,10 @@ public final class LandWardConsole {
     }
 
     private Component template(String template, Map<String, ?> placeholders, Tone valueTone) {
+        if (placeholders.isEmpty()) {
+            return component(template, valueTone);
+        }
+
         if (!colorsEnabled()) {
             String rendered = template;
             for (Map.Entry<String, ?> placeholder : placeholders.entrySet()) {
