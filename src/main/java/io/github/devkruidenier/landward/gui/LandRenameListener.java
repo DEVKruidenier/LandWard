@@ -69,11 +69,7 @@ public final class LandRenameListener implements Listener {
         meta.displayName(Component.text(name));
         result.setItemMeta(meta);
         event.setResult(result);
-        if (!holder.creating()) {
-            int cost = renameCost();
-            event.getView().setMaximumRepairCost(Math.max(40, cost));
-            event.getView().setRepairCost(cost);
-        }
+        configureRepairCost(event.getView(), holder.creating() ? 0 : renameCost());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -133,5 +129,21 @@ public final class LandRenameListener implements Listener {
 
     private int renameCost() {
         return Math.max(0, plugin.getConfig().getInt("rename.experience-level-cost", 0));
+    }
+
+    /**
+     * Paper applies its vanilla one-level rename calculation after preparing the
+     * result. Repeat the explicit value on the following tick so both the
+     * client-side label and the server view stay in sync.
+     */
+    private void configureRepairCost(AnvilView view, int cost) {
+        view.setMaximumRepairCost(Math.max(40, cost));
+        view.setRepairCost(cost);
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (view.getTopInventory().getHolder() instanceof RenameAnvilHolder) {
+                view.setMaximumRepairCost(Math.max(40, cost));
+                view.setRepairCost(cost);
+            }
+        });
     }
 }
