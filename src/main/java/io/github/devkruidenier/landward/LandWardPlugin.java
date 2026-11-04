@@ -7,6 +7,7 @@ import io.github.devkruidenier.landward.console.LandWardConsole.Tone;
 import io.github.devkruidenier.landward.locale.LocaleService;
 import io.github.devkruidenier.landward.metrics.MetricsService;
 import io.github.devkruidenier.landward.integration.DynmapIntegration;
+import io.github.devkruidenier.landward.integration.BlueMapIntegration;
 import io.github.devkruidenier.landward.gui.LandMapListener;
 import io.github.devkruidenier.landward.gui.LandManagementListener;
 import io.github.devkruidenier.landward.protection.ClaimProtectionListener;
@@ -27,6 +28,7 @@ public final class LandWardPlugin extends JavaPlugin {
     private LandStorage storage;
     private LandManager landManager;
     private DynmapIntegration dynmapIntegration;
+    private BlueMapIntegration blueMapIntegration;
 
     @Override
     public void onEnable() {
@@ -45,6 +47,8 @@ public final class LandWardPlugin extends JavaPlugin {
             throw new IllegalStateException("LandWard storage could not be initialized", exception);
         }
         this.dynmapIntegration = new DynmapIntegration(this, landManager);
+        this.blueMapIntegration = new BlueMapIntegration(this, landManager);
+        blueMapIntegration.sync();
         dynmapIntegration.sync();
 
         LandCommand landCommand = new LandCommand(this, landManager);
@@ -98,6 +102,7 @@ public final class LandWardPlugin extends JavaPlugin {
     }
 
     public void syncMapIntegrations() {
+        if (blueMapIntegration != null) blueMapIntegration.sync();
         if (dynmapIntegration != null) dynmapIntegration.sync();
     }
 
