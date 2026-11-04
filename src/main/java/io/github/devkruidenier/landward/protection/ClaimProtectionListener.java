@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
@@ -55,6 +56,15 @@ public final class ClaimProtectionListener implements Listener {
                     ? MemberPermissions.Permission.CONTAINERS
                     : MemberPermissions.Permission.BUILD;
             denyIfNeeded(event.getPlayer(), clicked.getLocation(), permission, event::setCancelled);
+            return;
+        }
+        if (event.getItem() != null && event.getItem().getType().name().endsWith("_SPAWN_EGG")) {
+            denyIfNeeded(
+                    event.getPlayer(),
+                    event.getPlayer().getLocation(),
+                    MemberPermissions.Permission.ENTITIES,
+                    event::setCancelled
+            );
         }
     }
 
@@ -86,6 +96,13 @@ public final class ClaimProtectionListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
         denyIfNeeded(event.getPlayer(), event.getRightClicked().getLocation(), MemberPermissions.Permission.ENTITIES, event::setCancelled);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onEntityDamage(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player player) {
+            denyIfNeeded(player, event.getEntity().getLocation(), MemberPermissions.Permission.ENTITIES, event::setCancelled);
+        }
     }
 
     private void denyIfNeeded(
