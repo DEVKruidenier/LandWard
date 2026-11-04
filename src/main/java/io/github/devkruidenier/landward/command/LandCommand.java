@@ -420,10 +420,26 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
     }
 
     private String message(CommandSender sender, String key) {
-        return plugin.localeService().message(plugin.localeService().localeFor(sender), key);
+        return decorate(sender, key, plugin.localeService().message(plugin.localeService().localeFor(sender), key));
     }
 
     private String message(CommandSender sender, String key, Map<String, ?> placeholders) {
-        return plugin.localeService().message(plugin.localeService().localeFor(sender), key, placeholders);
+        return decorate(sender, key, plugin.localeService().message(plugin.localeService().localeFor(sender), key, placeholders));
+    }
+
+    /** Gives every player-facing command response one recognisable LandWard identity. */
+    private String decorate(CommandSender sender, String key, String text) {
+        if (!(sender instanceof Player)) return text;
+        String color = switch (key) {
+            case "land.created", "claim.claimed", "claim.unclaimed-success", "land.member-added",
+                 "land.member-removed", "land.rights-updated", "land.renamed", "land.rename-unchanged" -> "§a";
+            case "general.no-permission", "general.storage-error", "general.unknown-command",
+                 "claim.no-land", "claim.already-yours", "claim.already-claimed", "claim.limit-reached",
+                 "claim.not-adjacent", "claim.world-disabled", "claim.worldguard-protected", "claim.spawn-protected",
+                 "claim.not-yours", "claim.last-chunk", "claim.not-enough-xp", "claim.not-enough-money",
+                 "claim.vault-unavailable", "claim.payment-failed", "combat.claim-abandon-blocked" -> "§c";
+            default -> "§f";
+        };
+        return "§6§lLand§b§lWard §8> §r" + color + text;
     }
 }
