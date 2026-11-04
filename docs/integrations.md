@@ -35,6 +35,12 @@ plugin's own configuration. LandWard never opens a web port itself.
 BlueMap may ask the server owner to accept its own Mojang-resource download before
 BlueMap can render maps. This is a BlueMap requirement, not a LandWard setting.
 
+> **Dynmap availability:** LandWard's Dynmap bridge is optional and uses Dynmap's
+> marker API when a compatible Dynmap build is installed. At the time of writing,
+> Dynmap's official releases do not list Paper 26.x support, so it is deliberately
+> not included in the Paper 26.2 test server. Do not install an unofficial port on
+> a production server solely for this integration.
+
 ## Plan
 
 When [Plan](https://github.com/plan-player-analytics/plan) is installed and
