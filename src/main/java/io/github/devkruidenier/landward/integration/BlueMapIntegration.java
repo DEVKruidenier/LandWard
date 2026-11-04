@@ -113,9 +113,11 @@ public final class BlueMapIntegration {
         Object shape = shapeType.getMethod("createRect", double.class, double.class, double.class, double.class)
                 .invoke(null, (double) minX, (double) minZ, minX + 16.0, minZ + 16.0);
         Class<?> markerType = Class.forName("de.bluecolored.bluemap.api.markers.ShapeMarker");
-        // ShapeMarker's third argument is its actual world Y coordinate. Keeping
-        // it at a fixed 320 made the overlay visibly drift in BlueMap's 3D view.
-        float markerY = world.getHighestBlockYAt(minX + 8, minZ + 8) + 1.0F;
+        // ShapeMarker uses one horizontal plane per shape. A terrain-dependent
+        // height makes adjacent chunks project from different planes in BlueMap's
+        // perspective view, so their borders appear to separate or overlap.
+        // Keep every LandWard marker in the world on one shared low plane instead.
+        float markerY = world.getSeaLevel() + 1.0F;
         Object marker = markerType.getConstructor(String.class, shapeType, float.class).newInstance(land.name(), shape, markerY);
         invoke(marker, "setDepthTestEnabled", false);
         invoke(marker, "setDetail", "LandWard claim: " + land.name());
