@@ -149,6 +149,20 @@ public final class LandManager {
         return new UnclaimResult(UnclaimStatus.UNCLAIMED_SUCCESS, land, count - 1);
     }
 
+    /** Deletes a player's complete land, including its final claim and all member rights. */
+    public synchronized Optional<Land> deleteOwnedLand(UUID ownerId) throws StorageException {
+        Land land = landsByOwner.get(ownerId);
+        if (land == null) return Optional.empty();
+        storage.deleteLand(land.id());
+        claims.entrySet().removeIf(entry -> entry.getValue().equals(land.id()));
+        claimCounts.remove(land.id());
+        landsById.remove(land.id());
+        landsByOwner.remove(ownerId);
+        landsByName.remove(normalizedName(land.name()));
+        membersByLand.remove(land.id());
+        return Optional.of(land);
+    }
+
     /** Removes a claim regardless of ownership. Intended only for the protected administrator GUI. */
     public synchronized AdminUnclaimResult adminUnclaim(ChunkPosition position) throws StorageException {
         UUID landId = claims.get(position);
@@ -156,13 +170,7 @@ public final class LandManager {
         Land land = landsById.get(landId);
         int count = claimCount(landId);
         if (count <= 1) {
-            storage.deleteLand(landId);
-            claims.entrySet().removeIf(entry -> entry.getValue().equals(landId));
-            claimCounts.remove(landId);
-            landsById.remove(landId);
-            landsByOwner.remove(land.ownerId());
-            landsByName.remove(normalizedName(land.name()));
-            membersByLand.remove(landId);
+            deleteOwnedLand(land.ownerId());
             return new AdminUnclaimResult(AdminUnclaimStatus.LAND_DELETED, land, 0);
         }
         storage.deleteClaim(new ClaimedChunk(position, landId));

@@ -24,7 +24,7 @@ public final class LandMapGui {
 
     private static final int SIZE = 54;
     private static final int MAP_WIDTH = 9;
-    private static final int MAP_HEIGHT = 4;
+    private static final int MAP_HEIGHT = 6;
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -52,9 +52,13 @@ public final class LandMapGui {
         );
         holder.setInventory(inventory);
 
-        fillFrame(inventory);
         fillMap(inventory, holder, player, locale);
-        fillLegend(inventory, locale);
+        inventory.setItem(53, item(
+                Material.ARROW,
+                plugin.localeService().message(locale, "gui.management-back"),
+                NamedTextColor.YELLOW,
+                List.of()
+        ));
         player.openInventory(inventory);
     }
 
@@ -74,25 +78,18 @@ public final class LandMapGui {
         player.openInventory(inventory);
     }
 
-    private void fillFrame(Inventory inventory) {
-        // Grey is reserved for actual free chunks. The bottom two rows are GUI controls only.
-        ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
-        for (int slot = 36; slot < 54; slot++) {
-            inventory.setItem(slot, frame);
-        }
-    }
-
     private void fillMap(Inventory inventory, LandMapHolder holder, Player player, String locale) {
         int centerX = player.getLocation().getBlockX() >> 4;
         int centerZ = player.getLocation().getBlockZ() >> 4;
         for (int mapZ = 0; mapZ < MAP_HEIGHT; mapZ++) {
             for (int mapX = 0; mapX < MAP_WIDTH; mapX++) {
                 int chunkX = centerX + mapX - 4;
-                int chunkZ = centerZ + mapZ - 2;
-                boolean current = mapX == 4 && mapZ == 2;
+                int chunkZ = centerZ + mapZ - 3;
+                boolean current = mapX == 4 && mapZ == 3;
                 ChunkPosition position = new ChunkPosition(player.getWorld().getUID(), chunkX, chunkZ);
                 Optional<Land> land = landManager.landAt(position);
                 int slot = mapZ * 9 + mapX;
+                if (slot == 53) continue; // Reserved for the only navigation control.
                 holder.chunksBySlot().put(slot, position);
                 inventory.setItem(
                         slot,
@@ -146,32 +143,8 @@ public final class LandMapGui {
             ));
         }
         lore.add(Component.text("X: " + chunkX + "  Z: " + chunkZ, NamedTextColor.GRAY));
-        if (current) { material = Material.COMPASS; color = NamedTextColor.GOLD; title = plugin.localeService().message(locale, "gui.current-chunk"); }
         return item(material, title, color, List.of(
                 lore.toArray(Component[]::new)
-        ));
-    }
-
-    private void fillLegend(Inventory inventory, String locale) {
-        inventory.setItem(37, item(
-                Material.GRAY_STAINED_GLASS_PANE,
-                plugin.localeService().message(locale, "gui.legend-unclaimed"),
-                NamedTextColor.GRAY,
-                List.of(Component.text(plugin.localeService().message(locale, "gui.click-to-claim"), NamedTextColor.GREEN))
-        ));
-        inventory.setItem(39, item(Material.LIME_STAINED_GLASS_PANE, plugin.localeService().message(locale, "gui.legend-yours"), NamedTextColor.GREEN, List.of()));
-        inventory.setItem(41, item(
-                Material.RED_STAINED_GLASS_PANE,
-                plugin.localeService().message(locale, "gui.legend-other"),
-                NamedTextColor.RED,
-                List.of()
-        ));
-        inventory.setItem(43, item(Material.COMPASS, plugin.localeService().message(locale, "gui.legend-current"), NamedTextColor.GOLD, List.of()));
-        inventory.setItem(53, item(
-                Material.ARROW,
-                plugin.localeService().message(locale, "gui.management-back"),
-                NamedTextColor.YELLOW,
-                List.of()
         ));
     }
 

@@ -229,6 +229,19 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
     }
 
     public boolean unclaimFromMenu(Player player, ChunkPosition position) throws StorageException {
+        Optional<Land> land = landManager.landAt(position);
+        if (land.isPresent()
+                && land.get().ownerId().equals(player.getUniqueId())
+                && landManager.claimCount(land.get().id()) == 1) {
+            if (plugin.combatTags().blocksClaimAbandon(player)) {
+                player.sendMessage(message(player, "combat.claim-abandon-blocked"));
+                return true;
+            }
+            landManager.deleteOwnedLand(player.getUniqueId());
+            player.sendMessage(message(player, "claim.unclaimed-success", Map.of("name", land.get().name(), "count", 0)));
+            plugin.syncMapIntegrations();
+            return true;
+        }
         return unclaim(player, position);
     }
 
