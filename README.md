@@ -55,6 +55,7 @@ integration and gameplay test pass is still in progress before the first stable 
 - [Configuration](docs/configuration.md)
 - [Integrations](docs/integrations.md)
 - [Translations](docs/translations.md)
+- [Roadmap](docs/roadmap.md)
 
 ## License
 
