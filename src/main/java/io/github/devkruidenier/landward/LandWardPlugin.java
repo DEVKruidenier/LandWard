@@ -25,8 +25,13 @@ import io.github.devkruidenier.landward.storage.mysql.MySqlLandStorage;
 import io.github.devkruidenier.landward.storage.sqlite.SqliteLandStorage;
 import io.github.devkruidenier.landward.update.UpdateChecker;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public final class LandWardPlugin extends JavaPlugin {
 
@@ -45,6 +50,7 @@ public final class LandWardPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        mergeNewConfigDefaults();
 
         this.console = new LandWardConsole(this);
         this.localeService = new LocaleService(this);
@@ -174,5 +180,23 @@ public final class LandWardPlugin extends JavaPlugin {
             );
         }
         throw new IllegalArgumentException("Unsupported storage.type: " + type + ". Use sqlite or mysql.");
+    }
+
+    /**
+     * Adds configuration keys introduced by a newer LandWard version without replacing
+     * values that a server owner has already chosen.
+     */
+    private void mergeNewConfigDefaults() {
+        try (InputStream resource = getResource("config.yml")) {
+            if (resource == null) return;
+            YamlConfiguration bundled = YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(resource, StandardCharsets.UTF_8)
+            );
+            getConfig().setDefaults(bundled);
+            getConfig().options().copyDefaults(true);
+            saveConfig();
+        } catch (Exception exception) {
+            getLogger().warning("Could not merge new LandWard config defaults: " + exception.getMessage());
+        }
     }
 }
