@@ -65,7 +65,7 @@ payments:
   vault-money-per-chunk: 100.0
 
 rename:
-  # XP levels charged when a player confirms a land rename in the name-input GUI. Set to 0 for free renames.
+  # XP levels charged when a player confirms a land rename in the anvil GUI. Set to 0 for free renames.
   experience-level-cost: 0
 
 integrations:
