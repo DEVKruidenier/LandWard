@@ -46,6 +46,7 @@ claim:
   unclaimed-success: "Deze chunk is verwijderd uit {name}. Er blijven {count} chunk(s) over."
   not-yours: "Deze chunk hoort bij {name}, niet bij jouw land."
   last-chunk: "Je kunt de laatste chunk van jouw land niet verwijderen."
+  not-enough-xp: "Je hebt {cost} XP-punten nodig om een chunk te claimen."
 protection:
   denied: "Dit gebied is beschermd door {name}."
 gui:

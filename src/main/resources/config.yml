@@ -32,6 +32,11 @@ claims:
   enabled-worlds: []
   disabled-worlds: []
 
+payments:
+  # free, experience, or vault (Vault support is enabled automatically when added later)
+  mode: free
+  experience-points-per-chunk: 150
+
 integrations:
   worldguard:
     enabled: true

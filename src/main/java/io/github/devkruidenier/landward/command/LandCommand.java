@@ -7,6 +7,7 @@ import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.storage.StorageException;
+import io.github.devkruidenier.landward.economy.ExperiencePayments;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -116,6 +117,11 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         }
 
         String name = String.join(" ", java.util.Arrays.copyOfRange(arguments, 1, arguments.length));
+        ExperiencePayments payments = payments();
+        if (payments.enabled(paymentMode()) && !payments.canAfford(player)) {
+            player.sendMessage(message(player, "claim.not-enough-xp", Map.of("cost", payments.cost())));
+            return true;
+        }
         LandManager.CreateResult result = landManager.create(player.getUniqueId(), name, position(player));
         String key = switch (result.status()) {
             case CREATED -> "land.created";
@@ -127,6 +133,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(message(player, key, Map.of(
                 "name", result.land() == null ? name : result.land().name()
         )));
+        if (result.status() == LandManager.CreateStatus.CREATED && payments.enabled(paymentMode())) payments.withdraw(player);
         return true;
     }
 
@@ -138,6 +145,11 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
         ChunkPosition position = position(player);
         int maximum = plugin.getConfig().getInt("claims.maximum-chunks-per-land", 25);
+        ExperiencePayments payments = payments();
+        if (payments.enabled(paymentMode()) && !payments.canAfford(player)) {
+            player.sendMessage(message(player, "claim.not-enough-xp", Map.of("cost", payments.cost())));
+            return true;
+        }
         boolean adjacent = plugin.getConfig().getBoolean("claims.require-adjacent-chunks", true);
         LandManager.ClaimResult result = landManager.claim(player.getUniqueId(), position, maximum, adjacent);
         String key = switch (result.status()) {
@@ -153,6 +165,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 "count", result.claimCount(),
                 "limit", maximum
         )));
+        if (result.status() == LandManager.ClaimStatus.CLAIMED && payments.enabled(paymentMode())) payments.withdraw(player);
         return true;
     }
 
@@ -275,6 +288,12 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         List<String> enabled = plugin.getConfig().getStringList("claims.enabled-worlds");
         List<String> disabled = plugin.getConfig().getStringList("claims.disabled-worlds");
         return !disabled.contains(world) && (enabled.isEmpty() || enabled.contains(world));
+    }
+
+    private String paymentMode() { return plugin.getConfig().getString("payments.mode", "free"); }
+
+    private ExperiencePayments payments() {
+        return new ExperiencePayments(plugin.getConfig().getInt("payments.experience-points-per-chunk", 150));
     }
 
     private String message(CommandSender sender, String key) {

@@ -46,6 +46,7 @@ claim:
   unclaimed-success: "Removed this chunk from {name}. {count} chunk(s) remain."
   not-yours: "This chunk belongs to {name}, not to your land."
   last-chunk: "You cannot unclaim the last chunk of your land."
+  not-enough-xp: "You need {cost} XP points to claim a chunk."
 protection:
   denied: "This area is protected by {name}."
 gui:
