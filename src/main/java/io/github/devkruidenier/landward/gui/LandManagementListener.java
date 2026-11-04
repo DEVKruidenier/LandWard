@@ -23,7 +23,7 @@ public final class LandManagementListener implements Listener {
     }
     @EventHandler(priority = EventPriority.HIGH) public void onDrag(InventoryDragEvent event) { if (event.getView().getTopInventory().getHolder() instanceof LandManagementHolder) event.setCancelled(true); }
     private void handle(Player player, LandManagementHolder holder, int slot) throws StorageException {
-        if (holder.screen() == LandManagementHolder.Screen.MAIN) { if (slot == 45) gui.openMembers(player); else if (slot == 47) renameListener.begin(player); else if (slot == 53) new LandMapGui(plugin, landManager).open(player); else { UUID member = holder.playersBySlot().get(slot); if (member != null) gui.openRights(player, member); } return; }
+        if (holder.screen() == LandManagementHolder.Screen.MAIN) { if (slot == 45) gui.openMembers(player); else if (slot == 47) renameListener.begin(player); else if (slot == 49) player.closeInventory(); else if (slot == 53) new LandMapGui(plugin, landManager).open(player); else { UUID member = holder.playersBySlot().get(slot); if (member != null) gui.openRights(player, member); } return; }
         if (holder.screen() == LandManagementHolder.Screen.MEMBERS) { if (slot == 49) { gui.openMain(player); return; } UUID target = holder.playersBySlot().get(slot); if (target != null) { landManager.addMember(player.getUniqueId(), target); plugin.refreshAnalyticsIntegration(); gui.openMain(player); } return; }
         if (slot == 49) { gui.openMain(player); return; }
         UUID member = holder.memberId(); if (member == null) return;

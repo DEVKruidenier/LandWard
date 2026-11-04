@@ -50,8 +50,25 @@ public final class LandMapGui {
         player.openInventory(inventory);
     }
 
+    public void openUnclaimConfirmation(Player player, ChunkPosition position) {
+        String locale = plugin.localeService().localeFor(player);
+        UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position);
+        Inventory inventory = Bukkit.createInventory(holder, 27, Component.text("LandWard • Confirm unclaim", NamedTextColor.GOLD));
+        holder.setInventory(inventory);
+        ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
+        for (int slot = 0; slot < inventory.getSize(); slot++) inventory.setItem(slot, frame);
+        inventory.setItem(11, item(Material.LIME_DYE, "Confirm unclaim", NamedTextColor.GREEN, List.of(
+                Component.text("X: " + position.x() + "  Z: " + position.z(), NamedTextColor.GRAY),
+                Component.text("This cannot be undone.", NamedTextColor.RED)
+        )));
+        inventory.setItem(15, item(Material.BARRIER, "Cancel", NamedTextColor.RED, List.of()));
+        inventory.setItem(22, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        player.openInventory(inventory);
+    }
+
     private void fillFrame(Inventory inventory) {
-        ItemStack frame = item(Material.GRAY_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
+        // Grey is reserved for actual free chunks. Decorative space stays visually distinct.
+        ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
         for (int row = 0; row < 5; row++) {
             inventory.setItem(row * 9, frame);
             inventory.setItem(row * 9 + 1, frame);
@@ -148,6 +165,12 @@ public final class LandMapGui {
                 List.of()
         ));
         inventory.setItem(51, item(Material.COMPASS, plugin.localeService().message(locale, "gui.legend-current"), NamedTextColor.GOLD, List.of()));
+        inventory.setItem(53, item(
+                Material.ARROW,
+                plugin.localeService().message(locale, "gui.management-back"),
+                NamedTextColor.YELLOW,
+                List.of()
+        ));
     }
 
     private ItemStack item(Material material, String title, NamedTextColor color, List<Component> lore) {

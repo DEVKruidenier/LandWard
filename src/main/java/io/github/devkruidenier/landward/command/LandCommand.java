@@ -219,11 +219,19 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean unclaim(Player player) throws StorageException {
+        return unclaim(player, position(player));
+    }
+
+    public boolean unclaimFromMenu(Player player, ChunkPosition position) throws StorageException {
+        return unclaim(player, position);
+    }
+
+    private boolean unclaim(Player player, ChunkPosition position) throws StorageException {
         if (plugin.combatTags().blocksClaimAbandon(player)) {
             player.sendMessage(message(player, "combat.claim-abandon-blocked"));
             return true;
         }
-        LandManager.UnclaimResult result = landManager.unclaim(player.getUniqueId(), position(player));
+        LandManager.UnclaimResult result = landManager.unclaim(player.getUniqueId(), position);
         String key = switch (result.status()) {
             case UNCLAIMED_SUCCESS -> "claim.unclaimed-success";
             case NO_LAND -> "claim.no-land";

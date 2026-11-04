@@ -19,18 +19,49 @@ public final class LandMapListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onClick(InventoryClickEvent event) {
+        if (event.getView().getTopInventory().getHolder() instanceof UnclaimConfirmationHolder confirmation) {
+            handleUnclaimConfirmation(event, confirmation);
+            return;
+        }
         if (!(event.getView().getTopInventory().getHolder() instanceof LandMapHolder holder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
+        if (event.getRawSlot() == 53) {
+            new LandManagementGui(plugin, landManager).openMain(player);
+            return;
+        }
         ChunkPosition position = holder.chunksBySlot().get(event.getRawSlot());
-        if (position == null || plugin.storage() == null || landManager.landAt(position).isPresent()) return;
+        if (position == null || plugin.storage() == null) return;
+        var existingLand = landManager.landAt(position);
+        if (existingLand.isPresent()) {
+            if (existingLand.get().ownerId().equals(player.getUniqueId())) {
+                new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position);
+            }
+            return;
+        }
         try { command.claimFromMenu(player, position); new LandMapGui(plugin, landManager).open(player); }
         catch (StorageException exception) { player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error")); }
     }
 
+    private void handleUnclaimConfirmation(InventoryClickEvent event, UnclaimConfirmationHolder confirmation) {
+        event.setCancelled(true);
+        if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
+        if (event.getRawSlot() == 11) {
+            try {
+                command.unclaimFromMenu(player, confirmation.position());
+            } catch (StorageException exception) {
+                player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
+            }
+        }
+        if (event.getRawSlot() == 11 || event.getRawSlot() == 15 || event.getRawSlot() == 22) {
+            new LandMapGui(plugin, landManager).open(player);
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGH)
     public void onDrag(InventoryDragEvent event) {
-        if (event.getView().getTopInventory().getHolder() instanceof LandMapHolder) {
+        if (event.getView().getTopInventory().getHolder() instanceof LandMapHolder
+                || event.getView().getTopInventory().getHolder() instanceof UnclaimConfirmationHolder) {
             event.setCancelled(true);
         }
     }
