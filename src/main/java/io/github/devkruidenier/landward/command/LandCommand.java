@@ -28,7 +28,7 @@ import java.util.Optional;
 
 public final class LandCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> ROOT_COMPLETIONS = List.of("help", "menu");
+    private static final List<String> ROOT_COMPLETIONS = List.of("help", "info", "menu");
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -67,7 +67,8 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             // The map remains reachable for players who already know the old route.
             case "claim", "list" -> list(player);
             // Typed mutations deliberately no longer bypass the GUI confirmation flow.
-            case "create", "unclaim", "info", "rename", "add", "remove", "rights" -> menu(player);
+            case "info" -> info(player);
+            case "create", "unclaim", "rename", "add", "remove", "rights" -> menu(player);
             case "menu" -> menu(player);
             default -> {
                 sender.sendMessage(message(sender, "general.unknown-command"));
@@ -250,16 +251,9 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean info(Player player) {
-        Optional<Land> land = landManager.landAt(position(player));
-        if (land.isEmpty()) {
-            player.sendMessage(message(player, "claim.unclaimed"));
-            return true;
-        }
-        Land claimedLand = land.get();
-        player.sendMessage(message(player, "claim.info", Map.of(
-                "name", claimedLand.name(),
-                "count", landManager.claimCount(claimedLand.id())
-        )));
+        player.sendMessage(message(player, "command.header", Map.of("version", plugin.getPluginMeta().getVersion())));
+        player.sendMessage(message(player, "command.info-version", Map.of("version", plugin.getPluginMeta().getVersion())));
+        player.sendMessage(message(player, "command.info-author"));
         return true;
     }
 

@@ -31,6 +31,7 @@ public final class LocaleService {
     }
 
     public void initialize() {
+        translations.clear();
         File directory = new File(plugin.getDataFolder(), "lang");
         if (!directory.exists() && !directory.mkdirs()) {
             throw new IllegalStateException("Could not create language directory: " + directory);

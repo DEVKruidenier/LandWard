@@ -2,6 +2,7 @@ plugin:
   enabled: "LandWard を有効化しました。"
   disabled: "LandWard を無効化しました。"
 general:
+  reloaded: "LandWard を再読み込みしました。"
   no-permission: "この操作を行う権限がありません。"
   player-only: "このコマンドはプレイヤーのみ使用できます。"
   unknown-command: "不明な LandWard コマンドです。/claim help を使用してください。"
@@ -10,6 +11,8 @@ territory:
   entered: "{name} の保護された土地に入りました。"
   left: "{name} を出て、未保護の土地に入りました。"
 command:
+  info-version: "バージョン: {version}"
+  info-author: "制作者: DEVKruidenier"
   header: "LandWard {version}"
   description: "サバイバルサーバー向けのシンプルなチャンク保護と信頼できる保護機能。"
   help: "/claim help - このヘルプを表示します。"
@@ -65,13 +68,15 @@ protection:
 combat:
   claim-abandon-blocked: "戦闘中はチャンクを放棄できません。"
 gui:
+  admin-reload: "LandWard を再読み込み"
+  admin-reload-hint: "設定、言語、地図レイヤーを再読み込み"
   welcome-title: "LandWard • 土地を作成"
   welcome-create: "土地を作成"
   welcome-create-hint: "金床に固有の名前を入力"
   welcome-create-details: "現在のチャンクが保護されます"
   create-prompt: "金床に新しい土地名を入力してください（3～24文字）。"
   admin-map-title: "LandWard • 管理者保護マップ"
-  admin-confirm-title: "LandWard • 管理者による削除を確認"
+  admin-confirm-title: "LandWard • 保護を削除"
   admin-confirm: "保護を削除"
   admin-title: "LandWard • 管理"
   admin-map-hint: "管理用クレームマップを開く"
@@ -80,7 +85,8 @@ gui:
   admin-worlds-title: "LandWard • 有効なワールド"
   admin-world-enabled: "このワールドではLandWardが有効です"
   admin-world-disabled: "このワールドではLandWardが無効です"
-  admin-world-toggle: "クリックして切り替え"
+  admin-world-enable-hint: "クリックして有効化"
+  admin-world-disable-hint: "クリックして無効化"
   unclaim-confirm-title: "LandWard • 保護解除を確認"
   unclaim-confirm: "解除を確認"
   unclaim-warning: "この操作は元に戻せません。"

@@ -2,6 +2,7 @@ plugin:
   enabled: "LandWard został włączony."
   disabled: "LandWard został wyłączony."
 general:
+  reloaded: "LandWard został przeładowany."
   no-permission: "Nie masz uprawnień, aby to zrobić."
   player-only: "To polecenie może zostać użyte tylko przez gracza."
   unknown-command: "Nieznane polecenie LandWard. Użyj /claim help."
@@ -10,6 +11,8 @@ territory:
   entered: "Wchodzisz na zajęty teren {name}."
   left: "Opuszczasz {name} i wchodzisz na niezajęty teren."
 command:
+  info-version: "Wersja: {version}"
+  info-author: "Twórca: DEVKruidenier"
   header: "LandWard {version}"
   description: "Proste działki chunków i niezawodna ochrona serwerów survival."
   help: "/claim help - Wyświetla tę pomoc."
@@ -65,13 +68,15 @@ protection:
 combat:
   claim-abandon-blocked: "Nie możesz zwalniać chunków podczas walki."
 gui:
+  admin-reload: "Przeładuj LandWard"
+  admin-reload-hint: "Przeładuj konfigurację, języki i warstwy mapy"
   welcome-title: "LandWard • Utwórz teren"
   welcome-create: "Utwórz swój teren"
   welcome-create-hint: "Wpisz unikalną nazwę w kowadle"
   welcome-create-details: "Twój obecny chunk zostanie chroniony"
   create-prompt: "Wpisz nazwę nowego terenu w kowadle (3-24 znaki)."
   admin-map-title: "LandWard • Mapa claimów administratora"
-  admin-confirm-title: "LandWard • Potwierdź usunięcie administracyjne"
+  admin-confirm-title: "LandWard • Usuń claim"
   admin-confirm: "Usuń claim"
   admin-title: "LandWard • Administracja"
   admin-map-hint: "Otwórz administracyjną mapę działek"
@@ -80,7 +85,8 @@ gui:
   admin-worlds-title: "LandWard • Aktywne światy"
   admin-world-enabled: "LandWard jest aktywny w tym świecie"
   admin-world-disabled: "LandWard jest nieaktywny w tym świecie"
-  admin-world-toggle: "Kliknij, aby przełączyć"
+  admin-world-enable-hint: "Kliknij tutaj, aby włączyć"
+  admin-world-disable-hint: "Kliknij tutaj, aby wyłączyć"
   unclaim-confirm-title: "LandWard • Potwierdź usunięcie claimu"
   unclaim-confirm: "Potwierdź usunięcie"
   unclaim-warning: "Nie można tego cofnąć."

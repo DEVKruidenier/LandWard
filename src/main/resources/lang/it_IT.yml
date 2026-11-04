@@ -2,6 +2,7 @@ plugin:
   enabled: "LandWard è stato attivato."
   disabled: "LandWard è stato disattivato."
 general:
+  reloaded: "LandWard è stato ricaricato."
   no-permission: "Non hai il permesso di farlo."
   player-only: "Questo comando può essere usato solo da un giocatore."
   unknown-command: "Comando LandWard sconosciuto. Usa /claim help."
@@ -10,6 +11,8 @@ territory:
   entered: "Sei entrato nel terreno reclamato di {name}."
   left: "Hai lasciato {name} e sei entrato in terreno non reclamato."
 command:
+  info-version: "Versione: {version}"
+  info-author: "Creatore: DEVKruidenier"
   header: "LandWard {version}"
   description: "Claim dei chunk semplici e protezione affidabile per server survival."
   help: "/claim help - Mostra questo aiuto."
@@ -65,13 +68,15 @@ protection:
 combat:
   claim-abandon-blocked: "Non puoi liberare chunk mentre sei in combattimento."
 gui:
+  admin-reload: "Ricarica LandWard"
+  admin-reload-hint: "Ricarica config, lingue e livelli della mappa"
   welcome-title: "LandWard • Crea un terreno"
   welcome-create: "Crea il tuo terreno"
   welcome-create-hint: "Inserisci un nome univoco nell'incudine"
   welcome-create-details: "Il tuo chunk attuale verrà protetto"
   create-prompt: "Scrivi il nome del tuo nuovo terreno nell'incudine (3-24 caratteri)."
   admin-map-title: "LandWard • Mappa claim amministratore"
-  admin-confirm-title: "LandWard • Conferma rimozione amministrativa"
+  admin-confirm-title: "LandWard • Rimuovi claim"
   admin-confirm: "Rimuovi claim"
   admin-title: "LandWard • Amministrazione"
   admin-map-hint: "Apri la mappa amministrativa dei terreni"
@@ -80,7 +85,8 @@ gui:
   admin-worlds-title: "LandWard • Mondi attivi"
   admin-world-enabled: "LandWard è attivo in questo mondo"
   admin-world-disabled: "LandWard è inattivo in questo mondo"
-  admin-world-toggle: "Clicca per cambiare"
+  admin-world-enable-hint: "Clicca qui per abilitarlo"
+  admin-world-disable-hint: "Clicca qui per disabilitarlo"
   unclaim-confirm-title: "LandWard • Conferma rimozione claim"
   unclaim-confirm: "Conferma rimozione"
   unclaim-warning: "Questa azione non può essere annullata."

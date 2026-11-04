@@ -2,6 +2,7 @@ plugin:
   enabled: "LandWard wurde aktiviert."
   disabled: "LandWard wurde deaktiviert."
 general:
+  reloaded: "LandWard wurde neu geladen."
   no-permission: "Du hast keine Berechtigung dafür."
   player-only: "Dieser Befehl kann nur von einem Spieler verwendet werden."
   unknown-command: "Unbekannter LandWard-Befehl. Verwende /claim help."
@@ -10,6 +11,8 @@ territory:
   entered: "Du betrittst das beanspruchte Gebiet von {name}."
   left: "Du verlässt {name} und betrittst unbeanspruchtes Gebiet."
 command:
+  info-version: "Version: {version}"
+  info-author: "Ersteller: DEVKruidenier"
   header: "LandWard {version}"
   description: "Einfache Chunk-Claims und zuverlässiger Schutz für Survival-Server."
   help: "/claim help - Zeigt diese Hilfe an."
@@ -66,13 +69,15 @@ protection:
 combat:
   claim-abandon-blocked: "Du kannst während eines Kampfes keine Chunks freigeben."
 gui:
+  admin-reload: "LandWard neu laden"
+  admin-reload-hint: "Konfiguration, Sprachen und Kartenebenen neu laden"
   welcome-title: "LandWard • Land erstellen"
   welcome-create: "Erstelle dein Land"
   welcome-create-hint: "Gib einen eindeutigen Namen im Amboss ein"
   welcome-create-details: "Dein aktueller Chunk wird geschützt"
   create-prompt: "Gib den Namen deines neuen Landes im Amboss ein (3-24 Zeichen)."
   admin-map-title: "LandWard • Admin-Claimkarte"
-  admin-confirm-title: "LandWard • Administrative Entfernung bestätigen"
+  admin-confirm-title: "LandWard • Claim entfernen"
   admin-confirm: "Claim entfernen"
   admin-title: "LandWard • Verwaltung"
   admin-map-hint: "Administrative Claimkarte öffnen"
@@ -81,7 +86,8 @@ gui:
   admin-worlds-title: "LandWard • Aktive Welten"
   admin-world-enabled: "LandWard ist in dieser Welt aktiv"
   admin-world-disabled: "LandWard ist in dieser Welt inaktiv"
-  admin-world-toggle: "Klicken zum Umschalten"
+  admin-world-enable-hint: "Hier klicken zum Aktivieren"
+  admin-world-disable-hint: "Hier klicken zum Deaktivieren"
   unclaim-confirm-title: "LandWard • Unclaim bestätigen"
   unclaim-confirm: "Unclaim bestätigen"
   unclaim-warning: "Dies kann nicht rückgängig gemacht werden."

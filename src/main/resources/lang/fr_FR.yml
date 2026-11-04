@@ -2,6 +2,7 @@ plugin:
   enabled: "LandWard a été activé."
   disabled: "LandWard a été désactivé."
 general:
+  reloaded: "LandWard a été rechargé."
   no-permission: "Vous n'avez pas la permission de faire cela."
   player-only: "Cette commande ne peut être utilisée que par un joueur."
   unknown-command: "Commande LandWard inconnue. Utilisez /claim help."
@@ -10,6 +11,8 @@ territory:
   entered: "Vous entrez dans le terrain revendiqué de {name}."
   left: "Vous quittez {name} et entrez dans une zone non revendiquée."
 command:
+  info-version: "Version : {version}"
+  info-author: "Créateur : DEVKruidenier"
   header: "LandWard {version}"
   description: "Des claims de chunks simples et une protection fiable pour les serveurs survie."
   help: "/claim help - Affiche cette aide."
@@ -66,13 +69,15 @@ protection:
 combat:
   claim-abandon-blocked: "Vous ne pouvez pas libérer de chunk pendant un combat."
 gui:
+  admin-reload: "Recharger LandWard"
+  admin-reload-hint: "Recharger la configuration, les langues et les calques"
   welcome-title: "LandWard • Créer un terrain"
   welcome-create: "Créer votre terrain"
   welcome-create-hint: "Saisissez un nom unique dans l'enclume"
   welcome-create-details: "Votre chunk actuel sera protégé"
   create-prompt: "Tapez le nom de votre nouveau terrain dans l'enclume (3-24 caractères)."
   admin-map-title: "LandWard • Carte des claims administrateur"
-  admin-confirm-title: "LandWard • Confirmer la suppression administrative"
+  admin-confirm-title: "LandWard • Supprimer le claim"
   admin-confirm: "Supprimer le claim"
   admin-title: "LandWard • Administration"
   admin-map-hint: "Ouvrir la carte administrative des terrains"
@@ -81,7 +86,8 @@ gui:
   admin-worlds-title: "LandWard • Mondes actifs"
   admin-world-enabled: "LandWard est actif dans ce monde"
   admin-world-disabled: "LandWard est inactif dans ce monde"
-  admin-world-toggle: "Cliquez pour basculer"
+  admin-world-enable-hint: "Cliquez ici pour l'activer"
+  admin-world-disable-hint: "Cliquez ici pour le désactiver"
   unclaim-confirm-title: "LandWard • Confirmer le retrait"
   unclaim-confirm: "Confirmer le retrait"
   unclaim-warning: "Cette action est irréversible."

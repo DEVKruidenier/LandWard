@@ -5,9 +5,11 @@ LandWard is GUI-first: players normally only need /claim.
 | Command | Purpose |
 | --- | --- |
 | /claim | Opens land management. Players without a land get the create-land GUI. |
+| /claim info | Shows the installed LandWard version and author. |
 | /claim menu | Opens the same land management GUI explicitly. |
 | /claim help | Shows the compact command reference. |
 | /claimadmin | Opens administration: claim moderation and active-world controls; requires landward.admin. |
+| /claimadmin reload | Reloads config, language files and map layers; requires landward.admin. |
 
 ## In-game flow
 
@@ -21,3 +23,6 @@ LandWard is GUI-first: players normally only need /claim.
 
 Former typed mutation subcommands are intentionally redirected to the GUI, so every
 player uses the same confirmation and permission flow.
+
+The admin reload does not replace the active storage backend. Change `storage.type`
+or its database connection settings only while the server is stopped.

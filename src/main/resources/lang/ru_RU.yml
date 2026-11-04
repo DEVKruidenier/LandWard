@@ -2,6 +2,7 @@ plugin:
   enabled: "LandWard включён."
   disabled: "LandWard выключен."
 general:
+  reloaded: "LandWard перезагружен."
   no-permission: "У вас нет прав для этого действия."
   player-only: "Эту команду может использовать только игрок."
   unknown-command: "Неизвестная команда LandWard. Используйте /claim help."
@@ -10,6 +11,8 @@ territory:
   entered: "Вы вошли на территорию {name}."
   left: "Вы покинули {name} и вошли на незанятую территорию."
 command:
+  info-version: "Версия: {version}"
+  info-author: "Создатель: DEVKruidenier"
   header: "LandWard {version}"
   description: "Простые приваты чанков и надёжная защита для survival-серверов."
   help: "/claim help - Показывает эту справку."
@@ -65,13 +68,15 @@ protection:
 combat:
   claim-abandon-blocked: "Нельзя освобождать чанки во время боя."
 gui:
+  admin-reload: "Перезагрузить LandWard"
+  admin-reload-hint: "Перезагрузить конфигурацию, языки и слои карты"
   welcome-title: "LandWard • Создать территорию"
   welcome-create: "Создать территорию"
   welcome-create-hint: "Введите уникальное имя в наковальне"
   welcome-create-details: "Ваш текущий чанк будет защищён"
   create-prompt: "Введите имя новой территории в наковальне (3-24 символа)."
   admin-map-title: "LandWard • Карта приватов администратора"
-  admin-confirm-title: "LandWard • Подтвердить удаление администратором"
+  admin-confirm-title: "LandWard • Удалить приват"
   admin-confirm: "Удалить приват"
   admin-title: "LandWard • Управление"
   admin-map-hint: "Открыть административную карту приватов"
@@ -80,7 +85,8 @@ gui:
   admin-worlds-title: "LandWard • Активные миры"
   admin-world-enabled: "LandWard активен в этом мире"
   admin-world-disabled: "LandWard неактивен в этом мире"
-  admin-world-toggle: "Нажмите для переключения"
+  admin-world-enable-hint: "Нажмите, чтобы включить"
+  admin-world-disable-hint: "Нажмите, чтобы выключить"
   unclaim-confirm-title: "LandWard • Подтвердить снятие привата"
   unclaim-confirm: "Подтвердить снятие"
   unclaim-warning: "Это действие нельзя отменить."

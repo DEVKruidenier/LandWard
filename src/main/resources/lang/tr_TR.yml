@@ -2,6 +2,7 @@ plugin:
   enabled: "LandWard etkinleştirildi."
   disabled: "LandWard devre dışı bırakıldı."
 general:
+  reloaded: "LandWard yeniden yüklendi."
   no-permission: "Bunu yapma izniniz yok."
   player-only: "Bu komut yalnızca bir oyuncu tarafından kullanılabilir."
   unknown-command: "Bilinmeyen LandWard komutu. /claim help kullanın."
@@ -10,6 +11,8 @@ territory:
   entered: "{name} adlı sahipli araziye girdiniz."
   left: "{name} adlı araziden ayrıldınız ve sahipsiz araziye girdiniz."
 command:
+  info-version: "Sürüm: {version}"
+  info-author: "Yapımcı: DEVKruidenier"
   header: "LandWard {version}"
   description: "Hayatta kalma sunucuları için basit chunk claimleri ve güvenilir koruma."
   help: "/claim help - Bu yardımı gösterir."
@@ -65,13 +68,15 @@ protection:
 combat:
   claim-abandon-blocked: "Savaş halindeyken chunk bırakamazsınız."
 gui:
+  admin-reload: "LandWard'ı yeniden yükle"
+  admin-reload-hint: "Yapılandırmayı, dilleri ve harita katmanlarını yeniden yükle"
   welcome-title: "LandWard • Arazi oluştur"
   welcome-create: "Arazini oluştur"
   welcome-create-hint: "Örse benzersiz bir ad gir"
   welcome-create-details: "Mevcut chunk'ın korunacak"
   create-prompt: "Yeni arazi adını örse yazın (3-24 karakter)."
   admin-map-title: "LandWard • Yönetici claim haritası"
-  admin-confirm-title: "LandWard • Yönetici kaldırmasını onayla"
+  admin-confirm-title: "LandWard • Claim'i kaldır"
   admin-confirm: "Claim'i kaldır"
   admin-title: "LandWard • Yönetim"
   admin-map-hint: "Yönetici claim haritasını aç"
@@ -80,7 +85,8 @@ gui:
   admin-worlds-title: "LandWard • Etkin dünyalar"
   admin-world-enabled: "LandWard bu dünyada etkin"
   admin-world-disabled: "LandWard bu dünyada devre dışı"
-  admin-world-toggle: "Değiştirmek için tıkla"
+  admin-world-enable-hint: "Etkinleştirmek için tıkla"
+  admin-world-disable-hint: "Devre dışı bırakmak için tıkla"
   unclaim-confirm-title: "LandWard • Claim kaldırmayı onayla"
   unclaim-confirm: "Kaldırmayı onayla"
   unclaim-warning: "Bu işlem geri alınamaz."

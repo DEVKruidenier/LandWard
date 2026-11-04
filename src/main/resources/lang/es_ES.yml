@@ -2,6 +2,7 @@ plugin:
   enabled: "LandWard se ha activado."
   disabled: "LandWard se ha desactivado."
 general:
+  reloaded: "LandWard se ha recargado."
   no-permission: "No tienes permiso para hacer eso."
   player-only: "Este comando solo puede ser utilizado por un jugador."
   unknown-command: "Comando de LandWard desconocido. Usa /claim help."
@@ -10,6 +11,8 @@ territory:
   entered: "Has entrado en el terreno reclamado de {name}."
   left: "Has salido de {name} y entrado en terreno sin reclamar."
 command:
+  info-version: "Versión: {version}"
+  info-author: "Autor: DEVKruidenier"
   header: "LandWard {version}"
   description: "Claims de chunks sencillos y protección fiable para servidores de supervivencia."
   help: "/claim help - Muestra esta ayuda."
@@ -65,13 +68,15 @@ protection:
 combat:
   claim-abandon-blocked: "No puedes liberar chunks mientras estás en combate."
 gui:
+  admin-reload: "Recargar LandWard"
+  admin-reload-hint: "Recargar configuración, idiomas y capas del mapa"
   welcome-title: "LandWard • Crear un terreno"
   welcome-create: "Crea tu terreno"
   welcome-create-hint: "Introduce un nombre único en el yunque"
   welcome-create-details: "Tu chunk actual quedará protegido"
   create-prompt: "Escribe el nombre de tu nuevo terreno en el yunque (3-24 caracteres)."
   admin-map-title: "LandWard • Mapa de claims de administrador"
-  admin-confirm-title: "LandWard • Confirmar eliminación administrativa"
+  admin-confirm-title: "LandWard • Eliminar claim"
   admin-confirm: "Eliminar claim"
   admin-title: "LandWard • Administración"
   admin-map-hint: "Abrir el mapa administrativo de claims"
@@ -80,7 +85,8 @@ gui:
   admin-worlds-title: "LandWard • Mundos activos"
   admin-world-enabled: "LandWard está activo en este mundo"
   admin-world-disabled: "LandWard está inactivo en este mundo"
-  admin-world-toggle: "Haz clic para cambiar"
+  admin-world-enable-hint: "Haz clic aquí para activarlo"
+  admin-world-disable-hint: "Haz clic aquí para desactivarlo"
   unclaim-confirm-title: "LandWard • Confirmar liberación"
   unclaim-confirm: "Confirmar liberación"
   unclaim-warning: "Esto no se puede deshacer."

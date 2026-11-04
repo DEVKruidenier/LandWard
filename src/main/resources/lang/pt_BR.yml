@@ -2,6 +2,7 @@ plugin:
   enabled: "O LandWard foi ativado."
   disabled: "O LandWard foi desativado."
 general:
+  reloaded: "LandWard foi recarregado."
   no-permission: "Você não tem permissão para fazer isso."
   player-only: "Este comando só pode ser usado por um jogador."
   unknown-command: "Comando do LandWard desconhecido. Use /claim help."
@@ -10,6 +11,8 @@ territory:
   entered: "Você entrou na terra reivindicada de {name}."
   left: "Você saiu de {name} e entrou em terra não reivindicada."
 command:
+  info-version: "Versão: {version}"
+  info-author: "Criador: DEVKruidenier"
   header: "LandWard {version}"
   description: "Claims de chunks simples e proteção confiável para servidores survival."
   help: "/claim help - Mostra esta ajuda."
@@ -65,13 +68,15 @@ protection:
 combat:
   claim-abandon-blocked: "Você não pode liberar chunks enquanto estiver em combate."
 gui:
+  admin-reload: "Recarregar LandWard"
+  admin-reload-hint: "Recarregar config, idiomas e camadas do mapa"
   welcome-title: "LandWard • Criar uma terra"
   welcome-create: "Crie sua terra"
   welcome-create-hint: "Digite um nome único na bigorna"
   welcome-create-details: "Seu chunk atual será protegido"
   create-prompt: "Digite o nome da sua nova terra na bigorna (3-24 caracteres)."
   admin-map-title: "LandWard • Mapa de claims administrativo"
-  admin-confirm-title: "LandWard • Confirmar remoção administrativa"
+  admin-confirm-title: "LandWard • Remover claim"
   admin-confirm: "Remover claim"
   admin-title: "LandWard • Administração"
   admin-map-hint: "Abrir o mapa administrativo de terrenos"
@@ -80,7 +85,8 @@ gui:
   admin-worlds-title: "LandWard • Mundos ativos"
   admin-world-enabled: "LandWard está ativo neste mundo"
   admin-world-disabled: "LandWard está inativo neste mundo"
-  admin-world-toggle: "Clique para alternar"
+  admin-world-enable-hint: "Clique aqui para ativar"
+  admin-world-disable-hint: "Clique aqui para desativar"
   unclaim-confirm-title: "LandWard • Confirmar remoção"
   unclaim-confirm: "Confirmar remoção"
   unclaim-warning: "Esta ação não pode ser desfeita."

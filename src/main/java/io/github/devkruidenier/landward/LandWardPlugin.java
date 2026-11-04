@@ -102,7 +102,9 @@ public final class LandWardPlugin extends JavaPlugin {
         command.setTabCompleter(landCommand);
         PluginCommand adminCommand = getCommand("claimadmin");
         if (adminCommand == null) throw new IllegalStateException("The claimadmin command is missing from plugin.yml");
-        adminCommand.setExecutor(new ClaimAdminCommand(this, landManager));
+        ClaimAdminCommand claimAdminCommand = new ClaimAdminCommand(this, landManager);
+        adminCommand.setExecutor(claimAdminCommand);
+        adminCommand.setTabCompleter(claimAdminCommand);
         getServer().getPluginManager().registerEvents(new ClaimProtectionListener(this, landManager, combatTags), this);
         getServer().getPluginManager().registerEvents(new ClaimBoundaryListener(this, landManager), this);
         getServer().getPluginManager().registerEvents(new CombatTagListener(combatTags), this);
@@ -191,6 +193,14 @@ public final class LandWardPlugin extends JavaPlugin {
 
     public void refreshAnalyticsIntegration() {
         if (planIntegration != null) planIntegration.refresh();
+    }
+
+    /** Reloads safe runtime settings without disconnecting players or reopening storage. */
+    public void reloadLandWard() {
+        reloadConfig();
+        mergeNewConfigDefaults();
+        localeService.initialize();
+        syncMapIntegrations();
     }
 
     private LandStorage createStorage() {

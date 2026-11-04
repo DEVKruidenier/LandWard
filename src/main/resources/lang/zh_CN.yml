@@ -2,6 +2,7 @@ plugin:
   enabled: "LandWard 已启用。"
   disabled: "LandWard 已禁用。"
 general:
+  reloaded: "LandWard 已重新加载。"
   no-permission: "你没有执行此操作的权限。"
   player-only: "此命令只能由玩家使用。"
   unknown-command: "未知的 LandWard 命令。请使用 /claim help。"
@@ -10,6 +11,8 @@ territory:
   entered: "你进入了 {name} 的领地。"
   left: "你离开了 {name}，进入了未认领区域。"
 command:
+  info-version: "版本: {version}"
+  info-author: "作者: DEVKruidenier"
   header: "LandWard {version}"
   description: "为生存服务器提供简单的区块领地和可靠保护。"
   help: "/claim help - 显示此帮助。"
@@ -65,13 +68,15 @@ protection:
 combat:
   claim-abandon-blocked: "战斗中无法放弃区块。"
 gui:
+  admin-reload: "重新加载 LandWard"
+  admin-reload-hint: "重新加载配置、语言和地图图层"
   welcome-title: "LandWard • 创建领地"
   welcome-create: "创建你的领地"
   welcome-create-hint: "在铁砧中输入唯一名称"
   welcome-create-details: "你当前的区块将受到保护"
   create-prompt: "请在铁砧中输入新领地名称（3-24个字符）。"
   admin-map-title: "LandWard • 管理员领地地图"
-  admin-confirm-title: "LandWard • 确认管理员删除"
+  admin-confirm-title: "LandWard • 删除领地"
   admin-confirm: "删除领地"
   admin-title: "LandWard • 管理"
   admin-map-hint: "打开管理员领地地图"
@@ -80,7 +85,8 @@ gui:
   admin-worlds-title: "LandWard • 启用的世界"
   admin-world-enabled: "此世界已启用LandWard"
   admin-world-disabled: "此世界已禁用LandWard"
-  admin-world-toggle: "点击切换"
+  admin-world-enable-hint: "点击以启用"
+  admin-world-disable-hint: "点击以禁用"
   unclaim-confirm-title: "LandWard • 确认取消领地"
   unclaim-confirm: "确认取消"
   unclaim-warning: "此操作无法撤销。"

@@ -2,6 +2,7 @@ plugin:
   enabled: "LandWard가 활성화되었습니다."
   disabled: "LandWard가 비활성화되었습니다."
 general:
+  reloaded: "LandWard를 다시 불러왔습니다."
   no-permission: "이 작업을 수행할 권한이 없습니다."
   player-only: "이 명령어는 플레이어만 사용할 수 있습니다."
   unknown-command: "알 수 없는 LandWard 명령어입니다. /claim help를 사용하세요."
@@ -10,6 +11,8 @@ territory:
   entered: "{name}의 보호된 땅에 들어왔습니다."
   left: "{name}을(를) 떠나 보호되지 않은 땅에 들어왔습니다."
 command:
+  info-version: "버전: {version}"
+  info-author: "제작자: DEVKruidenier"
   header: "LandWard {version}"
   description: "서바이벌 서버를 위한 간단한 청크 영지와 안정적인 보호 기능입니다."
   help: "/claim help - 이 도움말을 표시합니다."
@@ -65,13 +68,15 @@ protection:
 combat:
   claim-abandon-blocked: "전투 중에는 청크를 포기할 수 없습니다."
 gui:
+  admin-reload: "LandWard 다시 불러오기"
+  admin-reload-hint: "설정, 언어 및 지도 레이어를 다시 불러옵니다"
   welcome-title: "LandWard • 땅 만들기"
   welcome-create: "내 땅 만들기"
   welcome-create-hint: "모루에 고유한 이름을 입력하세요"
   welcome-create-details: "현재 청크가 보호됩니다"
   create-prompt: "모루에 새 땅 이름을 입력하세요 (3-24자)."
   admin-map-title: "LandWard • 관리자 클레임 지도"
-  admin-confirm-title: "LandWard • 관리자 삭제 확인"
+  admin-confirm-title: "LandWard • 클레임 제거"
   admin-confirm: "클레임 제거"
   admin-title: "LandWard • 관리"
   admin-map-hint: "관리자 클레임 지도를 엽니다"
@@ -80,7 +85,8 @@ gui:
   admin-worlds-title: "LandWard • 활성 세계"
   admin-world-enabled: "이 세계에서 LandWard가 활성화되었습니다"
   admin-world-disabled: "이 세계에서 LandWard가 비활성화되었습니다"
-  admin-world-toggle: "클릭하여 전환"
+  admin-world-enable-hint: "클릭하여 활성화"
+  admin-world-disable-hint: "클릭하여 비활성화"
   unclaim-confirm-title: "LandWard • 클레임 해제 확인"
   unclaim-confirm: "해제 확인"
   unclaim-warning: "이 작업은 되돌릴 수 없습니다."
