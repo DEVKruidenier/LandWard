@@ -5,3 +5,18 @@ general:
   no-permission: "Vous n'avez pas la permission de faire cela."
   player-only: "Cette commande ne peut être utilisée que par un joueur."
   unknown-command: "Commande LandWard inconnue. Utilisez /land help."
+startup:
+  header: "LandWard {version}"
+  storage: "Stockage : {type}"
+  claims: "Claims chargés : {count}"
+  language: "Langue de la console : {locale}"
+  metrics: "Statistiques anonymes : {status}"
+  update-check: "Recherche de mise à jour : {status}"
+  status-enabled: "activée"
+  status-disabled: "désactivée"
+updates:
+  no-release: "Recherche de mise à jour : aucune version publiée n'a été trouvée."
+  up-to-date: "Recherche de mise à jour : LandWard est à jour ({version})."
+  available: "Mise à jour disponible : {latest} (installée : {current}). Téléchargement : {url}"
+  failed: "Échec de la recherche de mise à jour : {reason}."
+  failed-status: "Échec de la recherche de mise à jour : GitHub a renvoyé HTTP {status}."

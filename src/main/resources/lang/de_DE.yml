@@ -5,3 +5,18 @@ general:
   no-permission: "Du hast keine Berechtigung dafür."
   player-only: "Dieser Befehl kann nur von einem Spieler verwendet werden."
   unknown-command: "Unbekannter LandWard-Befehl. Verwende /land help."
+startup:
+  header: "LandWard {version}"
+  storage: "Speicher: {type}"
+  claims: "Geladene Claims: {count}"
+  language: "Konsolensprache: {locale}"
+  metrics: "Anonyme Statistiken: {status}"
+  update-check: "Updateprüfung: {status}"
+  status-enabled: "aktiviert"
+  status-disabled: "deaktiviert"
+updates:
+  no-release: "Updateprüfung: Es wurde noch keine veröffentlichte Version gefunden."
+  up-to-date: "Updateprüfung: LandWard ist aktuell ({version})."
+  available: "Update verfügbar: {latest} (installiert: {current}). Download: {url}"
+  failed: "Updateprüfung fehlgeschlagen: {reason}."
+  failed-status: "Updateprüfung fehlgeschlagen: GitHub meldete HTTP {status}."

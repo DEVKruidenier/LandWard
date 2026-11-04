@@ -5,3 +5,18 @@ general:
   no-permission: "Bunu yapmak için iznin yok."
   player-only: "Bu komut yalnızca bir oyuncu tarafından kullanılabilir."
   unknown-command: "Bilinmeyen LandWard komutu. /land help kullan."
+startup:
+  header: "LandWard {version}"
+  storage: "Depolama: {type}"
+  claims: "Yüklenen claim sayısı: {count}"
+  language: "Konsol dili: {locale}"
+  metrics: "Anonim istatistikler: {status}"
+  update-check: "Güncelleme denetimi: {status}"
+  status-enabled: "etkin"
+  status-disabled: "devre dışı"
+updates:
+  no-release: "Güncelleme denetimi: yayımlanmış bir sürüm bulunamadı."
+  up-to-date: "Güncelleme denetimi: LandWard güncel ({version})."
+  available: "Güncelleme mevcut: {latest} (yüklü: {current}). İndir: {url}"
+  failed: "Güncelleme denetimi başarısız: {reason}."
+  failed-status: "Güncelleme denetimi başarısız: GitHub HTTP {status} döndürdü."

@@ -18,3 +18,8 @@ addresses, or exact locations are collected.
 
 Set `metrics.enabled` to `false` to disable metrics for LandWard. Server owners can
 also disable bStats globally in `plugins/bStats/config.yml`.
+
+## Update checking
+
+LandWard checks GitHub Releases asynchronously during startup. The check never
+blocks Paper's main server thread. Set `updates.enabled` to `false` to disable it.

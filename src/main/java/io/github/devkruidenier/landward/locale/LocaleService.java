@@ -4,6 +4,9 @@ import io.github.devkruidenier.landward.LandWardPlugin;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -37,13 +40,32 @@ public final class LocaleService {
             if (!target.exists()) {
                 plugin.saveResource(resource, false);
             }
-            translations.put(locale, YamlConfiguration.loadConfiguration(target));
+            YamlConfiguration configured = YamlConfiguration.loadConfiguration(target);
+            try (InputStream input = plugin.getResource(resource)) {
+                if (input != null) {
+                    YamlConfiguration bundled = YamlConfiguration.loadConfiguration(
+                            new InputStreamReader(input, StandardCharsets.UTF_8)
+                    );
+                    configured.setDefaults(bundled);
+                }
+            } catch (Exception exception) {
+                throw new IllegalStateException("Could not load bundled language: " + resource, exception);
+            }
+            translations.put(locale, configured);
         }
     }
 
     public String console(String key) {
         String configured = normalize(plugin.getConfig().getString("language.console", FALLBACK_LOCALE));
         return message(configured, key);
+    }
+
+    public String console(String key, Map<String, ?> placeholders) {
+        String value = console(key);
+        for (Map.Entry<String, ?> placeholder : placeholders.entrySet()) {
+            value = value.replace("{" + placeholder.getKey() + "}", String.valueOf(placeholder.getValue()));
+        }
+        return value;
     }
 
     public String message(String locale, String key) {

@@ -5,3 +5,18 @@ general:
   no-permission: "No tienes permiso para hacer eso."
   player-only: "Este comando solo puede ser utilizado por un jugador."
   unknown-command: "Comando de LandWard desconocido. Usa /land help."
+startup:
+  header: "LandWard {version}"
+  storage: "Almacenamiento: {type}"
+  claims: "Claims cargados: {count}"
+  language: "Idioma de la consola: {locale}"
+  metrics: "Estadísticas anónimas: {status}"
+  update-check: "Comprobación de actualizaciones: {status}"
+  status-enabled: "activada"
+  status-disabled: "desactivada"
+updates:
+  no-release: "Comprobación de actualizaciones: no se encontró ninguna versión publicada."
+  up-to-date: "Comprobación de actualizaciones: LandWard está actualizado ({version})."
+  available: "Actualización disponible: {latest} (instalada: {current}). Descarga: {url}"
+  failed: "Error al comprobar actualizaciones: {reason}."
+  failed-status: "Error al comprobar actualizaciones: GitHub devolvió HTTP {status}."

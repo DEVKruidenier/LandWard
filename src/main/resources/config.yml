@@ -18,6 +18,9 @@ storage:
 metrics:
   enabled: true
 
+updates:
+  enabled: true
+
 claims:
   require-adjacent-chunks: true
   maximum-lands-per-player: 1

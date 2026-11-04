@@ -5,3 +5,18 @@ general:
   no-permission: "この操作を行う権限がありません。"
   player-only: "このコマンドはプレイヤーのみ使用できます。"
   unknown-command: "不明な LandWard コマンドです。/land help を使用してください。"
+startup:
+  header: "LandWard {version}"
+  storage: "ストレージ: {type}"
+  claims: "読み込まれたクレーム: {count}"
+  language: "コンソール言語: {locale}"
+  metrics: "匿名統計: {status}"
+  update-check: "更新確認: {status}"
+  status-enabled: "有効"
+  status-disabled: "無効"
+updates:
+  no-release: "更新確認: 公開済みのリリースが見つかりませんでした。"
+  up-to-date: "更新確認: LandWard は最新です（{version}）。"
+  available: "更新があります: {latest}（インストール済み: {current}）。ダウンロード: {url}"
+  failed: "更新確認に失敗しました: {reason}。"
+  failed-status: "更新確認に失敗しました: GitHub が HTTP {status} を返しました。"

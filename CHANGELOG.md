@@ -10,3 +10,4 @@ All notable changes to LandWard will be documented here.
 - Bundled localization files and fallback locale loader.
 - Configuration and documentation skeleton.
 - Anonymous, opt-out usage metrics through a bundled and relocated bStats client.
+- Localized startup diagnostics and an asynchronous GitHub Releases update check.

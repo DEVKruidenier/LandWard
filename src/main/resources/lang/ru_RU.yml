@@ -5,3 +5,18 @@ general:
   no-permission: "У вас нет разрешения на это действие."
   player-only: "Эту команду может использовать только игрок."
   unknown-command: "Неизвестная команда LandWard. Используйте /land help."
+startup:
+  header: "LandWard {version}"
+  storage: "Хранилище: {type}"
+  claims: "Загружено приватов: {count}"
+  language: "Язык консоли: {locale}"
+  metrics: "Анонимная статистика: {status}"
+  update-check: "Проверка обновлений: {status}"
+  status-enabled: "включена"
+  status-disabled: "отключена"
+updates:
+  no-release: "Проверка обновлений: опубликованные версии не найдены."
+  up-to-date: "Проверка обновлений: LandWard обновлён ({version})."
+  available: "Доступно обновление: {latest} (установлено: {current}). Скачать: {url}"
+  failed: "Не удалось проверить обновления: {reason}."
+  failed-status: "Не удалось проверить обновления: GitHub вернул HTTP {status}."

@@ -5,3 +5,18 @@ general:
   no-permission: "你没有权限执行此操作。"
   player-only: "此命令只能由玩家使用。"
   unknown-command: "未知的 LandWard 命令。请使用 /land help。"
+startup:
+  header: "LandWard {version}"
+  storage: "存储：{type}"
+  claims: "已加载领地：{count}"
+  language: "控制台语言：{locale}"
+  metrics: "匿名统计：{status}"
+  update-check: "更新检查：{status}"
+  status-enabled: "已启用"
+  status-disabled: "已禁用"
+updates:
+  no-release: "更新检查：未找到已发布的版本。"
+  up-to-date: "更新检查：LandWard 已是最新版本（{version}）。"
+  available: "发现更新：{latest}（已安装：{current}）。下载：{url}"
+  failed: "更新检查失败：{reason}。"
+  failed-status: "更新检查失败：GitHub 返回 HTTP {status}。"
