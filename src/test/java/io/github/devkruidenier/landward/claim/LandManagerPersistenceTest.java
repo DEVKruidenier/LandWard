@@ -1,6 +1,7 @@
 package io.github.devkruidenier.landward.claim;
 
 import io.github.devkruidenier.landward.model.ChunkPosition;
+import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.storage.sqlite.SqliteLandStorage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -62,5 +63,28 @@ class LandManagerPersistenceTest {
                 LandManager.ClaimStatus.CLAIMED,
                 manager.claim(owner, new ChunkPosition(world, 1, 0), -1, true).status()
         );
+    }
+
+    @Test
+    void persistsMemberPermissions() throws Exception {
+        SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("members.db"));
+        storage.initialize();
+        LandManager manager = new LandManager(storage);
+        manager.load();
+
+        UUID owner = UUID.randomUUID();
+        UUID member = UUID.randomUUID();
+        UUID world = UUID.randomUUID();
+        LandManager.CreateResult created = manager.create(owner, "Member Home", new ChunkPosition(world, 0, 0));
+        assertEquals(LandManager.MemberStatus.ADDED, manager.addMember(owner, member).status());
+        assertEquals(
+                LandManager.MemberStatus.PERMISSION_UPDATED,
+                manager.updateMemberPermission(owner, member, MemberPermissions.Permission.CONTAINERS, false).status()
+        );
+
+        LandManager reloaded = new LandManager(storage);
+        reloaded.load();
+        assertEquals(1, reloaded.members(created.land().id()).size());
+        assertTrue(!reloaded.permissions(member, created.land().id()).containers());
     }
 }

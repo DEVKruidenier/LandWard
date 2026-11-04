@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -140,6 +141,12 @@ public final class LandManager {
 
     public synchronized int totalClaimCount() {
         return claims.size();
+    }
+
+    public synchronized List<LandMember> members(UUID landId) {
+        return membersByLand.getOrDefault(landId, Map.of()).entrySet().stream()
+                .map(entry -> new LandMember(landId, entry.getKey(), entry.getValue()))
+                .toList();
     }
 
     public synchronized MemberPermissions permissions(UUID playerId, UUID landId) {
