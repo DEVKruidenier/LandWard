@@ -20,7 +20,8 @@ metrics:
 
 claims:
   require-adjacent-chunks: true
-  maximum-lands-per-player: 3
+  maximum-lands-per-player: 1
+  # Set to -1 to allow an unlimited number of chunks per land.
   maximum-chunks-per-land: 25
   enabled-worlds: []
   disabled-worlds: []
