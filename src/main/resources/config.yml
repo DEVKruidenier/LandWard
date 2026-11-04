@@ -1,0 +1,32 @@
+language:
+  default: en_US
+  console: en_US
+  use-client-locale: true
+  fallback: en_US
+
+storage:
+  type: sqlite
+  mysql:
+    host: localhost
+    port: 3306
+    database: landward
+    username: minecraft
+    password: change-me
+    ssl: false
+    pool-size: 10
+
+claims:
+  require-adjacent-chunks: true
+  maximum-lands-per-player: 3
+  maximum-chunks-per-land: 25
+  enabled-worlds: []
+  disabled-worlds: []
+
+integrations:
+  worldguard:
+    enabled: true
+    deny-any-overlap: true
+  bluemap:
+    enabled: true
+  dynmap:
+    enabled: true

@@ -1,0 +1,7 @@
+plugin:
+  enabled: "LandWard etkinleştirildi."
+  disabled: "LandWard devre dışı bırakıldı."
+general:
+  no-permission: "Bunu yapmak için iznin yok."
+  player-only: "Bu komut yalnızca bir oyuncu tarafından kullanılabilir."
+  unknown-command: "Bilinmeyen LandWard komutu. /land help kullan."

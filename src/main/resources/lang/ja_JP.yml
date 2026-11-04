@@ -1,0 +1,7 @@
+plugin:
+  enabled: "LandWard が有効になりました。"
+  disabled: "LandWard が無効になりました。"
+general:
+  no-permission: "この操作を行う権限がありません。"
+  player-only: "このコマンドはプレイヤーのみ使用できます。"
+  unknown-command: "不明な LandWard コマンドです。/land help を使用してください。"

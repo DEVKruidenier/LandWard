@@ -1,0 +1,26 @@
+name: LandWard
+version: '${version}'
+main: io.github.devkruidenier.landward.LandWardPlugin
+description: Simple chunk claims and reliable protection for Paper survival servers.
+api-version: '26.2'
+author: DEVKruidenier
+website: https://github.com/DEVKruidenier/LandWard
+softdepend:
+  - BlueMap
+  - dynmap
+  - WorldGuard
+commands:
+  land:
+    description: Opens LandWard or manages land claims.
+    usage: /land
+    permission: landward.command
+permissions:
+  landward.command:
+    description: Allows use of the main LandWard command.
+    default: true
+  landward.admin:
+    description: Grants access to LandWard administration features.
+    default: op
+  landward.bypass:
+    description: Bypasses LandWard claim protection.
+    default: op

@@ -1,0 +1,7 @@
+plugin:
+  enabled: "LandWard wurde aktiviert."
+  disabled: "LandWard wurde deaktiviert."
+general:
+  no-permission: "Du hast keine Berechtigung dafür."
+  player-only: "Dieser Befehl kann nur von einem Spieler verwendet werden."
+  unknown-command: "Unbekannter LandWard-Befehl. Verwende /land help."

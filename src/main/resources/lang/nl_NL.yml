@@ -1,0 +1,7 @@
+plugin:
+  enabled: "LandWard is ingeschakeld."
+  disabled: "LandWard is uitgeschakeld."
+general:
+  no-permission: "Je hebt geen toestemming om dat te doen."
+  player-only: "Dit commando kan alleen door een speler worden gebruikt."
+  unknown-command: "Onbekend LandWard-commando. Gebruik /land help."

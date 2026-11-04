@@ -1,0 +1,7 @@
+plugin:
+  enabled: "LandWard 已启用。"
+  disabled: "LandWard 已禁用。"
+general:
+  no-permission: "你没有权限执行此操作。"
+  player-only: "此命令只能由玩家使用。"
+  unknown-command: "未知的 LandWard 命令。请使用 /land help。"
