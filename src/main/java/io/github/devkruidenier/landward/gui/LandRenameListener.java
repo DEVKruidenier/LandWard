@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryView;
@@ -92,6 +93,13 @@ public final class LandRenameListener implements Listener {
             activeAnvils.remove(player.getUniqueId());
             player.closeInventory();
         }
+    }
+
+    @EventHandler
+    public void onAnvilClose(InventoryCloseEvent event) {
+        if (event.getView().getType() != InventoryType.ANVIL || !(event.getPlayer() instanceof Player player)) return;
+        activeAnvils.remove(player.getUniqueId());
+        enteredNames.remove(player.getUniqueId());
     }
 
     private void configureRepairCost(AnvilView view, int cost) {
