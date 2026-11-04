@@ -10,6 +10,7 @@ softdepend:
   - dynmap
   - WorldGuard
   - Vault
+  - Plan
 commands:
   land:
     description: Opens LandWard or manages land claims.
