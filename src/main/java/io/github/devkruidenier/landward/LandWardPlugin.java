@@ -184,6 +184,7 @@ public final class LandWardPlugin extends JavaPlugin {
             disabled.add(world.getName());
         }
         getConfig().set("claims.disabled-worlds", disabled);
+        applyWorldConfigComments();
         saveConfig();
         syncMapIntegrations();
     }
@@ -225,9 +226,17 @@ public final class LandWardPlugin extends JavaPlugin {
             getConfig().options().copyDefaults(true);
             // A single deny-list is clearer than an allow-list plus exceptions.
             getConfig().set("claims.enabled-worlds", null);
+            applyWorldConfigComments();
             saveConfig();
         } catch (Exception exception) {
             getLogger().warning("Could not merge new LandWard config defaults: " + exception.getMessage());
         }
+    }
+
+    private void applyWorldConfigComments() {
+        getConfig().setComments("claims.disabled-worlds", java.util.List.of(
+                "World names where LandWard is fully inactive. Every other world is active.",
+                "Example: disabled-worlds: [myworld]"
+        ));
     }
 }

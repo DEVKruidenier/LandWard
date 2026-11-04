@@ -9,8 +9,8 @@ claims:
   require-adjacent-chunks: true
   maximum-lands-per-player: 1
   maximum-chunks-per-land: 25 # -1 means unlimited
-  disabled-worlds:
-    # - myworld
+  # Example: disabled-worlds: [myworld]
+  disabled-worlds: []
 ```
 
 LandWard is active in every world except those explicitly listed under `disabled-worlds`.

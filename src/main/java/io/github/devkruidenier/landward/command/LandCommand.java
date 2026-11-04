@@ -28,7 +28,7 @@ import java.util.Optional;
 
 public final class LandCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "unclaim", "info", "list", "menu", "rename", "add", "remove", "rights");
+    private static final List<String> ROOT_COMPLETIONS = List.of("help", "menu");
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -59,33 +59,21 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        try {
-            if (arguments.length == 0) {
-                menu(player);
-                return true;
-            }
-            return switch (arguments[0].toLowerCase(Locale.ROOT)) {
-                case "create" -> create(player, arguments);
-                // Kept as a gentle compatibility route; claiming itself happens by clicking a free map tile.
-                case "claim" -> list(player);
-                case "unclaim" -> unclaim(player);
-                case "info" -> info(player);
-                case "list" -> list(player);
-                case "menu" -> menu(player);
-                case "rename" -> rename(player, arguments);
-                case "add" -> addMember(player, arguments);
-                case "remove" -> removeMember(player, arguments);
-                case "rights" -> updateRights(player, arguments);
-                default -> {
-                    sender.sendMessage(message(sender, "general.unknown-command"));
-                    yield true;
-                }
-            };
-        } catch (StorageException exception) {
-            plugin.getLogger().log(java.util.logging.Level.SEVERE, "Land command storage operation failed", exception);
-            sender.sendMessage(message(sender, "general.storage-error"));
+        if (arguments.length == 0) {
+            menu(player);
             return true;
         }
+        return switch (arguments[0].toLowerCase(Locale.ROOT)) {
+            // The map remains reachable for players who already know the old route.
+            case "claim", "list" -> list(player);
+            // Typed mutations deliberately no longer bypass the GUI confirmation flow.
+            case "create", "unclaim", "info", "rename", "add", "remove", "rights" -> menu(player);
+            case "menu" -> menu(player);
+            default -> {
+                sender.sendMessage(message(sender, "general.unknown-command"));
+                yield true;
+            }
+        };
     }
 
     @Override
@@ -111,13 +99,8 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         )));
         sender.sendMessage(message(sender, "command.description"));
         sender.sendMessage(message(sender, "command.help"));
-        sender.sendMessage(message(sender, "command.help-create"));
-        sender.sendMessage(message(sender, "command.help-unclaim"));
-        sender.sendMessage(message(sender, "command.help-info"));
         sender.sendMessage(message(sender, "command.help-list"));
         sender.sendMessage(message(sender, "command.help-menu"));
-        sender.sendMessage(message(sender, "command.help-rename"));
-        sender.sendMessage(message(sender, "command.help-members"));
     }
 
     private boolean create(Player player, String[] arguments) throws StorageException {

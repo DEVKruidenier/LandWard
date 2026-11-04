@@ -6,9 +6,8 @@ LandWard is GUI-first: players normally only need /claim.
 | --- | --- |
 | /claim | Opens land management. Players without a land get the create-land GUI. |
 | /claim menu | Opens the same land management GUI explicitly. |
-| /claim list | Opens the nearby chunk map. Click an available chunk to claim it. |
 | /claim help | Shows the compact command reference. |
-| /claimadmin | Opens the administrator claim map; requires landward.admin. |
+| /claimadmin | Opens administration: claim moderation and active-world controls; requires landward.admin. |
 
 ## In-game flow
 
@@ -20,6 +19,5 @@ LandWard is GUI-first: players normally only need /claim.
   then click the result item.
 - **Members and rights:** use the member and rights screens in land management.
 
-The former typed subcommands (create, unclaim, rename, add, remove and rights)
-remain available for compatibility and administration, but are not the normal player
-workflow.
+Former typed mutation subcommands are intentionally redirected to the GUI, so every
+player uses the same confirmation and permission flow.
