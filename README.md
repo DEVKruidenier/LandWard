@@ -42,7 +42,9 @@ The `-unshaded` JAR is a development artifact and does not include bStats.
 
 ## Project status
 
-The repository currently contains the project foundation, localization loader, configuration contract, and documentation skeleton. Claiming and protection behavior will be implemented incrementally with tests.
+The repository currently includes persistent SQLite lands and chunk claims, localized
+core commands, metrics, update checks, and the project foundation. Protection,
+members, GUIs, economy, MySQL, and map integrations are being implemented incrementally.
 
 ## Documentation
 

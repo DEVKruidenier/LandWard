@@ -16,4 +16,5 @@ The planned player-facing command surface is intentionally small.
 | `/land leave <land>` | Leave a land |
 | `/land rename <name>` | Rename a land |
 
-This document describes the product contract; commands are not implemented yet.
+`/land create`, `/land claim`, `/land info`, and `/land help` are implemented.
+The remaining commands are part of the product contract and will be added incrementally.

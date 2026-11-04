@@ -13,3 +13,4 @@ All notable changes to LandWard will be documented here.
 - Localized startup diagnostics and an asynchronous GitHub Releases update check.
 - Localized `/land` help output and command tab completion.
 - Branded, colored startup card through Paper's Adventure component logger.
+- Persistent SQLite lands and chunk claims with create, claim, and info commands.

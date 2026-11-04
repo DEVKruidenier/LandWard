@@ -18,6 +18,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.112-stable")
     implementation("org.bstats:bstats-bukkit:3.2.1")
+    implementation("org.xerial:sqlite-jdbc:3.54.1.0")
 
     testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -66,7 +67,7 @@ tasks {
         archiveClassifier.set("")
         configurations = project.configurations.runtimeClasspath.map { setOf(it) }
         dependencies {
-            exclude { it.moduleGroup != "org.bstats" }
+            exclude { it.moduleGroup !in setOf("org.bstats", "org.xerial") }
         }
         relocate(
             "org.bstats",
