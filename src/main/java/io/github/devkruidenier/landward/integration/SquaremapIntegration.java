@@ -6,46 +6,50 @@ import io.github.devkruidenier.landward.model.ClaimedChunk;
 import io.github.devkruidenier.landward.model.Land;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import xyz.jpenilla.squaremap.api.Key;
-import xyz.jpenilla.squaremap.api.Point;
-import xyz.jpenilla.squaremap.api.SimpleLayerProvider;
-import xyz.jpenilla.squaremap.api.Squaremap;
-import xyz.jpenilla.squaremap.api.SquaremapProvider;
-import xyz.jpenilla.squaremap.api.WorldIdentifier;
-import xyz.jpenilla.squaremap.api.marker.Marker;
-import xyz.jpenilla.squaremap.api.marker.MarkerOptions;
-
 import java.awt.Color;
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 
-/** Optional Squaremap layer. All Squaremap references are isolated in this class. */
+/** Reflective Squaremap bridge: it never loads Squaremap API classes when Squaremap is absent. */
 public final class SquaremapIntegration {
-    private static final Key LAYER_KEY = Key.of("landward_claims");
-    private final LandWardPlugin plugin;
-    private final LandManager lands;
-
+    private final LandWardPlugin plugin; private final LandManager lands; private boolean failureLogged;
     public SquaremapIntegration(LandWardPlugin plugin, LandManager lands) { this.plugin = plugin; this.lands = lands; }
-
     public void sync() {
-        if (!plugin.getConfig().getBoolean("integrations.squaremap.enabled", true)
-                || plugin.getServer().getPluginManager().getPlugin("squaremap") == null) return;
-        Squaremap map = SquaremapProvider.get();
-        for (World world : Bukkit.getWorlds()) {
-            map.getWorldIfEnabled(WorldIdentifier.create("minecraft", world.getName())).ifPresent(mapWorld -> {
-                var registry = mapWorld.layerRegistry();
-                if (registry.hasEntry(LAYER_KEY)) registry.unregister(LAYER_KEY);
-                SimpleLayerProvider layer = SimpleLayerProvider.builder("LandWard Claims").showControls(true).defaultHidden(false).build();
-                for (ClaimedChunk claim : lands.claims()) {
-                    if (!claim.position().worldId().equals(world.getUID())) continue;
-                    Land land = lands.land(claim.landId()).orElse(null);
-                    if (land == null) continue;
-                    int x = claim.position().x() << 4, z = claim.position().z() << 4;
-                    Marker marker = Marker.polygon(List.of(Point.of(x, z), Point.of(x + 16, z), Point.of(x + 16, z + 16), Point.of(x, z + 16)))
-                            .markerOptions(MarkerOptions.builder().strokeColor(Color.GREEN).fillColor(Color.GREEN).fillOpacity(0.20D).hoverTooltip("LandWard: " + land.name()));
-                    layer.addMarker(Key.of("claim_" + claim.position().x() + "_" + claim.position().z()), marker);
-                }
-                registry.register(LAYER_KEY, layer);
-            });
-        }
+        if (!plugin.getConfig().getBoolean("integrations.squaremap.enabled", true) || plugin.getServer().getPluginManager().getPlugin("squaremap") == null) return;
+        try {
+            Object map = Class.forName("xyz.jpenilla.squaremap.api.SquaremapProvider").getMethod("get").invoke(null);
+            Object layerKey = key("landward_claims");
+            for (World world : Bukkit.getWorlds()) syncWorld(map, layerKey, world);
+        } catch (ReflectiveOperationException exception) { if (!failureLogged) { plugin.getLogger().warning("Squaremap markers could not be synchronized: " + exception.getMessage()); failureLogged = true; } }
     }
+    private void syncWorld(Object map, Object layerKey, World world) throws ReflectiveOperationException {
+        Class<?> id = Class.forName("xyz.jpenilla.squaremap.api.WorldIdentifier");
+        Object worldId = id.getMethod("create", String.class, String.class).invoke(null, "minecraft", world.getName());
+        @SuppressWarnings("unchecked") Optional<Object> found = (Optional<Object>) call(map, "getWorldIfEnabled", worldId);
+        if (found.isEmpty()) return;
+        Object registry = call(found.get(), "layerRegistry");
+        if ((boolean) call(registry, "hasEntry", layerKey)) call(registry, "unregister", layerKey);
+        Object layer = layer();
+        for (ClaimedChunk claim : lands.claims()) {
+            if (!claim.position().worldId().equals(world.getUID())) continue;
+            Land land = lands.land(claim.landId()).orElse(null); if (land == null) continue;
+            call(layer, "addMarker", key("claim_" + claim.position().x() + '_' + claim.position().z()), marker(land, claim));
+        }
+        call(registry, "register", layerKey, layer);
+    }
+    private Object key(String value) throws ReflectiveOperationException { Class<?> type = Class.forName("xyz.jpenilla.squaremap.api.Key"); return type.getMethod("of", String.class).invoke(null, value); }
+    private Object layer() throws ReflectiveOperationException { Object builder = Class.forName("xyz.jpenilla.squaremap.api.SimpleLayerProvider").getMethod("builder", String.class).invoke(null, "LandWard Claims"); call(builder, "showControls", true); call(builder, "defaultHidden", false); return call(builder, "build"); }
+    private Object marker(Land land, ClaimedChunk claim) throws ReflectiveOperationException {
+        Class<?> point = Class.forName("xyz.jpenilla.squaremap.api.Point"); Method of = point.getMethod("of", double.class, double.class); int x = claim.position().x() << 4, z = claim.position().z() << 4;
+        Object points = List.of(of.invoke(null, (double) x, (double) z), of.invoke(null, x + 16.0, (double) z), of.invoke(null, x + 16.0, z + 16.0), of.invoke(null, (double) x, z + 16.0));
+        Object polygon = Class.forName("xyz.jpenilla.squaremap.api.marker.Marker").getMethod("polygon", List.class).invoke(null, points);
+        Object options = Class.forName("xyz.jpenilla.squaremap.api.marker.MarkerOptions").getMethod("builder").invoke(null);
+        call(options, "strokeColor", Color.GREEN); call(options, "fillColor", Color.GREEN); call(options, "fillOpacity", 0.20D); call(options, "hoverTooltip", "LandWard: " + land.name()); call(polygon, "markerOptions", options); return polygon;
+    }
+    private static Object call(Object target, String name, Object... args) throws ReflectiveOperationException {
+        for (Method method : target.getClass().getMethods()) { if (!method.getName().equals(name) || method.getParameterCount() != args.length) continue; Class<?>[] types = method.getParameterTypes(); boolean match = true; for (int i = 0; i < types.length; i++) if (args[i] != null && !wrap(types[i]).isInstance(args[i])) { match = false; break; } if (match) return method.invoke(target, args); }
+        throw new NoSuchMethodException(target.getClass().getName() + "." + name);
+    }
+    private static Class<?> wrap(Class<?> type) { if (!type.isPrimitive()) return type; if (type == boolean.class) return Boolean.class; if (type == double.class) return Double.class; return type; }
 }
