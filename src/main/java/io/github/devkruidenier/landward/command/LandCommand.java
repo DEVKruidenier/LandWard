@@ -2,6 +2,7 @@ package io.github.devkruidenier.landward.command;
 
 import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
+import io.github.devkruidenier.landward.gui.LandMapGui;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.storage.StorageException;
@@ -20,7 +21,7 @@ import java.util.Optional;
 
 public final class LandCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "claim", "info");
+    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "claim", "info", "list");
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -52,6 +53,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 case "create" -> create(player, arguments);
                 case "claim" -> claim(player);
                 case "info" -> info(player);
+                case "list" -> list(player);
                 default -> {
                     sender.sendMessage(message(sender, "general.unknown-command"));
                     yield true;
@@ -90,6 +92,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(message(sender, "command.help-create"));
         sender.sendMessage(message(sender, "command.help-claim"));
         sender.sendMessage(message(sender, "command.help-info"));
+        sender.sendMessage(message(sender, "command.help-list"));
     }
 
     private boolean create(Player player, String[] arguments) throws StorageException {
@@ -154,6 +157,11 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 "name", claimedLand.name(),
                 "count", landManager.claimCount(claimedLand.id())
         )));
+        return true;
+    }
+
+    private boolean list(Player player) {
+        new LandMapGui(plugin, landManager).open(player);
         return true;
     }
 

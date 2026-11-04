@@ -13,6 +13,7 @@ command:
   help-create: "/land create <name> - Creates your land."
   help-claim: "/land claim - Claims your current chunk."
   help-info: "/land info - Shows information about the current chunk."
+  help-list: "/land list - Opens the nearby chunk map."
 land:
   create-usage: "Usage: /land create <name>"
   created: "Land {name} has been created and this chunk is now protected."
@@ -30,6 +31,18 @@ claim:
   world-disabled: "Land claiming is disabled in this world."
   unclaimed: "This chunk is not claimed."
   info: "This chunk belongs to {name}, which has {count} claimed chunk(s)."
+protection:
+  denied: "This area is protected by {name}."
+gui:
+  map-title: "LandWard • Nearby Chunks"
+  current-chunk: "Current chunk"
+  unclaimed: "Unclaimed"
+  status-unclaimed: "Available to claim"
+  status-yours: "Your land"
+  status-other: "Claimed by another land"
+  legend-yours: "Your claimed chunks"
+  legend-unclaimed: "Unclaimed chunks"
+  legend-other: "Other players' chunks"
 startup:
   header: "LandWard {version}"
   storage: "Storage: {type}"

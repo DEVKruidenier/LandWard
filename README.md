@@ -42,9 +42,10 @@ The `-unshaded` JAR is a development artifact and does not include bStats.
 
 ## Project status
 
-The repository currently includes persistent SQLite lands and chunk claims, localized
-core commands, metrics, update checks, and the project foundation. Protection,
-members, GUIs, economy, MySQL, and map integrations are being implemented incrementally.
+The repository currently includes persistent SQLite lands and chunk claims, core
+commands, owner protection for blocks, containers, buckets and player-placed entities,
+metrics, update checks, and the project foundation. Members, GUIs, economy, MySQL,
+and map integrations are being implemented incrementally.
 
 ## Documentation
 

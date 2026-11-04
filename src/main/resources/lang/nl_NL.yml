@@ -13,6 +13,7 @@ command:
   help-create: "/land create <naam> - Maakt jouw land aan."
   help-claim: "/land claim - Claimt de chunk waarin je staat."
   help-info: "/land info - Toont informatie over de huidige chunk."
+  help-list: "/land list - Opent de chunkkaart in de buurt."
 land:
   create-usage: "Gebruik: /land create <naam>"
   created: "Land {name} is aangemaakt en deze chunk is nu beschermd."
@@ -30,6 +31,18 @@ claim:
   world-disabled: "Land claimen is uitgeschakeld in deze wereld."
   unclaimed: "Deze chunk is niet geclaimd."
   info: "Deze chunk hoort bij {name}, dat {count} geclaimde chunk(s) heeft."
+protection:
+  denied: "Dit gebied is beschermd door {name}."
+gui:
+  map-title: "LandWard • Nabijgelegen chunks"
+  current-chunk: "Huidige chunk"
+  unclaimed: "Niet geclaimd"
+  status-unclaimed: "Beschikbaar om te claimen"
+  status-yours: "Jouw land"
+  status-other: "Geclaimd door een ander land"
+  legend-yours: "Jouw geclaimde chunks"
+  legend-unclaimed: "Niet geclaimde chunks"
+  legend-other: "Chunks van andere spelers"
 startup:
   header: "LandWard {version}"
   storage: "Opslag: {type}"
