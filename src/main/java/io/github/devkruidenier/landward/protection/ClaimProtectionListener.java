@@ -84,7 +84,9 @@ public final class ClaimProtectionListener implements Listener {
         if (clicked != null) {
             Optional<Land> land = landAt(clicked.getLocation());
             if (land.isPresent() && landManager.typeOf(land.get()) == LandType.ADMIN) {
-                if (!adminAllowedToInteract(event.getPlayer(), land.get(), clicked)) event.setCancelled(true);
+                if (!adminAllowedToInteract(event.getPlayer(), land.get(), clicked)) {
+                    deny(event.getPlayer(), land.get(), event::setCancelled);
+                }
                 return;
             }
             MemberPermissions.Permission permission = spawningEntity
@@ -227,9 +229,13 @@ public final class ClaimProtectionListener implements Listener {
             return;
         }
 
+        deny(player, land.get(), cancellation);
+    }
+
+    private void deny(Player player, Land land, java.util.function.Consumer<Boolean> cancellation) {
         cancellation.accept(true);
         String locale = plugin.localeService().localeFor(player);
-        String message = plugin.localeService().message(locale, "protection.denied", Map.of("name", land.get().name()));
+        String message = plugin.localeService().message(locale, "protection.denied", Map.of("name", land.name()));
         player.sendActionBar(Component.text(message, NamedTextColor.RED));
     }
 

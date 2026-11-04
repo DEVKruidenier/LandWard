@@ -12,6 +12,11 @@ import io.github.devkruidenier.landward.economy.ExperiencePayments;
 import io.github.devkruidenier.landward.economy.VaultPayments;
 import io.github.devkruidenier.landward.integration.WorldGuardIntegration;
 import io.github.devkruidenier.landward.integration.VanillaSpawnProtectionIntegration;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -252,7 +257,15 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
     private boolean info(Player player) {
         player.sendMessage(message(player, "command.header", Map.of("version", plugin.getPluginMeta().getVersion())));
-        player.sendMessage(message(player, "command.info-author"));
+        String authorLine = plugin.localeService().message(plugin.localeService().localeFor(player), "command.info-author");
+        String authorLabel = authorLine.substring(0, authorLine.lastIndexOf("DEVKruidenier"));
+        player.sendMessage(Component.text("LandWard ", NamedTextColor.GOLD, TextDecoration.BOLD)
+                .append(Component.text("» ", NamedTextColor.DARK_GRAY))
+                .append(Component.text(authorLabel, NamedTextColor.WHITE))
+                .append(Component.text("DEVKruidenier", NamedTextColor.AQUA)
+                        .clickEvent(ClickEvent.openUrl("https://github.com/DEVKruidenier"))
+                        .hoverEvent(HoverEvent.showText(Component.text("Open github.com/DEVKruidenier", NamedTextColor.GRAY)))
+                        .decoration(TextDecoration.UNDERLINED, true)));
         return true;
     }
 
