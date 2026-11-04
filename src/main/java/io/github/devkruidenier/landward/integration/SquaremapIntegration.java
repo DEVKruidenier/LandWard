@@ -47,8 +47,8 @@ public final class SquaremapIntegration {
     private Object key(String value) throws ReflectiveOperationException { Class<?> type = Class.forName("xyz.jpenilla.squaremap.api.Key"); return type.getMethod("of", String.class).invoke(null, value); }
     private Object layer() throws ReflectiveOperationException { Object builder = Class.forName("xyz.jpenilla.squaremap.api.SimpleLayerProvider").getMethod("builder", String.class).invoke(null, "LandWard Claims"); call(builder, "showControls", true); call(builder, "defaultHidden", false); return call(builder, "build"); }
     private Object marker(Land land, ClaimedChunk claim) throws ReflectiveOperationException {
-        Class<?> point = Class.forName("xyz.jpenilla.squaremap.api.Point"); Method of = point.getMethod("of", double.class, double.class); int x = claim.position().x() << 4, z = claim.position().z() << 4;
-        Object points = List.of(of.invoke(null, (double) x, (double) z), of.invoke(null, x + 16.0, (double) z), of.invoke(null, x + 16.0, z + 16.0), of.invoke(null, (double) x, z + 16.0));
+        Class<?> point = Class.forName("xyz.jpenilla.squaremap.api.Point"); Method of = point.getMethod("of", double.class, double.class); int x = claim.position().minBlockX(), z = claim.position().minBlockZ();
+        Object points = List.of(of.invoke(null, (double) x, (double) z), of.invoke(null, (double) claim.position().maxBlockXExclusive(), (double) z), of.invoke(null, (double) claim.position().maxBlockXExclusive(), (double) claim.position().maxBlockZExclusive()), of.invoke(null, (double) x, (double) claim.position().maxBlockZExclusive()));
         Object polygon = Class.forName("xyz.jpenilla.squaremap.api.marker.Marker").getMethod("polygon", List.class).invoke(null, points);
         Object options = Class.forName("xyz.jpenilla.squaremap.api.marker.MarkerOptions").getMethod("builder").invoke(null);
         call(options, "strokeColor", Color.GREEN); call(options, "fillColor", Color.GREEN); call(options, "fillOpacity", 0.20D); call(options, "hoverTooltip", "LandWard: " + land.name()); call(polygon, "markerOptions", options); return polygon;

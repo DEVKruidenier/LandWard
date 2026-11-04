@@ -45,9 +45,9 @@ public final class Pl3xMapIntegration {
             Land land = lands.land(claim.landId()).orElse(null);
             if (land == null) continue;
             if (!first) json.append(','); first = false;
-            int x = claim.position().x() << 4, z = claim.position().z() << 4;
+            int x = claim.position().minBlockX(), z = claim.position().minBlockZ();
             json.append("\n    {\"type\":\"rect\",\"data\":{\"key\":\"claim_").append(claim.position().x()).append('_').append(claim.position().z())
-                    .append("\",\"point1\":{\"x\":").append(x).append(",\"z\":").append(z).append("},\"point2\":{\"x\":").append(x + 16).append(",\"z\":").append(z + 16)
+                    .append("\",\"point1\":{\"x\":").append(x).append(",\"z\":").append(z).append("},\"point2\":{\"x\":").append(claim.position().maxBlockXExclusive()).append(",\"z\":").append(claim.position().maxBlockZExclusive())
                     .append("}},\"options\":{\"tooltip\":{\"content\":\"").append(escape("LandWard: " + land.name())).append("\"},\"fill\":{\"color\":-13382400,\"opacity\":0.20}}}");
         }
         return json.append("\n  ]\n}\n").toString();

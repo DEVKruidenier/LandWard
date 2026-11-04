@@ -2,7 +2,7 @@ package io.github.devkruidenier.landward.command;
 
 import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
-import io.github.devkruidenier.landward.gui.LandMapGui;
+import io.github.devkruidenier.landward.gui.ClaimAdminGui;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -29,7 +29,7 @@ public final class ClaimAdminCommand implements CommandExecutor {
             sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "general.player-only"));
             return true;
         }
-        new LandMapGui(plugin, landManager).openAdmin(player);
+        new ClaimAdminGui(plugin, landManager).openMain(player);
         return true;
     }
 }

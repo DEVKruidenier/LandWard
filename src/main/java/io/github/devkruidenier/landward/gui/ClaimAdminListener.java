@@ -1,0 +1,47 @@
+package io.github.devkruidenier.landward.gui;
+
+import io.github.devkruidenier.landward.LandWardPlugin;
+import io.github.devkruidenier.landward.claim.LandManager;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+
+/** Handles the administrative claim menu without exposing mutating actions to players. */
+public final class ClaimAdminListener implements Listener {
+    private final LandWardPlugin plugin;
+    private final LandManager lands;
+
+    public ClaimAdminListener(LandWardPlugin plugin, LandManager lands) { this.plugin = plugin; this.lands = lands; }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onClick(InventoryClickEvent event) {
+        if (!(event.getView().getTopInventory().getHolder() instanceof ClaimAdminHolder holder)) return;
+        event.setCancelled(true);
+        if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
+        if (!player.hasPermission("landward.admin")) { player.closeInventory(); return; }
+        ClaimAdminGui gui = new ClaimAdminGui(plugin, lands);
+        if (holder.screen() == ClaimAdminHolder.Screen.MAIN) {
+            if (event.getRawSlot() == 11) new LandMapGui(plugin, lands).openAdmin(player);
+            else if (event.getRawSlot() == 15) gui.openWorlds(player);
+            else if (event.getRawSlot() == 22) player.closeInventory();
+            return;
+        }
+        if (event.getRawSlot() == 49) { gui.openMain(player); return; }
+        String worldName = holder.worldsBySlot().get(event.getRawSlot());
+        if (worldName == null) return;
+        World world = Bukkit.getWorld(worldName);
+        if (world == null) { gui.openWorlds(player); return; }
+        plugin.setLandWorldEnabled(world, !plugin.isLandWorld(world));
+        gui.openWorlds(player);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onDrag(InventoryDragEvent event) {
+        if (event.getView().getTopInventory().getHolder() instanceof ClaimAdminHolder) event.setCancelled(true);
+    }
+}

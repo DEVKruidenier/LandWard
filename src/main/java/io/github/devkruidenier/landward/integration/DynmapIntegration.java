@@ -46,9 +46,9 @@ public final class DynmapIntegration {
         World world = Bukkit.getWorld(claim.position().worldId());
         Land land = landManager.land(claim.landId()).orElse(null);
         if (world == null || land == null || !plugin.isLandWorld(world)) return;
-        int minX = claim.position().x() << 4, minZ = claim.position().z() << 4;
-        double[] x = {minX, minX + 16.0, minX + 16.0, minX};
-        double[] z = {minZ, minZ, minZ + 16.0, minZ + 16.0};
+        int minX = claim.position().minBlockX(), minZ = claim.position().minBlockZ();
+        double[] x = {minX, claim.position().maxBlockXExclusive(), claim.position().maxBlockXExclusive(), minX};
+        double[] z = {minZ, minZ, claim.position().maxBlockZExclusive(), claim.position().maxBlockZExclusive()};
         String id = "landward_" + land.id() + "_" + claim.position().worldId() + "_" + claim.position().x() + "_" + claim.position().z();
         Object marker = invoke(markerSet, "createAreaMarker", id, land.name(), false, world.getName(), x, z, true);
         if (marker != null) {

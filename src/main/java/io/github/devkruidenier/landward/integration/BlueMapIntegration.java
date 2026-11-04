@@ -108,10 +108,11 @@ public final class BlueMapIntegration {
     }
 
     private Object marker(World world, Land land, ClaimedChunk claim) throws ReflectiveOperationException {
-        int minX = claim.position().x() << 4, minZ = claim.position().z() << 4;
+        int minX = claim.position().minBlockX(), minZ = claim.position().minBlockZ();
         Class<?> shapeType = Class.forName("de.bluecolored.bluemap.api.math.Shape");
         Object shape = shapeType.getMethod("createRect", double.class, double.class, double.class, double.class)
-                .invoke(null, (double) minX, (double) minZ, minX + 16.0, minZ + 16.0);
+                .invoke(null, (double) minX, (double) minZ,
+                        (double) claim.position().maxBlockXExclusive(), (double) claim.position().maxBlockZExclusive());
         Class<?> markerType = Class.forName("de.bluecolored.bluemap.api.markers.ShapeMarker");
         // ShapeMarker uses one horizontal plane per shape. A terrain-dependent
         // height makes adjacent chunks project from different planes in BlueMap's

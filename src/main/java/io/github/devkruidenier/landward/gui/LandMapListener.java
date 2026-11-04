@@ -27,7 +27,8 @@ public final class LandMapListener implements Listener {
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
         if (event.getRawSlot() == 53) {
-            new LandManagementGui(plugin, landManager).openMain(player);
+            if (holder.administrator()) new ClaimAdminGui(plugin, landManager).openMain(player);
+            else new LandManagementGui(plugin, landManager).openMain(player);
             return;
         }
         ChunkPosition position = holder.chunksBySlot().get(event.getRawSlot());

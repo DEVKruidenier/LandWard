@@ -16,10 +16,10 @@ Set the value to `-1` to allow unlimited chunks.
 
 ## World scope
 
-`claims.enabled-worlds` is an allow-list and `claims.disabled-worlds` is a deny-list.
-Leave the allow-list empty for all worlds except explicitly disabled ones. These lists
-scope claims, claim protection and map markers, so `enabled-worlds: [world]` keeps
-Creative and Skyblock worlds entirely outside LandWard.
+LandWard is active in every world by default. Use `claims.disabled-worlds` only for
+exceptions, such as creative, skyblock or minigame worlds. This list scopes claims,
+claim protection and map markers without deleting existing claim data. The default
+configuration includes a commented `# - myworld` example.
 
 ## Claim payments
 

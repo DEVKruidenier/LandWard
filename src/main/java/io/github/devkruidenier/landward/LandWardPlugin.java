@@ -16,6 +16,8 @@ import io.github.devkruidenier.landward.integration.placeholder.LandWardExpansio
 import io.github.devkruidenier.landward.gui.LandMapListener;
 import io.github.devkruidenier.landward.gui.LandManagementListener;
 import io.github.devkruidenier.landward.gui.LandRenameListener;
+import io.github.devkruidenier.landward.gui.ClaimAdminGui;
+import io.github.devkruidenier.landward.gui.ClaimAdminListener;
 import io.github.devkruidenier.landward.protection.ClaimProtectionListener;
 import io.github.devkruidenier.landward.protection.ClaimBoundaryListener;
 import io.github.devkruidenier.landward.combat.CombatTagListener;
@@ -108,6 +110,7 @@ public final class LandWardPlugin extends JavaPlugin {
         LandRenameListener renameListener = new LandRenameListener(this, landManager, landCommand);
         getServer().getPluginManager().registerEvents(renameListener, this);
         getServer().getPluginManager().registerEvents(new LandManagementListener(this, landManager, renameListener), this);
+        getServer().getPluginManager().registerEvents(new ClaimAdminListener(this, landManager), this);
 
         this.metricsService = new MetricsService(this);
         this.metricsService.initialize();
@@ -166,11 +169,23 @@ public final class LandWardPlugin extends JavaPlugin {
         if (planIntegration != null) planIntegration.refresh();
     }
 
-    /** Returns whether LandWard is active for this world. An empty allow-list permits all worlds. */
+    /** LandWard is active in every world except explicit disabled-world exceptions. */
     public boolean isLandWorld(World world) {
-        java.util.List<String> enabled = getConfig().getStringList("claims.enabled-worlds");
         java.util.List<String> disabled = getConfig().getStringList("claims.disabled-worlds");
-        return !disabled.contains(world.getName()) && (enabled.isEmpty() || enabled.contains(world.getName()));
+        return !disabled.contains(world.getName());
+    }
+
+    /** Persists an administrator's per-world LandWard activation choice. */
+    public void setLandWorldEnabled(World world, boolean active) {
+        java.util.List<String> disabled = new java.util.ArrayList<>(getConfig().getStringList("claims.disabled-worlds"));
+        if (active) {
+            disabled.remove(world.getName());
+        } else if (!disabled.contains(world.getName())) {
+            disabled.add(world.getName());
+        }
+        getConfig().set("claims.disabled-worlds", disabled);
+        saveConfig();
+        syncMapIntegrations();
     }
 
     public void refreshAnalyticsIntegration() {
@@ -208,6 +223,8 @@ public final class LandWardPlugin extends JavaPlugin {
             );
             getConfig().setDefaults(bundled);
             getConfig().options().copyDefaults(true);
+            // A single deny-list is clearer than an allow-list plus exceptions.
+            getConfig().set("claims.enabled-worlds", null);
             saveConfig();
         } catch (Exception exception) {
             getLogger().warning("Could not merge new LandWard config defaults: " + exception.getMessage());
