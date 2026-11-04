@@ -14,6 +14,7 @@ command:
   help-claim: "/land claim - Claims your current chunk."
   help-info: "/land info - Shows information about the current chunk."
   help-list: "/land list - Opens the nearby chunk map."
+  help-members: "/land add <player>, /land remove <player>, /land rights <player> <build|containers|entities> <on|off>"
 land:
   create-usage: "Usage: /land create <name>"
   created: "Land {name} has been created and this chunk is now protected."
@@ -21,6 +22,15 @@ land:
   already-owner: "You already own the land {name}."
   name-taken: "The land name {name} is already in use."
   chunk-already-claimed: "You cannot create a land here because this chunk belongs to {name}."
+  member-usage: "Usage: /land add <player> or /land remove <player>"
+  member-added: "{player} is now a member of your land."
+  member-removed: "{player} is no longer a member of your land."
+  member-owner: "You are already the owner of this land."
+  member-already: "{player} is already a member of your land."
+  member-not-found: "{player} is not a member of your land."
+  player-not-online: "That player must be online."
+  rights-usage: "Usage: /land rights <player> <build|containers|entities> <on|off>"
+  rights-updated: "Updated {permission} for {player}: {state}."
 claim:
   claimed: "Chunk claimed for {name}. You now own {count} chunk(s)."
   no-land: "Create a land first with /land create <name>."

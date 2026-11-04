@@ -2,6 +2,7 @@ package io.github.devkruidenier.landward.storage;
 
 import io.github.devkruidenier.landward.model.ClaimedChunk;
 import io.github.devkruidenier.landward.model.Land;
+import io.github.devkruidenier.landward.model.LandMember;
 
 public interface LandStorage extends AutoCloseable {
 
@@ -14,6 +15,12 @@ public interface LandStorage extends AutoCloseable {
     void insertLandWithClaim(Land land, ClaimedChunk claim) throws StorageException;
 
     void insertClaim(ClaimedChunk claim) throws StorageException;
+
+    void insertMember(LandMember member) throws StorageException;
+
+    void updateMember(LandMember member) throws StorageException;
+
+    void deleteMember(java.util.UUID landId, java.util.UUID playerId) throws StorageException;
 
     String type();
 

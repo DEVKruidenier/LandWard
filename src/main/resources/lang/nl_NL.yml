@@ -14,6 +14,7 @@ command:
   help-claim: "/land claim - Claimt de chunk waarin je staat."
   help-info: "/land info - Toont informatie over de huidige chunk."
   help-list: "/land list - Opent de chunkkaart in de buurt."
+  help-members: "/land add <speler>, /land remove <speler>, /land rights <speler> <build|containers|entities> <on|off>"
 land:
   create-usage: "Gebruik: /land create <naam>"
   created: "Land {name} is aangemaakt en deze chunk is nu beschermd."
@@ -21,6 +22,15 @@ land:
   already-owner: "Je bent al eigenaar van het land {name}."
   name-taken: "De landnaam {name} is al in gebruik."
   chunk-already-claimed: "Je kunt hier geen land maken, want deze chunk hoort bij {name}."
+  member-usage: "Gebruik: /land add <speler> of /land remove <speler>"
+  member-added: "{player} is nu lid van jouw land."
+  member-removed: "{player} is geen lid meer van jouw land."
+  member-owner: "Je bent al de eigenaar van dit land."
+  member-already: "{player} is al lid van jouw land."
+  member-not-found: "{player} is geen lid van jouw land."
+  player-not-online: "Deze speler moet online zijn."
+  rights-usage: "Gebruik: /land rights <speler> <build|containers|entities> <on|off>"
+  rights-updated: "{permission} voor {player} bijgewerkt: {state}."
 claim:
   claimed: "Chunk geclaimd voor {name}. Je bezit nu {count} chunk(s)."
   no-land: "Maak eerst een land met /land create <naam>."

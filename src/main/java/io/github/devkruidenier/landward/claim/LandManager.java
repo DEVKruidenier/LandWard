@@ -3,6 +3,8 @@ package io.github.devkruidenier.landward.claim;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.ClaimedChunk;
 import io.github.devkruidenier.landward.model.Land;
+import io.github.devkruidenier.landward.model.LandMember;
+import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.storage.LandStorage;
 import io.github.devkruidenier.landward.storage.StorageException;
 import io.github.devkruidenier.landward.storage.StorageSnapshot;
@@ -25,6 +27,7 @@ public final class LandManager {
     private final Map<String, Land> landsByName = new HashMap<>();
     private final Map<ChunkPosition, UUID> claims = new HashMap<>();
     private final Map<UUID, Integer> claimCounts = new HashMap<>();
+    private final Map<UUID, Map<UUID, MemberPermissions>> membersByLand = new HashMap<>();
 
     public LandManager(LandStorage storage) {
         this.storage = storage;
@@ -37,6 +40,7 @@ public final class LandManager {
         landsByName.clear();
         claims.clear();
         claimCounts.clear();
+        membersByLand.clear();
 
         for (Land land : snapshot.lands()) {
             landsById.put(land.id(), land);
@@ -49,6 +53,13 @@ public final class LandManager {
             }
             claims.put(claim.position(), claim.landId());
             claimCounts.merge(claim.landId(), 1, Integer::sum);
+        }
+        for (LandMember member : snapshot.members()) {
+            if (!landsById.containsKey(member.landId())) {
+                throw new StorageException("Member references an unknown land: " + member.landId(), null);
+            }
+            membersByLand.computeIfAbsent(member.landId(), ignored -> new HashMap<>())
+                    .put(member.playerId(), member.permissions());
         }
     }
 
@@ -131,6 +142,67 @@ public final class LandManager {
         return claims.size();
     }
 
+    public synchronized MemberPermissions permissions(UUID playerId, UUID landId) {
+        Land land = landsById.get(landId);
+        if (land != null && land.ownerId().equals(playerId)) {
+            return MemberPermissions.FULL;
+        }
+        return membersByLand.getOrDefault(landId, Map.of()).getOrDefault(playerId, MemberPermissions.NONE);
+    }
+
+    public synchronized MemberResult addMember(UUID ownerId, UUID memberId) throws StorageException {
+        Land land = landsByOwner.get(ownerId);
+        if (land == null) {
+            return new MemberResult(MemberStatus.NO_LAND, null, MemberPermissions.NONE);
+        }
+        if (ownerId.equals(memberId)) {
+            return new MemberResult(MemberStatus.CANNOT_ADD_OWNER, land, MemberPermissions.FULL);
+        }
+        Map<UUID, MemberPermissions> members = membersByLand.computeIfAbsent(land.id(), ignored -> new HashMap<>());
+        if (members.containsKey(memberId)) {
+            return new MemberResult(MemberStatus.ALREADY_MEMBER, land, members.get(memberId));
+        }
+        LandMember member = new LandMember(land.id(), memberId, MemberPermissions.FULL);
+        storage.insertMember(member);
+        members.put(memberId, member.permissions());
+        return new MemberResult(MemberStatus.ADDED, land, member.permissions());
+    }
+
+    public synchronized MemberResult removeMember(UUID ownerId, UUID memberId) throws StorageException {
+        Land land = landsByOwner.get(ownerId);
+        if (land == null) {
+            return new MemberResult(MemberStatus.NO_LAND, null, MemberPermissions.NONE);
+        }
+        Map<UUID, MemberPermissions> members = membersByLand.getOrDefault(land.id(), Map.of());
+        if (!members.containsKey(memberId)) {
+            return new MemberResult(MemberStatus.NOT_MEMBER, land, MemberPermissions.NONE);
+        }
+        storage.deleteMember(land.id(), memberId);
+        membersByLand.get(land.id()).remove(memberId);
+        return new MemberResult(MemberStatus.REMOVED, land, MemberPermissions.NONE);
+    }
+
+    public synchronized MemberResult updateMemberPermission(
+            UUID ownerId,
+            UUID memberId,
+            MemberPermissions.Permission permission,
+            boolean enabled
+    ) throws StorageException {
+        Land land = landsByOwner.get(ownerId);
+        if (land == null) {
+            return new MemberResult(MemberStatus.NO_LAND, null, MemberPermissions.NONE);
+        }
+        Map<UUID, MemberPermissions> members = membersByLand.getOrDefault(land.id(), Map.of());
+        MemberPermissions current = members.get(memberId);
+        if (current == null) {
+            return new MemberResult(MemberStatus.NOT_MEMBER, land, MemberPermissions.NONE);
+        }
+        MemberPermissions updated = current.with(permission, enabled);
+        storage.updateMember(new LandMember(land.id(), memberId, updated));
+        membersByLand.get(land.id()).put(memberId, updated);
+        return new MemberResult(MemberStatus.PERMISSION_UPDATED, land, updated);
+    }
+
     private boolean isAdjacent(ChunkPosition position, UUID landId) {
         return belongsTo(position.worldId(), position.x() + 1, position.z(), landId)
                 || belongsTo(position.worldId(), position.x() - 1, position.z(), landId)
@@ -167,5 +239,18 @@ public final class LandManager {
         ALREADY_CLAIMED,
         LIMIT_REACHED,
         NOT_ADJACENT
+    }
+
+    public record MemberResult(MemberStatus status, Land land, MemberPermissions permissions) {
+    }
+
+    public enum MemberStatus {
+        ADDED,
+        REMOVED,
+        PERMISSION_UPDATED,
+        NO_LAND,
+        CANNOT_ADD_OWNER,
+        ALREADY_MEMBER,
+        NOT_MEMBER
     }
 }

@@ -5,11 +5,13 @@ import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.gui.LandMapGui;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.Land;
+import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.storage.StorageException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +23,7 @@ import java.util.Optional;
 
 public final class LandCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "claim", "info", "list");
+    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "claim", "info", "list", "add", "remove", "rights");
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -54,6 +56,9 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 case "claim" -> claim(player);
                 case "info" -> info(player);
                 case "list" -> list(player);
+                case "add" -> addMember(player, arguments);
+                case "remove" -> removeMember(player, arguments);
+                case "rights" -> updateRights(player, arguments);
                 default -> {
                     sender.sendMessage(message(sender, "general.unknown-command"));
                     yield true;
@@ -93,6 +98,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(message(sender, "command.help-claim"));
         sender.sendMessage(message(sender, "command.help-info"));
         sender.sendMessage(message(sender, "command.help-list"));
+        sender.sendMessage(message(sender, "command.help-members"));
     }
 
     private boolean create(Player player, String[] arguments) throws StorageException {
@@ -163,6 +169,77 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
     private boolean list(Player player) {
         new LandMapGui(plugin, landManager).open(player);
         return true;
+    }
+
+    private boolean addMember(Player player, String[] arguments) throws StorageException {
+        Player target = onlineTarget(player, arguments, "land.member-usage");
+        if (target == null) return true;
+        LandManager.MemberResult result = landManager.addMember(player.getUniqueId(), target.getUniqueId());
+        player.sendMessage(message(player, switch (result.status()) {
+            case ADDED -> "land.member-added";
+            case NO_LAND -> "claim.no-land";
+            case CANNOT_ADD_OWNER -> "land.member-owner";
+            case ALREADY_MEMBER -> "land.member-already";
+            default -> "general.storage-error";
+        }, Map.of("player", target.getName())));
+        return true;
+    }
+
+    private boolean removeMember(Player player, String[] arguments) throws StorageException {
+        Player target = onlineTarget(player, arguments, "land.member-usage");
+        if (target == null) return true;
+        LandManager.MemberResult result = landManager.removeMember(player.getUniqueId(), target.getUniqueId());
+        player.sendMessage(message(player, switch (result.status()) {
+            case REMOVED -> "land.member-removed";
+            case NO_LAND -> "claim.no-land";
+            case NOT_MEMBER -> "land.member-not-found";
+            default -> "general.storage-error";
+        }, Map.of("player", target.getName())));
+        return true;
+    }
+
+    private boolean updateRights(Player player, String[] arguments) throws StorageException {
+        if (arguments.length != 4) {
+            player.sendMessage(message(player, "land.rights-usage"));
+            return true;
+        }
+        Player target = Bukkit.getPlayerExact(arguments[1]);
+        if (target == null) {
+            player.sendMessage(message(player, "land.player-not-online"));
+            return true;
+        }
+        MemberPermissions.Permission permission;
+        try {
+            permission = MemberPermissions.Permission.valueOf(arguments[2].toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException exception) {
+            player.sendMessage(message(player, "land.rights-usage"));
+            return true;
+        }
+        boolean enabled = arguments[3].equalsIgnoreCase("on") || arguments[3].equalsIgnoreCase("true");
+        if (!enabled && !arguments[3].equalsIgnoreCase("off") && !arguments[3].equalsIgnoreCase("false")) {
+            player.sendMessage(message(player, "land.rights-usage"));
+            return true;
+        }
+        LandManager.MemberResult result = landManager.updateMemberPermission(player.getUniqueId(), target.getUniqueId(), permission, enabled);
+        player.sendMessage(message(player, switch (result.status()) {
+            case PERMISSION_UPDATED -> "land.rights-updated";
+            case NO_LAND -> "claim.no-land";
+            case NOT_MEMBER -> "land.member-not-found";
+            default -> "general.storage-error";
+        }, Map.of("player", target.getName(), "permission", permission.name().toLowerCase(Locale.ROOT), "state", enabled ? "on" : "off")));
+        return true;
+    }
+
+    private Player onlineTarget(Player player, String[] arguments, String usageKey) {
+        if (arguments.length != 2) {
+            player.sendMessage(message(player, usageKey));
+            return null;
+        }
+        Player target = Bukkit.getPlayerExact(arguments[1]);
+        if (target == null) {
+            player.sendMessage(message(player, "land.player-not-online"));
+        }
+        return target;
     }
 
     private ChunkPosition position(Player player) {

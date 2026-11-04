@@ -3,6 +3,8 @@ package io.github.devkruidenier.landward.storage.sqlite;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.ClaimedChunk;
 import io.github.devkruidenier.landward.model.Land;
+import io.github.devkruidenier.landward.model.LandMember;
+import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.storage.LandStorage;
 import io.github.devkruidenier.landward.storage.StorageException;
 import io.github.devkruidenier.landward.storage.StorageSnapshot;
@@ -52,6 +54,17 @@ public final class SqliteLandStorage implements LandStorage {
                         )
                         """);
                 statement.execute("CREATE INDEX IF NOT EXISTS idx_claims_land_id ON claims(land_id)");
+                statement.execute("""
+                        CREATE TABLE IF NOT EXISTS land_members (
+                            land_id TEXT NOT NULL,
+                            player_uuid TEXT NOT NULL,
+                            can_build INTEGER NOT NULL,
+                            can_containers INTEGER NOT NULL,
+                            can_entities INTEGER NOT NULL,
+                            PRIMARY KEY (land_id, player_uuid),
+                            FOREIGN KEY (land_id) REFERENCES lands(id) ON DELETE CASCADE
+                        )
+                        """);
             }
         } catch (ClassNotFoundException | SQLException exception) {
             throw new StorageException("Could not initialize SQLite storage", exception);
@@ -62,6 +75,7 @@ public final class SqliteLandStorage implements LandStorage {
     public StorageSnapshot load() throws StorageException {
         List<Land> lands = new ArrayList<>();
         List<ClaimedChunk> claims = new ArrayList<>();
+        List<LandMember> members = new ArrayList<>();
         try (Connection connection = connection()) {
             try (Statement statement = connection.createStatement();
                  ResultSet result = statement.executeQuery("SELECT id, owner_uuid, name, created_at FROM lands")) {
@@ -89,7 +103,23 @@ public final class SqliteLandStorage implements LandStorage {
                     ));
                 }
             }
-            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims));
+            try (Statement statement = connection.createStatement();
+                 ResultSet result = statement.executeQuery(
+                         "SELECT land_id, player_uuid, can_build, can_containers, can_entities FROM land_members"
+                 )) {
+                while (result.next()) {
+                    members.add(new LandMember(
+                            UUID.fromString(result.getString("land_id")),
+                            UUID.fromString(result.getString("player_uuid")),
+                            new MemberPermissions(
+                                    result.getBoolean("can_build"),
+                                    result.getBoolean("can_containers"),
+                                    result.getBoolean("can_entities")
+                            )
+                    ));
+                }
+            }
+            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members));
         } catch (SQLException | IllegalArgumentException exception) {
             throw new StorageException("Could not load SQLite data", exception);
         }
@@ -157,6 +187,40 @@ public final class SqliteLandStorage implements LandStorage {
     }
 
     @Override
+    public void insertMember(LandMember member) throws StorageException {
+        String sql = "INSERT INTO land_members(land_id, player_uuid, can_build, can_containers, can_entities) VALUES (?, ?, ?, ?, ?)";
+        writeMember(sql, member, "Could not save land member");
+    }
+
+    @Override
+    public void updateMember(LandMember member) throws StorageException {
+        String sql = "UPDATE land_members SET can_build = ?, can_containers = ?, can_entities = ? WHERE land_id = ? AND player_uuid = ?";
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setBoolean(1, member.permissions().build());
+            statement.setBoolean(2, member.permissions().containers());
+            statement.setBoolean(3, member.permissions().entities());
+            statement.setString(4, member.landId().toString());
+            statement.setString(5, member.playerId().toString());
+            statement.executeUpdate();
+        } catch (SQLException exception) {
+            throw new StorageException("Could not update land member", exception);
+        }
+    }
+
+    @Override
+    public void deleteMember(UUID landId, UUID playerId) throws StorageException {
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement(
+                "DELETE FROM land_members WHERE land_id = ? AND player_uuid = ?"
+        )) {
+            statement.setString(1, landId.toString());
+            statement.setString(2, playerId.toString());
+            statement.executeUpdate();
+        } catch (SQLException exception) {
+            throw new StorageException("Could not delete land member", exception);
+        }
+    }
+
+    @Override
     public String type() {
         return "SQLITE";
     }
@@ -168,5 +232,18 @@ public final class SqliteLandStorage implements LandStorage {
             statement.execute("PRAGMA busy_timeout=5000");
         }
         return connection;
+    }
+
+    private void writeMember(String sql, LandMember member, String failureMessage) throws StorageException {
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, member.landId().toString());
+            statement.setString(2, member.playerId().toString());
+            statement.setBoolean(3, member.permissions().build());
+            statement.setBoolean(4, member.permissions().containers());
+            statement.setBoolean(5, member.permissions().entities());
+            statement.executeUpdate();
+        } catch (SQLException exception) {
+            throw new StorageException(failureMessage, exception);
+        }
     }
 }
