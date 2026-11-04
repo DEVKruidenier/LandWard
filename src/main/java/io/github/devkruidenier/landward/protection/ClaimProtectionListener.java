@@ -139,17 +139,17 @@ public final class ClaimProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onEntityExplode(EntityExplodeEvent event) {
-        event.blockList().removeIf(block -> landManager.landAt(position(block.getLocation())).isPresent());
+        event.blockList().removeIf(block -> landAt(block.getLocation()).isPresent());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onBlockExplode(BlockExplodeEvent event) {
-        event.blockList().removeIf(block -> landManager.landAt(position(block.getLocation())).isPresent());
+        event.blockList().removeIf(block -> landAt(block.getLocation()).isPresent());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-        if (landManager.landAt(position(event.getBlock().getLocation())).isPresent()) {
+        if (landAt(event.getBlock().getLocation()).isPresent()) {
             event.setCancelled(true);
         }
     }
@@ -160,7 +160,7 @@ public final class ClaimProtectionListener implements Listener {
             MemberPermissions.Permission permission,
             java.util.function.Consumer<Boolean> cancellation
     ) {
-        Optional<Land> land = landManager.landAt(position(location));
+        Optional<Land> land = landAt(location);
         if (land.isEmpty() || allowed(player, land.get(), permission)) {
             return;
         }
@@ -194,12 +194,17 @@ public final class ClaimProtectionListener implements Listener {
     }
 
     private boolean sameProtectionDomain(Location first, Location second) {
-        UUID firstLand = landManager.landAt(position(first)).map(Land::id).orElse(null);
-        UUID secondLand = landManager.landAt(position(second)).map(Land::id).orElse(null);
+        UUID firstLand = landAt(first).map(Land::id).orElse(null);
+        UUID secondLand = landAt(second).map(Land::id).orElse(null);
         return Objects.equals(firstLand, secondLand);
     }
 
     private ChunkPosition position(Location location) {
         return new ChunkPosition(location.getWorld().getUID(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
+    }
+
+    private Optional<Land> landAt(Location location) {
+        if (location.getWorld() == null || !plugin.isLandWorld(location.getWorld())) return Optional.empty();
+        return landManager.landAt(position(location));
     }
 }

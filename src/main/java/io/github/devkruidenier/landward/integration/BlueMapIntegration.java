@@ -48,7 +48,7 @@ public final class BlueMapIntegration {
     private void syncClaim(Object api, ClaimedChunk claim) throws ReflectiveOperationException {
         World world = Bukkit.getWorld(claim.position().worldId());
         Land land = landManager.land(claim.landId()).orElse(null);
-        if (world == null || land == null) return;
+        if (world == null || land == null || !plugin.isLandWorld(world)) return;
         @SuppressWarnings("unchecked") Optional<Object> blueWorld = (Optional<Object>) invoke(api, "getWorld", world);
         if (blueWorld.isEmpty()) return;
         @SuppressWarnings("unchecked") Collection<Object> maps = (Collection<Object>) invoke(blueWorld.get(), "getMaps");

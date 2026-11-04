@@ -26,6 +26,7 @@ public final class Pl3xMapIntegration {
         Plugin pl3x = plugin.getServer().getPluginManager().getPlugin("Pl3xMap");
         if (pl3x == null) return;
         for (World world : Bukkit.getWorlds()) {
+            if (!plugin.isLandWorld(world)) continue;
             try {
                 Path output = pl3x.getDataFolder().toPath().resolve("markers").resolve(world.getName()).resolve("landward_claims.json");
                 Files.createDirectories(output.getParent());

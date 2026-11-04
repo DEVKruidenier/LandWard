@@ -12,6 +12,13 @@ A player can own one land and may be a member of any number of other lands.
 `claims.maximum-chunks-per-land` limits the chunks belonging to that owned land.
 Set the value to `-1` to allow unlimited chunks.
 
+## World scope
+
+`claims.enabled-worlds` is an allow-list and `claims.disabled-worlds` is a deny-list.
+Leave the allow-list empty for all worlds except explicitly disabled ones. These lists
+scope claims, claim protection and map markers, so `enabled-worlds: [world]` keeps
+Creative and Skyblock worlds entirely outside LandWard.
+
 ## Claim payments
 
 Set `payments.mode` to `free` (default) for no cost or `experience` to charge

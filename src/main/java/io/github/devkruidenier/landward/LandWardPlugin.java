@@ -23,6 +23,7 @@ import io.github.devkruidenier.landward.storage.mysql.MySqlLandStorage;
 import io.github.devkruidenier.landward.storage.sqlite.SqliteLandStorage;
 import io.github.devkruidenier.landward.update.UpdateChecker;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class LandWardPlugin extends JavaPlugin {
@@ -134,6 +135,13 @@ public final class LandWardPlugin extends JavaPlugin {
         if (squaremapIntegration != null) squaremapIntegration.sync();
         if (pl3xMapIntegration != null) pl3xMapIntegration.sync();
         if (planIntegration != null) planIntegration.refresh();
+    }
+
+    /** Returns whether LandWard is active for this world. An empty allow-list permits all worlds. */
+    public boolean isLandWorld(World world) {
+        java.util.List<String> enabled = getConfig().getStringList("claims.enabled-worlds");
+        java.util.List<String> disabled = getConfig().getStringList("claims.disabled-worlds");
+        return !disabled.contains(world.getName()) && (enabled.isEmpty() || enabled.contains(world.getName()));
     }
 
     public void refreshAnalyticsIntegration() {

@@ -24,6 +24,7 @@ public final class SquaremapIntegration {
         } catch (ReflectiveOperationException exception) { if (!failureLogged) { plugin.getLogger().warning("Squaremap markers could not be synchronized: " + exception.getMessage()); failureLogged = true; } }
     }
     private void syncWorld(Object map, Object layerKey, World world) throws ReflectiveOperationException {
+        if (!plugin.isLandWorld(world)) return;
         Class<?> id = Class.forName("xyz.jpenilla.squaremap.api.WorldIdentifier");
         Object worldId = id.getMethod("create", String.class, String.class).invoke(null, "minecraft", world.getName());
         @SuppressWarnings("unchecked") Optional<Object> found = (Optional<Object>) call(map, "getWorldIfEnabled", worldId);

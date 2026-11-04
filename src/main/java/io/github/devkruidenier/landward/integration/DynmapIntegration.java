@@ -45,7 +45,7 @@ public final class DynmapIntegration {
     private void createChunkMarker(Object markerSet, ClaimedChunk claim) throws ReflectiveOperationException {
         World world = Bukkit.getWorld(claim.position().worldId());
         Land land = landManager.land(claim.landId()).orElse(null);
-        if (world == null || land == null) return;
+        if (world == null || land == null || !plugin.isLandWorld(world)) return;
         int minX = claim.position().x() << 4, minZ = claim.position().z() << 4;
         double[] x = {minX, minX + 16.0, minX + 16.0, minX};
         double[] z = {minZ, minZ, minZ + 16.0, minZ + 16.0};

@@ -361,10 +361,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean worldEnabled(Player player) {
-        String world = player.getWorld().getName();
-        List<String> enabled = plugin.getConfig().getStringList("claims.enabled-worlds");
-        List<String> disabled = plugin.getConfig().getStringList("claims.disabled-worlds");
-        return !disabled.contains(world) && (enabled.isEmpty() || enabled.contains(world));
+        return plugin.isLandWorld(player.getWorld());
     }
 
     private String paymentMode() { return plugin.getConfig().getString("payments.mode", "free"); }
