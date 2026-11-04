@@ -8,8 +8,6 @@ import java.util.Map;
 
 public final class StartupReporter {
 
-    private static final String DIVIDER = "--------------------------------------------------";
-
     private final LandWardPlugin plugin;
 
     public StartupReporter(LandWardPlugin plugin) {
@@ -23,14 +21,15 @@ public final class StartupReporter {
         boolean metricsEnabled = plugin.metricsService().isInitialized();
         boolean updateCheckEnabled = plugin.getConfig().getBoolean("updates.enabled", true);
 
-        plugin.console().info(DIVIDER, Tone.MUTED);
-        info("startup.header", Map.of("version", version), Tone.BRAND);
-        info("startup.storage", Map.of("type", storage), Tone.INFO);
-        info("startup.claims", Map.of("count", loadedClaims), Tone.INFO);
-        info("startup.language", Map.of("locale", consoleLocale), Tone.INFO);
-        info("startup.metrics", Map.of("status", status(metricsEnabled)), statusTone(metricsEnabled));
-        info("startup.update-check", Map.of("status", status(updateCheckEnabled)), statusTone(updateCheckEnabled));
-        plugin.console().info(DIVIDER, Tone.MUTED);
+        plugin.console().bannerTop();
+        plugin.console().bannerHeader(version);
+        plugin.console().bannerDivider();
+        row("◆", "startup.storage", "type", storage, Tone.INFO);
+        row("◆", "startup.claims", "count", String.valueOf(loadedClaims), Tone.INFO);
+        row("◆", "startup.language", "locale", consoleLocale, Tone.BRAND);
+        row("●", "startup.metrics", "status", status(metricsEnabled), statusTone(metricsEnabled));
+        row("●", "startup.update-check", "status", status(updateCheckEnabled), statusTone(updateCheckEnabled));
+        plugin.console().bannerBottom();
     }
 
     private String status(boolean enabled) {
@@ -41,7 +40,12 @@ public final class StartupReporter {
         return enabled ? Tone.SUCCESS : Tone.WARNING;
     }
 
-    private void info(String key, Map<String, ?> placeholders, Tone tone) {
-        plugin.console().info(plugin.localeService().console(key), placeholders, tone);
+    private void row(String icon, String key, String placeholder, String value, Tone tone) {
+        String template = plugin.localeService().console(key);
+        String label = template.replace("{" + placeholder + "}", "").strip();
+        if (label.endsWith(":")) {
+            label = label.substring(0, label.length() - 1).strip();
+        }
+        plugin.console().bannerRow(icon, label, value, tone);
     }
 }

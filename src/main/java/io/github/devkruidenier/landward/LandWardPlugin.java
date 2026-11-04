@@ -36,7 +36,7 @@ public final class LandWardPlugin extends JavaPlugin {
         this.metricsService.initialize();
 
         new StartupReporter(this).log(0);
-        console.info(localeService.console("plugin.enabled"), Tone.SUCCESS);
+        console.ready(localeService.console("plugin.enabled"));
 
         new UpdateChecker(this).check();
     }
