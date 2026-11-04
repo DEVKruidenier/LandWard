@@ -12,11 +12,11 @@ LandWard is GUI-first: players normally only need /claim.
 
 ## In-game flow
 
-- **Create:** choose *Create your land* and enter the name in the anvil GUI.
+- **Create:** choose *Create your land* and enter the name in the in-game sign input.
 - **Claim:** open the chunk map and click an available grey chunk.
 - **Unclaim:** click an owned chunk in the map and confirm. Removing the final
   chunk also removes that land and its member rights.
-- **Rename:** click the name tag in land management, enter a name in the anvil,
+- **Rename:** click the name tag in land management, enter a name in the in-game sign input,
   then click the result item.
 - **Members and rights:** use the member and rights screens in land management.
 

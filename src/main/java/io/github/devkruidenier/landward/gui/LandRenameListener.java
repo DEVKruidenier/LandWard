@@ -4,26 +4,29 @@ import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.command.LandCommand;
 import io.github.devkruidenier.landward.storage.StorageException;
-import net.kyori.adventure.text.Component;
+import io.papermc.paper.math.Position;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.block.sign.Side;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.view.AnvilView;
+import org.bukkit.event.block.SignChangeEvent;
 
-/** Provides native anvil text entry for both creating and renaming a land. */
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * Uses Paper's virtual sign editor as a native text-input GUI. Unlike a vanilla
+ * anvil it has no client-side enchantment cost and never consumes XP by itself.
+ */
 public final class LandRenameListener implements Listener {
     private final LandWardPlugin plugin;
     private final LandManager landManager;
     private final LandCommand command;
+    private final Map<UUID, InputMode> pendingInput = new ConcurrentHashMap<>();
 
     public LandRenameListener(LandWardPlugin plugin, LandManager landManager, LandCommand command) {
         this.plugin = plugin;
@@ -32,69 +35,54 @@ public final class LandRenameListener implements Listener {
     }
 
     public void begin(Player player) {
-        openAnvil(player, false);
+        openSignInput(player, InputMode.RENAME);
     }
 
     public void beginCreate(Player player) {
-        openAnvil(player, true);
+        openSignInput(player, InputMode.CREATE);
     }
 
-    private void openAnvil(Player player, boolean creating) {
-        RenameAnvilHolder holder = new RenameAnvilHolder(creating);
+    private void openSignInput(Player player, InputMode mode) {
+        pendingInput.put(player.getUniqueId(), mode);
         String locale = plugin.localeService().localeFor(player);
-        Inventory inventory = Bukkit.createInventory(holder, InventoryType.ANVIL,
-                Component.text(plugin.localeService().message(locale, creating ? "gui.welcome-title" : "gui.management-rename")));
-        holder.inventory(inventory);
-        ItemStack input = new ItemStack(Material.NAME_TAG);
-        ItemMeta meta = input.getItemMeta();
-        String currentName = creating
-                ? plugin.localeService().message(locale, "gui.welcome-create")
-                : landManager.ownedBy(player.getUniqueId()).map(land -> land.name()).orElse("");
-        meta.displayName(Component.text(currentName));
-        input.setItemMeta(meta);
-        inventory.setItem(0, input);
-        player.openInventory(inventory);
+        player.sendMessage(plugin.localeService().message(locale,
+                mode == InputMode.CREATE ? "gui.create-prompt" : "gui.rename-prompt"));
+        // A client cannot open a virtual sign while a chest-style GUI is still open.
+        player.closeInventory();
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (pendingInput.containsKey(player.getUniqueId()) && player.isOnline()) {
+                player.openVirtualSign(Position.block(player.getLocation()), Side.FRONT);
+            }
+        });
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPrepareAnvil(PrepareAnvilEvent event) {
-        if (!(event.getInventory().getHolder() instanceof RenameAnvilHolder holder)) return;
-        String name = event.getView().getRenameText();
-        if (name == null || name.isBlank()) {
-            event.setResult(null);
-            return;
-        }
-        ItemStack result = new ItemStack(Material.NAME_TAG);
-        ItemMeta meta = result.getItemMeta();
-        meta.displayName(Component.text(name));
-        result.setItemMeta(meta);
-        event.setResult(result);
-        configureRepairCost(event.getView(), holder.creating() ? 0 : renameCost());
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAnvilClick(InventoryClickEvent event) {
-        if (!(event.getView().getTopInventory().getHolder() instanceof RenameAnvilHolder)) return;
+    public void onSignChange(SignChangeEvent event) {
+        Player player = event.getPlayer();
+        InputMode mode = pendingInput.remove(player.getUniqueId());
+        if (mode == null) return;
         event.setCancelled(true);
-        if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() != 2) return;
-        RenameAnvilHolder holder = (RenameAnvilHolder) event.getView().getTopInventory().getHolder();
-        AnvilView inventory = (AnvilView) event.getView();
-        String name = inventory.getRenameText();
-        if (name == null || name.isBlank()) return;
-        if (holder.creating()) {
-            player.closeInventory();
+
+        String name = String.join(" ", event.lines().stream()
+                .map(PlainTextComponentSerializer.plainText()::serialize)
+                .map(String::strip)
+                .filter(line -> !line.isEmpty())
+                .toList());
+        if (name.isBlank()) return;
+        if (mode == InputMode.CREATE) {
             create(player, name);
             return;
         }
+
         int cost = renameCost();
         if (player.getLevel() < cost) {
-            player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "land.rename-not-enough-xp", java.util.Map.of("cost", cost)));
+            player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player),
+                    "land.rename-not-enough-xp", Map.of("cost", cost)));
             return;
         }
         if (rename(player, name) && cost > 0) {
             player.setLevel(player.getLevel() - cost);
         }
-        player.closeInventory();
     }
 
     private void create(Player player, String name) {
@@ -117,7 +105,7 @@ public final class LandRenameListener implements Listener {
                 case NAME_TAKEN -> "land.name-taken";
             };
             player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), key,
-                    java.util.Map.of("name", result.land() == null ? "-" : result.land().name())));
+                    Map.of("name", result.land() == null ? "-" : result.land().name())));
             if (result.status() == LandManager.RenameStatus.RENAMED) plugin.syncMapIntegrations();
             return result.status() == LandManager.RenameStatus.RENAMED;
         } catch (StorageException exception) {
@@ -131,19 +119,5 @@ public final class LandRenameListener implements Listener {
         return Math.max(0, plugin.getConfig().getInt("rename.experience-level-cost", 0));
     }
 
-    /**
-     * Paper applies its vanilla one-level rename calculation after preparing the
-     * result. Repeat the explicit value on the following tick so both the
-     * client-side label and the server view stay in sync.
-     */
-    private void configureRepairCost(AnvilView view, int cost) {
-        view.setMaximumRepairCost(Math.max(40, cost));
-        view.setRepairCost(cost);
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            if (view.getTopInventory().getHolder() instanceof RenameAnvilHolder) {
-                view.setMaximumRepairCost(Math.max(40, cost));
-                view.setRepairCost(cost);
-            }
-        });
-    }
+    private enum InputMode { CREATE, RENAME }
 }
