@@ -48,7 +48,7 @@ public final class LandMapGui {
         Inventory inventory = Bukkit.createInventory(
                 holder,
                 SIZE,
-                Component.text(plugin.localeService().message(locale, administrator ? "gui.admin-map-title" : "gui.map-title"), NamedTextColor.GOLD)
+                Component.text(plugin.localeService().message(locale, administrator ? "gui.admin-map-title" : "gui.map-title"), NamedTextColor.DARK_AQUA)
         );
         holder.setInventory(inventory);
 
@@ -65,7 +65,7 @@ public final class LandMapGui {
     public void openUnclaimConfirmation(Player player, ChunkPosition position, boolean administrator) {
         String locale = plugin.localeService().localeFor(player);
         UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position, administrator);
-        Inventory inventory = Bukkit.createInventory(holder, 27, Component.text(plugin.localeService().message(locale, administrator ? "gui.admin-confirm-title" : "gui.unclaim-confirm-title"), NamedTextColor.GOLD));
+        Inventory inventory = Bukkit.createInventory(holder, 27, Component.text(plugin.localeService().message(locale, administrator ? "gui.admin-confirm-title" : "gui.unclaim-confirm-title"), NamedTextColor.DARK_AQUA));
         holder.setInventory(inventory);
         ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
         for (int slot = 0; slot < inventory.getSize(); slot++) inventory.setItem(slot, frame);

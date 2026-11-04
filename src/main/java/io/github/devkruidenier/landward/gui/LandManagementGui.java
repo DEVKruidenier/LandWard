@@ -98,7 +98,9 @@ public final class LandManagementGui {
 
     private LandManagementHolder holder(LandManagementHolder.Screen screen, UUID member, Player player, String title) {
         LandManagementHolder holder = new LandManagementHolder(screen, member);
-        Inventory inventory = Bukkit.createInventory(holder, SIZE, Component.text(title, NamedTextColor.GOLD));
+        // Inventory headers sit on Minecraft's light GUI background. Dark aqua keeps
+        // LandWard's teal identity while retaining strong contrast.
+        Inventory inventory = Bukkit.createInventory(holder, SIZE, Component.text(title, NamedTextColor.DARK_AQUA));
         holder.inventory(inventory);
         return holder;
     }
