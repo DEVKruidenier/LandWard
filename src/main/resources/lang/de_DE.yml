@@ -17,6 +17,7 @@ command:
   help-info: "/claim info - Zeigt Informationen über den aktuellen Chunk."
   help-list: "/claim list - Öffnet die Chunk-Karte in der Nähe."
   help-menu: "/claim menu - Öffnet deine Landübersicht."
+  help-rename: "/claim rename <name> - Benennt dein Land um."
   help-members: "/claim add <spieler>, /claim remove <spieler>, /claim rights <spieler> <build|containers|entities> <on|off>"
 land:
   create-usage: "Verwendung: /claim create <name>"
@@ -34,6 +35,9 @@ land:
   player-not-online: "Dieser Spieler muss online sein."
   rights-usage: "Verwendung: /claim rights <spieler> <build|containers|entities> <on|off>"
   rights-updated: "{permission} für {player} aktualisiert: {state}."
+  rename-usage: "Verwendung: /claim rename <name>"
+  renamed: "Dein Land wurde in {name} umbenannt."
+  rename-unchanged: "Dein Land heißt bereits {name}."
 claim:
   claimed: "Chunk für {name} beansprucht. Du besitzt jetzt {count} Chunk(s)."
   no-land: "Erstelle zuerst ein Land mit /claim create <name>."
@@ -43,6 +47,7 @@ claim:
   not-adjacent: "Neue Chunks müssen an einen bestehenden Claim von dir grenzen."
   world-disabled: "Land-Claims sind in dieser Welt deaktiviert."
   worldguard-protected: "Dieser Chunk überschneidet sich mit einer geschützten WorldGuard-Region und kann nicht beansprucht werden."
+  spawn-protected: "Dieser Chunk überschneidet sich mit dem Spawn-Schutzbereich des Servers und kann nicht beansprucht werden."
   unclaimed: "Dieser Chunk ist nicht beansprucht."
   info: "Dieser Chunk gehört zu {name}; dieses Land hat {count} beanspruchte Chunk(s)."
   unclaimed-success: "Dieser Chunk wurde aus {name} entfernt. {count} Chunk(s) bleiben übrig."
@@ -54,6 +59,8 @@ claim:
   payment-failed: "Deine Zahlung konnte nicht abgeschlossen werden. Bitte versuche es erneut."
 protection:
   denied: "Dieser Bereich ist durch {name} geschützt."
+combat:
+  claim-abandon-blocked: "Du kannst während eines Kampfes keine Chunks freigeben."
 gui:
   map-title: "LandWard • Nahe Chunks"
   current-chunk: "Aktueller Chunk"
@@ -65,6 +72,8 @@ gui:
   legend-yours: "Deine beanspruchten Chunks"
   legend-unclaimed: "Nicht beanspruchte Chunks"
   legend-other: "Chunks anderer Spieler"
+  legend-current: "Dein aktueller Chunk"
+  click-to-claim: "Klicke, um diesen Chunk zu beanspruchen"
   management-title: "LandWard • {name}"
   management-claimed-chunks: "Beanspruchte Chunks: {count}"
   management-owner: "Besitzer: {name}"
@@ -72,6 +81,8 @@ gui:
   management-choose-online: "Wähle einen Online-Spieler"
   management-chunk-map: "Chunk-Karte"
   management-open-map: "Nahe Chunks öffnen"
+  management-rename: "Land umbenennen"
+  management-rename-hint: "Gib den neuen Namen im Chat ein"
   management-manage-rights: "Klicke, um Rechte zu verwalten"
   management-no-members: "Noch keine Mitglieder"
   management-add-member-hint: "Nutze den grünen Farbstoff, um eines hinzuzufügen"
@@ -88,6 +99,7 @@ gui:
   management-toggle: "Klicke zum Umschalten"
   management-remove-member: "Mitglied entfernen"
   management-remove-hint: "Dadurch verliert es alle Landrechte"
+  rename-prompt: "Gib den neuen Landnamen im Chat ein (3-24 Zeichen)."
 startup:
   header: "LandWard {version}"
   storage: "Speicher: {type}"

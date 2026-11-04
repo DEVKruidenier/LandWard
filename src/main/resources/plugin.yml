@@ -28,6 +28,7 @@ commands:
   claim:
     description: Opens LandWard or manages land claims.
     usage: /claim
+    aliases: [land, landward]
     permission: landward.command
 permissions:
   landward.command:

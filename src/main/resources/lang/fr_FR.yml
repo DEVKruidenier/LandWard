@@ -17,6 +17,7 @@ command:
   help-info: "/claim info - Affiche les informations du chunk actuel."
   help-list: "/claim list - Ouvre la carte des chunks proches."
   help-menu: "/claim menu - Ouvre l'aperçu de votre terrain."
+  help-rename: "/claim rename <nom> - Renomme votre terrain."
   help-members: "/claim add <joueur>, /claim remove <joueur>, /claim rights <joueur> <build|containers|entities> <on|off>"
 land:
   create-usage: "Utilisation : /claim create <nom>"
@@ -34,6 +35,9 @@ land:
   player-not-online: "Ce joueur doit être connecté."
   rights-usage: "Utilisation : /claim rights <joueur> <build|containers|entities> <on|off>"
   rights-updated: "Droit {permission} mis à jour pour {player} : {state}."
+  rename-usage: "Utilisation : /claim rename <nom>"
+  renamed: "Votre terrain a été renommé en {name}."
+  rename-unchanged: "Votre terrain porte déjà le nom {name}."
 claim:
   claimed: "Chunk revendiqué pour {name}. Vous possédez maintenant {count} chunk(s)."
   no-land: "Créez d'abord un terrain avec /claim create <nom>."
@@ -43,6 +47,7 @@ claim:
   not-adjacent: "Les nouveaux chunks doivent toucher l'un de vos claims existants."
   world-disabled: "Les claims sont désactivés dans ce monde."
   worldguard-protected: "Ce chunk chevauche une région WorldGuard protégée et ne peut pas être revendiqué."
+  spawn-protected: "Ce chunk chevauche la zone de protection du spawn du serveur et ne peut pas être revendiqué."
   unclaimed: "Ce chunk n'est pas revendiqué."
   info: "Ce chunk appartient à {name}, qui possède {count} chunk(s) revendiqué(s)."
   unclaimed-success: "Ce chunk a été retiré de {name}. Il reste {count} chunk(s)."
@@ -54,6 +59,8 @@ claim:
   payment-failed: "Votre paiement n'a pas pu être effectué. Réessayez."
 protection:
   denied: "Cette zone est protégée par {name}."
+combat:
+  claim-abandon-blocked: "Vous ne pouvez pas libérer de chunk pendant un combat."
 gui:
   map-title: "LandWard • Chunks proches"
   current-chunk: "Chunk actuel"
@@ -65,6 +72,8 @@ gui:
   legend-yours: "Vos chunks revendiqués"
   legend-unclaimed: "Chunks non revendiqués"
   legend-other: "Chunks d'autres joueurs"
+  legend-current: "Votre chunk actuel"
+  click-to-claim: "Cliquez pour revendiquer ce chunk"
   management-title: "LandWard • {name}"
   management-claimed-chunks: "Chunks revendiqués : {count}"
   management-owner: "Propriétaire : {name}"
@@ -72,6 +81,8 @@ gui:
   management-choose-online: "Choisissez un joueur en ligne"
   management-chunk-map: "Carte des chunks"
   management-open-map: "Ouvrir les chunks proches"
+  management-rename: "Renommer le terrain"
+  management-rename-hint: "Saisissez le nouveau nom dans le chat"
   management-manage-rights: "Cliquez pour gérer les droits"
   management-no-members: "Aucun membre pour l'instant"
   management-add-member-hint: "Utilisez la teinture verte pour en ajouter un"
@@ -88,6 +99,7 @@ gui:
   management-toggle: "Cliquez pour basculer"
   management-remove-member: "Retirer le membre"
   management-remove-hint: "Cela retire tous ses droits sur le terrain"
+  rename-prompt: "Saisissez le nouveau nom du terrain dans le chat (3 à 24 caractères)."
 startup:
   header: "LandWard {version}"
   storage: "Stockage : {type}"
