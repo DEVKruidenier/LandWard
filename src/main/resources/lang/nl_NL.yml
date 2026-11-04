@@ -5,6 +5,11 @@ general:
   no-permission: "Je hebt geen toestemming om dat te doen."
   player-only: "Dit commando kan alleen door een speler worden gebruikt."
   unknown-command: "Onbekend LandWard-commando. Gebruik /land help."
+command:
+  header: "LandWard {version}"
+  description: "Eenvoudige chunkclaims en betrouwbare bescherming voor survivalservers."
+  help: "/land help - Toont deze hulp."
+  development: "Claimbeheer is nog niet beschikbaar in deze ontwikkelversie."
 startup:
   header: "LandWard {version}"
   storage: "Opslag: {type}"

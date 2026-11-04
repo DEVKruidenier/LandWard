@@ -5,6 +5,11 @@ general:
   no-permission: "이 작업을 수행할 권한이 없습니다."
   player-only: "이 명령어는 플레이어만 사용할 수 있습니다."
   unknown-command: "알 수 없는 LandWard 명령어입니다. /land help를 사용하세요."
+command:
+  header: "LandWard {version}"
+  description: "생존 서버를 위한 간단한 청크 소유권과 안정적인 보호 기능입니다."
+  help: "/land help - 이 도움말을 표시합니다."
+  development: "이 개발 버전에서는 아직 영지 관리를 사용할 수 없습니다."
 startup:
   header: "LandWard {version}"
   storage: "저장소: {type}"

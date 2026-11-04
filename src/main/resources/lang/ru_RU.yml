@@ -5,6 +5,11 @@ general:
   no-permission: "У вас нет разрешения на это действие."
   player-only: "Эту команду может использовать только игрок."
   unknown-command: "Неизвестная команда LandWard. Используйте /land help."
+command:
+  header: "LandWard {version}"
+  description: "Простая система приватов чанков и надёжная защита для survival-серверов."
+  help: "/land help - Показывает эту справку."
+  development: "Управление приватами пока недоступно в этой версии для разработки."
 startup:
   header: "LandWard {version}"
   storage: "Хранилище: {type}"

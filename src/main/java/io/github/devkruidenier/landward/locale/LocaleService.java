@@ -1,7 +1,9 @@
 package io.github.devkruidenier.landward.locale;
 
 import io.github.devkruidenier.landward.LandWardPlugin;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.InputStream;
@@ -77,6 +79,22 @@ public final class LocaleService {
 
         YamlConfiguration fallback = translations.get(FALLBACK_LOCALE);
         return fallback == null ? key : fallback.getString(key, key);
+    }
+
+    public String message(String locale, String key, Map<String, ?> placeholders) {
+        String value = message(locale, key);
+        for (Map.Entry<String, ?> placeholder : placeholders.entrySet()) {
+            value = value.replace("{" + placeholder.getKey() + "}", String.valueOf(placeholder.getValue()));
+        }
+        return value;
+    }
+
+    public String localeFor(CommandSender sender) {
+        if (sender instanceof Player player
+                && plugin.getConfig().getBoolean("language.use-client-locale", true)) {
+            return normalize(player.locale().toString());
+        }
+        return normalize(plugin.getConfig().getString("language.default", FALLBACK_LOCALE));
     }
 
     private String normalize(String locale) {

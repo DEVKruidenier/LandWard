@@ -5,6 +5,11 @@ general:
   no-permission: "Nie masz uprawnień, aby to zrobić."
   player-only: "Ta komenda może być użyta tylko przez gracza."
   unknown-command: "Nieznana komenda LandWard. Użyj /land help."
+command:
+  header: "LandWard {version}"
+  description: "Proste zajmowanie chunków i niezawodna ochrona serwerów survival."
+  help: "/land help - Wyświetla tę pomoc."
+  development: "Zarządzanie claimami nie jest jeszcze dostępne w tej wersji rozwojowej."
 startup:
   header: "LandWard {version}"
   storage: "Magazyn danych: {type}"
