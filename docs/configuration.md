@@ -2,7 +2,9 @@
 
 `config.yml` controls language selection, storage, claim limits, enabled worlds, and optional integrations. Secrets such as MySQL passwords must not be committed to source control.
 
-SQLite is the default. MySQL support will use the same storage contract and schema migrations.
+SQLite is the default. Set `storage.type` to `mysql` and complete the documented
+`storage.mysql` fields to use a shared MySQL/MariaDB database. LandWard creates
+its `lands`, `claims` and `land_members` tables automatically.
 
 ## Claim limits
 
@@ -15,7 +17,8 @@ Set the value to `-1` to allow unlimited chunks.
 Set `payments.mode` to `free` (default) for no cost or `experience` to charge
 raw XP points for every claimed chunk. `payments.experience-points-per-chunk`
 defaults to 150. Vault economy support is configured through the same mode
-setting and is added only when Vault is installed.
+setting. `vault` uses the active Vault economy provider (such as EssentialsX
+Economy) and refuses a paid claim when the provider is unavailable.
 
 ## Anonymous metrics
 

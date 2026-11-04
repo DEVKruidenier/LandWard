@@ -1,49 +1,73 @@
 language:
+  # Default language used for console senders and players without a matching client locale.
   default: en_US
+  # Language used only for startup, storage and update messages in the server console.
   console: en_US
+  # When true, use each player's Minecraft client language if LandWard ships that locale.
   use-client-locale: true
+  # Safe fallback used when a requested translation key or locale is unavailable.
   fallback: en_US
 
 storage:
-  # sqlite stores data locally in plugins/LandWard/landward.db. Set to mysql for a shared database.
+  # Storage backend: sqlite stores locally; mysql stores claims in a shared MySQL/MariaDB database.
   type: sqlite
   mysql:
+    # Database server hostname or IP address. Used only when storage.type is mysql.
     host: localhost
+    # TCP port for MySQL/MariaDB. The normal MySQL port is 3306.
     port: 3306
+    # Existing database/schema where LandWard may create its own tables.
     database: landward
+    # Database account with permission to create and modify LandWard tables.
     username: minecraft
+    # Password for the database account. Keep this file private and never commit real credentials.
     password: change-me
+    # Enable TLS for the MySQL connection when the database server is configured for it.
     ssl: false
+    # Maximum number of reusable database connections. Increase only for large networks.
     pool-size: 10
 
 metrics:
+  # Send anonymous aggregate server statistics through bStats. No player names or world data are sent.
   enabled: true
 
 console:
+  # Use Paper's coloured component logger for the LandWard startup banner and status messages.
   colored-output: true
 
 updates:
+  # Check GitHub Releases asynchronously during startup. This never blocks the Paper main thread.
   enabled: true
 
 claims:
+  # Require every new chunk claim to share a horizontal edge with an existing chunk of the same land.
   require-adjacent-chunks: true
+  # Maximum lands a player can own. LandWard is designed around one owned land per player.
   maximum-lands-per-player: 1
-  # Set to -1 to allow an unlimited number of chunks per land.
+  # Maximum chunks in one land. Set to -1 for unlimited chunks.
   maximum-chunks-per-land: 25
+  # Optional allow-list of world names. Leave empty to allow every world not listed below.
   enabled-worlds: []
+  # Deny claiming in these world names, even when enabled-worlds is empty.
   disabled-worlds: []
 
 payments:
-  # free, experience, or vault. Vault works with the active Vault economy provider.
+  # Claim payment mode: free, experience, or vault. Vault uses the active Vault economy provider.
   mode: free
+  # Raw total experience points charged for creating or adding one claimed chunk in experience mode.
   experience-points-per-chunk: 150
+  # Money charged for creating or adding one claimed chunk in vault mode.
   vault-money-per-chunk: 100.0
 
 integrations:
   worldguard:
+    # Enable WorldGuard overlap checks when WorldGuard is installed on this server.
     enabled: true
+    # Refuse a claim if any block column in its chunk overlaps any WorldGuard protected region.
     deny-any-overlap: true
   bluemap:
+    # Enable the optional BlueMap claim-marker integration when BlueMap is installed.
     enabled: true
   dynmap:
+    # Enable the optional Dynmap claim-marker integration when Dynmap is installed and its markers component is enabled.
     enabled: true
