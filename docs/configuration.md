@@ -2,6 +2,8 @@
 
 `config.yml` controls language selection, storage, claim limits, enabled worlds, and optional integrations. Secrets such as MySQL passwords must not be committed to source control.
 
+On update, LandWard preserves every existing value and only adds newly introduced default keys. Administrator choices and credentials remain untouched.
+
 SQLite is the default. Set `storage.type` to `mysql` and complete the documented
 `storage.mysql` fields to use a shared MySQL/MariaDB database. LandWard creates
 its `lands`, `claims` and `land_members` tables automatically.

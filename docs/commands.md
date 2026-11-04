@@ -5,7 +5,8 @@ The planned player-facing command surface is intentionally small.
 | Command | Purpose |
 | --- | --- |
 | `/claim create <name>` | Create a land and claim the current chunk |
-| `/claim claim` | Add the current adjacent chunk |
+| `/claim` | Add the current adjacent chunk |
+| `/claim claim` | Compatibility form of `/claim` |
 | `/claim unclaim` | Remove the current chunk |
 | `/claim list` | Open the centered chunk-map GUI |
 | `/claim info` | Show information about the current chunk |

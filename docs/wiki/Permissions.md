@@ -2,7 +2,7 @@
 
 | Permission | Default | Purpose |
 | --- | --- | --- |
-| `landward.command` | Everyone | Use `/land`. |
+| `landward.command` | Everyone | Use `/claim` (also `/land` and `/landward`). |
 | `landward.admin` | Operators | Reserved for LandWard administration features. |
 | `landward.bypass` | Operators | Bypass LandWard's claim-protection checks. |
 
