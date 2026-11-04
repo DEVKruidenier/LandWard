@@ -23,3 +23,8 @@ also disable bStats globally in `plugins/bStats/config.yml`.
 
 LandWard checks GitHub Releases asynchronously during startup. The check never
 blocks Paper's main server thread. Set `updates.enabled` to `false` to disable it.
+
+## Console colors
+
+LandWard uses Paper's Adventure component logger for colored, structured console
+output. Set `console.colored-output` to `false` for plain output.

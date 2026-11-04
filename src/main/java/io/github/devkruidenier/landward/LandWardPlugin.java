@@ -1,6 +1,8 @@
 package io.github.devkruidenier.landward;
 
 import io.github.devkruidenier.landward.command.LandCommand;
+import io.github.devkruidenier.landward.console.LandWardConsole;
+import io.github.devkruidenier.landward.console.LandWardConsole.Tone;
 import io.github.devkruidenier.landward.locale.LocaleService;
 import io.github.devkruidenier.landward.metrics.MetricsService;
 import io.github.devkruidenier.landward.startup.StartupReporter;
@@ -12,11 +14,13 @@ public final class LandWardPlugin extends JavaPlugin {
 
     private LocaleService localeService;
     private MetricsService metricsService;
+    private LandWardConsole console;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
 
+        this.console = new LandWardConsole(this);
         this.localeService = new LocaleService(this);
         this.localeService.initialize();
 
@@ -32,7 +36,7 @@ public final class LandWardPlugin extends JavaPlugin {
         this.metricsService.initialize();
 
         new StartupReporter(this).log(0);
-        getLogger().info(localeService.console("plugin.enabled"));
+        console.info(localeService.console("plugin.enabled"), Tone.SUCCESS);
 
         new UpdateChecker(this).check();
     }
@@ -40,7 +44,7 @@ public final class LandWardPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (localeService != null) {
-            getLogger().info(localeService.console("plugin.disabled"));
+            console.info(localeService.console("plugin.disabled"), Tone.WARNING);
         }
     }
 
@@ -50,5 +54,9 @@ public final class LandWardPlugin extends JavaPlugin {
 
     public MetricsService metricsService() {
         return metricsService;
+    }
+
+    public LandWardConsole console() {
+        return console;
     }
 }

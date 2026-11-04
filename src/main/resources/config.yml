@@ -18,6 +18,9 @@ storage:
 metrics:
   enabled: true
 
+console:
+  colored-output: true
+
 updates:
   enabled: true
 

@@ -1,6 +1,7 @@
 package io.github.devkruidenier.landward.startup;
 
 import io.github.devkruidenier.landward.LandWardPlugin;
+import io.github.devkruidenier.landward.console.LandWardConsole.Tone;
 
 import java.util.Locale;
 import java.util.Map;
@@ -22,21 +23,25 @@ public final class StartupReporter {
         boolean metricsEnabled = plugin.metricsService().isInitialized();
         boolean updateCheckEnabled = plugin.getConfig().getBoolean("updates.enabled", true);
 
-        plugin.getLogger().info(DIVIDER);
-        info("startup.header", Map.of("version", version));
-        info("startup.storage", Map.of("type", storage));
-        info("startup.claims", Map.of("count", loadedClaims));
-        info("startup.language", Map.of("locale", consoleLocale));
-        info("startup.metrics", Map.of("status", status(metricsEnabled)));
-        info("startup.update-check", Map.of("status", status(updateCheckEnabled)));
-        plugin.getLogger().info(DIVIDER);
+        plugin.console().info(DIVIDER, Tone.MUTED);
+        info("startup.header", Map.of("version", version), Tone.BRAND);
+        info("startup.storage", Map.of("type", storage), Tone.INFO);
+        info("startup.claims", Map.of("count", loadedClaims), Tone.INFO);
+        info("startup.language", Map.of("locale", consoleLocale), Tone.INFO);
+        info("startup.metrics", Map.of("status", status(metricsEnabled)), statusTone(metricsEnabled));
+        info("startup.update-check", Map.of("status", status(updateCheckEnabled)), statusTone(updateCheckEnabled));
+        plugin.console().info(DIVIDER, Tone.MUTED);
     }
 
     private String status(boolean enabled) {
         return plugin.localeService().console(enabled ? "startup.status-enabled" : "startup.status-disabled");
     }
 
-    private void info(String key, Map<String, ?> placeholders) {
-        plugin.getLogger().info(plugin.localeService().console(key, placeholders));
+    private Tone statusTone(boolean enabled) {
+        return enabled ? Tone.SUCCESS : Tone.WARNING;
+    }
+
+    private void info(String key, Map<String, ?> placeholders, Tone tone) {
+        plugin.console().info(plugin.localeService().console(key), placeholders, tone);
     }
 }

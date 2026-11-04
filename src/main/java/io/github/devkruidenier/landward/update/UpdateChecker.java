@@ -1,6 +1,7 @@
 package io.github.devkruidenier.landward.update;
 
 import io.github.devkruidenier.landward.LandWardPlugin;
+import io.github.devkruidenier.landward.console.LandWardConsole.Tone;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -86,8 +87,22 @@ public final class UpdateChecker {
             return;
         }
         plugin.getServer().getScheduler().runTask(plugin, () ->
-                plugin.getLogger().info(plugin.localeService().console(key, placeholders))
+                logOnMainThread(key, placeholders)
         );
+    }
+
+    private void logOnMainThread(String key, Map<String, ?> placeholders) {
+        if (key.equals("updates.failed") || key.equals("updates.failed-status")) {
+            plugin.console().warning(plugin.localeService().console(key), placeholders);
+            return;
+        }
+
+        Tone tone = switch (key) {
+            case "updates.up-to-date" -> Tone.SUCCESS;
+            case "updates.available" -> Tone.BRAND;
+            default -> Tone.WARNING;
+        };
+        plugin.console().info(plugin.localeService().console(key), placeholders, tone);
     }
 
     private String readableError(Throwable error) {
