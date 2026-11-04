@@ -5,6 +5,7 @@ import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.ClaimedChunk;
 import io.github.devkruidenier.landward.model.Land;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import java.awt.Color;
 import java.lang.reflect.Method;
@@ -26,7 +27,11 @@ public final class SquaremapIntegration {
     private void syncWorld(Object map, Object layerKey, World world) throws ReflectiveOperationException {
         if (!plugin.isLandWorld(world)) return;
         Class<?> id = Class.forName("xyz.jpenilla.squaremap.api.WorldIdentifier");
-        Object worldId = id.getMethod("create", String.class, String.class).invoke(null, "minecraft", world.getName());
+        // Squaremap indexes worlds by their dimension key (minecraft:overworld),
+        // not by Bukkit's folder/display name (usually just "world").
+        NamespacedKey worldKey = world.getKey();
+        Object worldId = id.getMethod("create", String.class, String.class)
+                .invoke(null, worldKey.getNamespace(), worldKey.getKey());
         @SuppressWarnings("unchecked") Optional<Object> found = (Optional<Object>) call(map, "getWorldIfEnabled", worldId);
         if (found.isEmpty()) return;
         Object registry = call(found.get(), "layerRegistry");
