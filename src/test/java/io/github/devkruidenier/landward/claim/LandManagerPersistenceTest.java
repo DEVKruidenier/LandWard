@@ -105,4 +105,22 @@ class LandManagerPersistenceTest {
         assertEquals(LandManager.UnclaimStatus.LAST_CHUNK, manager.unclaim(owner, first).status());
         assertEquals(1, manager.totalClaimCount());
     }
+
+    @Test
+    void renamesLandAndPersistsTheNewName() throws Exception {
+        SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("rename.db"));
+        storage.initialize();
+        LandManager manager = new LandManager(storage);
+        manager.load();
+        UUID owner = UUID.randomUUID();
+        UUID world = UUID.randomUUID();
+        manager.create(owner, "Old Name", new ChunkPosition(world, 0, 0));
+
+        assertEquals(LandManager.RenameStatus.RENAMED, manager.rename(owner, "New Name").status());
+        assertEquals("New Name", manager.ownedBy(owner).orElseThrow().name());
+
+        LandManager reloaded = new LandManager(storage);
+        reloaded.load();
+        assertEquals("New Name", reloaded.ownedBy(owner).orElseThrow().name());
+    }
 }

@@ -11,6 +11,7 @@ import io.github.devkruidenier.landward.integration.BlueMapIntegration;
 import io.github.devkruidenier.landward.integration.plan.PlanIntegration;
 import io.github.devkruidenier.landward.gui.LandMapListener;
 import io.github.devkruidenier.landward.gui.LandManagementListener;
+import io.github.devkruidenier.landward.gui.LandRenameListener;
 import io.github.devkruidenier.landward.protection.ClaimProtectionListener;
 import io.github.devkruidenier.landward.startup.StartupReporter;
 import io.github.devkruidenier.landward.storage.LandStorage;
@@ -67,7 +68,9 @@ public final class LandWardPlugin extends JavaPlugin {
         command.setTabCompleter(landCommand);
         getServer().getPluginManager().registerEvents(new ClaimProtectionListener(this, landManager), this);
         getServer().getPluginManager().registerEvents(new LandMapListener(), this);
-        getServer().getPluginManager().registerEvents(new LandManagementListener(this, landManager), this);
+        LandRenameListener renameListener = new LandRenameListener(this, landManager);
+        getServer().getPluginManager().registerEvents(renameListener, this);
+        getServer().getPluginManager().registerEvents(new LandManagementListener(this, landManager, renameListener), this);
 
         this.metricsService = new MetricsService(this);
         this.metricsService.initialize();

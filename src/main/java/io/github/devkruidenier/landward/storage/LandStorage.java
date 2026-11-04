@@ -14,6 +14,8 @@ public interface LandStorage extends AutoCloseable {
 
     void insertLandWithClaim(Land land, ClaimedChunk claim) throws StorageException;
 
+    void updateLandName(java.util.UUID landId, String name) throws StorageException;
+
     void insertClaim(ClaimedChunk claim) throws StorageException;
 
     void deleteClaim(ClaimedChunk claim) throws StorageException;

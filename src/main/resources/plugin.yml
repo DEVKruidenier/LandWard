@@ -11,6 +11,12 @@ softdepend:
   - WorldGuard
   - Vault
   - Plan
+  - Essentials
+  - EssentialsAntiBuild
+  - EssentialsXAntiBuild
+  - EssentialsSpawn
+  - EssentialsProtect
+  - EssentialsXProtect
 commands:
   land:
     description: Opens LandWard or manages land claims.

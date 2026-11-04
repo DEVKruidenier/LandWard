@@ -155,6 +155,13 @@ public final class MySqlLandStorage implements LandStorage {
     public void insertClaim(ClaimedChunk claim) throws StorageException { executeClaim("INSERT INTO claims(world_uuid, chunk_x, chunk_z, land_id) VALUES (?, ?, ?, ?)", claim, "Could not save claim"); }
 
     @Override
+    public void updateLandName(UUID landId, String name) throws StorageException {
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("UPDATE lands SET name = ? WHERE id = ?")) {
+            statement.setString(1, name); statement.setString(2, landId.toString()); statement.executeUpdate();
+        } catch (SQLException exception) { throw new StorageException("Could not rename land", exception); }
+    }
+
+    @Override
     public void deleteClaim(ClaimedChunk claim) throws StorageException {
         try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("DELETE FROM claims WHERE world_uuid = ? AND chunk_x = ? AND chunk_z = ? AND land_id = ?")) {
             bindClaim(statement, claim); statement.executeUpdate();

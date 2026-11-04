@@ -11,6 +11,7 @@ import io.github.devkruidenier.landward.storage.StorageException;
 import io.github.devkruidenier.landward.economy.ExperiencePayments;
 import io.github.devkruidenier.landward.economy.VaultPayments;
 import io.github.devkruidenier.landward.integration.WorldGuardIntegration;
+import io.github.devkruidenier.landward.integration.VanillaSpawnProtectionIntegration;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -27,16 +28,18 @@ import java.util.Optional;
 
 public final class LandCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "claim", "unclaim", "info", "list", "menu", "add", "remove", "rights");
+    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "claim", "unclaim", "info", "list", "menu", "rename", "add", "remove", "rights");
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
     private final WorldGuardIntegration worldGuard;
+    private final VanillaSpawnProtectionIntegration vanillaSpawnProtection;
 
     public LandCommand(LandWardPlugin plugin, LandManager landManager) {
         this.plugin = plugin;
         this.landManager = landManager;
         this.worldGuard = new WorldGuardIntegration(plugin);
+        this.vanillaSpawnProtection = new VanillaSpawnProtectionIntegration();
     }
 
     @Override
@@ -64,6 +67,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 case "info" -> info(player);
                 case "list" -> list(player);
                 case "menu" -> menu(player);
+                case "rename" -> rename(player, arguments);
                 case "add" -> addMember(player, arguments);
                 case "remove" -> removeMember(player, arguments);
                 case "rights" -> updateRights(player, arguments);
@@ -108,12 +112,18 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(message(sender, "command.help-info"));
         sender.sendMessage(message(sender, "command.help-list"));
         sender.sendMessage(message(sender, "command.help-menu"));
+        sender.sendMessage(message(sender, "command.help-rename"));
         sender.sendMessage(message(sender, "command.help-members"));
     }
 
     private boolean create(Player player, String[] arguments) throws StorageException {
         if (!worldEnabled(player)) {
             player.sendMessage(message(player, "claim.world-disabled"));
+            return true;
+        }
+        if (plugin.getConfig().getBoolean("integrations.vanilla-spawn-protection.enabled", true)
+                && vanillaSpawnProtection.blocksClaim(position(player))) {
+            player.sendMessage(message(player, "claim.spawn-protected"));
             return true;
         }
         if (worldGuard.blocksClaim(player.getWorld(), position(player))) {
@@ -160,6 +170,11 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         }
 
         ChunkPosition position = position(player);
+        if (plugin.getConfig().getBoolean("integrations.vanilla-spawn-protection.enabled", true)
+                && vanillaSpawnProtection.blocksClaim(position)) {
+            player.sendMessage(message(player, "claim.spawn-protected"));
+            return true;
+        }
         if (worldGuard.blocksClaim(player.getWorld(), position)) {
             player.sendMessage(message(player, "claim.worldguard-protected"));
             return true;
@@ -234,6 +249,24 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
     private boolean menu(Player player) {
         new LandManagementGui(plugin, landManager).openMain(player);
+        return true;
+    }
+
+    private boolean rename(Player player, String[] arguments) throws StorageException {
+        if (arguments.length < 2) {
+            player.sendMessage(message(player, "land.rename-usage"));
+            return true;
+        }
+        LandManager.RenameResult result = landManager.rename(player.getUniqueId(), String.join(" ", java.util.Arrays.copyOfRange(arguments, 1, arguments.length)));
+        String key = switch (result.status()) {
+            case RENAMED -> "land.renamed";
+            case UNCHANGED -> "land.rename-unchanged";
+            case NO_LAND -> "claim.no-land";
+            case INVALID_NAME -> "land.invalid-name";
+            case NAME_TAKEN -> "land.name-taken";
+        };
+        player.sendMessage(message(player, key, Map.of("name", result.land() == null ? "-" : result.land().name())));
+        if (result.status() == LandManager.RenameStatus.RENAMED) plugin.syncMapIntegrations();
         return true;
     }
 

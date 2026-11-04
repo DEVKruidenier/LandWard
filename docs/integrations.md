@@ -2,6 +2,20 @@
 
 All integrations are optional and discovered at runtime.
 
+## Vanilla spawn protection and EssentialsX AntiBuild
+
+LandWard can refuse claims that touch the primary world's built-in
+`server.properties` `spawn-protection` square. This guard is enabled through
+`integrations.vanilla-spawn-protection.enabled` and is evaluated even when no
+other plugin is installed. Paper may require its corresponding system setting
+to honour vanilla spawn protection itself; LandWard still uses the configured
+radius to keep its claims out of that area.
+
+EssentialsX AntiBuild is declared as a soft dependency so it can enforce its
+global build and interaction rules before/alongside LandWard. AntiBuild does
+not offer region protection, so it does not define claimable boundaries; use
+WorldGuard for protected spawn regions with custom shapes.
+
 ## WorldGuard
 
 LandWard will reject a chunk claim when any part of that chunk intersects a protected WorldGuard region. The policy is configurable and defaults to denying every overlap.

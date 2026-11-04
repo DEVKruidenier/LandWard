@@ -16,6 +16,7 @@ command:
   help-info: "/land info - Shows information about the current chunk."
   help-list: "/land list - Opens the nearby chunk map."
   help-menu: "/land menu - Opens your land overview."
+  help-rename: "/land rename <name> - Renames your land."
   help-members: "/land add <player>, /land remove <player>, /land rights <player> <build|containers|entities> <on|off>"
 land:
   create-usage: "Usage: /land create <name>"
@@ -33,6 +34,9 @@ land:
   player-not-online: "That player must be online."
   rights-usage: "Usage: /land rights <player> <build|containers|entities> <on|off>"
   rights-updated: "Updated {permission} for {player}: {state}."
+  rename-usage: "Usage: /land rename <name>"
+  renamed: "Your land has been renamed to {name}."
+  rename-unchanged: "Your land is already named {name}."
 claim:
   claimed: "Chunk claimed for {name}. You now own {count} chunk(s)."
   no-land: "Create a land first with /land create <name>."
@@ -42,6 +46,7 @@ claim:
   not-adjacent: "New chunks must touch one of your existing claims."
   world-disabled: "Land claiming is disabled in this world."
   worldguard-protected: "This chunk overlaps a protected WorldGuard region and cannot be claimed."
+  spawn-protected: "This chunk overlaps the server spawn-protection area and cannot be claimed."
   unclaimed: "This chunk is not claimed."
   info: "This chunk belongs to {name}, which has {count} claimed chunk(s)."
   unclaimed-success: "Removed this chunk from {name}. {count} chunk(s) remain."
@@ -71,6 +76,8 @@ gui:
   management-choose-online: "Choose an online player"
   management-chunk-map: "Chunk map"
   management-open-map: "Open nearby chunks"
+  management-rename: "Rename land"
+  management-rename-hint: "Enter the new name in chat"
   management-manage-rights: "Click to manage rights"
   management-no-members: "No members yet"
   management-add-member-hint: "Use the green dye to add one"
@@ -87,6 +94,7 @@ gui:
   management-toggle: "Click to toggle"
   management-remove-member: "Remove member"
   management-remove-hint: "This removes all their land rights"
+  rename-prompt: "Type the new land name in chat (3-24 characters)."
 startup:
   header: "LandWard {version}"
   storage: "Storage: {type}"

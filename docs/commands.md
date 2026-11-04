@@ -10,11 +10,10 @@ The planned player-facing command surface is intentionally small.
 | `/land list` | Open the centered chunk-map GUI |
 | `/land info` | Show information about the current chunk |
 | `/land menu` | Open land management |
-| `/land border` | Toggle a visual boundary |
-| `/land invite <player>` | Invite a member |
-| `/land accept <land>` | Accept an invitation |
-| `/land leave <land>` | Leave a land |
 | `/land rename <name>` | Rename a land |
+| `/land add <player>` | Add an online member |
+| `/land remove <player>` | Remove an online member |
+| `/land rights <player> <build\|containers\|entities> <on\|off>` | Change a member right |
 
-`/land create`, `/land claim`, `/land info`, and `/land help` are implemented.
-The remaining commands are part of the product contract and will be added incrementally.
+All listed commands are implemented. The member-management GUI provides the same
+member and rights controls without typing a command.

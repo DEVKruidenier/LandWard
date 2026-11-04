@@ -157,6 +157,23 @@ public final class LandManager {
         return Optional.ofNullable(landsByOwner.get(ownerId));
     }
 
+    public synchronized RenameResult rename(UUID ownerId, String requestedName) throws StorageException {
+        Land current = landsByOwner.get(ownerId);
+        if (current == null) return new RenameResult(RenameStatus.NO_LAND, null);
+        String name = requestedName.strip();
+        if (!VALID_NAME.matcher(name).matches()) return new RenameResult(RenameStatus.INVALID_NAME, current);
+        Land existing = landsByName.get(normalizedName(name));
+        if (existing != null && !existing.id().equals(current.id())) return new RenameResult(RenameStatus.NAME_TAKEN, existing);
+        if (current.name().equals(name)) return new RenameResult(RenameStatus.UNCHANGED, current);
+        storage.updateLandName(current.id(), name);
+        Land renamed = new Land(current.id(), current.ownerId(), name, current.createdAt());
+        landsById.put(renamed.id(), renamed);
+        landsByOwner.put(ownerId, renamed);
+        landsByName.remove(normalizedName(current.name()));
+        landsByName.put(normalizedName(name), renamed);
+        return new RenameResult(RenameStatus.RENAMED, renamed);
+    }
+
     public synchronized int claimCount(UUID landId) {
         return claimCounts.getOrDefault(landId, 0);
     }
@@ -295,6 +312,17 @@ public final class LandManager {
         ALREADY_CLAIMED,
         LIMIT_REACHED,
         NOT_ADJACENT
+    }
+
+    public record RenameResult(RenameStatus status, Land land) {
+    }
+
+    public enum RenameStatus {
+        RENAMED,
+        UNCHANGED,
+        NO_LAND,
+        INVALID_NAME,
+        NAME_TAKEN
     }
 
     public record UnclaimResult(UnclaimStatus status, Land land, int claimCount) {

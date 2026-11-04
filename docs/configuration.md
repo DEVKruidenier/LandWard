@@ -45,3 +45,10 @@ With Plan installed, `integrations.plan.enabled: true` publishes a read-only
 LandWard panel in Plan. It contains server totals (lands and claimed chunks) and
 per-player values (whether the player owns a land, owned chunks and member lands).
 No new database table or player tracking is created by LandWard.
+
+## Spawn protection
+
+`integrations.vanilla-spawn-protection.enabled` prevents LandWard claims that
+overlap the built-in `server.properties` `spawn-protection` square around the
+primary world spawn. Set `spawn-protection: 0` to disable that vanilla setting,
+or set the LandWard integration to `false` if the area should be claimable.

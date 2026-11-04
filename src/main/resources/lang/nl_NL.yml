@@ -16,6 +16,7 @@ command:
   help-info: "/land info - Toont informatie over de huidige chunk."
   help-list: "/land list - Opent de chunkkaart in de buurt."
   help-menu: "/land menu - Opent het overzicht van jouw land."
+  help-rename: "/land rename <naam> - Wijzigt de naam van jouw land."
   help-members: "/land add <speler>, /land remove <speler>, /land rights <speler> <build|containers|entities> <on|off>"
 land:
   create-usage: "Gebruik: /land create <naam>"
@@ -33,6 +34,9 @@ land:
   player-not-online: "Deze speler moet online zijn."
   rights-usage: "Gebruik: /land rights <speler> <build|containers|entities> <on|off>"
   rights-updated: "{permission} voor {player} bijgewerkt: {state}."
+  rename-usage: "Gebruik: /land rename <naam>"
+  renamed: "Jouw land is hernoemd naar {name}."
+  rename-unchanged: "Jouw land heet al {name}."
 claim:
   claimed: "Chunk geclaimd voor {name}. Je bezit nu {count} chunk(s)."
   no-land: "Maak eerst een land met /land create <naam>."
@@ -42,6 +46,7 @@ claim:
   not-adjacent: "Nieuwe chunks moeten grenzen aan een bestaande claim van jou."
   world-disabled: "Land claimen is uitgeschakeld in deze wereld."
   worldguard-protected: "Deze chunk overlapt een beveiligde WorldGuard-regio en kan niet worden geclaimd."
+  spawn-protected: "Deze chunk overlapt het door de server beveiligde spawngebied en kan niet worden geclaimd."
   unclaimed: "Deze chunk is niet geclaimd."
   info: "Deze chunk hoort bij {name}, dat {count} geclaimde chunk(s) heeft."
   unclaimed-success: "Deze chunk is verwijderd uit {name}. Er blijven {count} chunk(s) over."
@@ -71,6 +76,8 @@ gui:
   management-choose-online: "Kies een online speler"
   management-chunk-map: "Chunkkaart"
   management-open-map: "Open nabijgelegen chunks"
+  management-rename: "Land hernoemen"
+  management-rename-hint: "Typ de nieuwe naam in de chat"
   management-manage-rights: "Klik om rechten te beheren"
   management-no-members: "Nog geen leden"
   management-add-member-hint: "Gebruik de groene kleurstof om iemand toe te voegen"
@@ -87,6 +94,7 @@ gui:
   management-toggle: "Klik om te wisselen"
   management-remove-member: "Lid verwijderen"
   management-remove-hint: "Hiermee vervallen alle landrechten"
+  rename-prompt: "Typ de nieuwe landnaam in de chat (3-24 tekens)."
 startup:
   header: "LandWard {version}"
   storage: "Opslag: {type}"
