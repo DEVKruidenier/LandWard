@@ -81,7 +81,9 @@ public final class LandRenameListener implements Listener {
         String name = enteredNames.remove(player.getUniqueId());
         if (name == null || name.isBlank()) name = nameFromResult(event.getCurrentItem());
         if (name == null || name.isBlank()) return;
-        plugin.getLogger().info("Anvil name confirmation from " + player.getName() + ": " + name);
+        // This tag is only a visual text-input seed. Clear it before closing the
+        // vanilla container so Minecraft cannot return it to the player's inventory.
+        clearTemporaryItems(event.getView());
         if (holder.creating()) { player.closeInventory(); create(player, name); return; }
         int cost = renameCost();
         if (player.getLevel() < cost) {
@@ -98,8 +100,17 @@ public final class LandRenameListener implements Listener {
     @EventHandler
     public void onAnvilClose(InventoryCloseEvent event) {
         if (event.getView().getType() != InventoryType.ANVIL || !(event.getPlayer() instanceof Player player)) return;
+        if (!activeAnvils.containsKey(player.getUniqueId())) return;
+        clearTemporaryItems(event.getView());
         activeAnvils.remove(player.getUniqueId());
         enteredNames.remove(player.getUniqueId());
+    }
+
+    /** Removes only LandWard's temporary anvil contents before vanilla returns inputs on close. */
+    private void clearTemporaryItems(InventoryView view) {
+        view.getTopInventory().setItem(0, null);
+        view.getTopInventory().setItem(1, null);
+        view.getTopInventory().setItem(2, null);
     }
 
     private void configureRepairCost(AnvilView view, int cost) {

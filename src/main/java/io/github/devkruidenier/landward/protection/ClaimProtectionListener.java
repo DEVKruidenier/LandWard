@@ -75,14 +75,17 @@ public final class ClaimProtectionListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
         Block clicked = event.getClickedBlock();
+        boolean spawningEntity = event.getItem() != null && event.getItem().getType().name().endsWith("_SPAWN_EGG");
         if (clicked != null) {
-            MemberPermissions.Permission permission = clicked.getState() instanceof InventoryHolder
+            MemberPermissions.Permission permission = spawningEntity
+                    ? MemberPermissions.Permission.ENTITIES
+                    : clicked.getState() instanceof InventoryHolder
                     ? MemberPermissions.Permission.CONTAINERS
                     : MemberPermissions.Permission.BUILD;
             denyIfNeeded(event.getPlayer(), clicked.getLocation(), permission, event::setCancelled);
             return;
         }
-        if (event.getItem() != null && event.getItem().getType().name().endsWith("_SPAWN_EGG")) {
+        if (spawningEntity) {
             denyIfNeeded(
                     event.getPlayer(),
                     event.getPlayer().getLocation(),
@@ -94,7 +97,10 @@ public final class ClaimProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onBucketEmpty(PlayerBucketEmptyEvent event) {
-        denyIfNeeded(event.getPlayer(), event.getBlockClicked().getLocation(), MemberPermissions.Permission.BUILD, event::setCancelled);
+        // The clicked block can be outside a claim while the liquid is placed in its
+        // neighbouring block inside one. Always protect the actual destination.
+        Block destination = event.getBlockClicked().getRelative(event.getBlockFace());
+        denyIfNeeded(event.getPlayer(), destination.getLocation(), MemberPermissions.Permission.BUILD, event::setCancelled);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
