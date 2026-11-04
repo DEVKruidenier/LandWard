@@ -23,7 +23,7 @@ import java.util.Optional;
 
 public final class LandCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "claim", "unclaim", "info", "list", "add", "remove", "rights");
+    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "claim", "unclaim", "info", "list", "menu", "add", "remove", "rights");
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -57,6 +57,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 case "unclaim" -> unclaim(player);
                 case "info" -> info(player);
                 case "list" -> list(player);
+                case "menu" -> list(player);
                 case "add" -> addMember(player, arguments);
                 case "remove" -> removeMember(player, arguments);
                 case "rights" -> updateRights(player, arguments);
@@ -100,6 +101,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(message(sender, "command.help-unclaim"));
         sender.sendMessage(message(sender, "command.help-info"));
         sender.sendMessage(message(sender, "command.help-list"));
+        sender.sendMessage(message(sender, "command.help-menu"));
         sender.sendMessage(message(sender, "command.help-members"));
     }
 

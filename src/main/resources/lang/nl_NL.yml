@@ -15,6 +15,7 @@ command:
   help-unclaim: "/land unclaim - Verwijdert de huidige chunk uit jouw land."
   help-info: "/land info - Toont informatie over de huidige chunk."
   help-list: "/land list - Opent de chunkkaart in de buurt."
+  help-menu: "/land menu - Opent het overzicht van jouw land."
   help-members: "/land add <speler>, /land remove <speler>, /land rights <speler> <build|containers|entities> <on|off>"
 land:
   create-usage: "Gebruik: /land create <naam>"

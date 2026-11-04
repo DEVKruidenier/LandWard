@@ -15,6 +15,7 @@ command:
   help-unclaim: "/land unclaim - Removes your current chunk from your land."
   help-info: "/land info - Shows information about the current chunk."
   help-list: "/land list - Opens the nearby chunk map."
+  help-menu: "/land menu - Opens your land overview."
   help-members: "/land add <player>, /land remove <player>, /land rights <player> <build|containers|entities> <on|off>"
 land:
   create-usage: "Usage: /land create <name>"
