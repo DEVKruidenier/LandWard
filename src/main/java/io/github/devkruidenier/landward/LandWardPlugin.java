@@ -75,6 +75,10 @@ public final class LandWardPlugin extends JavaPlugin {
         dynmapIntegration.sync();
         squaremapIntegration.sync();
         pl3xMapIntegration.sync();
+        // Map plugins can finish their own asynchronous API initialization after
+        // Bukkit has enabled LandWard. A second, delayed pass makes the optional
+        // marker layers reliable without delaying server startup.
+        getServer().getScheduler().runTaskLater(this, this::syncMapIntegrations, 20L * 5L);
         if (getConfig().getBoolean("integrations.plan.enabled", true)
                 && getServer().getPluginManager().getPlugin("Plan") != null) {
             this.planIntegration = new PlanIntegration(this, landManager);
