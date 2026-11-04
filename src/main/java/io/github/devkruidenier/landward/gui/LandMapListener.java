@@ -23,7 +23,7 @@ public final class LandMapListener implements Listener {
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
         ChunkPosition position = holder.chunksBySlot().get(event.getRawSlot());
-        if (position == null || plugin.storage() == null) return;
+        if (position == null || plugin.storage() == null || landManager.landAt(position).isPresent()) return;
         try { command.claimFromMenu(player, position); new LandMapGui(plugin, landManager).open(player); }
         catch (StorageException exception) { player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error")); }
     }
