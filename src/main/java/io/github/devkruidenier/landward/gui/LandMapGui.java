@@ -4,6 +4,7 @@ import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.Land;
+import io.github.devkruidenier.landward.model.MemberPermissions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -96,11 +97,14 @@ public final class LandMapGui {
             color = NamedTextColor.GRAY;
             title = plugin.localeService().message(locale, "gui.unclaimed");
             status = plugin.localeService().message(locale, "gui.status-unclaimed");
-        } else if (land.get().ownerId().equals(player.getUniqueId())) {
+        } else if (land.get().ownerId().equals(player.getUniqueId())
+                || !landManager.permissions(player.getUniqueId(), land.get().id()).equals(MemberPermissions.NONE)) {
             material = Material.LIME_STAINED_GLASS_PANE;
             color = NamedTextColor.GREEN;
             title = land.get().name();
-            status = plugin.localeService().message(locale, "gui.status-yours");
+            status = plugin.localeService().message(locale, land.get().ownerId().equals(player.getUniqueId())
+                    ? "gui.status-yours"
+                    : "gui.status-member");
         } else {
             material = Material.RED_STAINED_GLASS_PANE;
             color = NamedTextColor.RED;

@@ -55,6 +55,7 @@ gui:
   unclaimed: "Unclaimed"
   status-unclaimed: "Available to claim"
   status-yours: "Your land"
+  status-member: "Land where you are a member"
   status-other: "Claimed by another land"
   legend-yours: "Your claimed chunks"
   legend-unclaimed: "Unclaimed chunks"

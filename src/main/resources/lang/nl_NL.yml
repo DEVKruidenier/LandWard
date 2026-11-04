@@ -55,6 +55,7 @@ gui:
   unclaimed: "Niet geclaimd"
   status-unclaimed: "Beschikbaar om te claimen"
   status-yours: "Jouw land"
+  status-member: "Land waarvan jij lid bent"
   status-other: "Geclaimd door een ander land"
   legend-yours: "Jouw geclaimde chunks"
   legend-unclaimed: "Niet geclaimde chunks"
