@@ -1,6 +1,7 @@
 package io.github.devkruidenier.landward;
 
 import io.github.devkruidenier.landward.command.LandCommand;
+import io.github.devkruidenier.landward.command.ClaimAdminCommand;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.console.LandWardConsole;
 import io.github.devkruidenier.landward.console.LandWardConsole.Tone;
@@ -16,6 +17,7 @@ import io.github.devkruidenier.landward.gui.LandMapListener;
 import io.github.devkruidenier.landward.gui.LandManagementListener;
 import io.github.devkruidenier.landward.gui.LandRenameListener;
 import io.github.devkruidenier.landward.protection.ClaimProtectionListener;
+import io.github.devkruidenier.landward.protection.ClaimBoundaryListener;
 import io.github.devkruidenier.landward.combat.CombatTagListener;
 import io.github.devkruidenier.landward.combat.CombatTagService;
 import io.github.devkruidenier.landward.startup.StartupReporter;
@@ -91,10 +93,14 @@ public final class LandWardPlugin extends JavaPlugin {
         }
         command.setExecutor(landCommand);
         command.setTabCompleter(landCommand);
+        PluginCommand adminCommand = getCommand("claimadmin");
+        if (adminCommand == null) throw new IllegalStateException("The claimadmin command is missing from plugin.yml");
+        adminCommand.setExecutor(new ClaimAdminCommand(this, landManager));
         getServer().getPluginManager().registerEvents(new ClaimProtectionListener(this, landManager, combatTags), this);
+        getServer().getPluginManager().registerEvents(new ClaimBoundaryListener(this, landManager), this);
         getServer().getPluginManager().registerEvents(new CombatTagListener(combatTags), this);
         getServer().getPluginManager().registerEvents(new LandMapListener(this, landCommand, landManager), this);
-        LandRenameListener renameListener = new LandRenameListener(this, landManager);
+        LandRenameListener renameListener = new LandRenameListener(this, landManager, landCommand);
         getServer().getPluginManager().registerEvents(renameListener, this);
         getServer().getPluginManager().registerEvents(new LandManagementListener(this, landManager, renameListener), this);
 

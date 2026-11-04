@@ -30,6 +30,10 @@ commands:
     usage: /claim
     aliases: [land, landward]
     permission: landward.command
+  claimadmin:
+    description: Opens the LandWard administrator claim map.
+    usage: /claimadmin
+    permission: landward.admin
 permissions:
   landward.command:
     description: Allows use of the main LandWard command.

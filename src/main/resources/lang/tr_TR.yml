@@ -61,6 +61,13 @@ protection:
 combat:
   claim-abandon-blocked: "Savaş halindeyken chunk bırakamazsınız."
 gui:
+  admin-map-title: "LandWard • Yönetici claim haritası"
+  admin-confirm-title: "LandWard • Yönetici kaldırmasını onayla"
+  admin-confirm: "Claim'i kaldır"
+  unclaim-confirm-title: "LandWard • Claim kaldırmayı onayla"
+  unclaim-confirm: "Kaldırmayı onayla"
+  unclaim-warning: "Bu işlem geri alınamaz."
+  cancel: "İptal"
   map-title: "LandWard • Yakındaki chunklar"
   current-chunk: "Mevcut chunk"
   unclaimed: "Claimlenmemiş"

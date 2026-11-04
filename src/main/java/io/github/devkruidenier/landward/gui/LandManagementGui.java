@@ -32,7 +32,7 @@ public final class LandManagementGui {
 
     public void openMain(Player player) {
         Optional<Land> optionalLand = landManager.ownedBy(player.getUniqueId());
-        if (optionalLand.isEmpty()) { player.sendMessage(message(player, "claim.no-land")); return; }
+        if (optionalLand.isEmpty()) { openWelcome(player); return; }
         Land land = optionalLand.get();
         LandManagementHolder holder = holder(LandManagementHolder.Screen.MAIN, null, player, message(player, "gui.management-title", Map.of("name", land.name())));
         Inventory inventory = holder.getInventory();
@@ -51,6 +51,17 @@ public final class LandManagementGui {
             inventory.setItem(slot++, playerHead(member.playerId(), name(member.playerId()), message(player, "gui.management-manage-rights")));
         }
         if (slot == 9) inventory.setItem(22, item(Material.GRAY_DYE, message(player, "gui.management-no-members"), NamedTextColor.GRAY, List.of(message(player, "gui.management-add-member-hint"))));
+        player.openInventory(inventory);
+    }
+
+    public void openWelcome(Player player) {
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.WELCOME, null, player, "LandWard");
+        Inventory inventory = holder.getInventory();
+        inventory.setItem(13, item(Material.GRASS_BLOCK, "Create your land", NamedTextColor.GREEN, List.of(
+                "Choose a unique name in chat",
+                "Your current chunk becomes protected"
+        )));
+        inventory.setItem(22, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
         player.openInventory(inventory);
     }
 

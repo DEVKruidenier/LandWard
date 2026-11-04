@@ -214,6 +214,18 @@ public final class SqliteLandStorage implements LandStorage {
     }
 
     @Override
+    public void deleteLand(UUID landId) throws StorageException {
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement(
+                "DELETE FROM lands WHERE id = ?"
+        )) {
+            statement.setString(1, landId.toString());
+            statement.executeUpdate();
+        } catch (SQLException exception) {
+            throw new StorageException("Could not delete land", exception);
+        }
+    }
+
+    @Override
     public void insertMember(LandMember member) throws StorageException {
         String sql = "INSERT INTO land_members(land_id, player_uuid, can_build, can_containers, can_entities) VALUES (?, ?, ?, ?, ?)";
         writeMember(sql, member, "Could not save land member");

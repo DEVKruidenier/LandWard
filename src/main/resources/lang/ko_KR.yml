@@ -61,6 +61,13 @@ protection:
 combat:
   claim-abandon-blocked: "전투 중에는 청크를 포기할 수 없습니다."
 gui:
+  admin-map-title: "LandWard • 관리자 클레임 지도"
+  admin-confirm-title: "LandWard • 관리자 삭제 확인"
+  admin-confirm: "클레임 제거"
+  unclaim-confirm-title: "LandWard • 클레임 해제 확인"
+  unclaim-confirm: "해제 확인"
+  unclaim-warning: "이 작업은 되돌릴 수 없습니다."
+  cancel: "취소"
   map-title: "LandWard • 주변 청크"
   current-chunk: "현재 청크"
   unclaimed: "미점유"

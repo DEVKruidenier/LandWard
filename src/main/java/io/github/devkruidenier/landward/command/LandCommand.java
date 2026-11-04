@@ -61,7 +61,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
         try {
             if (arguments.length == 0) {
-                sendHelp(player);
+                menu(player);
                 return true;
             }
             return switch (arguments[0].toLowerCase(Locale.ROOT)) {
@@ -121,6 +121,18 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean create(Player player, String[] arguments) throws StorageException {
+        if (arguments.length < 2) {
+            player.sendMessage(message(player, "land.create-usage"));
+            return true;
+        }
+        return create(player, String.join(" ", java.util.Arrays.copyOfRange(arguments, 1, arguments.length)));
+    }
+
+    public boolean createFromMenu(Player player, String name) throws StorageException {
+        return create(player, name);
+    }
+
+    private boolean create(Player player, String name) throws StorageException {
         if (!worldEnabled(player)) {
             player.sendMessage(message(player, "claim.world-disabled"));
             return true;
@@ -134,12 +146,6 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             player.sendMessage(message(player, "claim.worldguard-protected"));
             return true;
         }
-        if (arguments.length < 2) {
-            player.sendMessage(message(player, "land.create-usage"));
-            return true;
-        }
-
-        String name = String.join(" ", java.util.Arrays.copyOfRange(arguments, 1, arguments.length));
         PaymentCharge charge = charge(player);
         if (!charge.paid()) {
             player.sendMessage(message(player, charge.messageKey(), Map.of("cost", charge.cost())));

@@ -61,6 +61,13 @@ protection:
 combat:
   claim-abandon-blocked: "Non puoi liberare chunk mentre sei in combattimento."
 gui:
+  admin-map-title: "LandWard • Mappa claim amministratore"
+  admin-confirm-title: "LandWard • Conferma rimozione amministrativa"
+  admin-confirm: "Rimuovi claim"
+  unclaim-confirm-title: "LandWard • Conferma rimozione claim"
+  unclaim-confirm: "Conferma rimozione"
+  unclaim-warning: "Questa azione non può essere annullata."
+  cancel: "Annulla"
   map-title: "LandWard • Chunk vicini"
   current-chunk: "Chunk attuale"
   unclaimed: "Non rivendicato"

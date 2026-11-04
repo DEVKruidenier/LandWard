@@ -23,8 +23,8 @@ import java.util.Optional;
 public final class LandMapGui {
 
     private static final int SIZE = 54;
-    private static final int MAP_START_COLUMN = 2;
-    private static final int MAP_SIZE = 5;
+    private static final int MAP_WIDTH = 9;
+    private static final int MAP_HEIGHT = 4;
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -35,12 +35,20 @@ public final class LandMapGui {
     }
 
     public void open(Player player) {
+        open(player, false);
+    }
+
+    public void openAdmin(Player player) {
+        open(player, true);
+    }
+
+    private void open(Player player, boolean administrator) {
         String locale = plugin.localeService().localeFor(player);
-        LandMapHolder holder = new LandMapHolder();
+        LandMapHolder holder = new LandMapHolder(administrator);
         Inventory inventory = Bukkit.createInventory(
                 holder,
                 SIZE,
-                Component.text(plugin.localeService().message(locale, "gui.map-title"), NamedTextColor.GOLD)
+                Component.text(plugin.localeService().message(locale, administrator ? "gui.admin-map-title" : "gui.map-title"), NamedTextColor.GOLD)
         );
         holder.setInventory(inventory);
 
@@ -50,32 +58,26 @@ public final class LandMapGui {
         player.openInventory(inventory);
     }
 
-    public void openUnclaimConfirmation(Player player, ChunkPosition position) {
+    public void openUnclaimConfirmation(Player player, ChunkPosition position, boolean administrator) {
         String locale = plugin.localeService().localeFor(player);
-        UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position);
-        Inventory inventory = Bukkit.createInventory(holder, 27, Component.text("LandWard • Confirm unclaim", NamedTextColor.GOLD));
+        UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position, administrator);
+        Inventory inventory = Bukkit.createInventory(holder, 27, Component.text(plugin.localeService().message(locale, administrator ? "gui.admin-confirm-title" : "gui.unclaim-confirm-title"), NamedTextColor.GOLD));
         holder.setInventory(inventory);
         ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
         for (int slot = 0; slot < inventory.getSize(); slot++) inventory.setItem(slot, frame);
-        inventory.setItem(11, item(Material.LIME_DYE, "Confirm unclaim", NamedTextColor.GREEN, List.of(
+        inventory.setItem(11, item(Material.LIME_DYE, plugin.localeService().message(locale, administrator ? "gui.admin-confirm" : "gui.unclaim-confirm"), NamedTextColor.GREEN, List.of(
                 Component.text("X: " + position.x() + "  Z: " + position.z(), NamedTextColor.GRAY),
-                Component.text("This cannot be undone.", NamedTextColor.RED)
+                Component.text(plugin.localeService().message(locale, "gui.unclaim-warning"), NamedTextColor.RED)
         )));
-        inventory.setItem(15, item(Material.BARRIER, "Cancel", NamedTextColor.RED, List.of()));
+        inventory.setItem(15, item(Material.BARRIER, plugin.localeService().message(locale, "gui.cancel"), NamedTextColor.RED, List.of()));
         inventory.setItem(22, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 
     private void fillFrame(Inventory inventory) {
-        // Grey is reserved for actual free chunks. Decorative space stays visually distinct.
+        // Grey is reserved for actual free chunks. The bottom two rows are GUI controls only.
         ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
-        for (int row = 0; row < 5; row++) {
-            inventory.setItem(row * 9, frame);
-            inventory.setItem(row * 9 + 1, frame);
-            inventory.setItem(row * 9 + 7, frame);
-            inventory.setItem(row * 9 + 8, frame);
-        }
-        for (int slot = 45; slot < 54; slot++) {
+        for (int slot = 36; slot < 54; slot++) {
             inventory.setItem(slot, frame);
         }
     }
@@ -83,14 +85,14 @@ public final class LandMapGui {
     private void fillMap(Inventory inventory, LandMapHolder holder, Player player, String locale) {
         int centerX = player.getLocation().getBlockX() >> 4;
         int centerZ = player.getLocation().getBlockZ() >> 4;
-        for (int mapZ = 0; mapZ < MAP_SIZE; mapZ++) {
-            for (int mapX = 0; mapX < MAP_SIZE; mapX++) {
-                int chunkX = centerX + mapX - 2;
+        for (int mapZ = 0; mapZ < MAP_HEIGHT; mapZ++) {
+            for (int mapX = 0; mapX < MAP_WIDTH; mapX++) {
+                int chunkX = centerX + mapX - 4;
                 int chunkZ = centerZ + mapZ - 2;
-                boolean current = mapX == 2 && mapZ == 2;
+                boolean current = mapX == 4 && mapZ == 2;
                 ChunkPosition position = new ChunkPosition(player.getWorld().getUID(), chunkX, chunkZ);
                 Optional<Land> land = landManager.landAt(position);
-                int slot = mapZ * 9 + MAP_START_COLUMN + mapX;
+                int slot = mapZ * 9 + mapX;
                 holder.chunksBySlot().put(slot, position);
                 inventory.setItem(
                         slot,
@@ -151,20 +153,20 @@ public final class LandMapGui {
     }
 
     private void fillLegend(Inventory inventory, String locale) {
-        inventory.setItem(45, item(
+        inventory.setItem(37, item(
                 Material.GRAY_STAINED_GLASS_PANE,
                 plugin.localeService().message(locale, "gui.legend-unclaimed"),
                 NamedTextColor.GRAY,
                 List.of(Component.text(plugin.localeService().message(locale, "gui.click-to-claim"), NamedTextColor.GREEN))
         ));
-        inventory.setItem(47, item(Material.LIME_STAINED_GLASS_PANE, plugin.localeService().message(locale, "gui.legend-yours"), NamedTextColor.GREEN, List.of()));
-        inventory.setItem(49, item(
+        inventory.setItem(39, item(Material.LIME_STAINED_GLASS_PANE, plugin.localeService().message(locale, "gui.legend-yours"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(41, item(
                 Material.RED_STAINED_GLASS_PANE,
                 plugin.localeService().message(locale, "gui.legend-other"),
                 NamedTextColor.RED,
                 List.of()
         ));
-        inventory.setItem(51, item(Material.COMPASS, plugin.localeService().message(locale, "gui.legend-current"), NamedTextColor.GOLD, List.of()));
+        inventory.setItem(43, item(Material.COMPASS, plugin.localeService().message(locale, "gui.legend-current"), NamedTextColor.GOLD, List.of()));
         inventory.setItem(53, item(
                 Material.ARROW,
                 plugin.localeService().message(locale, "gui.management-back"),

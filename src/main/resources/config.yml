@@ -51,6 +51,11 @@ claims:
   # Deny claiming in these world names, even when enabled-worlds is empty.
   disabled-worlds: []
 
+notifications:
+  claim-boundaries:
+    # Show an actionbar message only when a player crosses into or out of a claimed chunk.
+    enabled: true
+
 payments:
   # Claim payment mode: free, experience, or vault. Vault uses the active Vault economy provider.
   mode: free

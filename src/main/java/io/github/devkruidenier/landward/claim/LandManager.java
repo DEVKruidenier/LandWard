@@ -149,6 +149,28 @@ public final class LandManager {
         return new UnclaimResult(UnclaimStatus.UNCLAIMED_SUCCESS, land, count - 1);
     }
 
+    /** Removes a claim regardless of ownership. Intended only for the protected administrator GUI. */
+    public synchronized AdminUnclaimResult adminUnclaim(ChunkPosition position) throws StorageException {
+        UUID landId = claims.get(position);
+        if (landId == null) return new AdminUnclaimResult(AdminUnclaimStatus.UNCLAIMED, null, 0);
+        Land land = landsById.get(landId);
+        int count = claimCount(landId);
+        if (count <= 1) {
+            storage.deleteLand(landId);
+            claims.entrySet().removeIf(entry -> entry.getValue().equals(landId));
+            claimCounts.remove(landId);
+            landsById.remove(landId);
+            landsByOwner.remove(land.ownerId());
+            landsByName.remove(normalizedName(land.name()));
+            membersByLand.remove(landId);
+            return new AdminUnclaimResult(AdminUnclaimStatus.LAND_DELETED, land, 0);
+        }
+        storage.deleteClaim(new ClaimedChunk(position, landId));
+        claims.remove(position);
+        claimCounts.put(landId, count - 1);
+        return new AdminUnclaimResult(AdminUnclaimStatus.CLAIM_REMOVED, land, count - 1);
+    }
+
     public synchronized Optional<Land> landAt(ChunkPosition position) {
         return Optional.ofNullable(claims.get(position)).map(landsById::get);
     }
@@ -334,6 +356,15 @@ public final class LandManager {
         UNCLAIMED,
         NOT_YOURS,
         LAST_CHUNK
+    }
+
+    public record AdminUnclaimResult(AdminUnclaimStatus status, Land land, int claimCount) {
+    }
+
+    public enum AdminUnclaimStatus {
+        CLAIM_REMOVED,
+        LAND_DELETED,
+        UNCLAIMED
     }
 
     public record MemberResult(MemberStatus status, Land land, MemberPermissions permissions) {

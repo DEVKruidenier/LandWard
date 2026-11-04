@@ -18,9 +18,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
+import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -58,6 +61,15 @@ public final class ClaimProtectionListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onBlockPlace(BlockPlaceEvent event) {
         denyIfNeeded(event.getPlayer(), event.getBlockPlaced().getLocation(), MemberPermissions.Permission.BUILD, event::setCancelled);
+    }
+
+    /** Flint & steel and fire charges ignite an air block, not a normal BlockPlaceEvent block. */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onBlockIgnite(BlockIgniteEvent event) {
+        Player player = event.getPlayer();
+        if (player != null) {
+            denyIfNeeded(player, event.getBlock().getLocation(), MemberPermissions.Permission.BUILD, event::setCancelled);
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
@@ -124,6 +136,23 @@ public final class ClaimProtectionListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onFluidFlow(BlockFromToEvent event) {
         if (!sameProtectionDomain(event.getBlock().getLocation(), event.getToBlock().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    /** Stops fire (and similar spreading blocks) crossing a claim boundary in either direction. */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onBlockSpread(BlockSpreadEvent event) {
+        if (!sameProtectionDomain(event.getSource().getLocation(), event.getBlock().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    /** Covers an existing fire source attempting to burn a protected block across a boundary. */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onBlockBurn(BlockBurnEvent event) {
+        Block source = event.getIgnitingBlock();
+        if (source != null && !sameProtectionDomain(source.getLocation(), event.getBlock().getLocation())) {
             event.setCancelled(true);
         }
     }

@@ -15,7 +15,12 @@ import java.util.UUID;
 
 public final class LandManagementListener implements Listener {
     private final LandWardPlugin plugin; private final LandManager landManager; private final LandManagementGui gui; private final LandRenameListener renameListener;
-    public LandManagementListener(LandWardPlugin plugin, LandManager landManager, LandRenameListener renameListener) { this.plugin = plugin; this.landManager = landManager; this.gui = new LandManagementGui(plugin, landManager); this.renameListener = renameListener; }
+    public LandManagementListener(LandWardPlugin plugin, LandManager landManager, LandRenameListener renameListener) {
+        this.plugin = plugin;
+        this.landManager = landManager;
+        this.gui = new LandManagementGui(plugin, landManager);
+        this.renameListener = renameListener;
+    }
     @EventHandler(priority = EventPriority.HIGH) public void onClick(InventoryClickEvent event) {
         if (!(event.getView().getTopInventory().getHolder() instanceof LandManagementHolder holder)) return;
         event.setCancelled(true); if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
@@ -23,6 +28,11 @@ public final class LandManagementListener implements Listener {
     }
     @EventHandler(priority = EventPriority.HIGH) public void onDrag(InventoryDragEvent event) { if (event.getView().getTopInventory().getHolder() instanceof LandManagementHolder) event.setCancelled(true); }
     private void handle(Player player, LandManagementHolder holder, int slot) throws StorageException {
+        if (holder.screen() == LandManagementHolder.Screen.WELCOME) {
+            if (slot == 13) renameListener.beginCreate(player);
+            else if (slot == 22) new LandMapGui(plugin, landManager).open(player);
+            return;
+        }
         if (holder.screen() == LandManagementHolder.Screen.MAIN) { if (slot == 45) gui.openMembers(player); else if (slot == 47) renameListener.begin(player); else if (slot == 49) player.closeInventory(); else if (slot == 53) new LandMapGui(plugin, landManager).open(player); else { UUID member = holder.playersBySlot().get(slot); if (member != null) gui.openRights(player, member); } return; }
         if (holder.screen() == LandManagementHolder.Screen.MEMBERS) { if (slot == 49) { gui.openMain(player); return; } UUID target = holder.playersBySlot().get(slot); if (target != null) { landManager.addMember(player.getUniqueId(), target); plugin.refreshAnalyticsIntegration(); gui.openMain(player); } return; }
         if (slot == 49) { gui.openMain(player); return; }

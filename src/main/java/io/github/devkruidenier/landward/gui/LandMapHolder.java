@@ -9,8 +9,15 @@ import java.util.Map;
 
 public final class LandMapHolder implements InventoryHolder {
 
+    private final boolean administrator;
     private Inventory inventory;
     private final Map<Integer, ChunkPosition> chunksBySlot = new HashMap<>();
+
+    public LandMapHolder() { this(false); }
+
+    public LandMapHolder(boolean administrator) { this.administrator = administrator; }
+
+    boolean administrator() { return administrator; }
 
     void setInventory(Inventory inventory) {
         this.inventory = inventory;

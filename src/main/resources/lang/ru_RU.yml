@@ -61,6 +61,13 @@ protection:
 combat:
   claim-abandon-blocked: "Нельзя освобождать чанки во время боя."
 gui:
+  admin-map-title: "LandWard • Карта приватов администратора"
+  admin-confirm-title: "LandWard • Подтвердить удаление администратором"
+  admin-confirm: "Удалить приват"
+  unclaim-confirm-title: "LandWard • Подтвердить снятие привата"
+  unclaim-confirm: "Подтвердить снятие"
+  unclaim-warning: "Это действие нельзя отменить."
+  cancel: "Отмена"
   map-title: "LandWard • Ближайшие чанки"
   current-chunk: "Текущий чанк"
   unclaimed: "Не приватизирован"

@@ -61,6 +61,13 @@ protection:
 combat:
   claim-abandon-blocked: "戦闘中はチャンクを放棄できません。"
 gui:
+  admin-map-title: "LandWard • 管理者保護マップ"
+  admin-confirm-title: "LandWard • 管理者による削除を確認"
+  admin-confirm: "保護を削除"
+  unclaim-confirm-title: "LandWard • 保護解除を確認"
+  unclaim-confirm: "解除を確認"
+  unclaim-warning: "この操作は元に戻せません。"
+  cancel: "キャンセル"
   map-title: "LandWard • 近くのチャンク"
   current-chunk: "現在のチャンク"
   unclaimed: "未保護"

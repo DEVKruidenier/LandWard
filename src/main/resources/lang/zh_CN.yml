@@ -61,6 +61,13 @@ protection:
 combat:
   claim-abandon-blocked: "战斗中无法放弃区块。"
 gui:
+  admin-map-title: "LandWard • 管理员领地地图"
+  admin-confirm-title: "LandWard • 确认管理员删除"
+  admin-confirm: "删除领地"
+  unclaim-confirm-title: "LandWard • 确认取消领地"
+  unclaim-confirm: "确认取消"
+  unclaim-warning: "此操作无法撤销。"
+  cancel: "取消"
   map-title: "LandWard • 附近区块"
   current-chunk: "当前区块"
   unclaimed: "未认领"

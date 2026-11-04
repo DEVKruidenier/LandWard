@@ -34,8 +34,10 @@ public final class LandMapListener implements Listener {
         if (position == null || plugin.storage() == null) return;
         var existingLand = landManager.landAt(position);
         if (existingLand.isPresent()) {
-            if (existingLand.get().ownerId().equals(player.getUniqueId())) {
-                new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position);
+            if (holder.administrator()) {
+                new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position, true);
+            } else if (existingLand.get().ownerId().equals(player.getUniqueId())) {
+                new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position, false);
             }
             return;
         }
@@ -48,13 +50,19 @@ public final class LandMapListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
         if (event.getRawSlot() == 11) {
             try {
-                command.unclaimFromMenu(player, confirmation.position());
+                if (confirmation.administrator()) {
+                    landManager.adminUnclaim(confirmation.position());
+                    plugin.syncMapIntegrations();
+                } else {
+                    command.unclaimFromMenu(player, confirmation.position());
+                }
             } catch (StorageException exception) {
                 player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
             }
         }
         if (event.getRawSlot() == 11 || event.getRawSlot() == 15 || event.getRawSlot() == 22) {
-            new LandMapGui(plugin, landManager).open(player);
+            if (confirmation.administrator()) new LandMapGui(plugin, landManager).openAdmin(player);
+            else new LandMapGui(plugin, landManager).open(player);
         }
     }
 

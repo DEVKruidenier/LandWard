@@ -61,6 +61,13 @@ protection:
 combat:
   claim-abandon-blocked: "You cannot unclaim land while you are in combat."
 gui:
+  admin-map-title: "LandWard • Admin claim map"
+  admin-confirm-title: "LandWard • Confirm administrative removal"
+  admin-confirm: "Remove claim"
+  unclaim-confirm-title: "LandWard • Confirm unclaim"
+  unclaim-confirm: "Confirm unclaim"
+  unclaim-warning: "This cannot be undone."
+  cancel: "Cancel"
   map-title: "LandWard • Nearby Chunks"
   current-chunk: "Current chunk"
   unclaimed: "Unclaimed"
