@@ -127,6 +127,28 @@ public final class LandManager {
         return new ClaimResult(ClaimStatus.CLAIMED, land, currentCount + 1);
     }
 
+    public synchronized UnclaimResult unclaim(UUID ownerId, ChunkPosition position) throws StorageException {
+        Land land = landsByOwner.get(ownerId);
+        if (land == null) {
+            return new UnclaimResult(UnclaimStatus.NO_LAND, null, 0);
+        }
+        UUID claimOwner = claims.get(position);
+        if (claimOwner == null) {
+            return new UnclaimResult(UnclaimStatus.UNCLAIMED, null, claimCount(land.id()));
+        }
+        if (!claimOwner.equals(land.id())) {
+            return new UnclaimResult(UnclaimStatus.NOT_YOURS, landsById.get(claimOwner), claimCount(land.id()));
+        }
+        int count = claimCount(land.id());
+        if (count <= 1) {
+            return new UnclaimResult(UnclaimStatus.LAST_CHUNK, land, count);
+        }
+        storage.deleteClaim(new ClaimedChunk(position, land.id()));
+        claims.remove(position);
+        claimCounts.put(land.id(), count - 1);
+        return new UnclaimResult(UnclaimStatus.UNCLAIMED_SUCCESS, land, count - 1);
+    }
+
     public synchronized Optional<Land> landAt(ChunkPosition position) {
         return Optional.ofNullable(claims.get(position)).map(landsById::get);
     }
@@ -246,6 +268,17 @@ public final class LandManager {
         ALREADY_CLAIMED,
         LIMIT_REACHED,
         NOT_ADJACENT
+    }
+
+    public record UnclaimResult(UnclaimStatus status, Land land, int claimCount) {
+    }
+
+    public enum UnclaimStatus {
+        UNCLAIMED_SUCCESS,
+        NO_LAND,
+        UNCLAIMED,
+        NOT_YOURS,
+        LAST_CHUNK
     }
 
     public record MemberResult(MemberStatus status, Land land, MemberPermissions permissions) {

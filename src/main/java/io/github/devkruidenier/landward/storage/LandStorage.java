@@ -16,6 +16,8 @@ public interface LandStorage extends AutoCloseable {
 
     void insertClaim(ClaimedChunk claim) throws StorageException;
 
+    void deleteClaim(ClaimedChunk claim) throws StorageException;
+
     void insertMember(LandMember member) throws StorageException;
 
     void updateMember(LandMember member) throws StorageException;

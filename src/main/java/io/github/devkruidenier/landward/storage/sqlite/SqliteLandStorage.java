@@ -187,6 +187,20 @@ public final class SqliteLandStorage implements LandStorage {
     }
 
     @Override
+    public void deleteClaim(ClaimedChunk claim) throws StorageException {
+        String sql = "DELETE FROM claims WHERE world_uuid = ? AND chunk_x = ? AND chunk_z = ? AND land_id = ?";
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, claim.position().worldId().toString());
+            statement.setInt(2, claim.position().x());
+            statement.setInt(3, claim.position().z());
+            statement.setString(4, claim.landId().toString());
+            statement.executeUpdate();
+        } catch (SQLException exception) {
+            throw new StorageException("Could not delete claim", exception);
+        }
+    }
+
+    @Override
     public void insertMember(LandMember member) throws StorageException {
         String sql = "INSERT INTO land_members(land_id, player_uuid, can_build, can_containers, can_entities) VALUES (?, ?, ?, ?, ?)";
         writeMember(sql, member, "Could not save land member");

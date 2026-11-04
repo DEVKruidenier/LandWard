@@ -87,4 +87,22 @@ class LandManagerPersistenceTest {
         assertEquals(1, reloaded.members(created.land().id()).size());
         assertTrue(!reloaded.permissions(member, created.land().id()).containers());
     }
+
+    @Test
+    void refusesToUnclaimLastChunkAndPersistsOtherUnclaims() throws Exception {
+        SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("unclaim.db"));
+        storage.initialize();
+        LandManager manager = new LandManager(storage);
+        manager.load();
+        UUID owner = UUID.randomUUID();
+        UUID world = UUID.randomUUID();
+        ChunkPosition first = new ChunkPosition(world, 0, 0);
+        ChunkPosition second = new ChunkPosition(world, 1, 0);
+        manager.create(owner, "Unclaim Test", first);
+        manager.claim(owner, second, -1, true);
+
+        assertEquals(LandManager.UnclaimStatus.UNCLAIMED_SUCCESS, manager.unclaim(owner, second).status());
+        assertEquals(LandManager.UnclaimStatus.LAST_CHUNK, manager.unclaim(owner, first).status());
+        assertEquals(1, manager.totalClaimCount());
+    }
 }

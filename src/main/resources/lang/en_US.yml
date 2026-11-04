@@ -12,6 +12,7 @@ command:
   help: "/land help - Shows this help."
   help-create: "/land create <name> - Creates your land."
   help-claim: "/land claim - Claims your current chunk."
+  help-unclaim: "/land unclaim - Removes your current chunk from your land."
   help-info: "/land info - Shows information about the current chunk."
   help-list: "/land list - Opens the nearby chunk map."
   help-members: "/land add <player>, /land remove <player>, /land rights <player> <build|containers|entities> <on|off>"
@@ -41,6 +42,9 @@ claim:
   world-disabled: "Land claiming is disabled in this world."
   unclaimed: "This chunk is not claimed."
   info: "This chunk belongs to {name}, which has {count} claimed chunk(s)."
+  unclaimed-success: "Removed this chunk from {name}. {count} chunk(s) remain."
+  not-yours: "This chunk belongs to {name}, not to your land."
+  last-chunk: "You cannot unclaim the last chunk of your land."
 protection:
   denied: "This area is protected by {name}."
 gui:

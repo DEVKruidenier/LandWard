@@ -23,7 +23,7 @@ import java.util.Optional;
 
 public final class LandCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "claim", "info", "list", "add", "remove", "rights");
+    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "claim", "unclaim", "info", "list", "add", "remove", "rights");
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -54,6 +54,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             return switch (arguments[0].toLowerCase(Locale.ROOT)) {
                 case "create" -> create(player, arguments);
                 case "claim" -> claim(player);
+                case "unclaim" -> unclaim(player);
                 case "info" -> info(player);
                 case "list" -> list(player);
                 case "add" -> addMember(player, arguments);
@@ -96,6 +97,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(message(sender, "command.help"));
         sender.sendMessage(message(sender, "command.help-create"));
         sender.sendMessage(message(sender, "command.help-claim"));
+        sender.sendMessage(message(sender, "command.help-unclaim"));
         sender.sendMessage(message(sender, "command.help-info"));
         sender.sendMessage(message(sender, "command.help-list"));
         sender.sendMessage(message(sender, "command.help-members"));
@@ -148,6 +150,22 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 "name", result.land() == null ? "-" : result.land().name(),
                 "count", result.claimCount(),
                 "limit", maximum
+        )));
+        return true;
+    }
+
+    private boolean unclaim(Player player) throws StorageException {
+        LandManager.UnclaimResult result = landManager.unclaim(player.getUniqueId(), position(player));
+        String key = switch (result.status()) {
+            case UNCLAIMED_SUCCESS -> "claim.unclaimed-success";
+            case NO_LAND -> "claim.no-land";
+            case UNCLAIMED -> "claim.unclaimed";
+            case NOT_YOURS -> "claim.not-yours";
+            case LAST_CHUNK -> "claim.last-chunk";
+        };
+        player.sendMessage(message(player, key, Map.of(
+                "name", result.land() == null ? "-" : result.land().name(),
+                "count", result.claimCount()
         )));
         return true;
     }

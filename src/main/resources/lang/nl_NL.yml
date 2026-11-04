@@ -12,6 +12,7 @@ command:
   help: "/land help - Toont deze hulp."
   help-create: "/land create <naam> - Maakt jouw land aan."
   help-claim: "/land claim - Claimt de chunk waarin je staat."
+  help-unclaim: "/land unclaim - Verwijdert de huidige chunk uit jouw land."
   help-info: "/land info - Toont informatie over de huidige chunk."
   help-list: "/land list - Opent de chunkkaart in de buurt."
   help-members: "/land add <speler>, /land remove <speler>, /land rights <speler> <build|containers|entities> <on|off>"
@@ -41,6 +42,9 @@ claim:
   world-disabled: "Land claimen is uitgeschakeld in deze wereld."
   unclaimed: "Deze chunk is niet geclaimd."
   info: "Deze chunk hoort bij {name}, dat {count} geclaimde chunk(s) heeft."
+  unclaimed-success: "Deze chunk is verwijderd uit {name}. Er blijven {count} chunk(s) over."
+  not-yours: "Deze chunk hoort bij {name}, niet bij jouw land."
+  last-chunk: "Je kunt de laatste chunk van jouw land niet verwijderen."
 protection:
   denied: "Dit gebied is beschermd door {name}."
 gui:
