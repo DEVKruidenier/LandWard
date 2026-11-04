@@ -43,7 +43,7 @@ public final class LandManagementGui {
         )));
         inventory.setItem(11, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
         inventory.setItem(15, item(Material.COMPARATOR, message(player, "gui.management-settings"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-settings-hint"))));
-        inventory.setItem(22, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 
@@ -55,8 +55,7 @@ public final class LandManagementGui {
         inventory.setItem(11, item(Material.LIME_DYE, message(player, "gui.management-add-member"), NamedTextColor.GREEN, List.of(message(player, "gui.management-choose-online"))));
         inventory.setItem(13, item(Material.PLAYER_HEAD, message(player, "gui.management-members"), NamedTextColor.AQUA, List.of(message(player, "gui.management-manage-rights"))));
         inventory.setItem(15, item(Material.NAME_TAG, message(player, "gui.management-rename"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-rename-hint"))));
-        inventory.setItem(22, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        int slot = 9;
+        inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 
@@ -83,7 +82,7 @@ public final class LandManagementGui {
             holder.playersBySlot().put(slot, target.getUniqueId());
             inventory.setItem(slot++, playerHead(target.getUniqueId(), target.getName(), message(player, "gui.management-add-player")));
         }
-        inventory.setItem(49, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        inventory.setItem(53, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 
@@ -99,7 +98,7 @@ public final class LandManagementGui {
             inventory.setItem(slot++, playerHead(member.playerId(), name(member.playerId()), message(player, "gui.management-manage-rights")));
         }
         if (slot == 0) inventory.setItem(22, item(Material.GRAY_DYE, message(player, "gui.management-no-members"), NamedTextColor.GRAY, List.of(message(player, "gui.management-add-member-hint"))));
-        inventory.setItem(49, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        inventory.setItem(53, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 
@@ -113,8 +112,8 @@ public final class LandManagementGui {
         inventory.setItem(20, permissionItem(player, Material.IRON_PICKAXE, message(player, "gui.management-build"), permissions.build()));
         inventory.setItem(22, permissionItem(player, Material.CHEST, message(player, "gui.management-containers"), permissions.containers()));
         inventory.setItem(24, permissionItem(player, Material.CREEPER_SPAWN_EGG, message(player, "gui.management-entities"), permissions.entities()));
-        inventory.setItem(49, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        inventory.setItem(53, item(Material.BARRIER, message(player, "gui.management-remove-member"), NamedTextColor.RED, List.of(message(player, "gui.management-remove-hint"))));
+        inventory.setItem(49, item(Material.BARRIER, message(player, "gui.management-remove-member"), NamedTextColor.RED, List.of(message(player, "gui.management-remove-hint"))));
+        inventory.setItem(53, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 

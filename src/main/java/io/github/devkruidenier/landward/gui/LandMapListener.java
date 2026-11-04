@@ -61,7 +61,7 @@ public final class LandMapListener implements Listener {
                 player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
             }
         }
-        if (event.getRawSlot() == 11 || event.getRawSlot() == 15 || event.getRawSlot() == 22) {
+        if (event.getRawSlot() == 11 || event.getRawSlot() == 15 || event.getRawSlot() == 26) {
             if (confirmation.administrator()) new LandMapGui(plugin, landManager).openAdmin(player);
             else new LandMapGui(plugin, landManager).open(player);
         }

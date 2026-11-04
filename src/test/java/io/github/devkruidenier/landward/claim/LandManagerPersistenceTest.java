@@ -132,6 +132,31 @@ class LandManagerPersistenceTest {
     }
 
     @Test
+    void administratorCanRemoveOneClaimOrDeleteTheFinalClaim() throws Exception {
+        SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("admin-unclaim.db"));
+        storage.initialize();
+        LandManager manager = new LandManager(storage);
+        manager.load();
+        UUID owner = UUID.randomUUID();
+        UUID member = UUID.randomUUID();
+        UUID world = UUID.randomUUID();
+        ChunkPosition first = new ChunkPosition(world, 0, 0);
+        ChunkPosition second = new ChunkPosition(world, 1, 0);
+        var created = manager.create(owner, "Admin Test", first);
+        manager.claim(owner, second, -1, true);
+        manager.addMember(owner, member);
+
+        assertEquals(LandManager.AdminUnclaimStatus.CLAIM_REMOVED, manager.adminUnclaim(second).status());
+        assertEquals(1, manager.totalClaimCount());
+        assertTrue(manager.ownedBy(owner).isPresent());
+
+        assertEquals(LandManager.AdminUnclaimStatus.LAND_DELETED, manager.adminUnclaim(first).status());
+        assertEquals(0, manager.totalClaimCount());
+        assertTrue(manager.land(created.land().id()).isEmpty());
+        assertTrue(manager.members(created.land().id()).isEmpty());
+    }
+
+    @Test
     void renamesLandAndPersistsTheNewName() throws Exception {
         SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("rename.db"));
         storage.initialize();

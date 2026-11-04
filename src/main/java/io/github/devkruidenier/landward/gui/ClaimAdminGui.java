@@ -29,7 +29,7 @@ public final class ClaimAdminGui {
         inventory.setItem(11, item(Material.FILLED_MAP, plugin.localeService().message(locale, "gui.admin-map-title"), NamedTextColor.AQUA, List.of(plugin.localeService().message(locale, "gui.admin-map-hint"))));
         inventory.setItem(13, item(Material.CLOCK, plugin.localeService().message(locale, "gui.admin-reload"), NamedTextColor.YELLOW, List.of(plugin.localeService().message(locale, "gui.admin-reload-hint"))));
         inventory.setItem(15, item(Material.GRASS_BLOCK, plugin.localeService().message(locale, "gui.admin-worlds"), NamedTextColor.GREEN, List.of(plugin.localeService().message(locale, "gui.admin-worlds-hint"))));
-        inventory.setItem(22, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 
@@ -49,7 +49,7 @@ public final class ClaimAdminGui {
                     plugin.localeService().message(locale, active ? "gui.admin-world-disable-hint" : "gui.admin-world-enable-hint")
             )));
         }
-        inventory.setItem(49, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 

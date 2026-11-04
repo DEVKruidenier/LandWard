@@ -74,7 +74,7 @@ public final class LandMapGui {
                 Component.text(plugin.localeService().message(locale, "gui.unclaim-warning"), NamedTextColor.RED)
         )));
         inventory.setItem(15, item(Material.BARRIER, plugin.localeService().message(locale, "gui.cancel"), NamedTextColor.RED, List.of()));
-        inventory.setItem(22, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 

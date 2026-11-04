@@ -31,14 +31,15 @@ public final class ClaimAdminListener implements Listener {
             if (event.getRawSlot() == 11) new LandMapGui(plugin, lands).openAdmin(player);
             else if (event.getRawSlot() == 13) {
                 plugin.reloadLandWard();
-                player.sendActionBar(Component.text(plugin.localeService().message(plugin.localeService().localeFor(player), "general.reloaded"), NamedTextColor.GREEN));
+                player.sendMessage(Component.text("LandWard » ", NamedTextColor.GOLD)
+                        .append(Component.text(plugin.localeService().message(plugin.localeService().localeFor(player), "general.reloaded"), NamedTextColor.GREEN)));
                 gui.openMain(player);
             }
             else if (event.getRawSlot() == 15) gui.openWorlds(player);
-            else if (event.getRawSlot() == 22) player.closeInventory();
+            else if (event.getRawSlot() == 26) player.closeInventory();
             return;
         }
-        if (event.getRawSlot() == 49) { gui.openMain(player); return; }
+        if (event.getRawSlot() == 53) { gui.openMain(player); return; }
         String worldName = holder.worldsBySlot().get(event.getRawSlot());
         if (worldName == null) return;
         World world = Bukkit.getWorld(worldName);
