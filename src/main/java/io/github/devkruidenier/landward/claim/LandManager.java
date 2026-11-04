@@ -165,6 +165,16 @@ public final class LandManager {
         return claims.size();
     }
 
+    public synchronized List<ClaimedChunk> claims() {
+        return claims.entrySet().stream()
+                .map(entry -> new ClaimedChunk(entry.getKey(), entry.getValue()))
+                .toList();
+    }
+
+    public synchronized Optional<Land> land(UUID landId) {
+        return Optional.ofNullable(landsById.get(landId));
+    }
+
     public synchronized List<LandMember> members(UUID landId) {
         return membersByLand.getOrDefault(landId, Map.of()).entrySet().stream()
                 .map(entry -> new LandMember(landId, entry.getKey(), entry.getValue()))

@@ -149,6 +149,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 "name", result.land() == null ? name : result.land().name()
         )));
         if (result.status() != LandManager.CreateStatus.CREATED) charge.refund(player);
+        else plugin.syncMapIntegrations();
         return true;
     }
 
@@ -191,6 +192,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 "limit", maximum
         )));
         if (result.status() != LandManager.ClaimStatus.CLAIMED) charge.refund(player);
+        else plugin.syncMapIntegrations();
         return true;
     }
 
@@ -207,6 +209,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 "name", result.land() == null ? "-" : result.land().name(),
                 "count", result.claimCount()
         )));
+        if (result.status() == LandManager.UnclaimStatus.UNCLAIMED_SUCCESS) plugin.syncMapIntegrations();
         return true;
     }
 
