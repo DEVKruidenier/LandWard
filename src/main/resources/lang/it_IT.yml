@@ -11,7 +11,7 @@ command:
   description: "Claim dei chunk semplici e protezione affidabile per server survival."
   help: "/claim help - Mostra questo aiuto."
   help-create: "/claim create <nome> - Crea il tuo terreno."
-  help-claim: "/claim claim - Rivendica il chunk in cui ti trovi."
+  help-claim: "/claim - Rivendica il chunk in cui ti trovi."
   help-unclaim: "/claim unclaim - Rimuove il tuo chunk attuale dal tuo terreno."
   help-info: "/claim info - Mostra informazioni sul chunk attuale."
   help-list: "/claim list - Apre la mappa dei chunk vicini."

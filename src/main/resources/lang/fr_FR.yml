@@ -12,7 +12,7 @@ command:
   help: "/claim help - Affiche cette aide."
   development: "La gestion des claims n'est pas encore disponible dans cette version de développement."
   help-create: "/claim create <nom> - Crée votre terrain."
-  help-claim: "/claim claim - Revendique votre chunk actuel."
+  help-claim: "/claim - Revendique votre chunk actuel."
   help-unclaim: "/claim unclaim - Retire votre chunk actuel de votre terrain."
   help-info: "/claim info - Affiche les informations du chunk actuel."
   help-list: "/claim list - Ouvre la carte des chunks proches."

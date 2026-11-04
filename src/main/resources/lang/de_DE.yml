@@ -12,7 +12,7 @@ command:
   help: "/claim help - Zeigt diese Hilfe an."
   development: "Die Claim-Verwaltung ist in dieser Entwicklungsversion noch nicht verfügbar."
   help-create: "/claim create <name> - Erstellt dein Land."
-  help-claim: "/claim claim - Beansprucht deinen aktuellen Chunk."
+  help-claim: "/claim - Beansprucht deinen aktuellen Chunk."
   help-unclaim: "/claim unclaim - Entfernt deinen aktuellen Chunk aus deinem Land."
   help-info: "/claim info - Zeigt Informationen über den aktuellen Chunk."
   help-list: "/claim list - Öffnet die Chunk-Karte in der Nähe."

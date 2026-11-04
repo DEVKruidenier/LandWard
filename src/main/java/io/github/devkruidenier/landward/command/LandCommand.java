@@ -49,14 +49,6 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             @NotNull String label,
             @NotNull String[] arguments
     ) {
-        if (arguments.length == 0) {
-            if (sender instanceof Player player && landManager.ownedBy(player.getUniqueId()).isEmpty()) {
-                sender.sendMessage(message(sender, "claim.no-land"));
-                return true;
-            }
-            sendHelp(sender);
-            return true;
-        }
         if (arguments.length == 1 && arguments[0].equalsIgnoreCase("help")) {
             sendHelp(sender);
             return true;
@@ -68,6 +60,13 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         }
 
         try {
+            if (arguments.length == 0) {
+                if (landManager.ownedBy(player.getUniqueId()).isEmpty()) {
+                    player.sendMessage(message(player, "claim.no-land"));
+                    return true;
+                }
+                return claim(player, position(player));
+            }
             return switch (arguments[0].toLowerCase(Locale.ROOT)) {
                 case "create" -> create(player, arguments);
                 case "claim" -> claim(player, position(player));

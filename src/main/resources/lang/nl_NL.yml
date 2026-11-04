@@ -11,7 +11,7 @@ command:
   description: "Eenvoudige chunkclaims en betrouwbare bescherming voor survivalservers."
   help: "/claim help - Toont deze hulp."
   help-create: "/claim create <naam> - Maakt jouw land aan."
-  help-claim: "/claim claim - Claimt de chunk waarin je staat."
+  help-claim: "/claim - Claimt de chunk waarin je staat."
   help-unclaim: "/claim unclaim - Verwijdert de huidige chunk uit jouw land."
   help-info: "/claim info - Toont informatie over de huidige chunk."
   help-list: "/claim list - Opent de chunkkaart in de buurt."
