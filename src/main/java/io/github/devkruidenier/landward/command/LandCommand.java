@@ -28,7 +28,7 @@ import java.util.Optional;
 
 public final class LandCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "claim", "unclaim", "info", "list", "menu", "rename", "add", "remove", "rights");
+    private static final List<String> ROOT_COMPLETIONS = List.of("help", "create", "unclaim", "info", "list", "menu", "rename", "add", "remove", "rights");
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -61,15 +61,13 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
         try {
             if (arguments.length == 0) {
-                if (landManager.ownedBy(player.getUniqueId()).isEmpty()) {
-                    player.sendMessage(message(player, "claim.no-land"));
-                    return true;
-                }
-                return claim(player, position(player));
+                sendHelp(player);
+                return true;
             }
             return switch (arguments[0].toLowerCase(Locale.ROOT)) {
                 case "create" -> create(player, arguments);
-                case "claim" -> claim(player, position(player));
+                // Kept as a gentle compatibility route; claiming itself happens by clicking a free map tile.
+                case "claim" -> list(player);
                 case "unclaim" -> unclaim(player);
                 case "info" -> info(player);
                 case "list" -> list(player);
@@ -114,7 +112,6 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(message(sender, "command.description"));
         sender.sendMessage(message(sender, "command.help"));
         sender.sendMessage(message(sender, "command.help-create"));
-        sender.sendMessage(message(sender, "command.help-claim"));
         sender.sendMessage(message(sender, "command.help-unclaim"));
         sender.sendMessage(message(sender, "command.help-info"));
         sender.sendMessage(message(sender, "command.help-list"));

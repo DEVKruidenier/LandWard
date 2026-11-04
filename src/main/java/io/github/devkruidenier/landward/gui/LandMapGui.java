@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public final class LandMapGui {
@@ -116,7 +117,15 @@ public final class LandMapGui {
         java.util.ArrayList<Component> lore = new java.util.ArrayList<>();
         if (current) lore.add(Component.text(plugin.localeService().message(locale, "gui.current-chunk"), NamedTextColor.GOLD));
         lore.add(Component.text(status, NamedTextColor.DARK_GRAY));
-        if (land.isEmpty()) lore.add(Component.text(plugin.localeService().message(locale, "gui.click-to-claim"), NamedTextColor.GREEN));
+        if (land.isEmpty()) {
+            lore.add(Component.text(plugin.localeService().message(locale, "gui.click-to-claim"), NamedTextColor.GREEN));
+        } else {
+            String owner = Bukkit.getOfflinePlayer(land.get().ownerId()).getName();
+            lore.add(Component.text(
+                    plugin.localeService().message(locale, "gui.management-owner", Map.of("name", owner == null ? "-" : owner)),
+                    NamedTextColor.AQUA
+            ));
+        }
         lore.add(Component.text("X: " + chunkX + "  Z: " + chunkZ, NamedTextColor.GRAY));
         if (current) { material = Material.COMPASS; color = NamedTextColor.GOLD; title = plugin.localeService().message(locale, "gui.current-chunk"); }
         return item(material, title, color, List.of(
