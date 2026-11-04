@@ -11,6 +11,7 @@ import io.github.devkruidenier.landward.integration.BlueMapIntegration;
 import io.github.devkruidenier.landward.integration.plan.PlanIntegration;
 import io.github.devkruidenier.landward.integration.SquaremapIntegration;
 import io.github.devkruidenier.landward.integration.Pl3xMapIntegration;
+import io.github.devkruidenier.landward.integration.placeholder.LandWardExpansion;
 import io.github.devkruidenier.landward.gui.LandMapListener;
 import io.github.devkruidenier.landward.gui.LandManagementListener;
 import io.github.devkruidenier.landward.gui.LandRenameListener;
@@ -65,6 +66,11 @@ public final class LandWardPlugin extends JavaPlugin {
                 && getServer().getPluginManager().getPlugin("Plan") != null) {
             this.planIntegration = new PlanIntegration(this, landManager);
             planIntegration.register();
+        }
+        if (getConfig().getBoolean("integrations.placeholderapi.enabled", true)
+                && getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new LandWardExpansion(this, landManager).register();
+            console.info("PlaceholderAPI integration enabled: use %landward_<placeholder>%.", Tone.SUCCESS);
         }
 
         LandCommand landCommand = new LandCommand(this, landManager);

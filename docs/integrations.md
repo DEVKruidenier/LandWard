@@ -20,11 +20,12 @@ WorldGuard for protected spawn regions with custom shapes.
 
 LandWard will reject a chunk claim when any part of that chunk intersects a protected WorldGuard region. The policy is configurable and defaults to denying every overlap.
 
-## BlueMap and Dynmap
+## BlueMap, Dynmap, Squaremap and Pl3xMap
 
 Claim boundaries are published in dedicated, toggleable map layers. LandWard refreshes
-the layer after a claim is created or removed. BlueMap and Dynmap must be installed
-and their marker functionality must be enabled.
+the layer after a claim is created, removed or renamed. BlueMap, Dynmap, Squaremap
+and Pl3xMap are all optional. Pl3xMap receives a managed JSON layer in its markers
+directory; the other maps use their supported runtime marker APIs.
 
 ## Plan
 
@@ -35,3 +36,11 @@ statistics, together with server-wide land and claimed-chunk totals. It stores n
 additional player data and does not need a separate LandWard database table.
 
 Plan remains optional: without it LandWard starts and operates normally.
+
+## PlaceholderAPI
+
+When PlaceholderAPI is installed, LandWard registers an internal `landward`
+expansion. Available placeholders are `%landward_land_name%`,
+`%landward_is_owner%`, `%landward_owned_chunks%`, `%landward_member_lands%`,
+`%landward_current_claim%`, `%landward_current_owner%` and
+`%landward_current_chunk_claimed%`.

@@ -19,6 +19,9 @@ repositories {
     maven("https://repo.playeranalytics.net/releases") {
         name = "playeranalytics"
     }
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") {
+        name = "placeholderapi"
+    }
 }
 
 dependencies {
@@ -30,6 +33,7 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("com.djrapitops:plan-api:5.7-R0.2")
     compileOnly("xyz.jpenilla:squaremap-api:1.4.3")
+    compileOnly("me.clip:placeholderapi:2.11.7")
 
     testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")

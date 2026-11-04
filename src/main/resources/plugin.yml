@@ -19,6 +19,7 @@ softdepend:
   - EssentialsXProtect
   - squaremap
   - Pl3xMap
+  - PlaceholderAPI
 commands:
   claim:
     description: Opens LandWard or manages land claims.

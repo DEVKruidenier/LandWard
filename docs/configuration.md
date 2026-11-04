@@ -52,3 +52,9 @@ No new database table or player tracking is created by LandWard.
 overlap the built-in `server.properties` `spawn-protection` square around the
 primary world spawn. Set `spawn-protection: 0` to disable that vanilla setting,
 or set the LandWard integration to `false` if the area should be claimable.
+
+## Map integrations
+
+`integrations.bluemap`, `integrations.dynmap`, `integrations.squaremap` and
+`integrations.pl3xmap` each have an `enabled` switch. A map plugin is never
+required: LandWard detects it at runtime and quietly skips its layer when absent.

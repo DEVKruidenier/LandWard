@@ -80,6 +80,9 @@ integrations:
   pl3xmap:
     # Enable the optional Pl3xMap JSON marker layer when Pl3xMap is installed.
     enabled: true
+  placeholderapi:
+    # Register LandWard placeholders when PlaceholderAPI is installed. The placeholders are documented in the wiki.
+    enabled: true
   plan:
     # Enable the optional Plan analytics integration when Plan is installed. It supplies aggregate and per-player land statistics to the Plan web panel.
     enabled: true
