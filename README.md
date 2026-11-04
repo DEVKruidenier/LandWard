@@ -9,7 +9,7 @@ LandWard is an open-source chunk-claiming plugin for Paper survival servers. It 
 
 ## Goals
 
-- Claim the current chunk with straightforward `/claim` commands.
+- Claim nearby chunks with a visual GUI map opened using /claim.
 - Manage lands, members, roles, and permissions in an in-game GUI.
 - Show nearby chunks as a color-coded map centered on the player.
 - Protect blocks, containers, entities, fluids, pistons, and explosions.
@@ -43,10 +43,10 @@ The `-unshaded` JAR is a development artifact and does not include bStats.
 ## Project status
 
 LandWard is actively developed and not yet production-ready. The current development
-build includes persistent SQLite/MySQL storage, chunk claims, member management GUI,
-claim protection, XP/Vault payments, WorldGuard checks, BlueMap/Dynmap markers and
-an optional Plan analytics panel. The final integration and gameplay test pass is still
-in progress before the first stable release.
+build includes persistent SQLite/MySQL storage, GUI-first chunk claims, member
+management, anvil-based naming, claim protection, XP/Vault payments, WorldGuard
+checks, BlueMap/Dynmap markers and an optional Plan analytics panel. The final
+integration and gameplay test pass is still in progress before the first stable release.
 
 ## Documentation
 

@@ -29,6 +29,12 @@ defaults to 150. Vault economy support is configured through the same mode
 setting. `vault` uses the active Vault economy provider (such as EssentialsX
 Economy) and refuses a paid claim when the provider is unavailable.
 
+## Rename cost
+
+Land renaming is free by default. Set rename.experience-level-cost to a positive
+integer to charge that many **XP levels** after a rename is confirmed in the anvil
+GUI. A player without enough levels cannot confirm the change.
+
 ## Anonymous metrics
 
 LandWard uses [bStats](https://bstats.org/plugin/bukkit/LandWard/35128) to collect
