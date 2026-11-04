@@ -40,6 +40,7 @@ land:
   rename-usage: "Gebruik: /claim rename <naam>"
   renamed: "Jouw land is hernoemd naar {name}."
   rename-unchanged: "Jouw land heet al {name}."
+  rename-not-enough-xp: "Je hebt {cost} XP-level(s) nodig om je land te hernoemen."
 claim:
   claimed: "Chunk geclaimd voor {name}. Je bezit nu {count} chunk(s)."
   no-land: "Maak eerst een land met /claim create <naam>."

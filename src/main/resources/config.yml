@@ -64,6 +64,10 @@ payments:
   # Money charged for creating or adding one claimed chunk in vault mode.
   vault-money-per-chunk: 100.0
 
+rename:
+  # XP levels charged when a player confirms a land rename in the anvil GUI. Set to 0 for free renames.
+  experience-level-cost: 0
+
 integrations:
   vanilla-spawn-protection:
     # Prevent claims in the built-in server.properties spawn-protection square around the primary world spawn.

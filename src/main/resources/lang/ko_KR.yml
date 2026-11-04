@@ -40,6 +40,7 @@ land:
   rename-usage: "사용법: /claim rename <이름>"
   renamed: "영지 이름을 {name}(으)로 변경했습니다."
   rename-unchanged: "영지 이름은 이미 {name}입니다."
+  rename-not-enough-xp: "영지 이름을 변경하려면 XP 레벨이 {cost} 필요합니다."
 claim:
   claimed: "{name}을(를) 위해 청크를 점유했습니다. 이제 {count}개의 청크를 소유합니다."
   no-land: "먼저 /claim create <이름>으로 영지를 만드세요."

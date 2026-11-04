@@ -40,6 +40,7 @@ land:
   rename-usage: "Использование: /claim rename <название>"
   renamed: "Ваша территория переименована в {name}."
   rename-unchanged: "Ваша территория уже называется {name}."
+  rename-not-enough-xp: "Вам нужно {cost} уровней опыта, чтобы переименовать территорию."
 claim:
   claimed: "Чанк приватизирован для {name}. Теперь у вас {count} чанк(ов)."
   no-land: "Сначала создайте территорию: /claim create <название>."

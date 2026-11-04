@@ -84,8 +84,8 @@ public final class LandMapGui {
         for (int mapZ = 0; mapZ < MAP_HEIGHT; mapZ++) {
             for (int mapX = 0; mapX < MAP_WIDTH; mapX++) {
                 int chunkX = centerX + mapX - 4;
-                int chunkZ = centerZ + mapZ - 3;
-                boolean current = mapX == 4 && mapZ == 3;
+                int chunkZ = centerZ + mapZ - 2;
+                boolean current = mapX == 4 && mapZ == 2; // Slot 22: always the player's current chunk.
                 ChunkPosition position = new ChunkPosition(player.getWorld().getUID(), chunkX, chunkZ);
                 Optional<Land> land = landManager.landAt(position);
                 int slot = mapZ * 9 + mapX;
@@ -143,6 +143,11 @@ public final class LandMapGui {
             ));
         }
         lore.add(Component.text("X: " + chunkX + "  Z: " + chunkZ, NamedTextColor.GRAY));
+        if (current) {
+            material = Material.COMPASS;
+            color = NamedTextColor.GOLD;
+            title = plugin.localeService().message(locale, "gui.current-chunk");
+        }
         return item(material, title, color, List.of(
                 lore.toArray(Component[]::new)
         ));

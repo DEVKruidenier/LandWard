@@ -40,6 +40,7 @@ land:
   rename-usage: "Uso: /claim rename <nombre>"
   renamed: "Tu terreno se ha renombrado a {name}."
   rename-unchanged: "Tu terreno ya se llama {name}."
+  rename-not-enough-xp: "Necesitas {cost} nivel(es) de XP para renombrar tu terreno."
 claim:
   claimed: "Chunk reclamado para {name}. Ahora posees {count} chunk(s)."
   no-land: "Crea primero un terreno con /claim create <nombre>."

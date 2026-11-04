@@ -40,6 +40,7 @@ land:
   rename-usage: "用法：/claim rename <名称>"
   renamed: "你的领地已重命名为 {name}。"
   rename-unchanged: "你的领地已经叫作 {name}。"
+  rename-not-enough-xp: "重命名领地需要 {cost} 个 XP 等级。"
 claim:
   claimed: "已为 {name} 认领区块。你现在拥有 {count} 个区块。"
   no-land: "请先使用 /claim create <名称> 创建领地。"

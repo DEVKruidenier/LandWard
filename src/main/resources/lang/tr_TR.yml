@@ -40,6 +40,7 @@ land:
   rename-usage: "Kullanım: /claim rename <ad>"
   renamed: "Arazinizin adı {name} olarak değiştirildi."
   rename-unchanged: "Arazinizin adı zaten {name}."
+  rename-not-enough-xp: "Arazinizi yeniden adlandırmak için {cost} XP seviyesine ihtiyacınız var."
 claim:
   claimed: "Chunk {name} için claimlendi. Artık {count} chunk sahibi oldunuz."
   no-land: "Önce /claim create <ad> ile bir arazi oluşturun."

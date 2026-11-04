@@ -40,6 +40,7 @@ land:
   rename-usage: "使い方: /claim rename <名前>"
   renamed: "土地の名前を {name} に変更しました。"
   rename-unchanged: "土地の名前はすでに {name} です。"
+  rename-not-enough-xp: "土地名を変更するには XP レベルが {cost} 必要です。"
 claim:
   claimed: "{name} のためにチャンクを保護しました。現在 {count} チャンクを所有しています。"
   no-land: "まず /claim create <名前> で土地を作成してください。"

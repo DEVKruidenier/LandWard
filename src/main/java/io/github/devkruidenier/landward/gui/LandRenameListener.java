@@ -74,6 +74,7 @@ public final class LandRenameListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPrepareAnvil(PrepareAnvilEvent event) {
         if (!(event.getInventory().getHolder() instanceof RenameAnvilHolder)) return;
+        event.getInventory().setRepairCost(renameCost());
         String name = event.getInventory().getRenameText();
         if (name == null || name.isBlank()) {
             event.setResult(null);
@@ -94,8 +95,15 @@ public final class LandRenameListener implements Listener {
         AnvilInventory inventory = (AnvilInventory) event.getView().getTopInventory();
         String name = inventory.getRenameText();
         if (name == null || name.isBlank()) return;
+        int cost = renameCost();
+        if (player.getLevel() < cost) {
+            player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "land.rename-not-enough-xp", java.util.Map.of("cost", cost)));
+            return;
+        }
+        if (rename(player, name) && cost > 0) {
+            player.setLevel(player.getLevel() - cost);
+        }
         player.closeInventory();
-        rename(player, name);
     }
 
     private void create(Player player, String name) {
@@ -107,7 +115,7 @@ public final class LandRenameListener implements Listener {
         }
     }
 
-    private void rename(Player player, String name) {
+    private boolean rename(Player player, String name) {
         try {
             LandManager.RenameResult result = landManager.rename(player.getUniqueId(), name);
             String key = switch (result.status()) {
@@ -120,9 +128,15 @@ public final class LandRenameListener implements Listener {
             player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), key,
                     java.util.Map.of("name", result.land() == null ? "-" : result.land().name())));
             if (result.status() == LandManager.RenameStatus.RENAMED) plugin.syncMapIntegrations();
+            return result.status() == LandManager.RenameStatus.RENAMED;
         } catch (StorageException exception) {
             plugin.getLogger().warning("Could not rename land from GUI: " + exception.getMessage());
             player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
+            return false;
         }
+    }
+
+    private int renameCost() {
+        return Math.max(0, plugin.getConfig().getInt("rename.experience-level-cost", 0));
     }
 }
