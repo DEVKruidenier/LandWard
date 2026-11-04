@@ -3,6 +3,7 @@ package io.github.devkruidenier.landward.command;
 import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.gui.LandMapGui;
+import io.github.devkruidenier.landward.gui.LandManagementGui;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.MemberPermissions;
@@ -62,7 +63,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 case "unclaim" -> unclaim(player);
                 case "info" -> info(player);
                 case "list" -> list(player);
-                case "menu" -> list(player);
+                case "menu" -> menu(player);
                 case "add" -> addMember(player, arguments);
                 case "remove" -> removeMember(player, arguments);
                 case "rights" -> updateRights(player, arguments);
@@ -225,6 +226,11 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
     private boolean list(Player player) {
         new LandMapGui(plugin, landManager).open(player);
+        return true;
+    }
+
+    private boolean menu(Player player) {
+        new LandManagementGui(plugin, landManager).openMain(player);
         return true;
     }
 

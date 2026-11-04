@@ -7,6 +7,7 @@ import io.github.devkruidenier.landward.console.LandWardConsole.Tone;
 import io.github.devkruidenier.landward.locale.LocaleService;
 import io.github.devkruidenier.landward.metrics.MetricsService;
 import io.github.devkruidenier.landward.gui.LandMapListener;
+import io.github.devkruidenier.landward.gui.LandManagementListener;
 import io.github.devkruidenier.landward.protection.ClaimProtectionListener;
 import io.github.devkruidenier.landward.startup.StartupReporter;
 import io.github.devkruidenier.landward.storage.LandStorage;
@@ -51,6 +52,7 @@ public final class LandWardPlugin extends JavaPlugin {
         command.setTabCompleter(landCommand);
         getServer().getPluginManager().registerEvents(new ClaimProtectionListener(this, landManager), this);
         getServer().getPluginManager().registerEvents(new LandMapListener(), this);
+        getServer().getPluginManager().registerEvents(new LandManagementListener(this, landManager), this);
 
         this.metricsService = new MetricsService(this);
         this.metricsService.initialize();
