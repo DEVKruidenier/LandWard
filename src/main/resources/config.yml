@@ -5,6 +5,7 @@ language:
   fallback: en_US
 
 storage:
+  # sqlite stores data locally in plugins/LandWard/landward.db. Set to mysql for a shared database.
   type: sqlite
   mysql:
     host: localhost
@@ -33,9 +34,10 @@ claims:
   disabled-worlds: []
 
 payments:
-  # free, experience, or vault (Vault support is enabled automatically when added later)
+  # free, experience, or vault. Vault works with the active Vault economy provider.
   mode: free
   experience-points-per-chunk: 150
+  vault-money-per-chunk: 100.0
 
 integrations:
   worldguard:

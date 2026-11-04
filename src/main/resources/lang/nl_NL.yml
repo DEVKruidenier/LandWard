@@ -47,6 +47,9 @@ claim:
   not-yours: "Deze chunk hoort bij {name}, niet bij jouw land."
   last-chunk: "Je kunt de laatste chunk van jouw land niet verwijderen."
   not-enough-xp: "Je hebt {cost} XP-punten nodig om een chunk te claimen."
+  not-enough-money: "Je hebt {cost} geld nodig om een chunk te claimen."
+  vault-unavailable: "Vault-economie is niet beschikbaar. Neem contact op met een beheerder."
+  payment-failed: "Je betaling kon niet worden uitgevoerd. Probeer het opnieuw."
 protection:
   denied: "Dit gebied is beschermd door {name}."
 gui:

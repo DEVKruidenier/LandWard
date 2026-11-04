@@ -47,6 +47,9 @@ claim:
   not-yours: "This chunk belongs to {name}, not to your land."
   last-chunk: "You cannot unclaim the last chunk of your land."
   not-enough-xp: "You need {cost} XP points to claim a chunk."
+  not-enough-money: "You need {cost} money to claim a chunk."
+  vault-unavailable: "Vault economy is not available. Please contact an administrator."
+  payment-failed: "Your payment could not be completed. Please try again."
 protection:
   denied: "This area is protected by {name}."
 gui:

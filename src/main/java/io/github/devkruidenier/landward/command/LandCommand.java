@@ -8,6 +8,7 @@ import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.storage.StorageException;
 import io.github.devkruidenier.landward.economy.ExperiencePayments;
+import io.github.devkruidenier.landward.economy.VaultPayments;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -117,12 +118,18 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         }
 
         String name = String.join(" ", java.util.Arrays.copyOfRange(arguments, 1, arguments.length));
-        ExperiencePayments payments = payments();
-        if (payments.enabled(paymentMode()) && !payments.canAfford(player)) {
-            player.sendMessage(message(player, "claim.not-enough-xp", Map.of("cost", payments.cost())));
+        PaymentCharge charge = charge(player);
+        if (!charge.paid()) {
+            player.sendMessage(message(player, charge.messageKey(), Map.of("cost", charge.cost())));
             return true;
         }
-        LandManager.CreateResult result = landManager.create(player.getUniqueId(), name, position(player));
+        LandManager.CreateResult result;
+        try {
+            result = landManager.create(player.getUniqueId(), name, position(player));
+        } catch (StorageException exception) {
+            charge.refund(player);
+            throw exception;
+        }
         String key = switch (result.status()) {
             case CREATED -> "land.created";
             case INVALID_NAME -> "land.invalid-name";
@@ -133,7 +140,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(message(player, key, Map.of(
                 "name", result.land() == null ? name : result.land().name()
         )));
-        if (result.status() == LandManager.CreateStatus.CREATED && payments.enabled(paymentMode())) payments.withdraw(player);
+        if (result.status() != LandManager.CreateStatus.CREATED) charge.refund(player);
         return true;
     }
 
@@ -145,13 +152,19 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
         ChunkPosition position = position(player);
         int maximum = plugin.getConfig().getInt("claims.maximum-chunks-per-land", 25);
-        ExperiencePayments payments = payments();
-        if (payments.enabled(paymentMode()) && !payments.canAfford(player)) {
-            player.sendMessage(message(player, "claim.not-enough-xp", Map.of("cost", payments.cost())));
+        PaymentCharge charge = charge(player);
+        if (!charge.paid()) {
+            player.sendMessage(message(player, charge.messageKey(), Map.of("cost", charge.cost())));
             return true;
         }
         boolean adjacent = plugin.getConfig().getBoolean("claims.require-adjacent-chunks", true);
-        LandManager.ClaimResult result = landManager.claim(player.getUniqueId(), position, maximum, adjacent);
+        LandManager.ClaimResult result;
+        try {
+            result = landManager.claim(player.getUniqueId(), position, maximum, adjacent);
+        } catch (StorageException exception) {
+            charge.refund(player);
+            throw exception;
+        }
         String key = switch (result.status()) {
             case CLAIMED -> "claim.claimed";
             case NO_LAND -> "claim.no-land";
@@ -165,7 +178,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 "count", result.claimCount(),
                 "limit", maximum
         )));
-        if (result.status() == LandManager.ClaimStatus.CLAIMED && payments.enabled(paymentMode())) payments.withdraw(player);
+        if (result.status() != LandManager.ClaimStatus.CLAIMED) charge.refund(player);
         return true;
     }
 
@@ -294,6 +307,48 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
     private ExperiencePayments payments() {
         return new ExperiencePayments(plugin.getConfig().getInt("payments.experience-points-per-chunk", 150));
+    }
+
+    private PaymentCharge charge(Player player) {
+        String mode = paymentMode().toLowerCase(Locale.ROOT);
+        if (mode.equals("free")) {
+            return PaymentCharge.free();
+        }
+        if (mode.equals("experience")) {
+            ExperiencePayments payments = payments();
+            if (!payments.canAfford(player)) {
+                return PaymentCharge.rejected("claim.not-enough-xp", payments.cost());
+            }
+            payments.withdraw(player);
+            return PaymentCharge.experience(payments);
+        }
+        if (mode.equals("vault")) {
+            VaultPayments payments = new VaultPayments(plugin.getConfig().getDouble("payments.vault-money-per-chunk", 100.0D));
+            if (!payments.isAvailable()) {
+                return PaymentCharge.rejected("claim.vault-unavailable", payments.cost());
+            }
+            if (!payments.canAfford(player)) {
+                return PaymentCharge.rejected("claim.not-enough-money", payments.cost());
+            }
+            if (!payments.withdraw(player)) {
+                return PaymentCharge.rejected("claim.payment-failed", payments.cost());
+            }
+            return PaymentCharge.vault(payments);
+        }
+        plugin.getLogger().warning("Unknown payments.mode '" + mode + "'; treating claims as free.");
+        return PaymentCharge.free();
+    }
+
+    private record PaymentCharge(ExperiencePayments experience, VaultPayments vault, String messageKey, double cost) {
+        static PaymentCharge free() { return new PaymentCharge(null, null, null, 0.0D); }
+        static PaymentCharge rejected(String messageKey, double cost) { return new PaymentCharge(null, null, messageKey, cost); }
+        static PaymentCharge experience(ExperiencePayments payments) { return new PaymentCharge(payments, null, null, payments.cost()); }
+        static PaymentCharge vault(VaultPayments payments) { return new PaymentCharge(null, payments, null, payments.cost()); }
+        boolean paid() { return messageKey == null; }
+        void refund(Player player) {
+            if (experience != null) player.giveExp(experience.cost());
+            if (vault != null) vault.refund(player);
+        }
     }
 
     private String message(CommandSender sender, String key) {

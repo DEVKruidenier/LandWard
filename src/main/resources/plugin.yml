@@ -9,6 +9,7 @@ softdepend:
   - BlueMap
   - dynmap
   - WorldGuard
+  - Vault
 commands:
   land:
     description: Opens LandWard or manages land claims.

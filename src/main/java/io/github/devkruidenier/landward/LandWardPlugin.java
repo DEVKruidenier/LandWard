@@ -11,6 +11,7 @@ import io.github.devkruidenier.landward.protection.ClaimProtectionListener;
 import io.github.devkruidenier.landward.startup.StartupReporter;
 import io.github.devkruidenier.landward.storage.LandStorage;
 import io.github.devkruidenier.landward.storage.StorageException;
+import io.github.devkruidenier.landward.storage.mysql.MySqlLandStorage;
 import io.github.devkruidenier.landward.storage.sqlite.SqliteLandStorage;
 import io.github.devkruidenier.landward.update.UpdateChecker;
 import org.bukkit.command.PluginCommand;
@@ -91,10 +92,21 @@ public final class LandWardPlugin extends JavaPlugin {
     }
 
     private LandStorage createStorage() {
-        String type = getConfig().getString("storage.type", "sqlite");
-        if (!type.equalsIgnoreCase("sqlite")) {
-            throw new IllegalArgumentException("Unsupported storage.type: " + type + ". MySQL is not implemented yet.");
+        String type = getConfig().getString("storage.type", "sqlite").trim();
+        if (type.equalsIgnoreCase("sqlite")) {
+            return new SqliteLandStorage(getDataFolder().toPath().resolve("landward.db"));
         }
-        return new SqliteLandStorage(getDataFolder().toPath().resolve("landward.db"));
+        if (type.equalsIgnoreCase("mysql")) {
+            return new MySqlLandStorage(
+                    getConfig().getString("storage.mysql.host", "localhost"),
+                    getConfig().getInt("storage.mysql.port", 3306),
+                    getConfig().getString("storage.mysql.database", "landward"),
+                    getConfig().getString("storage.mysql.username", "minecraft"),
+                    getConfig().getString("storage.mysql.password", ""),
+                    getConfig().getBoolean("storage.mysql.ssl", false),
+                    getConfig().getInt("storage.mysql.pool-size", 10)
+            );
+        }
+        throw new IllegalArgumentException("Unsupported storage.type: " + type + ". Use sqlite or mysql.");
     }
 }

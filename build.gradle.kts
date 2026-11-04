@@ -13,12 +13,18 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/") {
         name = "papermc"
     }
+    maven("https://jitpack.io") {
+        name = "jitpack"
+    }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.112-stable")
     implementation("org.bstats:bstats-bukkit:3.2.1")
     implementation("org.xerial:sqlite-jdbc:3.54.1.0")
+    implementation("com.zaxxer:HikariCP:6.3.0")
+    implementation("com.mysql:mysql-connector-j:9.3.0")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
 
     testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -67,11 +73,15 @@ tasks {
         archiveClassifier.set("")
         configurations = project.configurations.runtimeClasspath.map { setOf(it) }
         dependencies {
-            exclude { it.moduleGroup !in setOf("org.bstats", "org.xerial") }
+            exclude { it.moduleGroup !in setOf("org.bstats", "org.xerial", "com.zaxxer", "com.mysql") }
         }
         relocate(
             "org.bstats",
             "io.github.devkruidenier.landward.libs.bstats",
+        )
+        relocate(
+            "com.zaxxer.hikari",
+            "io.github.devkruidenier.landward.libs.hikari",
         )
         manifest {
             attributes["paperweight-mappings-namespace"] = "mojang"
