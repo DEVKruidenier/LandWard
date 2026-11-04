@@ -38,3 +38,10 @@ blocks Paper's main server thread. Set `updates.enabled` to `false` to disable i
 
 LandWard uses Paper's Adventure component logger for colored, structured console
 output. Set `console.colored-output` to `false` for plain output.
+
+## Plan analytics
+
+With Plan installed, `integrations.plan.enabled: true` publishes a read-only
+LandWard panel in Plan. It contains server totals (lands and claimed chunks) and
+per-player values (whether the player owns a land, owned chunks and member lands).
+No new database table or player tracking is created by LandWard.

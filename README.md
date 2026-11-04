@@ -14,7 +14,7 @@ LandWard is an open-source chunk-claiming plugin for Paper survival servers. It 
 - Show nearby chunks as a color-coded map centered on the player.
 - Protect blocks, containers, entities, fluids, pistons, and explosions.
 - Support SQLite and MySQL storage.
-- Integrate with WorldGuard, BlueMap, and Dynmap when installed.
+- Integrate with WorldGuard, BlueMap, Dynmap, and Plan when installed.
 - Localize every player-facing and administrative message.
 
 ## Anonymous metrics
@@ -42,10 +42,11 @@ The `-unshaded` JAR is a development artifact and does not include bStats.
 
 ## Project status
 
-The repository currently includes persistent SQLite lands and chunk claims, core
-commands, owner protection for blocks, containers, buckets and player-placed entities,
-metrics, update checks, and the project foundation. Members, GUIs, economy, MySQL,
-and map integrations are being implemented incrementally.
+LandWard is actively developed and not yet production-ready. The current development
+build includes persistent SQLite/MySQL storage, chunk claims, member management GUI,
+claim protection, XP/Vault payments, WorldGuard checks, BlueMap/Dynmap markers and
+an optional Plan analytics panel. The final integration and gameplay test pass is still
+in progress before the first stable release.
 
 ## Documentation
 

@@ -165,6 +165,23 @@ public final class LandManager {
         return claims.size();
     }
 
+    /**
+     * Returns the number of lands currently loaded from storage.
+     */
+    public synchronized int totalLandCount() {
+        return landsById.size();
+    }
+
+    /**
+     * Returns the number of lands where the player is a member, excluding land they own.
+     */
+    public synchronized int memberLandCount(UUID playerId) {
+        return (int) membersByLand.entrySet().stream()
+                .filter(entry -> entry.getValue().containsKey(playerId))
+                .filter(entry -> !landsById.get(entry.getKey()).ownerId().equals(playerId))
+                .count();
+    }
+
     public synchronized List<ClaimedChunk> claims() {
         return claims.entrySet().stream()
                 .map(entry -> new ClaimedChunk(entry.getKey(), entry.getValue()))

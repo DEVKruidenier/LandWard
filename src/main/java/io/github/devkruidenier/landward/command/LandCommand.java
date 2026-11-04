@@ -241,6 +241,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         Player target = onlineTarget(player, arguments, "land.member-usage");
         if (target == null) return true;
         LandManager.MemberResult result = landManager.addMember(player.getUniqueId(), target.getUniqueId());
+        if (result.status() == LandManager.MemberStatus.ADDED) plugin.refreshAnalyticsIntegration();
         player.sendMessage(message(player, switch (result.status()) {
             case ADDED -> "land.member-added";
             case NO_LAND -> "claim.no-land";
@@ -255,6 +256,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         Player target = onlineTarget(player, arguments, "land.member-usage");
         if (target == null) return true;
         LandManager.MemberResult result = landManager.removeMember(player.getUniqueId(), target.getUniqueId());
+        if (result.status() == LandManager.MemberStatus.REMOVED) plugin.refreshAnalyticsIntegration();
         player.sendMessage(message(player, switch (result.status()) {
             case REMOVED -> "land.member-removed";
             case NO_LAND -> "claim.no-land";
@@ -287,6 +289,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         LandManager.MemberResult result = landManager.updateMemberPermission(player.getUniqueId(), target.getUniqueId(), permission, enabled);
+        if (result.status() == LandManager.MemberStatus.PERMISSION_UPDATED) plugin.refreshAnalyticsIntegration();
         player.sendMessage(message(player, switch (result.status()) {
             case PERMISSION_UPDATED -> "land.rights-updated";
             case NO_LAND -> "claim.no-land";

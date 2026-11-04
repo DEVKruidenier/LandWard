@@ -8,6 +8,7 @@ import io.github.devkruidenier.landward.locale.LocaleService;
 import io.github.devkruidenier.landward.metrics.MetricsService;
 import io.github.devkruidenier.landward.integration.DynmapIntegration;
 import io.github.devkruidenier.landward.integration.BlueMapIntegration;
+import io.github.devkruidenier.landward.integration.plan.PlanIntegration;
 import io.github.devkruidenier.landward.gui.LandMapListener;
 import io.github.devkruidenier.landward.gui.LandManagementListener;
 import io.github.devkruidenier.landward.protection.ClaimProtectionListener;
@@ -29,6 +30,7 @@ public final class LandWardPlugin extends JavaPlugin {
     private LandManager landManager;
     private DynmapIntegration dynmapIntegration;
     private BlueMapIntegration blueMapIntegration;
+    private PlanIntegration planIntegration;
 
     @Override
     public void onEnable() {
@@ -50,6 +52,11 @@ public final class LandWardPlugin extends JavaPlugin {
         this.blueMapIntegration = new BlueMapIntegration(this, landManager);
         blueMapIntegration.sync();
         dynmapIntegration.sync();
+        if (getConfig().getBoolean("integrations.plan.enabled", true)
+                && getServer().getPluginManager().getPlugin("Plan") != null) {
+            this.planIntegration = new PlanIntegration(this, landManager);
+            planIntegration.register();
+        }
 
         LandCommand landCommand = new LandCommand(this, landManager);
         PluginCommand command = getCommand("land");
@@ -75,6 +82,9 @@ public final class LandWardPlugin extends JavaPlugin {
     public void onDisable() {
         if (localeService != null) {
             console.info(localeService.console("plugin.disabled"), Tone.WARNING);
+        }
+        if (planIntegration != null) {
+            planIntegration.unregister();
         }
         if (storage != null) {
             try {
@@ -104,6 +114,11 @@ public final class LandWardPlugin extends JavaPlugin {
     public void syncMapIntegrations() {
         if (blueMapIntegration != null) blueMapIntegration.sync();
         if (dynmapIntegration != null) dynmapIntegration.sync();
+        if (planIntegration != null) planIntegration.refresh();
+    }
+
+    public void refreshAnalyticsIntegration() {
+        if (planIntegration != null) planIntegration.refresh();
     }
 
     private LandStorage createStorage() {

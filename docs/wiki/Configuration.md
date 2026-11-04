@@ -30,4 +30,4 @@ payments:
 
 `language.default` selects the fallback language. With `language.use-client-locale: true`, a player's Minecraft locale is used when a bundled translation is available.
 
-WorldGuard, BlueMap and Dynmap settings are in the `integrations` section. With `integrations.worldguard.deny-any-overlap: true`, LandWard refuses a chunk if it overlaps any WorldGuard region, including spawn regions. An integration setting does not install the dependency; it only enables LandWard's integration when that plugin is present and supported.
+WorldGuard, BlueMap, Dynmap and Plan settings are in the `integrations` section. With `integrations.worldguard.deny-any-overlap: true`, LandWard refuses a chunk if it overlaps any WorldGuard region, including spawn regions. `integrations.plan.enabled: true` makes land statistics available in Plan's web panel when Plan is installed. An integration setting does not install the dependency; it only enables LandWard's integration when that plugin is present and supported.

@@ -72,5 +72,5 @@ integrations:
     # Enable the optional Dynmap claim-marker integration when Dynmap is installed and its markers component is enabled.
     enabled: true
   plan:
-    # Enable the optional Plan analytics integration when Plan is installed. LandWard only supplies aggregate land statistics.
+    # Enable the optional Plan analytics integration when Plan is installed. It supplies aggregate and per-player land statistics to the Plan web panel.
     enabled: true

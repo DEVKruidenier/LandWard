@@ -16,6 +16,9 @@ repositories {
     maven("https://jitpack.io") {
         name = "jitpack"
     }
+    maven("https://repo.playeranalytics.net/releases") {
+        name = "playeranalytics"
+    }
 }
 
 dependencies {
@@ -25,9 +28,11 @@ dependencies {
     implementation("com.zaxxer:HikariCP:6.3.0")
     implementation("com.mysql:mysql-connector-j:9.3.0")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
+    compileOnly("com.djrapitops:plan-api:5.7-R0.2")
 
     testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("com.djrapitops:plan-api:5.7-R0.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
