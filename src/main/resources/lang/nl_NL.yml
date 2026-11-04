@@ -69,6 +69,8 @@ gui:
   legend-yours: "Jouw geclaimde chunks"
   legend-unclaimed: "Niet geclaimde chunks"
   legend-other: "Chunks van andere spelers"
+  legend-current: "Jouw huidige chunk"
+  click-to-claim: "Klik om deze chunk te claimen"
   management-title: "LandWard • {name}"
   management-claimed-chunks: "Geclaimde chunks: {count}"
   management-owner: "Eigenaar: {name}"

@@ -70,7 +70,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         try {
             return switch (arguments[0].toLowerCase(Locale.ROOT)) {
                 case "create" -> create(player, arguments);
-                case "claim" -> claim(player);
+                case "claim" -> claim(player, position(player));
                 case "unclaim" -> unclaim(player);
                 case "info" -> info(player);
                 case "list" -> list(player);
@@ -171,13 +171,16 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    private boolean claim(Player player) throws StorageException {
+    public boolean claimFromMenu(Player player, ChunkPosition position) throws StorageException {
+        return claim(player, position);
+    }
+
+    private boolean claim(Player player, ChunkPosition position) throws StorageException {
         if (!worldEnabled(player)) {
             player.sendMessage(message(player, "claim.world-disabled"));
             return true;
         }
 
-        ChunkPosition position = position(player);
         if (plugin.getConfig().getBoolean("integrations.vanilla-spawn-protection.enabled", true)
                 && vanillaSpawnProtection.blocksClaim(position)) {
             player.sendMessage(message(player, "claim.spawn-protected"));

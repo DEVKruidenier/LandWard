@@ -44,13 +44,13 @@ public final class LandMapGui {
         holder.setInventory(inventory);
 
         fillFrame(inventory);
-        fillMap(inventory, player, locale);
+        fillMap(inventory, holder, player, locale);
         fillLegend(inventory, locale);
         player.openInventory(inventory);
     }
 
     private void fillFrame(Inventory inventory) {
-        ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.BLACK, List.of());
+        ItemStack frame = item(Material.GRAY_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
         for (int row = 0; row < 5; row++) {
             inventory.setItem(row * 9, frame);
             inventory.setItem(row * 9 + 1, frame);
@@ -62,7 +62,7 @@ public final class LandMapGui {
         }
     }
 
-    private void fillMap(Inventory inventory, Player player, String locale) {
+    private void fillMap(Inventory inventory, LandMapHolder holder, Player player, String locale) {
         int centerX = player.getLocation().getBlockX() >> 4;
         int centerZ = player.getLocation().getBlockZ() >> 4;
         for (int mapZ = 0; mapZ < MAP_SIZE; mapZ++) {
@@ -72,8 +72,10 @@ public final class LandMapGui {
                 boolean current = mapX == 2 && mapZ == 2;
                 ChunkPosition position = new ChunkPosition(player.getWorld().getUID(), chunkX, chunkZ);
                 Optional<Land> land = landManager.landAt(position);
+                int slot = mapZ * 9 + MAP_START_COLUMN + mapX;
+                holder.chunksBySlot().put(slot, position);
                 inventory.setItem(
-                        mapZ * 9 + MAP_START_COLUMN + mapX,
+                        slot,
                         chunkItem(locale, player, land, chunkX, chunkZ, current)
                 );
             }
@@ -111,34 +113,32 @@ public final class LandMapGui {
             title = land.get().name();
             status = plugin.localeService().message(locale, "gui.status-other");
         }
-        if (current) {
-            title = plugin.localeService().message(locale, "gui.current-chunk") + " • " + title;
-        }
+        java.util.ArrayList<Component> lore = new java.util.ArrayList<>();
+        if (current) lore.add(Component.text(plugin.localeService().message(locale, "gui.current-chunk"), NamedTextColor.GOLD));
+        lore.add(Component.text(status, NamedTextColor.DARK_GRAY));
+        if (land.isEmpty()) lore.add(Component.text(plugin.localeService().message(locale, "gui.click-to-claim"), NamedTextColor.GREEN));
+        lore.add(Component.text("X: " + chunkX + "  Z: " + chunkZ, NamedTextColor.GRAY));
+        if (current) { material = Material.COMPASS; color = NamedTextColor.GOLD; title = plugin.localeService().message(locale, "gui.current-chunk"); }
         return item(material, title, color, List.of(
-                Component.text(status, NamedTextColor.DARK_GRAY),
-                Component.text("X: " + chunkX + "  Z: " + chunkZ, NamedTextColor.GRAY)
+                lore.toArray(Component[]::new)
         ));
     }
 
     private void fillLegend(Inventory inventory, String locale) {
-        inventory.setItem(46, item(
-                Material.LIME_STAINED_GLASS_PANE,
-                plugin.localeService().message(locale, "gui.legend-yours"),
-                NamedTextColor.GREEN,
-                List.of()
-        ));
-        inventory.setItem(49, item(
+        inventory.setItem(45, item(
                 Material.GRAY_STAINED_GLASS_PANE,
                 plugin.localeService().message(locale, "gui.legend-unclaimed"),
                 NamedTextColor.GRAY,
-                List.of()
+                List.of(Component.text(plugin.localeService().message(locale, "gui.click-to-claim"), NamedTextColor.GREEN))
         ));
-        inventory.setItem(52, item(
+        inventory.setItem(47, item(Material.LIME_STAINED_GLASS_PANE, plugin.localeService().message(locale, "gui.legend-yours"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(49, item(
                 Material.RED_STAINED_GLASS_PANE,
                 plugin.localeService().message(locale, "gui.legend-other"),
                 NamedTextColor.RED,
                 List.of()
         ));
+        inventory.setItem(51, item(Material.COMPASS, plugin.localeService().message(locale, "gui.legend-current"), NamedTextColor.GOLD, List.of()));
     }
 
     private ItemStack item(Material material, String title, NamedTextColor color, List<Component> lore) {

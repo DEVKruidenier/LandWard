@@ -69,6 +69,8 @@ gui:
   legend-yours: "Your claimed chunks"
   legend-unclaimed: "Unclaimed chunks"
   legend-other: "Other players' chunks"
+  legend-current: "Your current chunk"
+  click-to-claim: "Click to claim this chunk"
   management-title: "LandWard • {name}"
   management-claimed-chunks: "Claimed chunks: {count}"
   management-owner: "Owner: {name}"

@@ -82,7 +82,7 @@ public final class LandWardPlugin extends JavaPlugin {
         command.setExecutor(landCommand);
         command.setTabCompleter(landCommand);
         getServer().getPluginManager().registerEvents(new ClaimProtectionListener(this, landManager), this);
-        getServer().getPluginManager().registerEvents(new LandMapListener(), this);
+        getServer().getPluginManager().registerEvents(new LandMapListener(this, landCommand, landManager), this);
         LandRenameListener renameListener = new LandRenameListener(this, landManager);
         getServer().getPluginManager().registerEvents(renameListener, this);
         getServer().getPluginManager().registerEvents(new LandManagementListener(this, landManager, renameListener), this);
