@@ -6,6 +6,9 @@ general:
   player-only: "このコマンドはプレイヤーのみ使用できます。"
   unknown-command: "不明な LandWard コマンドです。/claim help を使用してください。"
   storage-error: "LandWard はこの変更を保存できませんでした。管理者に連絡してください。"
+territory:
+  entered: "{name} の保護された土地に入りました。"
+  left: "{name} を出て、未保護の土地に入りました。"
 command:
   header: "LandWard {version}"
   description: "サバイバルサーバー向けのシンプルなチャンク保護と信頼できる保護機能。"
@@ -61,6 +64,11 @@ protection:
 combat:
   claim-abandon-blocked: "戦闘中はチャンクを放棄できません。"
 gui:
+  welcome-title: "LandWard • 土地を作成"
+  welcome-create: "土地を作成"
+  welcome-create-hint: "チャットで固有の名前を選択"
+  welcome-create-details: "現在のチャンクが保護されます"
+  create-prompt: "チャットに新しい土地名を入力してください（3～24文字）。"
   admin-map-title: "LandWard • 管理者保護マップ"
   admin-confirm-title: "LandWard • 管理者による削除を確認"
   admin-confirm: "保護を削除"

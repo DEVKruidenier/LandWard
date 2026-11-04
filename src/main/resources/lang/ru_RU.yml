@@ -6,6 +6,9 @@ general:
   player-only: "Эту команду может использовать только игрок."
   unknown-command: "Неизвестная команда LandWard. Используйте /claim help."
   storage-error: "LandWard не удалось сохранить это изменение. Обратитесь к администратору."
+territory:
+  entered: "Вы вошли на территорию {name}."
+  left: "Вы покинули {name} и вошли на незанятую территорию."
 command:
   header: "LandWard {version}"
   description: "Простые приваты чанков и надёжная защита для survival-серверов."
@@ -61,6 +64,11 @@ protection:
 combat:
   claim-abandon-blocked: "Нельзя освобождать чанки во время боя."
 gui:
+  welcome-title: "LandWard • Создать территорию"
+  welcome-create: "Создать территорию"
+  welcome-create-hint: "Выберите уникальное имя в чате"
+  welcome-create-details: "Ваш текущий чанк будет защищён"
+  create-prompt: "Введите в чате имя новой территории (3-24 символа)."
   admin-map-title: "LandWard • Карта приватов администратора"
   admin-confirm-title: "LandWard • Подтвердить удаление администратором"
   admin-confirm: "Удалить приват"

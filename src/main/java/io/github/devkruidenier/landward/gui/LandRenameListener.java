@@ -38,7 +38,7 @@ public final class LandRenameListener implements Listener {
     public void beginCreate(Player player) {
         awaitingCreationNames.add(player.getUniqueId());
         player.closeInventory();
-        player.sendMessage("Type your new land name in chat (3-24 characters).");
+        player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "gui.create-prompt"));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

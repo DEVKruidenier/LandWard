@@ -6,6 +6,9 @@ general:
   player-only: "此命令只能由玩家使用。"
   unknown-command: "未知的 LandWard 命令。请使用 /claim help。"
   storage-error: "LandWard 无法保存此更改。请联系管理员。"
+territory:
+  entered: "你进入了 {name} 的领地。"
+  left: "你离开了 {name}，进入了未认领区域。"
 command:
   header: "LandWard {version}"
   description: "为生存服务器提供简单的区块领地和可靠保护。"
@@ -61,6 +64,11 @@ protection:
 combat:
   claim-abandon-blocked: "战斗中无法放弃区块。"
 gui:
+  welcome-title: "LandWard • 创建领地"
+  welcome-create: "创建你的领地"
+  welcome-create-hint: "在聊天中选择唯一名称"
+  welcome-create-details: "你当前的区块将受到保护"
+  create-prompt: "请在聊天中输入新领地名称（3-24个字符）。"
   admin-map-title: "LandWard • 管理员领地地图"
   admin-confirm-title: "LandWard • 确认管理员删除"
   admin-confirm: "删除领地"

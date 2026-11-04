@@ -6,6 +6,9 @@ general:
   player-only: "This command can only be used by a player."
   unknown-command: "Unknown LandWard command. Use /claim help."
   storage-error: "LandWard could not save that change. Please contact an administrator."
+territory:
+  entered: "You entered the claimed land of {name}."
+  left: "You left {name} and entered unclaimed land."
 command:
   header: "LandWard {version}"
   description: "Simple chunk claims and reliable protection for survival servers."
@@ -61,6 +64,11 @@ protection:
 combat:
   claim-abandon-blocked: "You cannot unclaim land while you are in combat."
 gui:
+  welcome-title: "LandWard • Create a land"
+  welcome-create: "Create your land"
+  welcome-create-hint: "Choose a unique name in chat"
+  welcome-create-details: "Your current chunk becomes protected"
+  create-prompt: "Type your new land name in chat (3-24 characters)."
   admin-map-title: "LandWard • Admin claim map"
   admin-confirm-title: "LandWard • Confirm administrative removal"
   admin-confirm: "Remove claim"

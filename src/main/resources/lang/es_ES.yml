@@ -6,6 +6,9 @@ general:
   player-only: "Este comando solo puede ser utilizado por un jugador."
   unknown-command: "Comando de LandWard desconocido. Usa /claim help."
   storage-error: "LandWard no ha podido guardar este cambio. Ponte en contacto con un administrador."
+territory:
+  entered: "Has entrado en el terreno reclamado de {name}."
+  left: "Has salido de {name} y entrado en terreno sin reclamar."
 command:
   header: "LandWard {version}"
   description: "Claims de chunks sencillos y protección fiable para servidores de supervivencia."
@@ -61,6 +64,11 @@ protection:
 combat:
   claim-abandon-blocked: "No puedes liberar chunks mientras estás en combate."
 gui:
+  welcome-title: "LandWard • Crear un terreno"
+  welcome-create: "Crea tu terreno"
+  welcome-create-hint: "Elige un nombre único en el chat"
+  welcome-create-details: "Tu chunk actual quedará protegido"
+  create-prompt: "Escribe el nombre de tu nuevo terreno en el chat (3-24 caracteres)."
   admin-map-title: "LandWard • Mapa de claims de administrador"
   admin-confirm-title: "LandWard • Confirmar eliminación administrativa"
   admin-confirm: "Eliminar claim"

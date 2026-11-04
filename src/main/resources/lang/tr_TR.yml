@@ -6,6 +6,9 @@ general:
   player-only: "Bu komut yalnızca bir oyuncu tarafından kullanılabilir."
   unknown-command: "Bilinmeyen LandWard komutu. /claim help kullanın."
   storage-error: "LandWard bu değişikliği kaydedemedi. Lütfen bir yöneticiyle iletişime geçin."
+territory:
+  entered: "{name} adlı sahipli araziye girdiniz."
+  left: "{name} adlı araziden ayrıldınız ve sahipsiz araziye girdiniz."
 command:
   header: "LandWard {version}"
   description: "Hayatta kalma sunucuları için basit chunk claimleri ve güvenilir koruma."
@@ -61,6 +64,11 @@ protection:
 combat:
   claim-abandon-blocked: "Savaş halindeyken chunk bırakamazsınız."
 gui:
+  welcome-title: "LandWard • Arazi oluştur"
+  welcome-create: "Arazini oluştur"
+  welcome-create-hint: "Sohbette benzersiz bir ad seç"
+  welcome-create-details: "Mevcut chunk'ın korunacak"
+  create-prompt: "Yeni arazi adını sohbete yazın (3-24 karakter)."
   admin-map-title: "LandWard • Yönetici claim haritası"
   admin-confirm-title: "LandWard • Yönetici kaldırmasını onayla"
   admin-confirm: "Claim'i kaldır"

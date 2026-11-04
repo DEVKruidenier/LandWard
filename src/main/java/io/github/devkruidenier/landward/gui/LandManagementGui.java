@@ -55,11 +55,11 @@ public final class LandManagementGui {
     }
 
     public void openWelcome(Player player) {
-        LandManagementHolder holder = holder(LandManagementHolder.Screen.WELCOME, null, player, "LandWard");
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.WELCOME, null, player, message(player, "gui.welcome-title"));
         Inventory inventory = holder.getInventory();
-        inventory.setItem(13, item(Material.GRASS_BLOCK, "Create your land", NamedTextColor.GREEN, List.of(
-                "Choose a unique name in chat",
-                "Your current chunk becomes protected"
+        inventory.setItem(13, item(Material.GRASS_BLOCK, message(player, "gui.welcome-create"), NamedTextColor.GREEN, List.of(
+                message(player, "gui.welcome-create-hint"),
+                message(player, "gui.welcome-create-details")
         )));
         inventory.setItem(22, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
         player.openInventory(inventory);

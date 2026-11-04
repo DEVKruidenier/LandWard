@@ -40,11 +40,9 @@ public final class ClaimBoundaryListener implements Listener {
         String locale = plugin.localeService().localeFor(player);
         if (current.isPresent()) {
             Land land = current.get();
-            actionbar(player, plugin.localeService().message(locale, "claim.info", Map.of(
-                    "name", land.name(), "count", landManager.claimCount(land.id())
-            )), NamedTextColor.AQUA);
+            actionbar(player, plugin.localeService().message(locale, "territory.entered", Map.of("name", land.name())), NamedTextColor.AQUA);
         } else if (previous.isPresent()) {
-            actionbar(player, plugin.localeService().message(locale, "claim.unclaimed"), NamedTextColor.GRAY);
+            actionbar(player, plugin.localeService().message(locale, "territory.left", Map.of("name", previous.get().name())), NamedTextColor.GRAY);
         }
     }
 

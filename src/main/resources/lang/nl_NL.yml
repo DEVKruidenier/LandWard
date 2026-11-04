@@ -6,6 +6,9 @@ general:
   player-only: "Dit commando kan alleen door een speler worden gebruikt."
   unknown-command: "Onbekend LandWard-commando. Gebruik /claim help."
   storage-error: "LandWard kon deze wijziging niet opslaan. Neem contact op met een beheerder."
+territory:
+  entered: "Je betreedt het geclaimde gebied van {name}."
+  left: "Je verlaat {name} en betreedt onbeschermd gebied."
 command:
   header: "━━ LandWard {version} ━━"
   description: "§7Claims beheren is eenvoudig: maak een land en gebruik de kaart."
@@ -61,6 +64,11 @@ protection:
 combat:
   claim-abandon-blocked: "Je kunt geen chunks vrijgeven terwijl je in gevecht bent."
 gui:
+  welcome-title: "LandWard • Maak een land"
+  welcome-create: "Maak je land"
+  welcome-create-hint: "Kies een unieke naam in de chat"
+  welcome-create-details: "Je huidige chunk wordt beschermd"
+  create-prompt: "Typ de naam van je nieuwe land in de chat (3-24 tekens)."
   admin-map-title: "LandWard • Beheerkaart claims"
   admin-confirm-title: "LandWard • Bevestig beheerverwijdering"
   admin-confirm: "Claim verwijderen"
