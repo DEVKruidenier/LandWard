@@ -6,10 +6,9 @@ The planned player-facing command surface is intentionally small.
 | --- | --- |
 | `/claim create <name>` | Create a land and claim the current chunk |
 | `/claim` | Show command help |
-| `/claim list` or `/claim menu` | Open the GUI; click a free chunk to claim it |
+| `/claim list` | Open the chunk map; click a free chunk to claim it |
 | `/claim claim` | Compatibility route that opens the chunk map |
 | `/claim unclaim` | Remove the current chunk |
-| `/claim list` | Open the centered chunk-map GUI |
 | `/claim info` | Show information about the current chunk |
 | `/claim menu` | Open land management |
 | `/claim rename <name>` | Rename a land |
