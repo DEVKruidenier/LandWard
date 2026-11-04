@@ -9,6 +9,8 @@ import io.github.devkruidenier.landward.metrics.MetricsService;
 import io.github.devkruidenier.landward.integration.DynmapIntegration;
 import io.github.devkruidenier.landward.integration.BlueMapIntegration;
 import io.github.devkruidenier.landward.integration.plan.PlanIntegration;
+import io.github.devkruidenier.landward.integration.SquaremapIntegration;
+import io.github.devkruidenier.landward.integration.Pl3xMapIntegration;
 import io.github.devkruidenier.landward.gui.LandMapListener;
 import io.github.devkruidenier.landward.gui.LandManagementListener;
 import io.github.devkruidenier.landward.gui.LandRenameListener;
@@ -32,6 +34,8 @@ public final class LandWardPlugin extends JavaPlugin {
     private DynmapIntegration dynmapIntegration;
     private BlueMapIntegration blueMapIntegration;
     private PlanIntegration planIntegration;
+    private SquaremapIntegration squaremapIntegration;
+    private Pl3xMapIntegration pl3xMapIntegration;
 
     @Override
     public void onEnable() {
@@ -51,8 +55,12 @@ public final class LandWardPlugin extends JavaPlugin {
         }
         this.dynmapIntegration = new DynmapIntegration(this, landManager);
         this.blueMapIntegration = new BlueMapIntegration(this, landManager);
+        this.squaremapIntegration = new SquaremapIntegration(this, landManager);
+        this.pl3xMapIntegration = new Pl3xMapIntegration(this, landManager);
         blueMapIntegration.sync();
         dynmapIntegration.sync();
+        squaremapIntegration.sync();
+        pl3xMapIntegration.sync();
         if (getConfig().getBoolean("integrations.plan.enabled", true)
                 && getServer().getPluginManager().getPlugin("Plan") != null) {
             this.planIntegration = new PlanIntegration(this, landManager);
@@ -60,9 +68,9 @@ public final class LandWardPlugin extends JavaPlugin {
         }
 
         LandCommand landCommand = new LandCommand(this, landManager);
-        PluginCommand command = getCommand("land");
+        PluginCommand command = getCommand("claim");
         if (command == null) {
-            throw new IllegalStateException("The land command is missing from plugin.yml");
+            throw new IllegalStateException("The claim command is missing from plugin.yml");
         }
         command.setExecutor(landCommand);
         command.setTabCompleter(landCommand);
@@ -117,6 +125,8 @@ public final class LandWardPlugin extends JavaPlugin {
     public void syncMapIntegrations() {
         if (blueMapIntegration != null) blueMapIntegration.sync();
         if (dynmapIntegration != null) dynmapIntegration.sync();
+        if (squaremapIntegration != null) squaremapIntegration.sync();
+        if (pl3xMapIntegration != null) pl3xMapIntegration.sync();
         if (planIntegration != null) planIntegration.refresh();
     }
 

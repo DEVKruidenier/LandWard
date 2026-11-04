@@ -74,6 +74,12 @@ integrations:
   dynmap:
     # Enable the optional Dynmap claim-marker integration when Dynmap is installed and its markers component is enabled.
     enabled: true
+  squaremap:
+    # Enable the optional Squaremap claim-marker layer when Squaremap is installed.
+    enabled: true
+  pl3xmap:
+    # Enable the optional Pl3xMap JSON marker layer when Pl3xMap is installed.
+    enabled: true
   plan:
     # Enable the optional Plan analytics integration when Plan is installed. It supplies aggregate and per-player land statistics to the Plan web panel.
     enabled: true

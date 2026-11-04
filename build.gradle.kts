@@ -29,6 +29,7 @@ dependencies {
     implementation("com.mysql:mysql-connector-j:9.3.0")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("com.djrapitops:plan-api:5.7-R0.2")
+    compileOnly("xyz.jpenilla:squaremap-api:1.4.3")
 
     testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")

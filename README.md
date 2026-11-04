@@ -9,7 +9,7 @@ LandWard is an open-source chunk-claiming plugin for Paper survival servers. It 
 
 ## Goals
 
-- Claim the current chunk with straightforward `/land` commands.
+- Claim the current chunk with straightforward `/claim` commands.
 - Manage lands, members, roles, and permissions in an in-game GUI.
 - Show nearby chunks as a color-coded map centered on the player.
 - Protect blocks, containers, entities, fluids, pistons, and explosions.

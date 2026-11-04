@@ -4,11 +4,11 @@ plugin:
 general:
   no-permission: "この操作を行う権限がありません。"
   player-only: "このコマンドはプレイヤーのみ使用できます。"
-  unknown-command: "不明な LandWard コマンドです。/land help を使用してください。"
+  unknown-command: "不明な LandWard コマンドです。/claim help を使用してください。"
 command:
   header: "LandWard {version}"
   description: "サバイバルサーバー向けの簡単なチャンク保護と信頼できる保護機能です。"
-  help: "/land help - このヘルプを表示します。"
+  help: "/claim help - このヘルプを表示します。"
   development: "この開発版では領地管理はまだ利用できません。"
 startup:
   header: "LandWard {version}"

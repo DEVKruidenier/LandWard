@@ -17,10 +17,12 @@ softdepend:
   - EssentialsSpawn
   - EssentialsProtect
   - EssentialsXProtect
+  - squaremap
+  - Pl3xMap
 commands:
-  land:
+  claim:
     description: Opens LandWard or manages land claims.
-    usage: /land
+    usage: /claim
     permission: landward.command
 permissions:
   landward.command:

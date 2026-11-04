@@ -4,11 +4,11 @@ plugin:
 general:
   no-permission: "Você não tem permissão para fazer isso."
   player-only: "Este comando só pode ser usado por um jogador."
-  unknown-command: "Comando do LandWard desconhecido. Use /land help."
+  unknown-command: "Comando do LandWard desconhecido. Use /claim help."
 command:
   header: "LandWard {version}"
   description: "Claims de chunks simples e proteção confiável para servidores survival."
-  help: "/land help - Mostra esta ajuda."
+  help: "/claim help - Mostra esta ajuda."
   development: "O gerenciamento de claims ainda não está disponível nesta versão de desenvolvimento."
 startup:
   header: "LandWard {version}"
