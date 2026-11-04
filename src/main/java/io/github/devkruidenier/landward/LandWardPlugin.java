@@ -16,6 +16,8 @@ import io.github.devkruidenier.landward.gui.LandMapListener;
 import io.github.devkruidenier.landward.gui.LandManagementListener;
 import io.github.devkruidenier.landward.gui.LandRenameListener;
 import io.github.devkruidenier.landward.protection.ClaimProtectionListener;
+import io.github.devkruidenier.landward.combat.CombatTagListener;
+import io.github.devkruidenier.landward.combat.CombatTagService;
 import io.github.devkruidenier.landward.startup.StartupReporter;
 import io.github.devkruidenier.landward.storage.LandStorage;
 import io.github.devkruidenier.landward.storage.StorageException;
@@ -38,6 +40,7 @@ public final class LandWardPlugin extends JavaPlugin {
     private PlanIntegration planIntegration;
     private SquaremapIntegration squaremapIntegration;
     private Pl3xMapIntegration pl3xMapIntegration;
+    private CombatTagService combatTags;
 
     @Override
     public void onEnable() {
@@ -59,6 +62,7 @@ public final class LandWardPlugin extends JavaPlugin {
         this.blueMapIntegration = new BlueMapIntegration(this, landManager);
         this.squaremapIntegration = new SquaremapIntegration(this, landManager);
         this.pl3xMapIntegration = new Pl3xMapIntegration(this, landManager);
+        this.combatTags = new CombatTagService(this);
         blueMapIntegration.sync();
         dynmapIntegration.sync();
         squaremapIntegration.sync();
@@ -81,7 +85,8 @@ public final class LandWardPlugin extends JavaPlugin {
         }
         command.setExecutor(landCommand);
         command.setTabCompleter(landCommand);
-        getServer().getPluginManager().registerEvents(new ClaimProtectionListener(this, landManager), this);
+        getServer().getPluginManager().registerEvents(new ClaimProtectionListener(this, landManager, combatTags), this);
+        getServer().getPluginManager().registerEvents(new CombatTagListener(combatTags), this);
         getServer().getPluginManager().registerEvents(new LandMapListener(this, landCommand, landManager), this);
         LandRenameListener renameListener = new LandRenameListener(this, landManager);
         getServer().getPluginManager().registerEvents(renameListener, this);
@@ -127,6 +132,10 @@ public final class LandWardPlugin extends JavaPlugin {
 
     public LandStorage storage() {
         return storage;
+    }
+
+    public CombatTagService combatTags() {
+        return combatTags;
     }
 
     public void syncMapIntegrations() {

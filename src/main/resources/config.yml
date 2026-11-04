@@ -86,3 +86,24 @@ integrations:
   plan:
     # Enable the optional Plan analytics integration when Plan is installed. It supplies aggregate and per-player land statistics to the Plan web panel.
     enabled: true
+  combat-tag:
+    # Keep combat-tagged players from using claim protection to escape a PvP encounter.
+    enabled: true
+    # Both tagged combatants may damage each other inside claims until their combat tag expires.
+    claim-pvp-bypass: true
+    # Block /claim unclaim while the player is combat-tagged.
+    block-claim-abandon: true
+    internal-tracker:
+      # Track successful PvP hits when no external combat tagger supplies a tag.
+      enabled: true
+      # Number of seconds for the fallback LandWard combat tag after a successful PvP hit.
+      duration-seconds: 15
+    external-placeholderapi:
+      # Query supported combat plugins through PlaceholderAPI when it is installed.
+      enabled: true
+      # CombatLogX, DeluxeCombat, PvPManager and EternalCombat defaults. Add a compatible placeholder here for another tagger.
+      placeholders:
+        - "%combatlogx_in_combat%"
+        - "%deluxecombat_in_combat%"
+        - "%pvpmanager_combat_timeleft%"
+        - "%eternalcombat_opponent%"

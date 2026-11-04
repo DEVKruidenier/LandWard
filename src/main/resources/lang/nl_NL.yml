@@ -58,6 +58,8 @@ claim:
   payment-failed: "Je betaling kon niet worden uitgevoerd. Probeer het opnieuw."
 protection:
   denied: "Dit gebied is beschermd door {name}."
+combat:
+  claim-abandon-blocked: "Je kunt geen chunks vrijgeven terwijl je in gevecht bent."
 gui:
   map-title: "LandWard • Nabijgelegen chunks"
   current-chunk: "Huidige chunk"

@@ -1,6 +1,7 @@
 package io.github.devkruidenier.landward.protection;
 
 import io.github.devkruidenier.landward.LandWardPlugin;
+import io.github.devkruidenier.landward.combat.CombatTagService;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.Land;
@@ -41,10 +42,12 @@ public final class ClaimProtectionListener implements Listener {
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
+    private final CombatTagService combatTags;
 
-    public ClaimProtectionListener(LandWardPlugin plugin, LandManager landManager) {
+    public ClaimProtectionListener(LandWardPlugin plugin, LandManager landManager, CombatTagService combatTags) {
         this.plugin = plugin;
         this.landManager = landManager;
+        this.combatTags = combatTags;
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
@@ -110,8 +113,10 @@ public final class ClaimProtectionListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
+            if (event.getEntity() instanceof Player victim && combatTags.mayFightInClaim(player, victim)) return;
             denyIfNeeded(player, event.getEntity().getLocation(), MemberPermissions.Permission.ENTITIES, event::setCancelled);
         } else if (event.getDamager() instanceof Projectile projectile && projectile.getShooter() instanceof Player player) {
+            if (event.getEntity() instanceof Player victim && combatTags.mayFightInClaim(player, victim)) return;
             denyIfNeeded(player, event.getEntity().getLocation(), MemberPermissions.Permission.ENTITIES, event::setCancelled);
         }
     }

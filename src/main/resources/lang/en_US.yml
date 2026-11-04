@@ -58,6 +58,8 @@ claim:
   payment-failed: "Your payment could not be completed. Please try again."
 protection:
   denied: "This area is protected by {name}."
+combat:
+  claim-abandon-blocked: "You cannot unclaim land while you are in combat."
 gui:
   map-title: "LandWard • Nearby Chunks"
   current-chunk: "Current chunk"

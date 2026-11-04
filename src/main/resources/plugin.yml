@@ -20,6 +20,10 @@ softdepend:
   - squaremap
   - Pl3xMap
   - PlaceholderAPI
+  - CombatLogX
+  - PvPManager
+  - DeluxeCombat
+  - EternalCombat
 commands:
   claim:
     description: Opens LandWard or manages land claims.
