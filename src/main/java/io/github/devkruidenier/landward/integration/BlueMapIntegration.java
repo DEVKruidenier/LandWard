@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /** Optional BlueMap shape-marker bridge with no bundled BlueMap dependency. */
 public final class BlueMapIntegration {
@@ -19,8 +20,39 @@ public final class BlueMapIntegration {
     private final LandWardPlugin plugin;
     private final LandManager landManager;
     private boolean failureLogged;
+    private Consumer<Object> readinessListener;
 
     public BlueMapIntegration(LandWardPlugin plugin, LandManager landManager) { this.plugin = plugin; this.landManager = landManager; }
+
+    /**
+     * BlueMap loads maps and resources asynchronously. Its API callback is the
+     * authoritative readiness signal, unlike an arbitrary delayed task.
+     */
+    public void registerReadinessListener() {
+        if (!plugin.getConfig().getBoolean("integrations.bluemap.enabled", true)
+                || plugin.getServer().getPluginManager().getPlugin("BlueMap") == null
+                || readinessListener != null) return;
+        try {
+            Class<?> apiClass = Class.forName("de.bluecolored.bluemap.api.BlueMapAPI");
+            readinessListener = ignored -> plugin.getServer().getScheduler().runTask(plugin, this::sync);
+            apiClass.getMethod("onEnable", Consumer.class).invoke(null, readinessListener);
+        } catch (ReflectiveOperationException exception) {
+            logFailure("BlueMap was detected but its readiness callback could not be registered", exception);
+        }
+    }
+
+    public void unregisterReadinessListener() {
+        if (readinessListener == null) return;
+        try {
+            Class.forName("de.bluecolored.bluemap.api.BlueMapAPI")
+                    .getMethod("unregisterListener", Consumer.class)
+                    .invoke(null, readinessListener);
+        } catch (ReflectiveOperationException ignored) {
+            // BlueMap may already have been disabled before LandWard.
+        } finally {
+            readinessListener = null;
+        }
+    }
 
     public void sync() {
         if (!plugin.getConfig().getBoolean("integrations.bluemap.enabled", true)
@@ -33,7 +65,14 @@ public final class BlueMapIntegration {
             clearExistingMarkerSets(api);
             for (ClaimedChunk claim : landManager.claims()) syncClaim(api, claim);
         } catch (ReflectiveOperationException | ClassCastException exception) {
-            if (!failureLogged) { plugin.getLogger().warning("BlueMap was detected but markers could not be synchronized: " + exception.getMessage()); failureLogged = true; }
+            logFailure("BlueMap was detected but markers could not be synchronized", exception);
+        }
+    }
+
+    private void logFailure(String message, Exception exception) {
+        if (!failureLogged) {
+            plugin.getLogger().warning(message + ": " + exception.getMessage());
+            failureLogged = true;
         }
     }
 
@@ -58,7 +97,7 @@ public final class BlueMapIntegration {
             Object targetSet = sets.get(SET_ID);
             if (targetSet == null) { targetSet = set; sets.put(SET_ID, targetSet); }
             @SuppressWarnings("unchecked") Map<String, Object> markers = (Map<String, Object>) invoke(targetSet, "getMarkers");
-            markers.put(markerId(claim), marker(land, claim));
+            markers.put(markerId(claim), marker(world, land, claim));
         }
     }
 
@@ -68,13 +107,16 @@ public final class BlueMapIntegration {
         return constructor.newInstance("LandWard Claims", true, false);
     }
 
-    private Object marker(Land land, ClaimedChunk claim) throws ReflectiveOperationException {
+    private Object marker(World world, Land land, ClaimedChunk claim) throws ReflectiveOperationException {
         int minX = claim.position().x() << 4, minZ = claim.position().z() << 4;
         Class<?> shapeType = Class.forName("de.bluecolored.bluemap.api.math.Shape");
         Object shape = shapeType.getMethod("createRect", double.class, double.class, double.class, double.class)
                 .invoke(null, (double) minX, (double) minZ, minX + 16.0, minZ + 16.0);
         Class<?> markerType = Class.forName("de.bluecolored.bluemap.api.markers.ShapeMarker");
-        Object marker = markerType.getConstructor(String.class, shapeType, float.class).newInstance(land.name(), shape, 320.0F);
+        // ShapeMarker's third argument is its actual world Y coordinate. Keeping
+        // it at a fixed 320 made the overlay visibly drift in BlueMap's 3D view.
+        float markerY = world.getHighestBlockYAt(minX + 8, minZ + 8) + 1.0F;
+        Object marker = markerType.getConstructor(String.class, shapeType, float.class).newInstance(land.name(), shape, markerY);
         invoke(marker, "setDepthTestEnabled", false);
         invoke(marker, "setDetail", "LandWard claim: " + land.name());
         return marker;

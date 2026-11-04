@@ -71,6 +71,7 @@ public final class LandWardPlugin extends JavaPlugin {
         this.squaremapIntegration = new SquaremapIntegration(this, landManager);
         this.pl3xMapIntegration = new Pl3xMapIntegration(this, landManager);
         this.combatTags = new CombatTagService(this);
+        blueMapIntegration.registerReadinessListener();
         blueMapIntegration.sync();
         dynmapIntegration.sync();
         squaremapIntegration.sync();
@@ -124,6 +125,9 @@ public final class LandWardPlugin extends JavaPlugin {
         }
         if (planIntegration != null) {
             planIntegration.unregister();
+        }
+        if (blueMapIntegration != null) {
+            blueMapIntegration.unregisterReadinessListener();
         }
         if (storage != null) {
             try {

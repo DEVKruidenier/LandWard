@@ -33,9 +33,11 @@ public final class LandManagementListener implements Listener {
             else if (slot == 22) new LandMapGui(plugin, landManager).open(player);
             return;
         }
-        if (holder.screen() == LandManagementHolder.Screen.MAIN) { if (slot == 45) gui.openMembers(player); else if (slot == 47) renameListener.begin(player); else if (slot == 49) player.closeInventory(); else if (slot == 53) new LandMapGui(plugin, landManager).open(player); else { UUID member = holder.playersBySlot().get(slot); if (member != null) gui.openRights(player, member); } return; }
-        if (holder.screen() == LandManagementHolder.Screen.MEMBERS) { if (slot == 49) { gui.openMain(player); return; } UUID target = holder.playersBySlot().get(slot); if (target != null) { landManager.addMember(player.getUniqueId(), target); plugin.refreshAnalyticsIntegration(); gui.openMain(player); } return; }
-        if (slot == 49) { gui.openMain(player); return; }
+        if (holder.screen() == LandManagementHolder.Screen.MAIN) { if (slot == 11) new LandMapGui(plugin, landManager).open(player); else if (slot == 15) gui.openSettings(player); else if (slot == 22) player.closeInventory(); return; }
+        if (holder.screen() == LandManagementHolder.Screen.SETTINGS) { if (slot == 11) gui.openMembers(player); else if (slot == 13) gui.openMemberList(player); else if (slot == 15) renameListener.begin(player); else if (slot == 22) gui.openMain(player); return; }
+        if (holder.screen() == LandManagementHolder.Screen.ADD_MEMBERS) { if (slot == 49) { gui.openSettings(player); return; } UUID target = holder.playersBySlot().get(slot); if (target != null) { landManager.addMember(player.getUniqueId(), target); plugin.refreshAnalyticsIntegration(); gui.openMemberList(player); } return; }
+        if (holder.screen() == LandManagementHolder.Screen.MEMBERS) { if (slot == 49) { gui.openSettings(player); return; } UUID member = holder.playersBySlot().get(slot); if (member != null) gui.openRights(player, member); return; }
+        if (slot == 49) { gui.openMemberList(player); return; }
         UUID member = holder.memberId(); if (member == null) return;
         if (slot == 53) { landManager.removeMember(player.getUniqueId(), member); plugin.refreshAnalyticsIntegration(); gui.openMain(player); return; }
         MemberPermissions.Permission permission = switch (slot) { case 20 -> MemberPermissions.Permission.BUILD; case 22 -> MemberPermissions.Permission.CONTAINERS; case 24 -> MemberPermissions.Permission.ENTITIES; default -> null; };

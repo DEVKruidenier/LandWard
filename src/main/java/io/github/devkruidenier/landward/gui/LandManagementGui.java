@@ -24,7 +24,8 @@ import java.util.UUID;
 
 /** In-game member management: select members, toggle rights and remove them. */
 public final class LandManagementGui {
-    private static final int SIZE = 54;
+    private static final int LARGE_SIZE = 54;
+    private static final int COMPACT_SIZE = 27;
     private final LandWardPlugin plugin;
     private final LandManager landManager;
 
@@ -34,28 +35,33 @@ public final class LandManagementGui {
         Optional<Land> optionalLand = landManager.ownedBy(player.getUniqueId());
         if (optionalLand.isEmpty()) { openWelcome(player); return; }
         Land land = optionalLand.get();
-        LandManagementHolder holder = holder(LandManagementHolder.Screen.MAIN, null, player, message(player, "gui.management-title", Map.of("name", land.name())));
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.MAIN, null, message(player, "gui.management-title", Map.of("name", land.name())), COMPACT_SIZE);
         Inventory inventory = holder.getInventory();
         inventory.setItem(4, item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of(
                 message(player, "gui.management-claimed-chunks", Map.of("count", landManager.claimCount(land.id()))),
                 message(player, "gui.management-owner", Map.of("name", player.getName()))
         )));
-        inventory.setItem(45, item(Material.LIME_DYE, message(player, "gui.management-add-member"), NamedTextColor.GREEN, List.of(message(player, "gui.management-choose-online"))));
-        inventory.setItem(47, item(Material.NAME_TAG, message(player, "gui.management-rename"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-rename-hint"))));
-        inventory.setItem(49, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        inventory.setItem(53, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
+        inventory.setItem(11, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
+        inventory.setItem(15, item(Material.COMPARATOR, message(player, "gui.management-settings"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-settings-hint"))));
+        inventory.setItem(22, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        player.openInventory(inventory);
+    }
+
+    public void openSettings(Player player) {
+        Optional<Land> optionalLand = landManager.ownedBy(player.getUniqueId());
+        if (optionalLand.isEmpty()) { openWelcome(player); return; }
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.SETTINGS, null, message(player, "gui.management-title", Map.of("name", optionalLand.get().name())), COMPACT_SIZE);
+        Inventory inventory = holder.getInventory();
+        inventory.setItem(11, item(Material.LIME_DYE, message(player, "gui.management-add-member"), NamedTextColor.GREEN, List.of(message(player, "gui.management-choose-online"))));
+        inventory.setItem(13, item(Material.PLAYER_HEAD, message(player, "gui.management-members"), NamedTextColor.AQUA, List.of(message(player, "gui.management-manage-rights"))));
+        inventory.setItem(15, item(Material.NAME_TAG, message(player, "gui.management-rename"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-rename-hint"))));
+        inventory.setItem(22, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         int slot = 9;
-        for (LandMember member : landManager.members(land.id())) {
-            if (slot >= 45) break;
-            holder.playersBySlot().put(slot, member.playerId());
-            inventory.setItem(slot++, playerHead(member.playerId(), name(member.playerId()), message(player, "gui.management-manage-rights")));
-        }
-        if (slot == 9) inventory.setItem(22, item(Material.GRAY_DYE, message(player, "gui.management-no-members"), NamedTextColor.GRAY, List.of(message(player, "gui.management-add-member-hint"))));
         player.openInventory(inventory);
     }
 
     public void openWelcome(Player player) {
-        LandManagementHolder holder = holder(LandManagementHolder.Screen.WELCOME, null, player, message(player, "gui.welcome-title"));
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.WELCOME, null, message(player, "gui.welcome-title"), COMPACT_SIZE);
         Inventory inventory = holder.getInventory();
         inventory.setItem(13, item(Material.GRASS_BLOCK, message(player, "gui.welcome-create"), NamedTextColor.GREEN, List.of(
                 message(player, "gui.welcome-create-hint"),
@@ -66,7 +72,7 @@ public final class LandManagementGui {
     }
 
     public void openMembers(Player player) {
-        LandManagementHolder holder = holder(LandManagementHolder.Screen.MEMBERS, null, player, message(player, "gui.management-add-title"));
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.ADD_MEMBERS, null, message(player, "gui.management-add-title"), LARGE_SIZE);
         Inventory inventory = holder.getInventory();
         int slot = 0;
         for (Player target : Bukkit.getOnlinePlayers()) {
@@ -81,11 +87,27 @@ public final class LandManagementGui {
         player.openInventory(inventory);
     }
 
+    public void openMemberList(Player player) {
+        Optional<Land> optionalLand = landManager.ownedBy(player.getUniqueId());
+        if (optionalLand.isEmpty()) return;
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.MEMBERS, null, message(player, "gui.management-members"), LARGE_SIZE);
+        Inventory inventory = holder.getInventory();
+        int slot = 0;
+        for (LandMember member : landManager.members(optionalLand.get().id())) {
+            if (slot >= 45) break;
+            holder.playersBySlot().put(slot, member.playerId());
+            inventory.setItem(slot++, playerHead(member.playerId(), name(member.playerId()), message(player, "gui.management-manage-rights")));
+        }
+        if (slot == 0) inventory.setItem(22, item(Material.GRAY_DYE, message(player, "gui.management-no-members"), NamedTextColor.GRAY, List.of(message(player, "gui.management-add-member-hint"))));
+        inventory.setItem(49, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        player.openInventory(inventory);
+    }
+
     public void openRights(Player player, UUID memberId) {
         Optional<Land> optionalLand = landManager.ownedBy(player.getUniqueId());
         if (optionalLand.isEmpty()) return;
         MemberPermissions permissions = landManager.permissions(memberId, optionalLand.get().id());
-        LandManagementHolder holder = holder(LandManagementHolder.Screen.RIGHTS, memberId, player, message(player, "gui.management-rights-title"));
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.RIGHTS, memberId, message(player, "gui.management-rights-title"), LARGE_SIZE);
         Inventory inventory = holder.getInventory();
         inventory.setItem(4, playerHead(memberId, name(memberId), message(player, "gui.management-configure-member")));
         inventory.setItem(20, permissionItem(player, Material.IRON_PICKAXE, message(player, "gui.management-build"), permissions.build()));
@@ -96,11 +118,11 @@ public final class LandManagementGui {
         player.openInventory(inventory);
     }
 
-    private LandManagementHolder holder(LandManagementHolder.Screen screen, UUID member, Player player, String title) {
+    private LandManagementHolder holder(LandManagementHolder.Screen screen, UUID member, String title, int size) {
         LandManagementHolder holder = new LandManagementHolder(screen, member);
         // Inventory headers sit on Minecraft's light GUI background. Dark aqua keeps
         // LandWard's teal identity while retaining strong contrast.
-        Inventory inventory = Bukkit.createInventory(holder, SIZE, Component.text(title, NamedTextColor.DARK_AQUA));
+        Inventory inventory = Bukkit.createInventory(holder, size, Component.text(title, NamedTextColor.DARK_AQUA));
         holder.inventory(inventory);
         return holder;
     }

@@ -46,9 +46,10 @@ claims:
   maximum-lands-per-player: 1
   # Maximum chunks in one land. Set to -1 for unlimited chunks.
   maximum-chunks-per-land: 25
-  # Optional allow-list of world names. Leave empty to allow every world not listed below.
+  # Optional allow-list of world names. An empty list means every world is enabled,
+  # except worlds explicitly listed in disabled-worlds below.
   enabled-worlds: []
-  # Deny claiming in these world names, even when enabled-worlds is empty.
+  # World names where LandWard is fully inactive, even when enabled-worlds is empty.
   disabled-worlds: []
 
 notifications:

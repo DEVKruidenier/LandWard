@@ -81,9 +81,6 @@ public final class LandRenameListener implements Listener {
         String name = enteredNames.remove(player.getUniqueId());
         if (name == null || name.isBlank()) name = nameFromResult(event.getCurrentItem());
         if (name == null || name.isBlank()) return;
-        // This tag is only a visual text-input seed. Clear it before closing the
-        // vanilla container so Minecraft cannot return it to the player's inventory.
-        clearTemporaryItems(event.getView());
         if (holder.creating()) { player.closeInventory(); create(player, name); return; }
         int cost = renameCost();
         if (player.getLevel() < cost) {
@@ -92,6 +89,9 @@ public final class LandRenameListener implements Listener {
         }
         if (rename(player, name)) {
             if (cost > 0) player.setLevel(player.getLevel() - cost);
+            // This tag is only a visual text-input seed. Clear it before closing
+            // the vanilla container so Minecraft cannot return it to the player.
+            clearTemporaryItems(event.getView());
             activeAnvils.remove(player.getUniqueId());
             player.closeInventory();
         }
