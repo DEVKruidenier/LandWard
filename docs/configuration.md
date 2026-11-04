@@ -32,8 +32,8 @@ Economy) and refuses a paid claim when the provider is unavailable.
 ## Rename cost
 
 Land renaming is free by default. Set rename.experience-level-cost to a positive
-integer to charge that many **XP levels** after a rename is confirmed in the name-input
-GUI. A player without enough levels cannot confirm the change.
+integer to charge that many **XP levels** after a rename is confirmed in the
+anvil GUI. A player without enough levels cannot confirm the change.
 
 ## Anonymous metrics
 
