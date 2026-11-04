@@ -41,6 +41,7 @@ claim:
   limit-reached: "Jouw land heeft de chunklimiet bereikt ({limit})."
   not-adjacent: "Nieuwe chunks moeten grenzen aan een bestaande claim van jou."
   world-disabled: "Land claimen is uitgeschakeld in deze wereld."
+  worldguard-protected: "Deze chunk overlapt een beveiligde WorldGuard-regio en kan niet worden geclaimd."
   unclaimed: "Deze chunk is niet geclaimd."
   info: "Deze chunk hoort bij {name}, dat {count} geclaimde chunk(s) heeft."
   unclaimed-success: "Deze chunk is verwijderd uit {name}. Er blijven {count} chunk(s) over."

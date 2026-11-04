@@ -41,6 +41,7 @@ claim:
   limit-reached: "Your land has reached its chunk limit ({limit})."
   not-adjacent: "New chunks must touch one of your existing claims."
   world-disabled: "Land claiming is disabled in this world."
+  worldguard-protected: "This chunk overlaps a protected WorldGuard region and cannot be claimed."
   unclaimed: "This chunk is not claimed."
   info: "This chunk belongs to {name}, which has {count} claimed chunk(s)."
   unclaimed-success: "Removed this chunk from {name}. {count} chunk(s) remain."

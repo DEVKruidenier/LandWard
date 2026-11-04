@@ -9,6 +9,7 @@ import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.storage.StorageException;
 import io.github.devkruidenier.landward.economy.ExperiencePayments;
 import io.github.devkruidenier.landward.economy.VaultPayments;
+import io.github.devkruidenier.landward.integration.WorldGuardIntegration;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -29,10 +30,12 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
+    private final WorldGuardIntegration worldGuard;
 
     public LandCommand(LandWardPlugin plugin, LandManager landManager) {
         this.plugin = plugin;
         this.landManager = landManager;
+        this.worldGuard = new WorldGuardIntegration(plugin);
     }
 
     @Override
@@ -112,6 +115,10 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             player.sendMessage(message(player, "claim.world-disabled"));
             return true;
         }
+        if (worldGuard.blocksClaim(player.getWorld(), position(player))) {
+            player.sendMessage(message(player, "claim.worldguard-protected"));
+            return true;
+        }
         if (arguments.length < 2) {
             player.sendMessage(message(player, "land.create-usage"));
             return true;
@@ -151,6 +158,10 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         }
 
         ChunkPosition position = position(player);
+        if (worldGuard.blocksClaim(player.getWorld(), position)) {
+            player.sendMessage(message(player, "claim.worldguard-protected"));
+            return true;
+        }
         int maximum = plugin.getConfig().getInt("claims.maximum-chunks-per-land", 25);
         PaymentCharge charge = charge(player);
         if (!charge.paid()) {
