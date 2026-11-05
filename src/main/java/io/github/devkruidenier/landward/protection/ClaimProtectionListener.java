@@ -1,6 +1,7 @@
 package io.github.devkruidenier.landward.protection;
 
 import io.github.devkruidenier.landward.LandWardPlugin;
+import io.github.devkruidenier.landward.admin.AdminBypassService;
 import io.github.devkruidenier.landward.combat.CombatTagService;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.ChunkPosition;
@@ -51,11 +52,13 @@ public final class ClaimProtectionListener implements Listener {
     private final LandWardPlugin plugin;
     private final LandManager landManager;
     private final CombatTagService combatTags;
+    private final AdminBypassService adminBypasses;
 
-    public ClaimProtectionListener(LandWardPlugin plugin, LandManager landManager, CombatTagService combatTags) {
+    public ClaimProtectionListener(LandWardPlugin plugin, LandManager landManager, CombatTagService combatTags, AdminBypassService adminBypasses) {
         this.plugin = plugin;
         this.landManager = landManager;
         this.combatTags = combatTags;
+        this.adminBypasses = adminBypasses;
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
@@ -240,7 +243,7 @@ public final class ClaimProtectionListener implements Listener {
     }
 
     private boolean allowed(Player player, Land land, MemberPermissions.Permission permission) {
-        if (player.hasPermission("landward.bypass")) {
+        if (adminBypasses.isEnabled(player.getUniqueId())) {
             return true;
         }
         MemberPermissions permissions = landManager.permissions(player.getUniqueId(), land.id());
@@ -259,7 +262,7 @@ public final class ClaimProtectionListener implements Listener {
     private boolean adminDamageAllowed(Player player, org.bukkit.entity.Entity target, Location location) {
         Optional<Land> land = landAt(location);
         if (land.isEmpty() || landManager.typeOf(land.get()) != LandType.ADMIN) return false;
-        if (player.hasPermission("landward.bypass") || !landManager.permissions(player.getUniqueId(), land.get().id()).equals(MemberPermissions.NONE)) return true;
+        if (adminBypasses.isEnabled(player.getUniqueId()) || !landManager.permissions(player.getUniqueId(), land.get().id()).equals(MemberPermissions.NONE)) return true;
         boolean allowed = target instanceof Player
                 ? plugin.getConfig().getBoolean("admin-claims.protection.allow-pvp", false)
                 : target instanceof Enemy
@@ -271,7 +274,7 @@ public final class ClaimProtectionListener implements Listener {
     }
 
     private boolean adminAllowedToInteract(Player player, Land land, Block block) {
-        if (player.hasPermission("landward.bypass") || !landManager.permissions(player.getUniqueId(), land.id()).equals(MemberPermissions.NONE)) return true;
+        if (adminBypasses.isEnabled(player.getUniqueId()) || !landManager.permissions(player.getUniqueId(), land.id()).equals(MemberPermissions.NONE)) return true;
         org.bukkit.Material type = block.getType();
         if (block.getState() instanceof InventoryHolder || type == org.bukkit.Material.ENDER_CHEST) {
             return plugin.getConfig().getBoolean("admin-claims.protection.allow-containers", false);

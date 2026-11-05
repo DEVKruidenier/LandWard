@@ -19,6 +19,7 @@ command:
   help-create: "§f/claim create <naam> §8- §7maak je land"
   help-list: "§f/claim list §8- §7kaart van omliggende chunks"
   help-menu: "§f/claim menu §8- §7beheer jouw land"
+  help-admin-bypass: "§f/claim adminbypass §8- §7schakel je tijdelijke adminbypass"
   help-info: "§f/claim info §8- §7info over deze chunk"
   help-unclaim: "§f/claim unclaim §8- §7verwijder deze eigen chunk"
   help-rename: "§f/claim rename <naam> §8- §7hernoem je land"
@@ -64,6 +65,9 @@ claim:
   payment-failed: "Je betaling kon niet worden uitgevoerd. Probeer het opnieuw."
 protection:
   denied: "Dit gebied is beschermd door {name}."
+admin-bypass:
+  enabled: "Adminbypass ingeschakeld. Claimbescherming wordt omzeild totdat je deze uitschakelt of de server verlaat."
+  disabled: "Adminbypass uitgeschakeld. Claimbescherming is weer actief."
 combat:
   claim-abandon-blocked: "Je kunt geen chunks vrijgeven terwijl je in gevecht bent."
 gui:

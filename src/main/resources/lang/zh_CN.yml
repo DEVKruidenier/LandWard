@@ -21,6 +21,7 @@ command:
   help-info: "/claim info - 显示当前区块的信息。"
   help-list: "/claim list - 打开附近区块地图。"
   help-menu: "/claim menu - 打开你的领地概览。"
+  help-admin-bypass: "/claim adminbypass - 切换临时管理员保护绕过。"
   help-rename: "/claim rename <名称> - 重命名你的领地。"
   help-members: "/claim add <玩家>, /claim remove <玩家>, /claim rights <玩家> <build|containers|entities> <on|off>"
 land:
@@ -64,6 +65,9 @@ claim:
   payment-failed: "无法完成付款。请重试。"
 protection:
   denied: "此区域受 {name} 保护。"
+admin-bypass:
+  enabled: "管理员绕过已启用。在你关闭它或离开服务器前，领地保护将被绕过。"
+  disabled: "管理员绕过已禁用。领地保护已重新启用。"
 combat:
   claim-abandon-blocked: "战斗中无法放弃区块。"
 gui:

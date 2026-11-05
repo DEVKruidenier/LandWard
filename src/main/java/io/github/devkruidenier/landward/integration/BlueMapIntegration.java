@@ -121,7 +121,13 @@ public final class BlueMapIntegration {
         float markerY = world.getSeaLevel() + 1.0F;
         Object marker = markerType.getConstructor(String.class, shapeType, float.class).newInstance(land.name(), shape, markerY);
         invoke(marker, "setDepthTestEnabled", false);
-        invoke(marker, "setDetail", "LandWard claim: " + land.name());
+        if (landManager.isAdministrative(land)) {
+            Class<?> colorType = Class.forName("de.bluecolored.bluemap.api.math.Color");
+            Object line = colorType.getConstructor(int.class, int.class, int.class).newInstance(168, 85, 247);
+            Object fill = colorType.getConstructor(int.class, int.class, int.class, float.class).newInstance(168, 85, 247, 0.20F);
+            invoke(marker, "setColors", line, fill);
+        }
+        invoke(marker, "setDetail", (landManager.isAdministrative(land) ? "LandWard admin claim: " : "LandWard claim: ") + land.name());
         return marker;
     }
 

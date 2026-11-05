@@ -2,6 +2,8 @@ package io.github.devkruidenier.landward;
 
 import io.github.devkruidenier.landward.command.LandCommand;
 import io.github.devkruidenier.landward.command.ClaimAdminCommand;
+import io.github.devkruidenier.landward.admin.AdminBypassService;
+import io.github.devkruidenier.landward.admin.AdminBypassListener;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.console.LandWardConsole;
 import io.github.devkruidenier.landward.console.LandWardConsole.Tone;
@@ -50,6 +52,7 @@ public final class LandWardPlugin extends JavaPlugin {
     private SquaremapIntegration squaremapIntegration;
     private Pl3xMapIntegration pl3xMapIntegration;
     private CombatTagService combatTags;
+    private AdminBypassService adminBypasses;
 
     @Override
     public void onEnable() {
@@ -73,6 +76,7 @@ public final class LandWardPlugin extends JavaPlugin {
         this.squaremapIntegration = new SquaremapIntegration(this, landManager);
         this.pl3xMapIntegration = new Pl3xMapIntegration(this, landManager);
         this.combatTags = new CombatTagService(this);
+        this.adminBypasses = new AdminBypassService();
         blueMapIntegration.registerReadinessListener();
         blueMapIntegration.sync();
         dynmapIntegration.sync();
@@ -105,7 +109,8 @@ public final class LandWardPlugin extends JavaPlugin {
         ClaimAdminCommand claimAdminCommand = new ClaimAdminCommand(this, landManager);
         adminCommand.setExecutor(claimAdminCommand);
         adminCommand.setTabCompleter(claimAdminCommand);
-        getServer().getPluginManager().registerEvents(new ClaimProtectionListener(this, landManager, combatTags), this);
+        getServer().getPluginManager().registerEvents(new ClaimProtectionListener(this, landManager, combatTags, adminBypasses), this);
+        getServer().getPluginManager().registerEvents(new AdminBypassListener(adminBypasses), this);
         getServer().getPluginManager().registerEvents(new ClaimBoundaryListener(this, landManager), this);
         getServer().getPluginManager().registerEvents(new CombatTagListener(combatTags), this);
         getServer().getPluginManager().registerEvents(new LandMapListener(this, landCommand, landManager), this);
@@ -161,6 +166,10 @@ public final class LandWardPlugin extends JavaPlugin {
 
     public CombatTagService combatTags() {
         return combatTags;
+    }
+
+    public AdminBypassService adminBypasses() {
+        return adminBypasses;
     }
 
     public void syncMapIntegrations() {

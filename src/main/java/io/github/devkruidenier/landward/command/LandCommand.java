@@ -33,7 +33,7 @@ import java.util.Optional;
 
 public final class LandCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> ROOT_COMPLETIONS = List.of("help", "info", "menu");
+    private static final List<String> ROOT_COMPLETIONS = List.of("help", "info", "menu", "adminbypass");
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -75,6 +75,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             case "info" -> info(player);
             case "create", "unclaim", "rename", "add", "remove", "rights" -> menu(player);
             case "menu" -> menu(player);
+            case "adminbypass" -> adminBypass(player);
             default -> {
                 sender.sendMessage(message(sender, "general.unknown-command"));
                 yield true;
@@ -95,6 +96,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
         String prefix = arguments[0].toLowerCase(Locale.ROOT);
         return ROOT_COMPLETIONS.stream()
+                .filter(completion -> !completion.equals("adminbypass") || sender.hasPermission("landward.bypass"))
                 .filter(completion -> completion.startsWith(prefix))
                 .toList();
     }
@@ -107,6 +109,19 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(message(sender, "command.help"));
         sender.sendMessage(message(sender, "command.help-list"));
         sender.sendMessage(message(sender, "command.help-menu"));
+        if (sender.hasPermission("landward.bypass")) {
+            sender.sendMessage(message(sender, "command.help-admin-bypass"));
+        }
+    }
+
+    private boolean adminBypass(Player player) {
+        if (!player.hasPermission("landward.bypass")) {
+            player.sendMessage(message(player, "general.no-permission"));
+            return true;
+        }
+        boolean enabled = plugin.adminBypasses().toggle(player.getUniqueId());
+        player.sendMessage(message(player, enabled ? "admin-bypass.enabled" : "admin-bypass.disabled"));
+        return true;
     }
 
     private boolean create(Player player, String[] arguments) throws StorageException {

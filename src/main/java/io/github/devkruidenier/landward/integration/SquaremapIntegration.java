@@ -14,6 +14,7 @@ import java.util.Optional;
 
 /** Reflective Squaremap bridge: it never loads Squaremap API classes when Squaremap is absent. */
 public final class SquaremapIntegration {
+    private static final Color ADMIN_PURPLE = new Color(168, 85, 247);
     private final LandWardPlugin plugin; private final LandManager lands; private boolean failureLogged;
     public SquaremapIntegration(LandWardPlugin plugin, LandManager lands) { this.plugin = plugin; this.lands = lands; }
     public void sync() {
@@ -51,7 +52,9 @@ public final class SquaremapIntegration {
         Object points = List.of(of.invoke(null, (double) x, (double) z), of.invoke(null, (double) claim.position().maxBlockXExclusive(), (double) z), of.invoke(null, (double) claim.position().maxBlockXExclusive(), (double) claim.position().maxBlockZExclusive()), of.invoke(null, (double) x, (double) claim.position().maxBlockZExclusive()));
         Object polygon = Class.forName("xyz.jpenilla.squaremap.api.marker.Marker").getMethod("polygon", List.class).invoke(null, points);
         Object options = Class.forName("xyz.jpenilla.squaremap.api.marker.MarkerOptions").getMethod("builder").invoke(null);
-        call(options, "strokeColor", Color.GREEN); call(options, "fillColor", Color.GREEN); call(options, "fillOpacity", 0.20D); call(options, "hoverTooltip", "LandWard: " + land.name()); call(polygon, "markerOptions", options); return polygon;
+        Color color = lands.isAdministrative(land) ? ADMIN_PURPLE : Color.GREEN;
+        String tooltip = (lands.isAdministrative(land) ? "LandWard admin claim: " : "LandWard: ") + land.name();
+        call(options, "strokeColor", color); call(options, "fillColor", color); call(options, "fillOpacity", 0.20D); call(options, "hoverTooltip", tooltip); call(polygon, "markerOptions", options); return polygon;
     }
     private static Object call(Object target, String name, Object... args) throws ReflectiveOperationException {
         for (Method method : target.getClass().getMethods()) { if (!method.getName().equals(name) || method.getParameterCount() != args.length) continue; Class<?>[] types = method.getParameterTypes(); boolean match = true; for (int i = 0; i < types.length; i++) if (args[i] != null && !wrap(types[i]).isInstance(args[i])) { match = false; break; } if (match) return method.invoke(target, args); }

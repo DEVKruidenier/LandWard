@@ -13,6 +13,8 @@ import java.util.List;
 /** Optional Dynmap marker layer, accessed reflectively to keep Dynmap optional. */
 public final class DynmapIntegration {
     private static final String SET_ID = "landward.claims";
+    private static final int PLAYER_GREEN = 0x35C759;
+    private static final int ADMIN_PURPLE = 0xA855F7;
     private final LandWardPlugin plugin;
     private final LandManager landManager;
     private boolean failureLogged;
@@ -52,8 +54,9 @@ public final class DynmapIntegration {
         String id = "landward_" + land.id() + "_" + claim.position().worldId() + "_" + claim.position().x() + "_" + claim.position().z();
         Object marker = invoke(markerSet, "createAreaMarker", id, land.name(), false, world.getName(), x, z, true);
         if (marker != null) {
-            invoke(marker, "setFillStyle", 0.20D, 0x35C759);
-            invoke(marker, "setLineStyle", 2, 0.80D, 0x35C759);
+            int color = landManager.isAdministrative(land) ? ADMIN_PURPLE : PLAYER_GREEN;
+            invoke(marker, "setFillStyle", 0.20D, color);
+            invoke(marker, "setLineStyle", 2, 0.80D, color);
         }
     }
 

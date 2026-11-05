@@ -21,6 +21,7 @@ command:
   help-info: "/claim info - Mostra informazioni sul chunk attuale."
   help-list: "/claim list - Apre la mappa dei chunk vicini."
   help-menu: "/claim menu - Apre la panoramica del tuo terreno."
+  help-admin-bypass: "/claim adminbypass - Attiva o disattiva il bypass temporaneo della protezione amministratore."
   help-rename: "/claim rename <nome> - Rinomina il tuo terreno."
   help-members: "/claim add <giocatore>, /claim remove <giocatore>, /claim rights <giocatore> <build|containers|entities> <on|off>"
 land:
@@ -64,6 +65,9 @@ claim:
   payment-failed: "Il pagamento non può essere completato. Riprova."
 protection:
   denied: "Questa area è protetta da {name}."
+admin-bypass:
+  enabled: "Bypass amministratore attivato. La protezione delle claim verrà ignorata finché non lo disattivi o lasci il server."
+  disabled: "Bypass amministratore disattivato. La protezione delle claim è di nuovo attiva."
 combat:
   claim-abandon-blocked: "Non puoi liberare chunk mentre sei in combattimento."
 gui:

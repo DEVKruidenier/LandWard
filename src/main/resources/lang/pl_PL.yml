@@ -21,6 +21,7 @@ command:
   help-info: "/claim info - Pokazuje informacje o aktualnym chunku."
   help-list: "/claim list - Otwiera mapę pobliskich chunków."
   help-menu: "/claim menu - Otwiera przegląd twojej działki."
+  help-admin-bypass: "/claim adminbypass - Przełącza tymczasowe obejście ochrony administratora."
   help-rename: "/claim rename <nazwa> - Zmienia nazwę twojej działki."
   help-members: "/claim add <gracz>, /claim remove <gracz>, /claim rights <gracz> <build|containers|entities> <on|off>"
 land:
@@ -64,6 +65,9 @@ claim:
   payment-failed: "Nie udało się zrealizować płatności. Spróbuj ponownie."
 protection:
   denied: "Ten obszar jest chroniony przez {name}."
+admin-bypass:
+  enabled: "Obejście administratora włączone. Ochrona działek będzie pomijana do wyłączenia lub opuszczenia serwera."
+  disabled: "Obejście administratora wyłączone. Ochrona działek znów jest aktywna."
 combat:
   claim-abandon-blocked: "Nie możesz zwalniać chunków podczas walki."
 gui:

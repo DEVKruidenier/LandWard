@@ -15,6 +15,8 @@ import java.nio.file.Path;
 
 /** Pl3xMap exposes JSON marker layers; this bridge writes one managed layer per world. */
 public final class Pl3xMapIntegration {
+    private static final int PLAYER_GREEN = -13382400;
+    private static final int ADMIN_PURPLE = -5745161;
     private final LandWardPlugin plugin;
     private final LandManager lands;
     private boolean failureLogged;
@@ -46,9 +48,10 @@ public final class Pl3xMapIntegration {
             if (land == null) continue;
             if (!first) json.append(','); first = false;
             int x = claim.position().minBlockX(), z = claim.position().minBlockZ();
+            boolean administrative = lands.isAdministrative(land);
             json.append("\n    {\"type\":\"rect\",\"data\":{\"key\":\"claim_").append(claim.position().x()).append('_').append(claim.position().z())
                     .append("\",\"point1\":{\"x\":").append(x).append(",\"z\":").append(z).append("},\"point2\":{\"x\":").append(claim.position().maxBlockXExclusive()).append(",\"z\":").append(claim.position().maxBlockZExclusive())
-                    .append("}},\"options\":{\"tooltip\":{\"content\":\"").append(escape("LandWard: " + land.name())).append("\"},\"fill\":{\"color\":-13382400,\"opacity\":0.20}}}");
+                    .append("}},\"options\":{\"tooltip\":{\"content\":\"").append(escape((administrative ? "LandWard admin claim: " : "LandWard: ") + land.name())).append("\"},\"fill\":{\"color\":").append(administrative ? ADMIN_PURPLE : PLAYER_GREEN).append(",\"opacity\":0.20}}}");
         }
         return json.append("\n  ]\n}\n").toString();
     }
