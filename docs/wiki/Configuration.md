@@ -9,11 +9,14 @@ claims:
   require-adjacent-chunks: true
   maximum-lands-per-player: 1
   maximum-chunks-per-land: 25 # -1 means unlimited
-  # Example: disabled-worlds: [myworld]
-  disabled-worlds: []
+  # Example world: LandWard is disabled in this world until you remove it from this list.
+  disabled-worlds:
+    - myworld
 ```
 
 LandWard is active in every world except those explicitly listed under `disabled-worlds`.
+Fresh configurations include `myworld` as a harmless example: remove or replace it
+with worlds where claims should stay disabled.
 
 ## Admin claims
 

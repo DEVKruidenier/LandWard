@@ -16,10 +16,11 @@ Set the value to `-1` to allow unlimited chunks.
 
 ## World scope
 
-LandWard is active in every world by default. Use `claims.disabled-worlds` only for
-exceptions, such as creative, skyblock or minigame worlds. This list scopes claims,
-claim protection and map markers without deleting existing claim data. The default
-configuration includes a commented `# - myworld` example.
+LandWard is active in every world except those listed under `claims.disabled-worlds`.
+Use this list for exceptions, such as creative, skyblock or minigame worlds. It scopes
+claims, claim protection and map markers without deleting existing claim data. A fresh
+configuration includes `myworld` as a harmless example; remove or replace that entry
+with your own excluded worlds.
 
 ## Claim payments
 
