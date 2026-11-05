@@ -79,7 +79,7 @@ public final class LandMapGui {
         ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
         for (int slot = 0; slot < inventory.getSize(); slot++) inventory.setItem(slot, frame);
         inventory.setItem(11, item(Material.LIME_DYE, plugin.localeService().message(locale, administrator ? "gui.admin-confirm" : "gui.unclaim-confirm"), NamedTextColor.GREEN, List.of(
-                Component.text("X: " + position.x() + "  Z: " + position.z(), NamedTextColor.GRAY),
+                Component.text(plugin.localeService().message(locale, "gui.coordinates", Map.of("x", position.x(), "z", position.z())), NamedTextColor.GRAY),
                 Component.text(plugin.localeService().message(locale, "gui.unclaim-warning"), NamedTextColor.RED)
         )));
         inventory.setItem(15, item(Material.BARRIER, plugin.localeService().message(locale, "gui.cancel"), NamedTextColor.RED, List.of()));
@@ -156,7 +156,7 @@ public final class LandMapGui {
                     NamedTextColor.AQUA
             ));
         }
-        lore.add(Component.text("X: " + chunkX + "  Z: " + chunkZ, NamedTextColor.GRAY));
+        lore.add(Component.text(plugin.localeService().message(locale, "gui.coordinates", Map.of("x", chunkX, "z", chunkZ)), NamedTextColor.GRAY));
         if (current) {
             material = Material.COMPASS;
             color = NamedTextColor.GOLD;

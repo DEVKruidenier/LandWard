@@ -138,6 +138,7 @@ gui:
   cancel: "취소"
   map-title: "LandWard • 주변 청크"
   current-chunk: "현재 청크"
+  coordinates: "X: {x}  Z: {z}"
   unclaimed: "미점유"
   status-unclaimed: "점유 가능"
   status-yours: "당신의 영지"

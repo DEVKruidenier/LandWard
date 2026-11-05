@@ -138,6 +138,7 @@ gui:
   cancel: "Annuleren"
   map-title: "LandWard • Nabijgelegen chunks"
   current-chunk: "Huidige chunk"
+  coordinates: "X: {x}  Z: {z}"
   unclaimed: "Niet geclaimd"
   status-unclaimed: "Beschikbaar om te claimen"
   status-yours: "Jouw land"

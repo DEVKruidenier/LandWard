@@ -138,6 +138,7 @@ gui:
   cancel: "Cancel"
   map-title: "LandWard • Nearby Chunks"
   current-chunk: "Current chunk"
+  coordinates: "X: {x}  Z: {z}"
   unclaimed: "Unclaimed"
   status-unclaimed: "Available to claim"
   status-yours: "Your land"

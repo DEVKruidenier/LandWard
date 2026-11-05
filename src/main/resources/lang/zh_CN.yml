@@ -138,6 +138,7 @@ gui:
   cancel: "取消"
   map-title: "LandWard • 附近区块"
   current-chunk: "当前区块"
+  coordinates: "X: {x}  Z: {z}"
   unclaimed: "未认领"
   status-unclaimed: "可认领"
   status-yours: "你的领地"

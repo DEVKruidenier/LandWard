@@ -139,6 +139,7 @@ gui:
   cancel: "Annuler"
   map-title: "LandWard • Chunks proches"
   current-chunk: "Chunk actuel"
+  coordinates: "X: {x}  Z: {z}"
   unclaimed: "Non revendiqué"
   status-unclaimed: "Disponible à revendiquer"
   status-yours: "Votre terrain"

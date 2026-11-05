@@ -138,6 +138,7 @@ gui:
   cancel: "Отмена"
   map-title: "LandWard • Ближайшие чанки"
   current-chunk: "Текущий чанк"
+  coordinates: "X: {x}  Z: {z}"
   unclaimed: "Не приватизирован"
   status-unclaimed: "Доступен для привата"
   status-yours: "Ваша территория"

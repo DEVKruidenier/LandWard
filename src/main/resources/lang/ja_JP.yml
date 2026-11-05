@@ -138,6 +138,7 @@ gui:
   cancel: "キャンセル"
   map-title: "LandWard • 近くのチャンク"
   current-chunk: "現在のチャンク"
+  coordinates: "X: {x}  Z: {z}"
   unclaimed: "未保護"
   status-unclaimed: "保護可能"
   status-yours: "あなたの土地"

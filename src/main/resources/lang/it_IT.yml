@@ -138,6 +138,7 @@ gui:
   cancel: "Annulla"
   map-title: "LandWard • Chunk vicini"
   current-chunk: "Chunk attuale"
+  coordinates: "X: {x}  Z: {z}"
   unclaimed: "Non rivendicato"
   status-unclaimed: "Disponibile da rivendicare"
   status-yours: "Il tuo terreno"

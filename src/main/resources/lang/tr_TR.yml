@@ -138,6 +138,7 @@ gui:
   cancel: "İptal"
   map-title: "LandWard • Yakındaki chunklar"
   current-chunk: "Mevcut chunk"
+  coordinates: "X: {x}  Z: {z}"
   unclaimed: "Claimlenmemiş"
   status-unclaimed: "Claimlemek için kullanılabilir"
   status-yours: "Araziniz"
