@@ -14,7 +14,6 @@ command:
   header: "LandWard {version}"
   description: "Einfache Chunk-Claims und zuverlässiger Schutz für Survival-Server."
   help: "/claim help - Zeigt diese Hilfe an."
-  development: "Die Claim-Verwaltung ist in dieser Entwicklungsversion noch nicht verfügbar."
   help-create: "/claim create <name> - Erstellt dein Land."
   help-claim: "/claim - Beansprucht deinen aktuellen Chunk."
   help-unclaim: "/claim unclaim - Entfernt deinen aktuellen Chunk aus deinem Land."

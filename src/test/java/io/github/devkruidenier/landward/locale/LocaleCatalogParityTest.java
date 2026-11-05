@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Ensures every bundled language has every player-visible LandWard message. */
@@ -31,8 +32,8 @@ final class LocaleCatalogParityTest {
         Set<String> english = keys("en_US");
         for (String locale : LOCALES) {
             Set<String> translated = keys(locale);
-            assertTrue(translated.containsAll(english),
-                    "Language catalog is missing English message keys: " + locale);
+            assertEquals(english, translated,
+                    "Language catalog keys must exactly match English: " + locale);
         }
     }
 
