@@ -270,7 +270,7 @@ public final class LandWardPlugin extends JavaPlugin {
     private void applyWorldConfigComments() {
         getConfig().setComments("claims.disabled-worlds", java.util.List.of(
                 "World names where LandWard is fully inactive. Every other world is active.",
-                "Example: disabled-worlds: [myworld]"
+                "Example world: LandWard is disabled in this world until you remove it from this list."
         ));
     }
 }
