@@ -232,6 +232,38 @@ public final class LandManager {
         return Optional.ofNullable(landsByOwner.get(ownerId));
     }
 
+    /** Returns all player-owned lands for administrative review; server claims are excluded. */
+    public synchronized List<Land> playerLands() {
+        return landsById.values().stream()
+                .filter(land -> !administrativeLandIds.contains(land.id()))
+                .sorted(java.util.Comparator.comparing(Land::name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    /**
+     * Transfers a player land to a UUID. The destination may be offline, but
+     * can never own a second player land. Existing membership remains intact,
+     * except the new owner's redundant member entry is removed.
+     */
+    public synchronized TransferResult transferOwnership(UUID landId, UUID newOwnerId) throws StorageException {
+        Land current = landsById.get(landId);
+        if (current == null || administrativeLandIds.contains(landId)) return new TransferResult(TransferStatus.NOT_PLAYER_LAND, current);
+        if (current.ownerId().equals(newOwnerId)) return new TransferResult(TransferStatus.UNCHANGED, current);
+        Land existing = landsByOwner.get(newOwnerId);
+        if (existing != null && !existing.id().equals(landId)) return new TransferResult(TransferStatus.NEW_OWNER_ALREADY_OWNS_LAND, current);
+        storage.updateLandOwner(landId, newOwnerId);
+        Land updated = new Land(current.id(), newOwnerId, current.name(), current.createdAt());
+        landsById.put(landId, updated);
+        landsByOwner.remove(current.ownerId());
+        landsByOwner.put(newOwnerId, updated);
+        Map<UUID, MemberPermissions> members = membersByLand.get(landId);
+        if (members != null && members.containsKey(newOwnerId)) {
+            storage.deleteMember(landId, newOwnerId);
+            members.remove(newOwnerId);
+        }
+        return new TransferResult(TransferStatus.TRANSFERRED, updated);
+    }
+
     public synchronized RenameResult rename(UUID ownerId, String requestedName) throws StorageException {
         Land current = landsByOwner.get(ownerId);
         if (current == null) return new RenameResult(RenameStatus.NO_LAND, null);
@@ -444,6 +476,15 @@ public final class LandManager {
         NO_LAND,
         INVALID_NAME,
         NAME_TAKEN
+    }
+
+    public record TransferResult(TransferStatus status, Land land) { }
+
+    public enum TransferStatus {
+        TRANSFERRED,
+        UNCHANGED,
+        NOT_PLAYER_LAND,
+        NEW_OWNER_ALREADY_OWNS_LAND
     }
 
     public record UnclaimResult(UnclaimStatus status, Land land, int claimCount) {

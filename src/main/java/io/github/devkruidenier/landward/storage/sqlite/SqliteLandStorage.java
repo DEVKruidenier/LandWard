@@ -217,6 +217,19 @@ public final class SqliteLandStorage implements LandStorage {
     }
 
     @Override
+    public void updateLandOwner(UUID landId, UUID ownerId) throws StorageException {
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement(
+                "UPDATE lands SET owner_uuid = ? WHERE id = ?"
+        )) {
+            statement.setString(1, ownerId.toString());
+            statement.setString(2, landId.toString());
+            statement.executeUpdate();
+        } catch (SQLException exception) {
+            throw new StorageException("Could not change land owner", exception);
+        }
+    }
+
+    @Override
     public void insertClaim(ClaimedChunk claim) throws StorageException {
         String sql = "INSERT INTO claims(world_uuid, chunk_x, chunk_z, land_id) VALUES (?, ?, ?, ?)";
         try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement(sql)) {

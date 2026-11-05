@@ -19,6 +19,9 @@ public interface LandStorage extends AutoCloseable {
 
     void updateLandName(java.util.UUID landId, String name) throws StorageException;
 
+    /** Changes the UUID that owns a player land. Names are deliberately not persisted. */
+    void updateLandOwner(java.util.UUID landId, java.util.UUID ownerId) throws StorageException;
+
     void insertClaim(ClaimedChunk claim) throws StorageException;
 
     void deleteClaim(ClaimedChunk claim) throws StorageException;

@@ -8,6 +8,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.Inventory;
@@ -57,6 +58,73 @@ public final class ClaimAdminGui {
         }
         inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
+    }
+
+    /** Lists every player-owned land; server-owned safe zones stay in their separate map. */
+    public void openPlayerClaims(Player player) {
+        String locale = plugin.localeService().localeFor(player);
+        ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.PLAYER_CLAIMS, locale, 54, "gui.admin-player-claims-title");
+        Inventory inventory = holder.getInventory();
+        int slot = 0;
+        for (var land : lands.playerLands()) {
+            if (slot >= 45) break;
+            holder.landsBySlot().put(slot, land.id());
+            inventory.setItem(slot++, playerHead(land.ownerId(), land.name(), plugin.localeService().message(locale, "gui.admin-player-claim-select", java.util.Map.of(
+                    "owner", name(land.ownerId()), "count", lands.claimCount(land.id())
+            ))));
+        }
+        if (slot == 0) inventory.setItem(22, item(Material.GRAY_DYE, plugin.localeService().message(locale, "gui.admin-no-player-claims"), NamedTextColor.GRAY, List.of()));
+        inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        player.openInventory(inventory);
+    }
+
+    public void openPlayerClaimDetails(Player player, UUID landId) {
+        var land = lands.land(landId).filter(value -> !lands.isAdministrative(value));
+        if (land.isEmpty()) { openPlayerClaims(player); return; }
+        String locale = plugin.localeService().localeFor(player);
+        ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.PLAYER_CLAIM_DETAILS, locale, 27, "gui.admin-player-claim-details-title");
+        holder.selectedLandId(landId);
+        Inventory inventory = holder.getInventory();
+        var value = land.get();
+        inventory.setItem(10, item(Material.ENDER_PEARL, plugin.localeService().message(locale, "gui.admin-teleport"), NamedTextColor.AQUA,
+                List.of(plugin.localeService().message(locale, "gui.admin-teleport-hint"))));
+        inventory.setItem(12, playerHead(value.ownerId(), plugin.localeService().message(locale, "gui.admin-change-owner"),
+                plugin.localeService().message(locale, "gui.admin-change-owner-hint", java.util.Map.of("owner", name(value.ownerId())))));
+        inventory.setItem(14, item(Material.PAPER, plugin.localeService().message(locale, "gui.admin-claim-statistics"), NamedTextColor.GOLD,
+                List.of(plugin.localeService().message(locale, "gui.management-claimed-chunks", java.util.Map.of("count", lands.claimCount(landId))),
+                        plugin.localeService().message(locale, "gui.management-owner", java.util.Map.of("name", name(value.ownerId()))))));
+        inventory.setItem(16, item(Material.PLAYER_HEAD, plugin.localeService().message(locale, "gui.management-members"), NamedTextColor.AQUA,
+                List.of(plugin.localeService().message(locale, "gui.admin-claim-members-hint", java.util.Map.of("count", lands.members(landId).size())))));
+        inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        player.openInventory(inventory);
+    }
+
+    public void openPlayerClaimMembers(Player player, UUID landId) {
+        var land = lands.land(landId).filter(value -> !lands.isAdministrative(value));
+        if (land.isEmpty()) { openPlayerClaims(player); return; }
+        String locale = plugin.localeService().localeFor(player);
+        ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.PLAYER_CLAIM_MEMBERS, locale, 54, "gui.management-members");
+        holder.selectedLandId(landId);
+        Inventory inventory = holder.getInventory();
+        int slot = 0;
+        for (var member : lands.members(landId)) {
+            if (slot >= 45) break;
+            inventory.setItem(slot++, playerHead(member.playerId(), name(member.playerId()), plugin.localeService().message(locale, "gui.admin-member-permissions", java.util.Map.of("permissions", member.permissions().toString()))));
+        }
+        if (slot == 0) inventory.setItem(22, item(Material.GRAY_DYE, plugin.localeService().message(locale, "gui.management-no-members"), NamedTextColor.GRAY, List.of()));
+        inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        player.openInventory(inventory);
+    }
+
+    public boolean teleportToClaim(Player player, UUID landId) {
+        return lands.claims().stream().filter(claim -> claim.landId().equals(landId)).findFirst().map(claim -> {
+            World world = Bukkit.getWorld(claim.position().worldId());
+            if (world == null) return false;
+            int x = claim.position().x() * 16 + 8;
+            int z = claim.position().z() * 16 + 8;
+            player.teleport(new Location(world, x + 0.5D, world.getHighestBlockYAt(x, z) + 1, z + 0.5D));
+            return true;
+        }).orElse(false);
     }
 
     public void openAdminSettings(Player player) {

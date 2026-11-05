@@ -201,4 +201,30 @@ class LandManagerPersistenceTest {
         reloaded.load();
         assertEquals("New Name", reloaded.ownedBy(owner).orElseThrow().name());
     }
+
+    @Test
+    void administratorCanTransferAPlayerLandToAnOfflineUuidWithoutCreatingSecondOwnership() throws Exception {
+        SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("transfer-owner.db"));
+        storage.initialize();
+        LandManager manager = new LandManager(storage);
+        manager.load();
+        UUID firstOwner = UUID.randomUUID();
+        UUID newOwner = UUID.randomUUID();
+        UUID world = UUID.randomUUID();
+        var firstLand = manager.create(firstOwner, "Transfer One", new ChunkPosition(world, 0, 0)).land();
+        manager.addMember(firstOwner, newOwner);
+
+        assertEquals(LandManager.TransferStatus.TRANSFERRED, manager.transferOwnership(firstLand.id(), newOwner).status());
+        assertTrue(manager.ownedBy(firstOwner).isEmpty());
+        assertEquals(firstLand.id(), manager.ownedBy(newOwner).orElseThrow().id());
+        assertTrue(manager.members(firstLand.id()).isEmpty(), "The new owner must not retain a redundant member record");
+
+        LandManager reloaded = new LandManager(storage);
+        reloaded.load();
+        assertEquals(firstLand.id(), reloaded.ownedBy(newOwner).orElseThrow().id());
+        UUID secondOwner = UUID.randomUUID();
+        var secondLand = reloaded.create(secondOwner, "Transfer Two", new ChunkPosition(world, 4, 0)).land();
+        assertEquals(LandManager.TransferStatus.NEW_OWNER_ALREADY_OWNS_LAND,
+                reloaded.transferOwnership(secondLand.id(), newOwner).status());
+    }
 }

@@ -20,6 +20,7 @@ import io.github.devkruidenier.landward.gui.LandManagementListener;
 import io.github.devkruidenier.landward.gui.LandRenameListener;
 import io.github.devkruidenier.landward.gui.ClaimAdminGui;
 import io.github.devkruidenier.landward.gui.ClaimAdminListener;
+import io.github.devkruidenier.landward.gui.AdminOwnerChangeListener;
 import io.github.devkruidenier.landward.protection.ClaimProtectionListener;
 import io.github.devkruidenier.landward.protection.ClaimBoundaryListener;
 import io.github.devkruidenier.landward.combat.CombatTagListener;
@@ -54,6 +55,7 @@ public final class LandWardPlugin extends JavaPlugin {
     private CombatTagService combatTags;
     private AdminBypassService adminBypasses;
     private UpdateChecker updateChecker;
+    private AdminOwnerChangeListener adminOwnerChangeListener;
 
     @Override
     public void onEnable() {
@@ -119,6 +121,8 @@ public final class LandWardPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(renameListener, this);
         getServer().getPluginManager().registerEvents(new LandManagementListener(this, landManager, renameListener), this);
         getServer().getPluginManager().registerEvents(new ClaimAdminListener(this, landManager), this);
+        this.adminOwnerChangeListener = new AdminOwnerChangeListener(this, landManager);
+        getServer().getPluginManager().registerEvents(adminOwnerChangeListener, this);
 
         this.metricsService = new MetricsService(this);
         this.metricsService.initialize();
@@ -176,6 +180,10 @@ public final class LandWardPlugin extends JavaPlugin {
 
     public UpdateChecker updateChecker() {
         return updateChecker;
+    }
+
+    public AdminOwnerChangeListener adminOwnerChangeListener() {
+        return adminOwnerChangeListener;
     }
 
     public void syncMapIntegrations() {

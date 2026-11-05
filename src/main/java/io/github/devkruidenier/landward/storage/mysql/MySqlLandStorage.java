@@ -190,6 +190,13 @@ public final class MySqlLandStorage implements LandStorage {
     }
 
     @Override
+    public void updateLandOwner(UUID landId, UUID ownerId) throws StorageException {
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("UPDATE lands SET owner_uuid = ? WHERE id = ?")) {
+            statement.setString(1, ownerId.toString()); statement.setString(2, landId.toString()); statement.executeUpdate();
+        } catch (SQLException exception) { throw new StorageException("Could not change land owner", exception); }
+    }
+
+    @Override
     public void deleteClaim(ClaimedChunk claim) throws StorageException {
         try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("DELETE FROM claims WHERE world_uuid = ? AND chunk_x = ? AND chunk_z = ? AND land_id = ?")) {
             bindClaim(statement, claim); statement.executeUpdate();
