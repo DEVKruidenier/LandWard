@@ -26,7 +26,7 @@ command:
   help-info: "/claim info - Shows information about the current chunk."
   help-list: "/claim list - Opens the nearby chunk map."
   help-menu: "/claim menu - Opens your land overview."
-  help-admin-bypass: "/claim adminbypass - Toggles your temporary admin protection bypass."
+  help-admin-bypass: "/claim bypass - Toggles your temporary admin protection bypass."
   help-rename: "/claim rename <name> - Renames your land."
   help-members: "/claim add <player>, /claim remove <player>, /claim rights <player> <build|containers|entities> <on|off>"
 land:
@@ -72,6 +72,7 @@ claim:
   paid-money: "You paid {cost} for this chunk."
 protection:
   denied: "This area is protected by {name}."
+  denied-bypass: "This area is protected by {name}. Use /claim bypass to temporarily bypass protection."
 admin-bypass:
   enabled: "Admin bypass enabled. Claim protection is now bypassed until you disable it or leave the server."
   disabled: "Admin bypass disabled. Claim protection is active again."

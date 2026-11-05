@@ -27,7 +27,7 @@ command:
   help-info: "/claim info - Affiche les informations du chunk actuel."
   help-list: "/claim list - Ouvre la carte des chunks proches."
   help-menu: "/claim menu - Ouvre l'aperçu de votre terrain."
-  help-admin-bypass: "/claim adminbypass - Active ou désactive votre contournement temporaire de protection administrateur."
+  help-admin-bypass: "/claim bypass - Active ou désactive votre contournement temporaire de protection administrateur."
   help-rename: "/claim rename <nom> - Renomme votre terrain."
   help-members: "/claim add <joueur>, /claim remove <joueur>, /claim rights <joueur> <build|containers|entities> <on|off>"
 land:
@@ -73,6 +73,7 @@ claim:
   paid-money: "Vous avez payé {cost} pour ce chunk."
 protection:
   denied: "Cette zone est protégée par {name}."
+  denied-bypass: "Cette zone est protégée par {name}. Utilisez /claim bypass pour contourner temporairement la protection."
 admin-bypass:
   enabled: "Contournement administrateur activé. La protection des claims sera contournée jusqu'à sa désactivation ou votre déconnexion."
   disabled: "Contournement administrateur désactivé. La protection des claims est à nouveau active."

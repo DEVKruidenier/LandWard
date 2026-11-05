@@ -34,7 +34,7 @@ log and each pass/fail result with the release notes.
 
 - [ ] As a non-member, verify block changes, containers, entities, fluids,
   pistons, explosions and fire spread cannot damage another player's claim.
-- [ ] Verify `/claim adminbypass` requires `landward.bypass`, is opt-in and is
+- [ ] Verify `/claim bypass` requires `landward.bypass`, is opt-in and is
   cleared on logout.
 - [ ] In **ClaimAdmin**, verify player claims and purple admin claims are kept
   separate. Ensure an admin cannot delete one type from the other map.

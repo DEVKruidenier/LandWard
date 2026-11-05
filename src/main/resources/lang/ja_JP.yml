@@ -26,7 +26,7 @@ command:
   help-info: "/claim info - 現在のチャンクの情報を表示します。"
   help-list: "/claim list - 近くのチャンクマップを開きます。"
   help-menu: "/claim menu - 土地の概要を開きます。"
-  help-admin-bypass: "/claim adminbypass - 一時的な管理者保護バイパスを切り替えます。"
+  help-admin-bypass: "/claim bypass - 一時的な管理者保護バイパスを切り替えます。"
   help-rename: "/claim rename <名前> - 土地の名前を変更します。"
   help-members: "/claim add <プレイヤー>, /claim remove <プレイヤー>, /claim rights <プレイヤー> <build|containers|entities> <on|off>"
 land:
@@ -72,6 +72,7 @@ claim:
   paid-money: "このチャンクに {cost} を支払いました。"
 protection:
   denied: "このエリアは {name} によって保護されています。"
+  denied-bypass: "このエリアは {name} によって保護されています。/claim bypass で一時的に保護を回避できます。"
 admin-bypass:
   enabled: "管理者バイパスを有効にしました。無効化するかサーバーから退出するまで、クレーム保護をバイパスします。"
   disabled: "管理者バイパスを無効にしました。クレーム保護が再び有効です。"

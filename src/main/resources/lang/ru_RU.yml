@@ -26,7 +26,7 @@ command:
   help-info: "/claim info - Показывает информацию о текущем чанке."
   help-list: "/claim list - Открывает карту ближайших чанков."
   help-menu: "/claim menu - Открывает обзор вашей территории."
-  help-admin-bypass: "/claim adminbypass - Включает или выключает временный обход защиты администратора."
+  help-admin-bypass: "/claim bypass - Включает или выключает временный обход защиты администратора."
   help-rename: "/claim rename <название> - Переименовывает вашу территорию."
   help-members: "/claim add <игрок>, /claim remove <игрок>, /claim rights <игрок> <build|containers|entities> <on|off>"
 land:
@@ -72,6 +72,7 @@ claim:
   paid-money: "Вы заплатили {cost} за этот чанк."
 protection:
   denied: "Эта область защищена территорией {name}."
+  denied-bypass: "Эта область защищена территорией {name}. Используйте /claim bypass, чтобы временно обойти защиту."
 admin-bypass:
   enabled: "Обход администратора включён. Защита приватов будет обходиться, пока вы не отключите её или не выйдете с сервера."
   disabled: "Обход администратора выключен. Защита приватов снова активна."

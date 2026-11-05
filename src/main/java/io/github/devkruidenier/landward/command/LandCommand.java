@@ -35,7 +35,7 @@ import java.util.Optional;
 
 public final class LandCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> ROOT_COMPLETIONS = List.of("help", "info", "menu", "adminbypass", "update");
+    private static final List<String> ROOT_COMPLETIONS = List.of("help", "info", "menu", "bypass", "update");
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -81,7 +81,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             case "info" -> info(player);
             case "create", "unclaim", "rename", "add", "remove", "rights" -> menu(player);
             case "menu" -> menu(player);
-            case "adminbypass" -> adminBypass(player);
+            case "bypass" -> adminBypass(player);
             default -> {
                 sender.sendMessage(message(sender, "general.unknown-command"));
                 yield true;
@@ -102,7 +102,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
         String prefix = arguments[0].toLowerCase(Locale.ROOT);
         return ROOT_COMPLETIONS.stream()
-                .filter(completion -> !completion.equals("adminbypass") || sender.hasPermission("landward.bypass"))
+                .filter(completion -> !completion.equals("bypass") || sender.hasPermission("landward.bypass"))
                 .filter(completion -> !completion.equals("update") || sender.hasPermission("landward.admin"))
                 .filter(completion -> completion.startsWith(prefix))
                 .toList();

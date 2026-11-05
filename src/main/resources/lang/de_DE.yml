@@ -27,7 +27,7 @@ command:
   help-info: "/claim info - Zeigt Informationen über den aktuellen Chunk."
   help-list: "/claim list - Öffnet die Chunk-Karte in der Nähe."
   help-menu: "/claim menu - Öffnet deine Landübersicht."
-  help-admin-bypass: "/claim adminbypass - Schaltet deinen temporären Admin-Schutzbypass um."
+  help-admin-bypass: "/claim bypass - Schaltet deinen temporären Admin-Schutzbypass um."
   help-rename: "/claim rename <name> - Benennt dein Land um."
   help-members: "/claim add <spieler>, /claim remove <spieler>, /claim rights <spieler> <build|containers|entities> <on|off>"
 land:
@@ -73,6 +73,7 @@ claim:
   paid-money: "Du hast {cost} für diesen Chunk bezahlt."
 protection:
   denied: "Dieser Bereich ist durch {name} geschützt."
+  denied-bypass: "Dieser Bereich ist durch {name} geschützt. Nutze /claim bypass, um den Schutz vorübergehend zu umgehen."
 admin-bypass:
   enabled: "Admin-Bypass aktiviert. Der Claim-Schutz wird umgangen, bis du ihn deaktivierst oder den Server verlässt."
   disabled: "Admin-Bypass deaktiviert. Der Claim-Schutz ist wieder aktiv."

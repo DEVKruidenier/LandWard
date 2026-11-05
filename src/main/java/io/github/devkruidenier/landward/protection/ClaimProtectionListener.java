@@ -238,7 +238,11 @@ public final class ClaimProtectionListener implements Listener {
     private void deny(Player player, Land land, java.util.function.Consumer<Boolean> cancellation) {
         cancellation.accept(true);
         String locale = plugin.localeService().localeFor(player);
-        String message = plugin.localeService().message(locale, "protection.denied", Map.of("name", land.name()));
+        String key = player.hasPermission("landward.bypass")
+                && !adminBypasses.isEnabled(player.getUniqueId())
+                ? "protection.denied-bypass"
+                : "protection.denied";
+        String message = plugin.localeService().message(locale, key, Map.of("name", land.name()));
         player.sendActionBar(Component.text(message, NamedTextColor.RED));
     }
 

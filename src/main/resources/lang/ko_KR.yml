@@ -26,7 +26,7 @@ command:
   help-info: "/claim info - 현재 청크 정보를 표시합니다."
   help-list: "/claim list - 주변 청크 지도를 엽니다."
   help-menu: "/claim menu - 영지 개요를 엽니다."
-  help-admin-bypass: "/claim adminbypass - 임시 관리자 보호 우회를 전환합니다."
+  help-admin-bypass: "/claim bypass - 임시 관리자 보호 우회를 전환합니다."
   help-rename: "/claim rename <이름> - 영지 이름을 변경합니다."
   help-members: "/claim add <플레이어>, /claim remove <플레이어>, /claim rights <플레이어> <build|containers|entities> <on|off>"
 land:
@@ -72,6 +72,7 @@ claim:
   paid-money: "이 청크에 {cost}를 지불했습니다."
 protection:
   denied: "이 지역은 {name}에 의해 보호됩니다."
+  denied-bypass: "이 지역은 {name}에 의해 보호됩니다. /claim bypass로 보호를 일시적으로 우회할 수 있습니다."
 admin-bypass:
   enabled: "관리자 우회가 활성화되었습니다. 끄거나 서버를 나갈 때까지 영지 보호를 우회합니다."
   disabled: "관리자 우회가 비활성화되었습니다. 영지 보호가 다시 활성화되었습니다."

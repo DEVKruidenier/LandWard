@@ -42,5 +42,5 @@ permissions:
     description: Grants access to LandWard administration features.
     default: op
   landward.bypass:
-    description: Allows toggling the temporary LandWard protection bypass with /claim adminbypass.
+    description: Allows toggling the temporary LandWard protection bypass with /claim bypass.
     default: op

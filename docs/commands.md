@@ -8,7 +8,7 @@ LandWard is GUI-first: players normally only need /claim.
 | /claim info | Shows the installed LandWard version and author. |
 | /claim menu | Opens the same land management GUI explicitly. |
 | /claim help | Shows the compact command reference. |
-| /claim adminbypass | Toggles the temporary protection bypass; requires landward.bypass and resets on logout. |
+| /claim bypass | Toggles the temporary protection bypass; requires landward.bypass and resets on logout. |
 | /claim update | Stages a verified GitHub Release JAR for a manual server-stopped replacement; requires landward.admin. |
 | /claimadmin | Opens administration: separate player-claim moderation, admin claims and active-world controls; requires landward.admin. |
 | /claimadmin reload | Reloads config, language files and map layers; requires landward.admin. |

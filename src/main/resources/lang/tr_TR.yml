@@ -26,7 +26,7 @@ command:
   help-info: "/claim info - Mevcut chunk hakkında bilgi gösterir."
   help-list: "/claim list - Yakındaki chunk haritasını açar."
   help-menu: "/claim menu - Arazi genel bakışınızı açar."
-  help-admin-bypass: "/claim adminbypass - Geçici yönetici koruma atlamasını açar veya kapatır."
+  help-admin-bypass: "/claim bypass - Geçici yönetici koruma atlamasını açar veya kapatır."
   help-rename: "/claim rename <ad> - Arazinizi yeniden adlandırır."
   help-members: "/claim add <oyuncu>, /claim remove <oyuncu>, /claim rights <oyuncu> <build|containers|entities> <on|off>"
 land:
@@ -72,6 +72,7 @@ claim:
   paid-money: "Bu chunk için {cost} ödedin."
 protection:
   denied: "Bu alan {name} tarafından korunuyor."
+  denied-bypass: "Bu alan {name} tarafından korunuyor. Korumayı geçici olarak atlamak için /claim bypass kullan."
 admin-bypass:
   enabled: "Yönetici atlaması etkin. Claim koruması, kapatana veya sunucudan ayrılana kadar atlanacak."
   disabled: "Yönetici atlaması devre dışı. Claim koruması yeniden etkin."

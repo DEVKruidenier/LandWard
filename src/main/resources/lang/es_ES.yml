@@ -26,7 +26,7 @@ command:
   help-info: "/claim info - Muestra información sobre el chunk actual."
   help-list: "/claim list - Abre el mapa de chunks cercanos."
   help-menu: "/claim menu - Abre el resumen de tu terreno."
-  help-admin-bypass: "/claim adminbypass - Activa o desactiva tu omisión temporal de protección de administrador."
+  help-admin-bypass: "/claim bypass - Activa o desactiva tu omisión temporal de protección de administrador."
   help-rename: "/claim rename <nombre> - Cambia el nombre de tu terreno."
   help-members: "/claim add <jugador>, /claim remove <jugador>, /claim rights <jugador> <build|containers|entities> <on|off>"
 land:
@@ -72,6 +72,7 @@ claim:
   paid-money: "Has pagado {cost} por este chunk."
 protection:
   denied: "Esta zona está protegida por {name}."
+  denied-bypass: "Esta zona está protegida por {name}. Usa /claim bypass para omitir temporalmente la protección."
 admin-bypass:
   enabled: "Omisión de administrador activada. La protección de claims se omitirá hasta que la desactives o salgas del servidor."
   disabled: "Omisión de administrador desactivada. La protección de claims vuelve a estar activa."
