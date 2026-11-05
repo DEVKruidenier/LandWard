@@ -44,7 +44,7 @@ public interface LandStorage extends AutoCloseable {
 
     void deleteClaim(ClaimedChunk claim) throws StorageException;
 
-    /** Deletes a land and, through the schema foreign keys, all its claims and members. */
+    /** Deletes a land and all of its claims, members and administrative marker atomically. */
     void deleteLand(java.util.UUID landId) throws StorageException;
 
     void insertMember(LandMember member) throws StorageException;

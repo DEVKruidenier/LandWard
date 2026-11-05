@@ -324,11 +324,15 @@ public final class SqliteLandStorage implements LandStorage {
 
     @Override
     public void deleteLand(UUID landId) throws StorageException {
-        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement(
-                "DELETE FROM lands WHERE id = ?"
-        )) {
-            statement.setString(1, landId.toString());
-            statement.executeUpdate();
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                deleteLandRecords(connection, landId);
+                connection.commit();
+            } catch (SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
         } catch (SQLException exception) {
             throw new StorageException("Could not delete land", exception);
         }
@@ -413,6 +417,17 @@ public final class SqliteLandStorage implements LandStorage {
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO lands(id, owner_uuid, name, created_at, member_build, member_containers, member_entities, member_pvp, allow_hostile_mob_kills, allow_passive_mob_kills, allow_hostile_mob_spawns, allow_doors, allow_interactions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
             bindLand(statement, land);
             statement.executeUpdate();
+        }
+    }
+
+    private static void deleteLandRecords(Connection connection, UUID landId) throws SQLException {
+        String id = landId.toString();
+        for (String table : List.of("land_members", "claims", "admin_lands", "lands")) {
+            String column = table.equals("lands") ? "id" : "land_id";
+            try (PreparedStatement statement = connection.prepareStatement("DELETE FROM " + table + " WHERE " + column + " = ?")) {
+                statement.setString(1, id);
+                statement.executeUpdate();
+            }
         }
     }
 

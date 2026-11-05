@@ -285,9 +285,15 @@ public final class MySqlLandStorage implements LandStorage {
 
     @Override
     public void deleteLand(UUID landId) throws StorageException {
-        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("DELETE FROM lands WHERE id = ?")) {
-            statement.setString(1, landId.toString());
-            statement.executeUpdate();
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                deleteLandRecords(connection, landId);
+                connection.commit();
+            } catch (SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
         } catch (SQLException exception) { throw new StorageException("Could not delete land", exception); }
     }
 
@@ -334,6 +340,16 @@ public final class MySqlLandStorage implements LandStorage {
     }
     private static void insertLand(Connection connection, Land land) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(LAND_INSERT)) { bindLand(statement, land); statement.executeUpdate(); }
+    }
+    private static void deleteLandRecords(Connection connection, UUID landId) throws SQLException {
+        String id = landId.toString();
+        for (String table : List.of("land_members", "claims", "admin_lands", "lands")) {
+            String column = table.equals("lands") ? "id" : "land_id";
+            try (PreparedStatement statement = connection.prepareStatement("DELETE FROM " + table + " WHERE " + column + " = ?")) {
+                statement.setString(1, id);
+                statement.executeUpdate();
+            }
+        }
     }
     private static void insertClaim(Connection connection, ClaimedChunk claim) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO claims(world_uuid, chunk_x, chunk_z, land_id) VALUES (?, ?, ?, ?)")) { bindClaim(statement, claim); statement.executeUpdate(); }
