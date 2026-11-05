@@ -34,7 +34,12 @@ public final class LandManagementGui {
 
     public void openMain(Player player) {
         Optional<Land> optionalLand = landManager.ownedBy(player.getUniqueId());
-        if (optionalLand.isEmpty()) { openWelcome(player); return; }
+        if (optionalLand.isEmpty()) {
+            // Membership never blocks a player from creating their own one land.
+            // The welcome screen also exposes every land where they are trusted.
+            openWelcome(player);
+            return;
+        }
         Land land = optionalLand.get();
         LandManagementHolder holder = holder(LandManagementHolder.Screen.MAIN, null, message(player, "gui.management-title", Map.of("name", land.name())), COMPACT_SIZE);
         Inventory inventory = holder.getInventory();
@@ -45,6 +50,38 @@ public final class LandManagementGui {
         inventory.setItem(11, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
         inventory.setItem(15, item(Material.COMPARATOR, message(player, "gui.management-settings"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-settings-hint"))));
         inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        player.openInventory(inventory);
+    }
+
+    /** Read-only land overview for trusted members; ownership controls are deliberately absent. */
+    void openMemberMain(Player player, Land land) {
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.MEMBER_MAIN, null,
+                message(player, "gui.management-title", Map.of("name", land.name())), COMPACT_SIZE);
+        holder.selectedLandId(land.id());
+        Inventory inventory = holder.getInventory();
+        inventory.setItem(4, item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of(
+                message(player, "gui.status-member"),
+                message(player, "gui.management-claimed-chunks", Map.of("count", landManager.claimCount(land.id()))),
+                message(player, "gui.management-owner", Map.of("name", name(land.ownerId())))
+        )));
+        inventory.setItem(13, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
+        inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        player.openInventory(inventory);
+    }
+
+    void openMemberLands(Player player, List<Land> lands) {
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.MEMBER_LANDS, null, message(player, "gui.management-members"), LARGE_SIZE);
+        Inventory inventory = holder.getInventory();
+        int slot = 0;
+        for (Land land : lands) {
+            if (slot >= 45) break;
+            holder.playersBySlot().put(slot, land.id());
+            inventory.setItem(slot++, item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of(
+                    message(player, "gui.management-owner", Map.of("name", name(land.ownerId()))),
+                    message(player, "gui.management-claimed-chunks", Map.of("count", landManager.claimCount(land.id())))
+            )));
+        }
+        inventory.setItem(53, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 
@@ -83,6 +120,11 @@ public final class LandManagementGui {
                 message(player, "gui.welcome-create-details")
         )));
         inventory.setItem(22, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
+        List<Land> memberLands = landManager.memberLands(player.getUniqueId());
+        if (!memberLands.isEmpty()) {
+            inventory.setItem(15, item(Material.WRITABLE_BOOK, message(player, "gui.member-lands"), NamedTextColor.GOLD,
+                    List.of(message(player, "gui.member-lands-hint"))));
+        }
         player.openInventory(inventory);
     }
 

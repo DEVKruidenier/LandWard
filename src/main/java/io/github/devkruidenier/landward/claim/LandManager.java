@@ -241,6 +241,15 @@ public final class LandManager {
                 .toList();
     }
 
+    /** Returns every player land where this UUID is a trusted member, never server-owned safe zones. */
+    public synchronized List<Land> memberLands(UUID playerId) {
+        return landsById.values().stream()
+                .filter(land -> !administrativeLandIds.contains(land.id()))
+                .filter(land -> membersByLand.getOrDefault(land.id(), Map.of()).containsKey(playerId))
+                .sorted(java.util.Comparator.comparing(Land::name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
     /**
      * Transfers a player land to a UUID. The destination may be offline, but
      * can never own a second player land. Existing membership remains intact,

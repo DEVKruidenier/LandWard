@@ -157,6 +157,8 @@ gui:
   management-settings: "設定"
   management-settings-hint: "土地管理を開く"
   management-members: "メンバー"
+  member-lands: "メンバーの土地"
+  member-lands-hint: "メンバーになっている土地を表示"
   management-claimed-chunks: "保護チャンク: {count}"
   management-owner: "所有者: {name}"
   management-add-member: "メンバーを追加"

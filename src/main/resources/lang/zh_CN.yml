@@ -157,6 +157,8 @@ gui:
   management-settings: "设置"
   management-settings-hint: "打开领地管理"
   management-members: "成员"
+  member-lands: "成员领地"
+  member-lands-hint: "查看您作为成员加入的领地"
   management-claimed-chunks: "已认领区块：{count}"
   management-owner: "所有者：{name}"
   management-add-member: "添加成员"

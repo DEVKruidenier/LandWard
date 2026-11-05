@@ -32,6 +32,22 @@ public final class LandManagementListener implements Listener {
         if (holder.screen() == LandManagementHolder.Screen.WELCOME) {
             if (slot == 13) renameListener.beginCreate(player);
             else if (slot == 22) new LandMapGui(plugin, landManager).open(player);
+            else if (slot == 15) {
+                var memberLands = landManager.memberLands(player.getUniqueId());
+                if (memberLands.size() == 1) gui.openMemberMain(player, memberLands.getFirst());
+                else if (!memberLands.isEmpty()) gui.openMemberLands(player, memberLands);
+            }
+            return;
+        }
+        if (holder.screen() == LandManagementHolder.Screen.MEMBER_MAIN) {
+            if (slot == 13) new LandMapGui(plugin, landManager).open(player);
+            else if (slot == 26) player.closeInventory();
+            return;
+        }
+        if (holder.screen() == LandManagementHolder.Screen.MEMBER_LANDS) {
+            if (slot == 53) { player.closeInventory(); return; }
+            UUID landId = holder.playersBySlot().get(slot);
+            if (landId != null) landManager.land(landId).ifPresent(land -> gui.openMemberMain(player, land));
             return;
         }
         if (holder.screen() == LandManagementHolder.Screen.MAIN) { if (slot == 11) new LandMapGui(plugin, landManager).open(player); else if (slot == 15) gui.openSettings(player); else if (slot == 26) player.closeInventory(); return; }

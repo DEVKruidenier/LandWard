@@ -157,6 +157,8 @@ gui:
   management-settings: "Instellingen"
   management-settings-hint: "Open het landbeheer"
   management-members: "Leden"
+  member-lands: "Lidlanden"
+  member-lands-hint: "Bekijk landen waarvan je lid bent"
   management-claimed-chunks: "Geclaimde chunks: {count}"
   management-owner: "Eigenaar: {name}"
   management-add-member: "Lid toevoegen"

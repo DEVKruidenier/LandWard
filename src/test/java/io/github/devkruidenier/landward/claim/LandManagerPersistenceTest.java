@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -87,6 +88,7 @@ class LandManagerPersistenceTest {
         reloaded.load();
         assertEquals(1, reloaded.members(created.land().id()).size());
         assertTrue(!reloaded.permissions(member, created.land().id()).containers());
+        assertEquals(List.of(created.land().id()), reloaded.memberLands(member).stream().map(land -> land.id()).toList());
     }
 
     @Test

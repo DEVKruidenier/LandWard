@@ -157,6 +157,8 @@ gui:
   management-settings: "Einstellungen"
   management-settings-hint: "Landverwaltung öffnen"
   management-members: "Mitglieder"
+  member-lands: "Mitgliedsländer"
+  member-lands-hint: "Länder anzeigen, in denen du Mitglied bist"
   management-claimed-chunks: "Beanspruchte Chunks: {count}"
   management-owner: "Besitzer: {name}"
   management-add-member: "Mitglied hinzufügen"

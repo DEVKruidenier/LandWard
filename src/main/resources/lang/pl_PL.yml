@@ -157,6 +157,8 @@ gui:
   management-settings: "Ustawienia"
   management-settings-hint: "Otwórz zarządzanie działką"
   management-members: "Członkowie"
+  member-lands: "Tereny członkowskie"
+  member-lands-hint: "Zobacz tereny, których jesteś członkiem"
   management-claimed-chunks: "Zajęte chunki: {count}"
   management-owner: "Właściciel: {name}"
   management-add-member: "Dodaj członka"

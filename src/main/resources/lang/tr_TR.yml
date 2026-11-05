@@ -157,6 +157,8 @@ gui:
   management-settings: "Ayarlar"
   management-settings-hint: "Arazi yönetimini aç"
   management-members: "Üyeler"
+  member-lands: "Üye arazileri"
+  member-lands-hint: "Üyesi olduğunuz arazileri görüntüleyin"
   management-claimed-chunks: "Claimlenmiş chunklar: {count}"
   management-owner: "Sahip: {name}"
   management-add-member: "Üye ekle"

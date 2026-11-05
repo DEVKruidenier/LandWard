@@ -157,6 +157,8 @@ gui:
   management-settings: "Configurações"
   management-settings-hint: "Abrir gerenciamento do terreno"
   management-members: "Membros"
+  member-lands: "Terrenos de membro"
+  member-lands-hint: "Veja os terrenos dos quais você é membro"
   management-claimed-chunks: "Chunks reivindicados: {count}"
   management-owner: "Dono: {name}"
   management-add-member: "Adicionar membro"

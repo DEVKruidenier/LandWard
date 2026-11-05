@@ -157,6 +157,8 @@ gui:
   management-settings: "Настройки"
   management-settings-hint: "Открыть управление территорией"
   management-members: "Участники"
+  member-lands: "Земли участника"
+  member-lands-hint: "Посмотреть земли, участником которых вы являетесь"
   management-claimed-chunks: "Приватизированные чанки: {count}"
   management-owner: "Владелец: {name}"
   management-add-member: "Добавить участника"

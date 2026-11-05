@@ -157,6 +157,8 @@ gui:
   management-settings: "Settings"
   management-settings-hint: "Open land management"
   management-members: "Members"
+  member-lands: "Member lands"
+  member-lands-hint: "View lands where you are a member"
   management-claimed-chunks: "Claimed chunks: {count}"
   management-owner: "Owner: {name}"
   management-add-member: "Add member"
