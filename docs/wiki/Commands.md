@@ -8,6 +8,8 @@ All player commands begin with `/claim`.
 | `/claim help` | Show command help. |
 | `/claim info` | Show the installed LandWard version and author. |
 | `/claim menu` | Open the land-management GUI. |
+| `/claim adminbypass` | Toggle the temporary protection bypass. Requires `landward.bypass`; it resets when the player leaves. |
+| `/claim update` | Stage a checksum-verified official GitHub Release JAR for manual installation. Requires `landward.admin`. |
 | `/claimadmin` | Open administration: separate player-claim moderation, admin claims and active-world controls. Requires `landward.admin`. |
 | `/claimadmin reload` | Reload config, language files and map layers. Requires `landward.admin`. |
 | `/claimadmin migrate <sqlite\|mysql> confirm` | Console-only migration to an empty configured target backend. Requires no online players; creates and verifies a full backup before changing `storage.type` for the next restart. |

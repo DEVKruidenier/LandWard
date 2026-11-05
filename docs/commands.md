@@ -8,8 +8,11 @@ LandWard is GUI-first: players normally only need /claim.
 | /claim info | Shows the installed LandWard version and author. |
 | /claim menu | Opens the same land management GUI explicitly. |
 | /claim help | Shows the compact command reference. |
+| /claim adminbypass | Toggles the temporary protection bypass; requires landward.bypass and resets on logout. |
+| /claim update | Stages a verified GitHub Release JAR for a manual server-stopped replacement; requires landward.admin. |
 | /claimadmin | Opens administration: separate player-claim moderation, admin claims and active-world controls; requires landward.admin. |
 | /claimadmin reload | Reloads config, language files and map layers; requires landward.admin. |
+| /claimadmin migrate <sqlite\|mysql> confirm | Console-only migration to an empty configured backend; requires no online players. |
 
 ## In-game flow
 
@@ -30,3 +33,7 @@ The **Admin claims** card is reserved for server-owned protected areas such as s
 
 The admin reload does not replace the active storage backend. Change `storage.type`
 or its database connection settings only while the server is stopped.
+
+`/claim update` never replaces the JAR that Paper currently has loaded. It only
+stages an official checksum-verified release JAR in `plugins/LandWard/updates/`.
+Stop the server and replace the JAR manually after reviewing the staged file.
