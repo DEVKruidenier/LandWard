@@ -12,6 +12,9 @@ territory:
   left: "{name} adlı araziden ayrıldınız ve sahipsiz araziye girdiniz."
 command:
   info-author: "Yapımcı: DEVKruidenier"
+  info-latest: "Güncel"
+  info-outdated: "Güncel değil: {version}"
+  info-checking: "Güncellemeler kontrol ediliyor"
   header: "LandWard {version}"
   description: "Hayatta kalma sunucuları için basit chunk claimleri ve güvenilir koruma."
   help: "/claim help - Bu yardımı gösterir."

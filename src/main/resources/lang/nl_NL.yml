@@ -12,6 +12,9 @@ territory:
   left: "Je verlaat {name} en betreedt onbeschermd gebied."
 command:
   info-author: "Maker: DEVKruidenier"
+  info-latest: "Actueel"
+  info-outdated: "Verouderd: {version}"
+  info-checking: "Updates controleren"
   header: "━━ LandWard {version} ━━"
   description: "§7Claims beheren is eenvoudig: maak een land en gebruik de kaart."
   help: "§eOverzicht"

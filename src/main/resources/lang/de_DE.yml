@@ -12,6 +12,9 @@ territory:
   left: "Du verlässt {name} und betrittst unbeanspruchtes Gebiet."
 command:
   info-author: "Ersteller: DEVKruidenier"
+  info-latest: "Aktuell"
+  info-outdated: "Veraltet: {version}"
+  info-checking: "Suche nach Updates"
   header: "LandWard {version}"
   description: "Einfache Chunk-Claims und zuverlässiger Schutz für Survival-Server."
   help: "/claim help - Zeigt diese Hilfe an."

@@ -12,6 +12,9 @@ territory:
   left: "You left {name} and entered unclaimed land."
 command:
   info-author: "Author: DEVKruidenier"
+  info-latest: "Latest"
+  info-outdated: "Outdated: {version}"
+  info-checking: "Checking updates"
   header: "LandWard {version}"
   description: "Simple chunk claims and reliable protection for survival servers."
   help: "/claim help - Shows this help."

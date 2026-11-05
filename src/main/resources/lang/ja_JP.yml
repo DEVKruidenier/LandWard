@@ -12,6 +12,9 @@ territory:
   left: "{name} を出て、未保護の土地に入りました。"
 command:
   info-author: "制作者: DEVKruidenier"
+  info-latest: "最新"
+  info-outdated: "古いバージョン: {version}"
+  info-checking: "更新を確認中"
   header: "LandWard {version}"
   description: "サバイバルサーバー向けのシンプルなチャンク保護と信頼できる保護機能。"
   help: "/claim help - このヘルプを表示します。"

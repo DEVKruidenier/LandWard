@@ -12,6 +12,9 @@ territory:
   left: "Вы покинули {name} и вошли на незанятую территорию."
 command:
   info-author: "Создатель: DEVKruidenier"
+  info-latest: "Актуальная"
+  info-outdated: "Устарела: {version}"
+  info-checking: "Проверка обновлений"
   header: "LandWard {version}"
   description: "Простые приваты чанков и надёжная защита для survival-серверов."
   help: "/claim help - Показывает эту справку."

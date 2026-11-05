@@ -12,11 +12,13 @@ import io.github.devkruidenier.landward.economy.ExperiencePayments;
 import io.github.devkruidenier.landward.economy.VaultPayments;
 import io.github.devkruidenier.landward.integration.WorldGuardIntegration;
 import io.github.devkruidenier.landward.integration.VanillaSpawnProtectionIntegration;
+import io.github.devkruidenier.landward.update.UpdateChecker;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -271,7 +273,10 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean info(Player player) {
-        player.sendMessage(message(player, "command.header", Map.of("version", plugin.getPluginMeta().getVersion())));
+        Component header = LegacyComponentSerializer.legacySection().deserialize(
+                message(player, "command.header", Map.of("version", plugin.getPluginMeta().getVersion()))
+        ).append(updateStatus(player));
+        player.sendMessage(header);
         String authorLine = plugin.localeService().message(plugin.localeService().localeFor(player), "command.info-author");
         String authorLabel = authorLine.substring(0, authorLine.lastIndexOf("DEVKruidenier"));
         player.sendMessage(Component.text("LandWard ", NamedTextColor.GOLD, TextDecoration.BOLD)
@@ -282,6 +287,19 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                         .hoverEvent(HoverEvent.showText(Component.text("Open github.com/DEVKruidenier", NamedTextColor.GRAY)))
                         .decoration(TextDecoration.UNDERLINED, true)));
         return true;
+    }
+
+    private Component updateStatus(Player player) {
+        UpdateChecker.UpdateStatus status = plugin.updateChecker().status();
+        String locale = plugin.localeService().localeFor(player);
+        return switch (status.state()) {
+            case LATEST -> Component.text(" (" + plugin.localeService().message(locale, "command.info-latest") + ")", NamedTextColor.GREEN);
+            case OUTDATED -> Component.text(" (" + plugin.localeService().message(locale, "command.info-outdated", Map.of("version", status.latestVersion())) + ")", NamedTextColor.RED)
+                    .clickEvent(ClickEvent.openUrl("https://github.com/DEVKruidenier/LandWard/releases"))
+                    .hoverEvent(HoverEvent.showText(Component.text("Open releases", NamedTextColor.GRAY)));
+            case CHECKING -> Component.text(" (" + plugin.localeService().message(locale, "command.info-checking") + ")", NamedTextColor.YELLOW);
+            case UNAVAILABLE, DISABLED -> Component.empty();
+        };
     }
 
     private boolean list(Player player) {

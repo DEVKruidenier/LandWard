@@ -22,6 +22,13 @@ public final class UpdateChecker {
 
     private final LandWardPlugin plugin;
     private final HttpClient client;
+    private volatile UpdateStatus status = UpdateStatus.checking();
+
+    public enum State { CHECKING, LATEST, OUTDATED, UNAVAILABLE, DISABLED }
+
+    public record UpdateStatus(State state, String latestVersion) {
+        static UpdateStatus checking() { return new UpdateStatus(State.CHECKING, null); }
+    }
 
     public UpdateChecker(LandWardPlugin plugin) {
         this.plugin = plugin;
@@ -32,8 +39,10 @@ public final class UpdateChecker {
 
     public void check() {
         if (!plugin.getConfig().getBoolean("updates.enabled", true)) {
+            status = new UpdateStatus(State.DISABLED, null);
             return;
         }
+        status = UpdateStatus.checking();
 
         String currentVersion = plugin.getPluginMeta().getVersion();
         HttpRequest request = HttpRequest.newBuilder(LATEST_RELEASE)
@@ -46,6 +55,7 @@ public final class UpdateChecker {
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .whenComplete((response, error) -> {
                     if (error != null) {
+                        status = new UpdateStatus(State.UNAVAILABLE, null);
                         log("updates.failed", Map.of("reason", readableError(error)));
                         return;
                     }
@@ -55,22 +65,26 @@ public final class UpdateChecker {
 
     private void handleResponse(HttpResponse<String> response, String currentVersion) {
         if (response.statusCode() == 404) {
+            status = new UpdateStatus(State.UNAVAILABLE, null);
             log("updates.no-release", Map.of());
             return;
         }
         if (response.statusCode() != 200) {
+            status = new UpdateStatus(State.UNAVAILABLE, null);
             log("updates.failed-status", Map.of("status", response.statusCode()));
             return;
         }
 
         Matcher matcher = TAG_PATTERN.matcher(response.body());
         if (!matcher.find()) {
+            status = new UpdateStatus(State.UNAVAILABLE, null);
             log("updates.failed", Map.of("reason", "invalid GitHub response"));
             return;
         }
 
         String latestVersion = matcher.group(1);
         if (VersionComparator.isNewer(latestVersion, currentVersion)) {
+            status = new UpdateStatus(State.OUTDATED, latestVersion);
             log("updates.available", Map.of(
                     "latest", latestVersion,
                     "current", currentVersion,
@@ -79,7 +93,12 @@ public final class UpdateChecker {
             return;
         }
 
+        status = new UpdateStatus(State.LATEST, latestVersion);
         log("updates.up-to-date", Map.of("version", currentVersion));
+    }
+
+    public UpdateStatus status() {
+        return status;
     }
 
     private void log(String key, Map<String, ?> placeholders) {

@@ -12,6 +12,9 @@ territory:
   left: "Vous quittez {name} et entrez dans une zone non revendiquée."
 command:
   info-author: "Créateur : DEVKruidenier"
+  info-latest: "À jour"
+  info-outdated: "Obsolète : {version}"
+  info-checking: "Recherche des mises à jour"
   header: "LandWard {version}"
   description: "Des claims de chunks simples et une protection fiable pour les serveurs survie."
   help: "/claim help - Affiche cette aide."

@@ -53,6 +53,7 @@ public final class LandWardPlugin extends JavaPlugin {
     private Pl3xMapIntegration pl3xMapIntegration;
     private CombatTagService combatTags;
     private AdminBypassService adminBypasses;
+    private UpdateChecker updateChecker;
 
     @Override
     public void onEnable() {
@@ -125,7 +126,8 @@ public final class LandWardPlugin extends JavaPlugin {
         new StartupReporter(this).log(landManager.totalClaimCount());
         console.ready(localeService.console("plugin.enabled"));
 
-        new UpdateChecker(this).check();
+        this.updateChecker = new UpdateChecker(this);
+        updateChecker.check();
     }
 
     @Override
@@ -170,6 +172,10 @@ public final class LandWardPlugin extends JavaPlugin {
 
     public AdminBypassService adminBypasses() {
         return adminBypasses;
+    }
+
+    public UpdateChecker updateChecker() {
+        return updateChecker;
     }
 
     public void syncMapIntegrations() {
