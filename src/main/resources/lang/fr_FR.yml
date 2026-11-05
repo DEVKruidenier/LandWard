@@ -12,6 +12,8 @@ territory:
   left: "Vous quittez {name} et entrez dans une zone non revendiquée."
 command:
   info-author: "Créateur : DEVKruidenier"
+  info-author-hover: "Ouvrir github.com/DEVKruidenier"
+  info-releases-hover: "Ouvrir les publications"
   info-latest: "À jour"
   info-outdated: "Obsolète : {version}"
   info-checking: "Recherche des mises à jour"

@@ -12,6 +12,8 @@ territory:
   left: "Has salido de {name} y entrado en terreno sin reclamar."
 command:
   info-author: "Autor: DEVKruidenier"
+  info-author-hover: "Abrir github.com/DEVKruidenier"
+  info-releases-hover: "Abrir versiones"
   info-latest: "Actualizado"
   info-outdated: "Desactualizado: {version}"
   info-checking: "Buscando actualizaciones"

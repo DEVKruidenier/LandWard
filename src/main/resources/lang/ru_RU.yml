@@ -12,6 +12,8 @@ territory:
   left: "Вы покинули {name} и вошли на незанятую территорию."
 command:
   info-author: "Создатель: DEVKruidenier"
+  info-author-hover: "Открыть github.com/DEVKruidenier"
+  info-releases-hover: "Открыть релизы"
   info-latest: "Актуальная"
   info-outdated: "Устарела: {version}"
   info-checking: "Проверка обновлений"

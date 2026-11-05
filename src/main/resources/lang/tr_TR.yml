@@ -12,6 +12,8 @@ territory:
   left: "{name} adlı araziden ayrıldınız ve sahipsiz araziye girdiniz."
 command:
   info-author: "Yapımcı: DEVKruidenier"
+  info-author-hover: "github.com/DEVKruidenier adresini aç"
+  info-releases-hover: "Sürümleri aç"
   info-latest: "Güncel"
   info-outdated: "Güncel değil: {version}"
   info-checking: "Güncellemeler kontrol ediliyor"

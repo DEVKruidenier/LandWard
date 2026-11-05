@@ -12,6 +12,8 @@ territory:
   left: "你离开了 {name}，进入了未认领区域。"
 command:
   info-author: "作者: DEVKruidenier"
+  info-author-hover: "打开 github.com/DEVKruidenier"
+  info-releases-hover: "打开发布页面"
   info-latest: "最新"
   info-outdated: "过期：{version}"
   info-checking: "正在检查更新"

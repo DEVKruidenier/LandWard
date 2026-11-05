@@ -12,6 +12,8 @@ territory:
   left: "{name} を出て、未保護の土地に入りました。"
 command:
   info-author: "制作者: DEVKruidenier"
+  info-author-hover: "github.com/DEVKruidenier を開く"
+  info-releases-hover: "リリースを開く"
   info-latest: "最新"
   info-outdated: "古いバージョン: {version}"
   info-checking: "更新を確認中"

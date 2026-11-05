@@ -12,6 +12,8 @@ territory:
   left: "{name}을(를) 떠나 보호되지 않은 땅에 들어왔습니다."
 command:
   info-author: "제작자: DEVKruidenier"
+  info-author-hover: "github.com/DEVKruidenier 열기"
+  info-releases-hover: "릴리스 열기"
   info-latest: "최신"
   info-outdated: "구버전: {version}"
   info-checking: "업데이트 확인 중"

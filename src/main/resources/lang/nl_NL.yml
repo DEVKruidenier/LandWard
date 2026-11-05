@@ -12,6 +12,8 @@ territory:
   left: "Je verlaat {name} en betreedt onbeschermd gebied."
 command:
   info-author: "Maker: DEVKruidenier"
+  info-author-hover: "Open github.com/DEVKruidenier"
+  info-releases-hover: "Open releases"
   info-latest: "Actueel"
   info-outdated: "Verouderd: {version}"
   info-checking: "Updates controleren"

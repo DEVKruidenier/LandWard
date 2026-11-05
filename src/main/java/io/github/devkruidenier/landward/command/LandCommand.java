@@ -309,7 +309,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 .append(Component.text(authorLabel, NamedTextColor.WHITE))
                 .append(Component.text("DEVKruidenier", NamedTextColor.AQUA)
                         .clickEvent(ClickEvent.openUrl("https://github.com/DEVKruidenier"))
-                        .hoverEvent(HoverEvent.showText(Component.text("Open github.com/DEVKruidenier", NamedTextColor.GRAY)))
+                        .hoverEvent(HoverEvent.showText(Component.text(plugin.localeService().message(plugin.localeService().localeFor(player), "command.info-author-hover"), NamedTextColor.GRAY)))
                         .decoration(TextDecoration.UNDERLINED, true)));
         return true;
     }
@@ -334,7 +334,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                     .hoverEvent(HoverEvent.showText(Component.text(plugin.localeService().message(locale, "updates.stage-info-click"), NamedTextColor.GRAY)));
         }
         return component.clickEvent(ClickEvent.openUrl("https://github.com/DEVKruidenier/LandWard/releases"))
-                .hoverEvent(HoverEvent.showText(Component.text("Open releases", NamedTextColor.GRAY)));
+                .hoverEvent(HoverEvent.showText(Component.text(plugin.localeService().message(locale, "command.info-releases-hover"), NamedTextColor.GRAY)));
     }
 
     private boolean list(Player player) {
