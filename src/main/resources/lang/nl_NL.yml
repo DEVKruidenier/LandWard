@@ -73,6 +73,12 @@ admin-bypass:
 combat:
   claim-abandon-blocked: "Je kunt geen chunks vrijgeven terwijl je in gevecht bent."
 admin:
+  storage-usage: "Gebruik: /claimadmin storage status <sqlite|mysql> OF /claimadmin storage clear <sqlite|mysql> confirm"
+  storage-status: "LandWard {type}: {lands} landen, {claims} claims, {members} leden."
+  storage-status-empty: "LandWard {type}: geen landen, claims of leden gevonden."
+  storage-already-empty: "De doelopslag van LandWard is al leeg."
+  storage-cleared: "De doelopslag van LandWard is gewist na een geverifieerde back-up: {backup}"
+  storage-failed: "Onderhoud van de LandWard-opslag is mislukt. Controleer de console."
   claim-no-teleport: "LandWard kon geen geladen wereld voor deze claim vinden."
   owner-changed: "De landeigenaar is gewijzigd naar {player}."
   owner-unchanged: "{player} is al de eigenaar van dit land."

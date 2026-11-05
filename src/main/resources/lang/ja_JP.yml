@@ -73,6 +73,12 @@ admin-bypass:
 combat:
   claim-abandon-blocked: "戦闘中はチャンクを放棄できません。"
 admin:
+  storage-usage: "使用法: /claimadmin storage status <sqlite|mysql> または /claimadmin storage clear <sqlite|mysql> confirm"
+  storage-status: "LandWard {type}: 土地 {lands}、クレーム {claims}、メンバー {members}。"
+  storage-status-empty: "LandWard {type}: 土地、クレーム、メンバーは見つかりませんでした。"
+  storage-already-empty: "LandWard の対象ストレージはすでに空です。"
+  storage-cleared: "検証済みバックアップ後に LandWard の対象ストレージを消去しました: {backup}"
+  storage-failed: "LandWard ストレージのメンテナンスに失敗しました。コンソールを確認してください。"
   claim-no-teleport: "LandWard はこの保護地の読み込み済みワールドを見つけられませんでした。"
   owner-changed: "土地の所有者を {player} に変更しました。"
   owner-unchanged: "{player} はすでにこの土地の所有者です。"

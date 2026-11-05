@@ -73,6 +73,12 @@ admin-bypass:
 combat:
   claim-abandon-blocked: "You cannot unclaim land while you are in combat."
 admin:
+  storage-usage: "Usage: /claimadmin storage status <sqlite|mysql> OR /claimadmin storage clear <sqlite|mysql> confirm"
+  storage-status: "LandWard {type}: {lands} lands, {claims} claims, {members} members."
+  storage-status-empty: "LandWard {type}: no lands, claims or members found."
+  storage-already-empty: "LandWard target storage is already empty."
+  storage-cleared: "LandWard target storage cleared after verified backup: {backup}"
+  storage-failed: "LandWard storage maintenance failed. Check the console."
   claim-no-teleport: "LandWard could not find a loaded world for this claim."
   owner-changed: "The land owner has been changed to {player}."
   owner-unchanged: "{player} already owns this land."

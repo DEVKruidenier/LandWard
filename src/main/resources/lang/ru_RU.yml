@@ -73,6 +73,12 @@ admin-bypass:
 combat:
   claim-abandon-blocked: "Нельзя освобождать чанки во время боя."
 admin:
+  storage-usage: "Использование: /claimadmin storage status <sqlite|mysql> ИЛИ /claimadmin storage clear <sqlite|mysql> confirm"
+  storage-status: "LandWard {type}: земель {lands}, приватов {claims}, участников {members}."
+  storage-status-empty: "LandWard {type}: земли, приваты и участники не найдены."
+  storage-already-empty: "Целевое хранилище LandWard уже пусто."
+  storage-cleared: "Целевое хранилище LandWard очищено после проверенной резервной копии: {backup}"
+  storage-failed: "Обслуживание хранилища LandWard не удалось. Проверьте консоль."
   claim-no-teleport: "LandWard не нашёл загруженный мир для этого привата."
   owner-changed: "Владелец территории изменён на {player}."
   owner-unchanged: "{player} уже владеет этой территорией."

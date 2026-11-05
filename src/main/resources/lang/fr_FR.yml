@@ -73,6 +73,12 @@ admin-bypass:
 combat:
   claim-abandon-blocked: "Vous ne pouvez pas libérer de chunk pendant un combat."
 admin:
+  storage-usage: "Utilisation : /claimadmin storage status <sqlite|mysql> OU /claimadmin storage clear <sqlite|mysql> confirm"
+  storage-status: "LandWard {type} : {lands} terrains, {claims} claims, {members} membres."
+  storage-status-empty: "LandWard {type} : aucun terrain, claim ou membre trouvé."
+  storage-already-empty: "Le stockage cible de LandWard est déjà vide."
+  storage-cleared: "Stockage cible LandWard vidé après sauvegarde vérifiée : {backup}"
+  storage-failed: "La maintenance du stockage LandWard a échoué. Vérifiez la console."
   claim-no-teleport: "LandWard n'a pas trouvé de monde chargé pour cette claim."
   owner-changed: "Le propriétaire du terrain est maintenant {player}."
   owner-unchanged: "{player} est déjà propriétaire de ce terrain."

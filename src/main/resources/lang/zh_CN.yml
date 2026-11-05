@@ -73,6 +73,12 @@ admin-bypass:
 combat:
   claim-abandon-blocked: "战斗中无法放弃区块。"
 admin:
+  storage-usage: "用法：/claimadmin storage status <sqlite|mysql> 或 /claimadmin storage clear <sqlite|mysql> confirm"
+  storage-status: "LandWard {type}：{lands} 个领地，{claims} 个区块，{members} 名成员。"
+  storage-status-empty: "LandWard {type}：未找到领地、区块或成员。"
+  storage-already-empty: "LandWard 目标存储已为空。"
+  storage-cleared: "LandWard 目标存储已在验证备份后清空：{backup}"
+  storage-failed: "LandWard 存储维护失败。请检查控制台。"
   claim-no-teleport: "LandWard 未找到此领地已加载的世界。"
   owner-changed: "领地主人已更改为 {player}。"
   owner-unchanged: "{player} 已是此领地的主人。"

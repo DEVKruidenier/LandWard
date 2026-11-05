@@ -73,6 +73,12 @@ admin-bypass:
 combat:
   claim-abandon-blocked: "Você não pode liberar chunks enquanto estiver em combate."
 admin:
+  storage-usage: "Uso: /claimadmin storage status <sqlite|mysql> OU /claimadmin storage clear <sqlite|mysql> confirm"
+  storage-status: "LandWard {type}: {lands} terras, {claims} claims, {members} membros."
+  storage-status-empty: "LandWard {type}: nenhum terreno, claim ou membro encontrado."
+  storage-already-empty: "O armazenamento de destino do LandWard já está vazio."
+  storage-cleared: "Armazenamento de destino do LandWard limpo após backup verificado: {backup}"
+  storage-failed: "A manutenção do armazenamento LandWard falhou. Verifique o console."
   claim-no-teleport: "LandWard não encontrou um mundo carregado para esta claim."
   owner-changed: "O proprietário do terreno foi alterado para {player}."
   owner-unchanged: "{player} já possui este terreno."

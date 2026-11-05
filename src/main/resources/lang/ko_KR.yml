@@ -73,6 +73,12 @@ admin-bypass:
 combat:
   claim-abandon-blocked: "전투 중에는 청크를 포기할 수 없습니다."
 admin:
+  storage-usage: "사용법: /claimadmin storage status <sqlite|mysql> 또는 /claimadmin storage clear <sqlite|mysql> confirm"
+  storage-status: "LandWard {type}: 토지 {lands}개, 클레임 {claims}개, 구성원 {members}명."
+  storage-status-empty: "LandWard {type}: 토지, 클레임 또는 구성원을 찾을 수 없습니다."
+  storage-already-empty: "LandWard 대상 저장소가 이미 비어 있습니다."
+  storage-cleared: "검증된 백업 후 LandWard 대상 저장소를 비웠습니다: {backup}"
+  storage-failed: "LandWard 저장소 유지 관리에 실패했습니다. 콘솔을 확인하세요."
   claim-no-teleport: "LandWard가 이 영지의 로드된 월드를 찾지 못했습니다."
   owner-changed: "토지 소유자가 {player}(으)로 변경되었습니다."
   owner-unchanged: "{player}은(는) 이미 이 토지의 소유자입니다."

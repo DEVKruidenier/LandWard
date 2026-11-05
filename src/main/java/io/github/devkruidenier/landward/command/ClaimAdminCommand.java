@@ -58,6 +58,9 @@ public final class ClaimAdminCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) return List.of("reload", "migrate", "storage").stream().filter(value -> value.startsWith(args[0].toLowerCase(java.util.Locale.ROOT))).toList();
         if (args.length == 2 && args[0].equalsIgnoreCase("migrate")) return List.of("sqlite", "mysql").stream().filter(value -> value.startsWith(args[1].toLowerCase(java.util.Locale.ROOT))).toList();
         if (args.length == 3 && args[0].equalsIgnoreCase("migrate") && "confirm".startsWith(args[2].toLowerCase(java.util.Locale.ROOT))) return List.of("confirm");
+        if (args.length == 2 && args[0].equalsIgnoreCase("storage")) return List.of("status", "clear").stream().filter(value -> value.startsWith(args[1].toLowerCase(java.util.Locale.ROOT))).toList();
+        if (args.length == 3 && args[0].equalsIgnoreCase("storage")) return List.of("sqlite", "mysql").stream().filter(value -> value.startsWith(args[2].toLowerCase(java.util.Locale.ROOT))).toList();
+        if (args.length == 4 && args[0].equalsIgnoreCase("storage") && args[1].equalsIgnoreCase("clear") && "confirm".startsWith(args[3].toLowerCase(java.util.Locale.ROOT))) return List.of("confirm");
         return List.of();
     }
 
@@ -69,7 +72,7 @@ public final class ClaimAdminCommand implements CommandExecutor, TabCompleter {
         if (args.length < 3 || !(args[1].equalsIgnoreCase("status") || args[1].equalsIgnoreCase("clear"))
                 || !(args[2].equalsIgnoreCase("sqlite") || args[2].equalsIgnoreCase("mysql"))
                 || (args[1].equalsIgnoreCase("clear") && (args.length != 4 || !args[3].equalsIgnoreCase("confirm")))) {
-            sender.sendMessage("Usage: /claimadmin storage status <sqlite|mysql> OR /claimadmin storage clear <sqlite|mysql> confirm");
+            sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "admin.storage-usage"));
             return;
         }
         LandStorage target = null;
@@ -78,14 +81,21 @@ public final class ClaimAdminCommand implements CommandExecutor, TabCompleter {
             StorageMigrationService service = new StorageMigrationService(plugin.getDataFolder().toPath().resolve("migration-backups"));
             if (args[1].equalsIgnoreCase("status")) {
                 var status = service.inspect(target);
-                sender.sendMessage("LandWard " + status.type() + ": " + status.lands() + " lands, " + status.claims() + " claims, " + status.members() + " members" + (status.empty() ? " (empty)." : "."));
+                sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender),
+                        status.empty() ? "admin.storage-status-empty" : "admin.storage-status",
+                        java.util.Map.of("type", status.type(), "lands", status.lands(), "claims", status.claims(), "members", status.members())));
             } else {
                 var result = service.clear(target);
-                sender.sendMessage(result.alreadyEmpty() ? "LandWard target storage is already empty." : "LandWard target cleared after verified backup: " + result.backup().getFileName());
+                if (result.alreadyEmpty()) {
+                    sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "admin.storage-already-empty"));
+                } else {
+                    sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "admin.storage-cleared",
+                            java.util.Map.of("backup", result.backup().getFileName())));
+                }
             }
         } catch (StorageException | IllegalArgumentException exception) {
             plugin.getLogger().warning("Storage maintenance failed: " + exception.getMessage());
-            sender.sendMessage("LandWard storage maintenance failed. Check the console.");
+            sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "admin.storage-failed"));
         } finally {
             if (target != null) try { target.close(); } catch (StorageException ignored) { }
         }

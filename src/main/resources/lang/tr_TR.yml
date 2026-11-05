@@ -73,6 +73,12 @@ admin-bypass:
 combat:
   claim-abandon-blocked: "Savaş halindeyken chunk bırakamazsınız."
 admin:
+  storage-usage: "Kullanım: /claimadmin storage status <sqlite|mysql> VEYA /claimadmin storage clear <sqlite|mysql> confirm"
+  storage-status: "LandWard {type}: {lands} arazi, {claims} claim, {members} üye."
+  storage-status-empty: "LandWard {type}: arazi, claim veya üye bulunamadı."
+  storage-already-empty: "LandWard hedef deposu zaten boş."
+  storage-cleared: "LandWard hedef deposu doğrulanmış yedekten sonra temizlendi: {backup}"
+  storage-failed: "LandWard depo bakımı başarısız oldu. Konsolu kontrol edin."
   claim-no-teleport: "LandWard bu claim için yüklü bir dünya bulamadı."
   owner-changed: "Arazi sahibi {player} olarak değiştirildi."
   owner-unchanged: "{player} zaten bu arazinin sahibi."
