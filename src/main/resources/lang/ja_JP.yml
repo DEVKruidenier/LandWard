@@ -11,12 +11,6 @@ territory:
   entered: "{name} の保護された土地に入りました。"
   left: "{name} を出て、未保護の土地に入りました。"
 command:
-  info-author: "制作者: DEVKruidenier"
-  info-author-hover: "github.com/DEVKruidenier を開く"
-  info-releases-hover: "リリースを開く"
-  info-latest: "最新"
-  info-outdated: "古いバージョン: {version}"
-  info-checking: "更新を確認中"
   header: "LandWard {version}"
   description: "サバイバルサーバー向けのシンプルなチャンク保護と信頼できる保護機能。"
   help: "/claim help - このヘルプを表示します。"
@@ -72,7 +66,7 @@ claim:
   paid-money: "このチャンクに {cost} を支払いました。"
 protection:
   denied: "このエリアは {name} によって保護されています。"
-  denied-bypass: "このエリアは {name} によって保護されています。/claim bypass で一時的に保護を回避できます。"
+  denied-bypass: "{name} により保護されています。/claim bypass を使用。"
 admin-bypass:
   enabled: "管理者バイパスを有効にしました。無効化するかサーバーから退出するまで、クレーム保護をバイパスします。"
   disabled: "管理者バイパスを無効にしました。クレーム保護が再び有効です。"
@@ -176,6 +170,7 @@ gui:
   management-build: "建築"
   management-containers: "コンテナ"
   management-entities: "エンティティ"
+  management-entity-interactions: "エンティティとの操作"
   management-allowed: "許可"
   management-denied: "拒否"
   management-toggle: "クリックして切り替え"
@@ -204,3 +199,4 @@ updates:
   available: "更新があります: {latest}（インストール済み: {current}）。ダウンロード: {url}"
   failed: "更新確認に失敗しました: {reason}。"
   failed-status: "更新確認に失敗しました: GitHub は HTTP {status} を返しました。"
+

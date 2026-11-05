@@ -11,12 +11,6 @@ territory:
   entered: "Вы вошли на территорию {name}."
   left: "Вы покинули {name} и вошли на незанятую территорию."
 command:
-  info-author: "Создатель: DEVKruidenier"
-  info-author-hover: "Открыть github.com/DEVKruidenier"
-  info-releases-hover: "Открыть релизы"
-  info-latest: "Актуальная"
-  info-outdated: "Устарела: {version}"
-  info-checking: "Проверка обновлений"
   header: "LandWard {version}"
   description: "Простые приваты чанков и надёжная защита для survival-серверов."
   help: "/claim help - Показывает эту справку."
@@ -72,7 +66,7 @@ claim:
   paid-money: "Вы заплатили {cost} за этот чанк."
 protection:
   denied: "Эта область защищена территорией {name}."
-  denied-bypass: "Эта область защищена территорией {name}. Используйте /claim bypass, чтобы временно обойти защиту."
+  denied-bypass: "Защищено: {name}. Используйте /claim bypass."
 admin-bypass:
   enabled: "Обход администратора включён. Защита приватов будет обходиться, пока вы не отключите её или не выйдете с сервера."
   disabled: "Обход администратора выключен. Защита приватов снова активна."
@@ -176,6 +170,7 @@ gui:
   management-build: "Строительство"
   management-containers: "Контейнеры"
   management-entities: "Сущности"
+  management-entity-interactions: "Взаимодействие с сущностями"
   management-allowed: "Разрешено"
   management-denied: "Запрещено"
   management-toggle: "Нажмите для переключения"
@@ -204,3 +199,4 @@ updates:
   available: "Доступно обновление: {latest} (установлено: {current}). Скачать: {url}"
   failed: "Проверка обновлений не удалась: {reason}."
   failed-status: "Проверка обновлений не удалась: GitHub вернул HTTP {status}."
+

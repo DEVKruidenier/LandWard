@@ -7,6 +7,7 @@ import io.github.devkruidenier.landward.model.ClaimedChunk;
 import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.LandMember;
 import io.github.devkruidenier.landward.model.MemberPermissions;
+import io.github.devkruidenier.landward.model.LandProtectionSettings;
 import io.github.devkruidenier.landward.storage.LandStorage;
 import io.github.devkruidenier.landward.storage.StorageException;
 import io.github.devkruidenier.landward.storage.StorageSnapshot;
@@ -23,6 +24,8 @@ import java.util.UUID;
 
 /** MySQL/MariaDB-backed storage. All statements are parameterised and connection pooled. */
 public final class MySqlLandStorage implements LandStorage {
+
+    private static final String LAND_INSERT = "INSERT INTO lands(id, owner_uuid, name, created_at, member_build, member_containers, member_entities, member_pvp, allow_hostile_mob_kills, allow_passive_mob_kills, allow_hostile_mob_spawns, allow_doors, allow_interactions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private final String host;
     private final int port;
@@ -70,9 +73,27 @@ public final class MySqlLandStorage implements LandStorage {
                             id CHAR(36) PRIMARY KEY,
                             owner_uuid CHAR(36) NOT NULL UNIQUE,
                             name VARCHAR(64) NOT NULL UNIQUE,
-                            created_at BIGINT NOT NULL
+                            created_at BIGINT NOT NULL,
+                            member_build BOOLEAN NOT NULL DEFAULT TRUE,
+                            member_containers BOOLEAN NOT NULL DEFAULT TRUE,
+                            member_entities BOOLEAN NOT NULL DEFAULT TRUE,
+                            member_pvp BOOLEAN NOT NULL DEFAULT FALSE,
+                            allow_hostile_mob_kills BOOLEAN NOT NULL DEFAULT TRUE,
+                            allow_passive_mob_kills BOOLEAN NOT NULL DEFAULT TRUE,
+                            allow_hostile_mob_spawns BOOLEAN NOT NULL DEFAULT TRUE,
+                            allow_doors BOOLEAN NOT NULL DEFAULT TRUE,
+                            allow_interactions BOOLEAN NOT NULL DEFAULT TRUE
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                         """);
+                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS member_build BOOLEAN NOT NULL DEFAULT TRUE");
+                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS member_containers BOOLEAN NOT NULL DEFAULT TRUE");
+                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS member_entities BOOLEAN NOT NULL DEFAULT TRUE");
+                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS member_pvp BOOLEAN NOT NULL DEFAULT FALSE");
+                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS allow_hostile_mob_kills BOOLEAN NOT NULL DEFAULT TRUE");
+                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS allow_passive_mob_kills BOOLEAN NOT NULL DEFAULT TRUE");
+                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS allow_hostile_mob_spawns BOOLEAN NOT NULL DEFAULT TRUE");
+                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS allow_doors BOOLEAN NOT NULL DEFAULT TRUE");
+                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS allow_interactions BOOLEAN NOT NULL DEFAULT TRUE");
                 statement.execute("""
                         CREATE TABLE IF NOT EXISTS claims (
                             world_uuid CHAR(36) NOT NULL,
@@ -115,10 +136,10 @@ public final class MySqlLandStorage implements LandStorage {
         List<LandMember> members = new ArrayList<>();
         List<UUID> adminLandIds = new ArrayList<>();
         try (Connection connection = connection()) {
-            try (Statement statement = connection.createStatement(); ResultSet result = statement.executeQuery("SELECT id, owner_uuid, name, created_at FROM lands")) {
+            try (Statement statement = connection.createStatement(); ResultSet result = statement.executeQuery("SELECT id, owner_uuid, name, created_at, member_build, member_containers, member_entities, member_pvp, allow_hostile_mob_kills, allow_passive_mob_kills, allow_hostile_mob_spawns, allow_doors, allow_interactions FROM lands")) {
                 while (result.next()) {
                     lands.add(new Land(UUID.fromString(result.getString("id")), UUID.fromString(result.getString("owner_uuid")),
-                            result.getString("name"), Instant.ofEpochMilli(result.getLong("created_at"))));
+                            result.getString("name"), Instant.ofEpochMilli(result.getLong("created_at")), new MemberPermissions(result.getBoolean("member_build"), result.getBoolean("member_containers"), result.getBoolean("member_entities")), new LandProtectionSettings(result.getBoolean("member_pvp"), result.getBoolean("allow_hostile_mob_kills"), result.getBoolean("allow_passive_mob_kills"), result.getBoolean("allow_hostile_mob_spawns"), result.getBoolean("allow_doors"), result.getBoolean("allow_interactions"))));
                 }
             }
             try (Statement statement = connection.createStatement(); ResultSet result = statement.executeQuery("SELECT land_id FROM admin_lands")) {
@@ -144,6 +165,19 @@ public final class MySqlLandStorage implements LandStorage {
 
     @Override
     public void importSnapshotAtomically(StorageSnapshot snapshot) throws StorageException {
+        writeSnapshotAtomically(snapshot, false);
+    }
+
+    @Override
+    public void clearSnapshotAtomically() throws StorageException {
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try { clearSnapshot(connection); connection.commit(); }
+            catch (SQLException exception) { connection.rollback(); throw exception; }
+        } catch (SQLException exception) { throw new StorageException("Could not clear MySQL snapshot", exception); }
+    }
+
+    private void writeSnapshotAtomically(StorageSnapshot snapshot, boolean replace) throws StorageException {
         try (Connection connection = connection()) {
             connection.setAutoCommit(false);
             try {
@@ -163,14 +197,23 @@ public final class MySqlLandStorage implements LandStorage {
         } catch (SQLException exception) { throw new StorageException("Could not atomically import MySQL snapshot", exception); }
     }
 
-    @Override public void insertLand(Land land) throws StorageException { executeLand("INSERT INTO lands(id, owner_uuid, name, created_at) VALUES (?, ?, ?, ?)", land, "Could not save land"); }
+    private void clearSnapshot(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("DELETE FROM land_members");
+            statement.executeUpdate("DELETE FROM claims");
+            statement.executeUpdate("DELETE FROM admin_lands");
+            statement.executeUpdate("DELETE FROM lands");
+        }
+    }
+
+    @Override public void insertLand(Land land) throws StorageException { executeLand(LAND_INSERT, land, "Could not save land"); }
 
     @Override
     public void insertLandWithClaim(Land land, ClaimedChunk claim) throws StorageException {
         try (Connection connection = connection()) {
             connection.setAutoCommit(false);
             try {
-                try (PreparedStatement statement = connection.prepareStatement("INSERT INTO lands(id, owner_uuid, name, created_at) VALUES (?, ?, ?, ?)")) { bindLand(statement, land); statement.executeUpdate(); }
+                try (PreparedStatement statement = connection.prepareStatement(LAND_INSERT)) { bindLand(statement, land); statement.executeUpdate(); }
                 try (PreparedStatement statement = connection.prepareStatement("INSERT INTO claims(world_uuid, chunk_x, chunk_z, land_id) VALUES (?, ?, ?, ?)")) { bindClaim(statement, claim); statement.executeUpdate(); }
                 connection.commit();
             } catch (SQLException exception) {
@@ -187,7 +230,7 @@ public final class MySqlLandStorage implements LandStorage {
         try (Connection connection = connection()) {
             connection.setAutoCommit(false);
             try {
-                try (PreparedStatement statement = connection.prepareStatement("INSERT INTO lands(id, owner_uuid, name, created_at) VALUES (?, ?, ?, ?)")) { bindLand(statement, land); statement.executeUpdate(); }
+                try (PreparedStatement statement = connection.prepareStatement(LAND_INSERT)) { bindLand(statement, land); statement.executeUpdate(); }
                 try (PreparedStatement statement = connection.prepareStatement("INSERT INTO claims(world_uuid, chunk_x, chunk_z, land_id) VALUES (?, ?, ?, ?)")) { bindClaim(statement, claim); statement.executeUpdate(); }
                 try (PreparedStatement statement = connection.prepareStatement("INSERT INTO admin_lands(land_id) VALUES (?)")) { statement.setString(1, land.id().toString()); statement.executeUpdate(); }
                 connection.commit();
@@ -215,6 +258,22 @@ public final class MySqlLandStorage implements LandStorage {
         try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("UPDATE lands SET owner_uuid = ? WHERE id = ?")) {
             statement.setString(1, ownerId.toString()); statement.setString(2, landId.toString()); statement.executeUpdate();
         } catch (SQLException exception) { throw new StorageException("Could not change land owner", exception); }
+    }
+
+    @Override public void updateLandMemberPermissions(UUID landId, MemberPermissions permissions) throws StorageException {
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("UPDATE lands SET member_build = ?, member_containers = ?, member_entities = ? WHERE id = ?")) {
+            statement.setBoolean(1, permissions.build()); statement.setBoolean(2, permissions.containers()); statement.setBoolean(3, permissions.entities()); statement.setString(4, landId.toString()); statement.executeUpdate();
+        } catch (SQLException exception) { throw new StorageException("Could not update land member permissions", exception); }
+    }
+    @Override public void updateAllMemberPermissions(UUID landId, MemberPermissions permissions) throws StorageException {
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("UPDATE land_members SET can_build = ?, can_containers = ?, can_entities = ? WHERE land_id = ?")) {
+            statement.setBoolean(1, permissions.build()); statement.setBoolean(2, permissions.containers()); statement.setBoolean(3, permissions.entities()); statement.setString(4, landId.toString()); statement.executeUpdate();
+        } catch (SQLException exception) { throw new StorageException("Could not update all land members", exception); }
+    }
+    @Override public void updateLandProtectionSettings(UUID landId, LandProtectionSettings settings) throws StorageException {
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("UPDATE lands SET member_pvp = ?, allow_hostile_mob_kills = ?, allow_passive_mob_kills = ?, allow_hostile_mob_spawns = ?, allow_doors = ?, allow_interactions = ? WHERE id = ?")) {
+            bindProtectionSettings(statement, settings, 1); statement.setString(7, landId.toString()); statement.executeUpdate();
+        } catch (SQLException exception) { throw new StorageException("Could not update land protection settings", exception); }
     }
 
     @Override
@@ -262,12 +321,19 @@ public final class MySqlLandStorage implements LandStorage {
     }
     private static void bindLand(PreparedStatement statement, Land land) throws SQLException {
         statement.setString(1, land.id().toString()); statement.setString(2, land.ownerId().toString()); statement.setString(3, land.name()); statement.setLong(4, land.createdAt().toEpochMilli());
+        statement.setBoolean(5, land.memberPermissions().build()); statement.setBoolean(6, land.memberPermissions().containers()); statement.setBoolean(7, land.memberPermissions().entities());
+        bindProtectionSettings(statement, land.protectionSettings(), 8);
+    }
+    private static void bindProtectionSettings(PreparedStatement statement, LandProtectionSettings settings, int offset) throws SQLException {
+        statement.setBoolean(offset, settings.memberPvp()); statement.setBoolean(offset + 1, settings.hostileMobKills());
+        statement.setBoolean(offset + 2, settings.passiveMobKills()); statement.setBoolean(offset + 3, settings.hostileMobSpawns());
+        statement.setBoolean(offset + 4, settings.doors()); statement.setBoolean(offset + 5, settings.interactions());
     }
     private static void bindClaim(PreparedStatement statement, ClaimedChunk claim) throws SQLException {
         statement.setString(1, claim.position().worldId().toString()); statement.setInt(2, claim.position().x()); statement.setInt(3, claim.position().z()); statement.setString(4, claim.landId().toString());
     }
     private static void insertLand(Connection connection, Land land) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO lands(id, owner_uuid, name, created_at) VALUES (?, ?, ?, ?)")) { bindLand(statement, land); statement.executeUpdate(); }
+        try (PreparedStatement statement = connection.prepareStatement(LAND_INSERT)) { bindLand(statement, land); statement.executeUpdate(); }
     }
     private static void insertClaim(Connection connection, ClaimedChunk claim) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO claims(world_uuid, chunk_x, chunk_z, land_id) VALUES (?, ?, ?, ?)")) { bindClaim(statement, claim); statement.executeUpdate(); }

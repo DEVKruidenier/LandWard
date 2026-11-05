@@ -129,18 +129,18 @@ public final class ClaimAdminGui {
 
     public void openAdminSettings(Player player) {
         String locale = plugin.localeService().localeFor(player);
-        ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.ADMIN_SETTINGS, locale, 27, "gui.admin-settings");
+        ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.ADMIN_SETTINGS, locale, 54, "gui.admin-settings");
         Inventory inventory = holder.getInventory();
         setting(inventory, 10, Material.IRON_SWORD, locale, "gui.admin-pvp", "protection.allow-pvp");
         setting(inventory, 11, Material.ZOMBIE_HEAD, locale, "gui.admin-hostile-mob-kills", "protection.allow-hostile-mob-kills");
         setting(inventory, 12, Material.BEEF, locale, "gui.admin-passive-mob-kills", "protection.allow-passive-mob-kills");
-        setting(inventory, 14, Material.CHEST, locale, "gui.management-containers", "protection.allow-containers");
-        setting(inventory, 15, Material.OAK_DOOR, locale, "gui.admin-doors", "protection.allow-doors");
-        setting(inventory, 16, Material.OAK_SIGN, locale, "gui.admin-interactions", "protection.allow-interactions");
-        setting(inventory, 17, Material.CREEPER_SPAWN_EGG, locale, "gui.admin-hostile-mob-spawns", "protection.allow-hostile-mob-spawns");
-        inventory.setItem(19, item(Material.LIME_DYE, plugin.localeService().message(locale, "gui.management-add-member"), NamedTextColor.GREEN, List.of(plugin.localeService().message(locale, "gui.management-choose-online"))));
-        inventory.setItem(21, item(Material.PLAYER_HEAD, plugin.localeService().message(locale, "gui.management-members"), NamedTextColor.AQUA, List.of(plugin.localeService().message(locale, "gui.admin-members-hint"))));
-        inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        setting(inventory, 13, Material.CREEPER_SPAWN_EGG, locale, "gui.admin-hostile-mob-spawns", "protection.allow-hostile-mob-spawns");
+        setting(inventory, 19, Material.CHEST, locale, "gui.management-containers", "protection.allow-containers");
+        setting(inventory, 20, Material.OAK_DOOR, locale, "gui.admin-doors", "protection.allow-doors");
+        setting(inventory, 21, Material.OAK_SIGN, locale, "gui.admin-interactions", "protection.allow-interactions");
+        inventory.setItem(37, item(Material.LIME_DYE, plugin.localeService().message(locale, "gui.management-add-member"), NamedTextColor.GREEN, List.of(plugin.localeService().message(locale, "gui.management-choose-online"))));
+        inventory.setItem(40, item(Material.PLAYER_HEAD, plugin.localeService().message(locale, "gui.management-members"), NamedTextColor.AQUA, List.of(plugin.localeService().message(locale, "gui.admin-members-hint"))));
+        inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 

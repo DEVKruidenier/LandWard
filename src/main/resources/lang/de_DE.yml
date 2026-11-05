@@ -11,12 +11,6 @@ territory:
   entered: "Du betrittst das beanspruchte Gebiet von {name}."
   left: "Du verlässt {name} und betrittst unbeanspruchtes Gebiet."
 command:
-  info-author: "Ersteller: DEVKruidenier"
-  info-author-hover: "Öffne github.com/DEVKruidenier"
-  info-releases-hover: "Öffne Veröffentlichungen"
-  info-latest: "Aktuell"
-  info-outdated: "Veraltet: {version}"
-  info-checking: "Suche nach Updates"
   header: "LandWard {version}"
   description: "Einfache Chunk-Claims und zuverlässiger Schutz für Survival-Server."
   help: "/claim help - Zeigt diese Hilfe an."
@@ -73,7 +67,7 @@ claim:
   paid-money: "Du hast {cost} für diesen Chunk bezahlt."
 protection:
   denied: "Dieser Bereich ist durch {name} geschützt."
-  denied-bypass: "Dieser Bereich ist durch {name} geschützt. Nutze /claim bypass, um den Schutz vorübergehend zu umgehen."
+  denied-bypass: "Geschützt durch {name}. Nutze /claim bypass."
 admin-bypass:
   enabled: "Admin-Bypass aktiviert. Der Claim-Schutz wird umgangen, bis du ihn deaktivierst oder den Server verlässt."
   disabled: "Admin-Bypass deaktiviert. Der Claim-Schutz ist wieder aktiv."
@@ -177,6 +171,7 @@ gui:
   management-build: "Bauen"
   management-containers: "Container"
   management-entities: "Kreaturen"
+  management-entity-interactions: "Interaktion mit Kreaturen"
   management-allowed: "Erlaubt"
   management-denied: "Verboten"
   management-toggle: "Klicke zum Umschalten"
@@ -205,3 +200,4 @@ updates:
   available: "Update verfügbar: {latest} (installiert: {current}). Download: {url}"
   failed: "Updateprüfung fehlgeschlagen: {reason}."
   failed-status: "Updateprüfung fehlgeschlagen: GitHub meldete HTTP {status}."
+

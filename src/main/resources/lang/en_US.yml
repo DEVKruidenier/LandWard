@@ -11,12 +11,6 @@ territory:
   entered: "You entered the claimed land of {name}."
   left: "You left {name} and entered unclaimed land."
 command:
-  info-author: "Author: DEVKruidenier"
-  info-author-hover: "Open github.com/DEVKruidenier"
-  info-releases-hover: "Open releases"
-  info-latest: "Latest"
-  info-outdated: "Outdated: {version}"
-  info-checking: "Checking updates"
   header: "LandWard {version}"
   description: "Simple chunk claims and reliable protection for survival servers."
   help: "/claim help - Shows this help."
@@ -72,7 +66,7 @@ claim:
   paid-money: "You paid {cost} for this chunk."
 protection:
   denied: "This area is protected by {name}."
-  denied-bypass: "This area is protected by {name}. Use /claim bypass to temporarily bypass protection."
+  denied-bypass: "Protected by {name}. Use /claim bypass."
 admin-bypass:
   enabled: "Admin bypass enabled. Claim protection is now bypassed until you disable it or leave the server."
   disabled: "Admin bypass disabled. Claim protection is active again."
@@ -176,6 +170,7 @@ gui:
   management-build: "Build"
   management-containers: "Containers"
   management-entities: "Entities"
+  management-entity-interactions: "Entity interaction"
   management-allowed: "Allowed"
   management-denied: "Denied"
   management-toggle: "Click to toggle"
@@ -204,3 +199,4 @@ updates:
   stage-started: "Downloading LandWard {version} to the update staging area..."
   stage-complete: "Update verified and staged as {file}. Stop the server and replace the plugin JAR with this staged file."
   stage-failed: "Update download failed: {reason}"
+

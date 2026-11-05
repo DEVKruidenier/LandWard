@@ -17,7 +17,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-/** Moves a validated complete storage snapshot to an empty target without touching the active source. */
+/** Moves a validated complete snapshot to an empty target without touching the active source. */
 public final class StorageMigrationService {
     private static final DateTimeFormatter BACKUP_TIME = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
     private final Path backupDirectory;
@@ -35,16 +35,37 @@ public final class StorageMigrationService {
         validate(sourceSnapshot);
         target.initialize();
         StorageSnapshot targetBefore = target.load();
-        if (!isEmpty(targetBefore)) throw new StorageException("The target storage is not empty; migration was not started", null);
         Path backup = backupDirectory.resolve("landward-" + source.type().toLowerCase(Locale.ROOT) + "-to-"
                 + target.type().toLowerCase(Locale.ROOT) + "-" + BACKUP_TIME.format(LocalDateTime.now(clock)) + ".lwbak");
         backups.write(backup, sourceSnapshot);
         StorageSnapshot backupSnapshot = backups.read(backup);
         if (!sameSnapshot(sourceSnapshot, backupSnapshot)) throw new StorageException("The migration backup could not be verified", null);
+        if (!isEmpty(targetBefore)) throw new StorageException("The target storage contains LandWard data; clear it explicitly before migration", null);
         target.importSnapshotAtomically(sourceSnapshot);
         StorageSnapshot targetAfter = target.load();
         if (!sameSnapshot(sourceSnapshot, targetAfter)) throw new StorageException("Target verification failed after migration", null);
         return new MigrationResult(backup, sourceSnapshot.lands().size(), sourceSnapshot.claims().size(), sourceSnapshot.members().size());
+    }
+
+    /** Inspects a configured target without changing it. */
+    public StorageStatus inspect(LandStorage target) throws StorageException {
+        target.initialize();
+        StorageSnapshot snapshot = target.load();
+        return new StorageStatus(target.type(), snapshot.lands().size(), snapshot.claims().size(), snapshot.members().size(), isEmpty(snapshot));
+    }
+
+    /** Clears only LandWard tables after writing and verifying a lossless backup. */
+    public ClearResult clear(LandStorage target) throws StorageException {
+        target.initialize();
+        StorageSnapshot snapshot = target.load();
+        if (isEmpty(snapshot)) return new ClearResult(null, 0, 0, 0, true);
+        Path backup = backupDirectory.resolve("landward-" + target.type().toLowerCase(Locale.ROOT) + "-before-clear-"
+                + BACKUP_TIME.format(LocalDateTime.now(clock)) + ".lwbak");
+        backups.write(backup, snapshot);
+        if (!sameSnapshot(snapshot, backups.read(backup))) throw new StorageException("The target backup could not be verified", null);
+        target.clearSnapshotAtomically();
+        if (!isEmpty(target.load())) throw new StorageException("Target verification failed after clearing", null);
+        return new ClearResult(backup, snapshot.lands().size(), snapshot.claims().size(), snapshot.members().size(), false);
     }
 
     private void validate(StorageSnapshot snapshot) throws StorageException {
@@ -77,4 +98,6 @@ public final class StorageMigrationService {
     }
 
     public record MigrationResult(Path backup, int lands, int claims, int members) { }
+    public record StorageStatus(String type, int lands, int claims, int members, boolean empty) { }
+    public record ClearResult(Path backup, int lands, int claims, int members, boolean alreadyEmpty) { }
 }

@@ -11,12 +11,6 @@ territory:
   entered: "Wchodzisz na zajęty teren {name}."
   left: "Opuszczasz {name} i wchodzisz na niezajęty teren."
 command:
-  info-author: "Twórca: DEVKruidenier"
-  info-author-hover: "Otwórz github.com/DEVKruidenier"
-  info-releases-hover: "Otwórz wydania"
-  info-latest: "Najnowsza"
-  info-outdated: "Nieaktualna: {version}"
-  info-checking: "Sprawdzanie aktualizacji"
   header: "LandWard {version}"
   description: "Proste działki chunków i niezawodna ochrona serwerów survival."
   help: "/claim help - Wyświetla tę pomoc."
@@ -72,7 +66,7 @@ claim:
   paid-money: "Zapłacono {cost} za ten chunk."
 protection:
   denied: "Ten obszar jest chroniony przez {name}."
-  denied-bypass: "Ten obszar jest chroniony przez {name}. Użyj /claim bypass, aby tymczasowo ominąć ochronę."
+  denied-bypass: "Chronione przez {name}. Użyj /claim bypass."
 admin-bypass:
   enabled: "Obejście administratora włączone. Ochrona działek będzie pomijana do wyłączenia lub opuszczenia serwera."
   disabled: "Obejście administratora wyłączone. Ochrona działek znów jest aktywna."
@@ -176,6 +170,7 @@ gui:
   management-build: "Budowanie"
   management-containers: "Pojemniki"
   management-entities: "Istoty"
+  management-entity-interactions: "Interakcja z istotami"
   management-allowed: "Dozwolone"
   management-denied: "Odmówiono"
   management-toggle: "Kliknij, aby przełączyć"
@@ -204,3 +199,4 @@ updates:
   available: "Dostępna aktualizacja: {latest} (zainstalowano: {current}). Pobierz: {url}"
   failed: "Sprawdzanie aktualizacji nie powiodło się: {reason}."
   failed-status: "Sprawdzanie aktualizacji nie powiodło się: GitHub zwrócił HTTP {status}."
+

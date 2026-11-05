@@ -11,12 +11,6 @@ territory:
   entered: "{name}의 보호된 땅에 들어왔습니다."
   left: "{name}을(를) 떠나 보호되지 않은 땅에 들어왔습니다."
 command:
-  info-author: "제작자: DEVKruidenier"
-  info-author-hover: "github.com/DEVKruidenier 열기"
-  info-releases-hover: "릴리스 열기"
-  info-latest: "최신"
-  info-outdated: "구버전: {version}"
-  info-checking: "업데이트 확인 중"
   header: "LandWard {version}"
   description: "서바이벌 서버를 위한 간단한 청크 영지와 안정적인 보호 기능입니다."
   help: "/claim help - 이 도움말을 표시합니다."
@@ -72,7 +66,7 @@ claim:
   paid-money: "이 청크에 {cost}를 지불했습니다."
 protection:
   denied: "이 지역은 {name}에 의해 보호됩니다."
-  denied-bypass: "이 지역은 {name}에 의해 보호됩니다. /claim bypass로 보호를 일시적으로 우회할 수 있습니다."
+  denied-bypass: "{name}에 의해 보호됨. /claim bypass 사용."
 admin-bypass:
   enabled: "관리자 우회가 활성화되었습니다. 끄거나 서버를 나갈 때까지 영지 보호를 우회합니다."
   disabled: "관리자 우회가 비활성화되었습니다. 영지 보호가 다시 활성화되었습니다."
@@ -176,6 +170,7 @@ gui:
   management-build: "건축"
   management-containers: "상자"
   management-entities: "엔티티"
+  management-entity-interactions: "엔티티 상호작용"
   management-allowed: "허용"
   management-denied: "거부"
   management-toggle: "클릭하여 전환"
@@ -204,3 +199,4 @@ updates:
   available: "업데이트 가능: {latest} (설치됨: {current}). 다운로드: {url}"
   failed: "업데이트 확인 실패: {reason}."
   failed-status: "업데이트 확인 실패: GitHub가 HTTP {status}을(를) 반환했습니다."
+

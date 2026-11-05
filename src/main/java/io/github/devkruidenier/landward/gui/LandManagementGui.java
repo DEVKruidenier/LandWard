@@ -5,6 +5,7 @@ import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.LandMember;
 import io.github.devkruidenier.landward.model.MemberPermissions;
+import io.github.devkruidenier.landward.model.LandProtectionSettings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -50,12 +51,27 @@ public final class LandManagementGui {
     public void openSettings(Player player) {
         Optional<Land> optionalLand = landManager.ownedBy(player.getUniqueId());
         if (optionalLand.isEmpty()) { openWelcome(player); return; }
-        LandManagementHolder holder = holder(LandManagementHolder.Screen.SETTINGS, null, message(player, "gui.management-title", Map.of("name", optionalLand.get().name())), COMPACT_SIZE);
+        Land land = optionalLand.get();
+        LandProtectionSettings settings = land.protectionSettings();
+        MemberPermissions permissions = land.memberPermissions();
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.SETTINGS, null, message(player, "gui.management-title", Map.of("name", land.name())), LARGE_SIZE);
         Inventory inventory = holder.getInventory();
-        inventory.setItem(11, item(Material.LIME_DYE, message(player, "gui.management-add-member"), NamedTextColor.GREEN, List.of(message(player, "gui.management-choose-online"))));
-        inventory.setItem(13, item(Material.PLAYER_HEAD, message(player, "gui.management-members"), NamedTextColor.AQUA, List.of(message(player, "gui.management-manage-rights"))));
-        inventory.setItem(15, item(Material.NAME_TAG, message(player, "gui.management-rename"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-rename-hint"))));
-        inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        // Row 2: combat and mob rules.
+        inventory.setItem(10, permissionItem(player, Material.IRON_SWORD, message(player, "gui.admin-pvp"), settings.memberPvp()));
+        inventory.setItem(11, permissionItem(player, Material.ZOMBIE_HEAD, message(player, "gui.admin-hostile-mob-kills"), settings.hostileMobKills()));
+        inventory.setItem(12, permissionItem(player, Material.BEEF, message(player, "gui.admin-passive-mob-kills"), settings.passiveMobKills()));
+        inventory.setItem(13, permissionItem(player, Material.CREEPER_SPAWN_EGG, message(player, "gui.admin-hostile-mob-spawns"), settings.hostileMobSpawns()));
+        // Row 3: access granted to every trusted member.
+        inventory.setItem(19, permissionItem(player, Material.IRON_PICKAXE, message(player, "gui.management-build"), permissions.build()));
+        inventory.setItem(20, permissionItem(player, Material.CHEST, message(player, "gui.management-containers"), permissions.containers()));
+        inventory.setItem(21, permissionItem(player, Material.LEAD, message(player, "gui.management-entity-interactions"), permissions.entities()));
+        inventory.setItem(23, permissionItem(player, Material.OAK_DOOR, message(player, "gui.admin-doors"), settings.doors()));
+        inventory.setItem(24, permissionItem(player, Material.OAK_SIGN, message(player, "gui.admin-interactions"), settings.interactions()));
+        // Row 5: membership and land administration.
+        inventory.setItem(37, item(Material.LIME_DYE, message(player, "gui.management-add-member"), NamedTextColor.GREEN, List.of(message(player, "gui.management-choose-online"))));
+        inventory.setItem(40, item(Material.PLAYER_HEAD, message(player, "gui.management-members"), NamedTextColor.AQUA, List.of(message(player, "gui.management-remove-hint"))));
+        inventory.setItem(43, item(Material.NAME_TAG, message(player, "gui.management-rename"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-rename-hint"))));
+        inventory.setItem(53, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 
@@ -102,18 +118,25 @@ public final class LandManagementGui {
         player.openInventory(inventory);
     }
 
-    public void openRights(Player player, UUID memberId) {
+    public void openDefaultRights(Player player) {
         Optional<Land> optionalLand = landManager.ownedBy(player.getUniqueId());
         if (optionalLand.isEmpty()) return;
-        MemberPermissions permissions = landManager.permissions(memberId, optionalLand.get().id());
-        LandManagementHolder holder = holder(LandManagementHolder.Screen.RIGHTS, memberId, message(player, "gui.management-rights-title"), LARGE_SIZE);
+        MemberPermissions permissions = optionalLand.get().memberPermissions();
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.DEFAULT_RIGHTS, null, message(player, "gui.management-rights-title"), COMPACT_SIZE);
         Inventory inventory = holder.getInventory();
-        inventory.setItem(4, playerHead(memberId, name(memberId), message(player, "gui.management-configure-member")));
-        inventory.setItem(20, permissionItem(player, Material.IRON_PICKAXE, message(player, "gui.management-build"), permissions.build()));
-        inventory.setItem(22, permissionItem(player, Material.CHEST, message(player, "gui.management-containers"), permissions.containers()));
-        inventory.setItem(24, permissionItem(player, Material.CREEPER_SPAWN_EGG, message(player, "gui.management-entities"), permissions.entities()));
-        inventory.setItem(49, item(Material.BARRIER, message(player, "gui.management-remove-member"), NamedTextColor.RED, List.of(message(player, "gui.management-remove-hint"))));
-        inventory.setItem(53, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        inventory.setItem(11, permissionItem(player, Material.IRON_PICKAXE, message(player, "gui.management-build"), permissions.build()));
+        inventory.setItem(13, permissionItem(player, Material.CHEST, message(player, "gui.management-containers"), permissions.containers()));
+        inventory.setItem(15, permissionItem(player, Material.CREEPER_SPAWN_EGG, message(player, "gui.management-entities"), permissions.entities()));
+        inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        player.openInventory(inventory);
+    }
+
+    public void openMemberActions(Player player, UUID memberId) {
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.MEMBER, memberId, message(player, "gui.management-members"), COMPACT_SIZE);
+        Inventory inventory = holder.getInventory();
+        inventory.setItem(13, playerHead(memberId, name(memberId), message(player, "gui.management-configure-member")));
+        inventory.setItem(15, item(Material.BARRIER, message(player, "gui.management-remove-member"), NamedTextColor.RED, List.of(message(player, "gui.management-remove-hint"))));
+        inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 

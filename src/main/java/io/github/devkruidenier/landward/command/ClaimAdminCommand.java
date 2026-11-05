@@ -41,6 +41,10 @@ public final class ClaimAdminCommand implements CommandExecutor, TabCompleter {
             migrate(sender, args);
             return true;
         }
+        if (args.length >= 1 && args[0].equalsIgnoreCase("storage")) {
+            storage(sender, args);
+            return true;
+        }
         if (!(sender instanceof Player player)) {
             sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "general.player-only"));
             return true;
@@ -51,10 +55,40 @@ public final class ClaimAdminCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) return List.of("reload", "migrate").stream().filter(value -> value.startsWith(args[0].toLowerCase(java.util.Locale.ROOT))).toList();
+        if (args.length == 1) return List.of("reload", "migrate", "storage").stream().filter(value -> value.startsWith(args[0].toLowerCase(java.util.Locale.ROOT))).toList();
         if (args.length == 2 && args[0].equalsIgnoreCase("migrate")) return List.of("sqlite", "mysql").stream().filter(value -> value.startsWith(args[1].toLowerCase(java.util.Locale.ROOT))).toList();
         if (args.length == 3 && args[0].equalsIgnoreCase("migrate") && "confirm".startsWith(args[2].toLowerCase(java.util.Locale.ROOT))) return List.of("confirm");
         return List.of();
+    }
+
+    private void storage(CommandSender sender, String[] args) {
+        if (sender instanceof Player || !plugin.getServer().getOnlinePlayers().isEmpty()) {
+            sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "admin.migration-online"));
+            return;
+        }
+        if (args.length < 3 || !(args[1].equalsIgnoreCase("status") || args[1].equalsIgnoreCase("clear"))
+                || !(args[2].equalsIgnoreCase("sqlite") || args[2].equalsIgnoreCase("mysql"))
+                || (args[1].equalsIgnoreCase("clear") && (args.length != 4 || !args[3].equalsIgnoreCase("confirm")))) {
+            sender.sendMessage("Usage: /claimadmin storage status <sqlite|mysql> OR /claimadmin storage clear <sqlite|mysql> confirm");
+            return;
+        }
+        LandStorage target = null;
+        try {
+            target = plugin.createStorage(args[2]);
+            StorageMigrationService service = new StorageMigrationService(plugin.getDataFolder().toPath().resolve("migration-backups"));
+            if (args[1].equalsIgnoreCase("status")) {
+                var status = service.inspect(target);
+                sender.sendMessage("LandWard " + status.type() + ": " + status.lands() + " lands, " + status.claims() + " claims, " + status.members() + " members" + (status.empty() ? " (empty)." : "."));
+            } else {
+                var result = service.clear(target);
+                sender.sendMessage(result.alreadyEmpty() ? "LandWard target storage is already empty." : "LandWard target cleared after verified backup: " + result.backup().getFileName());
+            }
+        } catch (StorageException | IllegalArgumentException exception) {
+            plugin.getLogger().warning("Storage maintenance failed: " + exception.getMessage());
+            sender.sendMessage("LandWard storage maintenance failed. Check the console.");
+        } finally {
+            if (target != null) try { target.close(); } catch (StorageException ignored) { }
+        }
     }
 
     private void migrate(CommandSender sender, String[] args) {

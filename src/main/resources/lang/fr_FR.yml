@@ -11,12 +11,6 @@ territory:
   entered: "Vous entrez dans le terrain revendiqué de {name}."
   left: "Vous quittez {name} et entrez dans une zone non revendiquée."
 command:
-  info-author: "Créateur : DEVKruidenier"
-  info-author-hover: "Ouvrir github.com/DEVKruidenier"
-  info-releases-hover: "Ouvrir les publications"
-  info-latest: "À jour"
-  info-outdated: "Obsolète : {version}"
-  info-checking: "Recherche des mises à jour"
   header: "LandWard {version}"
   description: "Des claims de chunks simples et une protection fiable pour les serveurs survie."
   help: "/claim help - Affiche cette aide."
@@ -73,7 +67,7 @@ claim:
   paid-money: "Vous avez payé {cost} pour ce chunk."
 protection:
   denied: "Cette zone est protégée par {name}."
-  denied-bypass: "Cette zone est protégée par {name}. Utilisez /claim bypass pour contourner temporairement la protection."
+  denied-bypass: "Protégé par {name}. Utilisez /claim bypass."
 admin-bypass:
   enabled: "Contournement administrateur activé. La protection des claims sera contournée jusqu'à sa désactivation ou votre déconnexion."
   disabled: "Contournement administrateur désactivé. La protection des claims est à nouveau active."
@@ -177,6 +171,7 @@ gui:
   management-build: "Construction"
   management-containers: "Conteneurs"
   management-entities: "Entités"
+  management-entity-interactions: "Interaction avec les entités"
   management-allowed: "Autorisé"
   management-denied: "Refusé"
   management-toggle: "Cliquez pour basculer"
@@ -205,3 +200,4 @@ updates:
   available: "Mise à jour disponible : {latest} (installée : {current}). Téléchargement : {url}"
   failed: "Échec de la recherche de mise à jour : {reason}."
   failed-status: "Échec de la recherche de mise à jour : GitHub a renvoyé HTTP {status}."
+

@@ -11,12 +11,6 @@ territory:
   entered: "Sei entrato nel terreno reclamato di {name}."
   left: "Hai lasciato {name} e sei entrato in terreno non reclamato."
 command:
-  info-author: "Creatore: DEVKruidenier"
-  info-author-hover: "Apri github.com/DEVKruidenier"
-  info-releases-hover: "Apri le versioni"
-  info-latest: "Aggiornato"
-  info-outdated: "Obsoleto: {version}"
-  info-checking: "Controllo aggiornamenti"
   header: "LandWard {version}"
   description: "Claim dei chunk semplici e protezione affidabile per server survival."
   help: "/claim help - Mostra questo aiuto."
@@ -72,7 +66,7 @@ claim:
   paid-money: "Hai pagato {cost} per questo chunk."
 protection:
   denied: "Questa area è protetta da {name}."
-  denied-bypass: "Questa area è protetta da {name}. Usa /claim bypass per ignorare temporaneamente la protezione."
+  denied-bypass: "Protetto da {name}. Usa /claim bypass."
 admin-bypass:
   enabled: "Bypass amministratore attivato. La protezione delle claim verrà ignorata finché non lo disattivi o lasci il server."
   disabled: "Bypass amministratore disattivato. La protezione delle claim è di nuovo attiva."
@@ -176,6 +170,7 @@ gui:
   management-build: "Costruzione"
   management-containers: "Contenitori"
   management-entities: "Entità"
+  management-entity-interactions: "Interazione con entità"
   management-allowed: "Consentito"
   management-denied: "Negato"
   management-toggle: "Clicca per cambiare"
@@ -204,3 +199,4 @@ updates:
   available: "Aggiornamento disponibile: {latest} (installato: {current}). Download: {url}"
   failed: "Controllo aggiornamenti non riuscito: {reason}."
   failed-status: "Controllo aggiornamenti non riuscito: GitHub ha restituito HTTP {status}."
+

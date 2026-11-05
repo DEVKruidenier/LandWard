@@ -308,14 +308,12 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 message(player, "command.header", Map.of("version", plugin.getPluginMeta().getVersion()))
         ).append(updateStatus(player));
         player.sendMessage(header);
-        String authorLine = plugin.localeService().message(plugin.localeService().localeFor(player), "command.info-author");
-        String authorLabel = authorLine.substring(0, authorLine.lastIndexOf("DEVKruidenier"));
         player.sendMessage(Component.text("LandWard ", NamedTextColor.GOLD, TextDecoration.BOLD)
                 .append(Component.text("» ", NamedTextColor.DARK_GRAY))
-                .append(Component.text(authorLabel, NamedTextColor.WHITE))
+                .append(Component.text("Maker: ", NamedTextColor.WHITE))
                 .append(Component.text("DEVKruidenier", NamedTextColor.AQUA)
                         .clickEvent(ClickEvent.openUrl("https://github.com/DEVKruidenier"))
-                        .hoverEvent(HoverEvent.showText(Component.text(plugin.localeService().message(plugin.localeService().localeFor(player), "command.info-author-hover"), NamedTextColor.GRAY)))
+                        .hoverEvent(HoverEvent.showText(Component.text("Open github.com/DEVKruidenier", NamedTextColor.GRAY)))
                         .decoration(TextDecoration.UNDERLINED, true)));
         return true;
     }
@@ -324,23 +322,23 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         UpdateChecker.UpdateStatus status = plugin.updateChecker().status();
         String locale = plugin.localeService().localeFor(player);
         return switch (status.state()) {
-            case LATEST -> Component.text(" (" + plugin.localeService().message(locale, "command.info-latest") + ")", NamedTextColor.GREEN);
+            case LATEST -> Component.text(" (Latest)", NamedTextColor.GREEN);
             case OUTDATED -> outdatedStatus(player, locale, status);
             case STAGING -> Component.text(" (" + plugin.localeService().message(locale, "updates.stage-info-staging") + ")", NamedTextColor.YELLOW);
             case STAGED -> Component.text(" (" + plugin.localeService().message(locale, "updates.stage-info-staged") + ")", NamedTextColor.GREEN);
-            case CHECKING -> Component.text(" (" + plugin.localeService().message(locale, "command.info-checking") + ")", NamedTextColor.YELLOW);
+            case CHECKING -> Component.text(" (Checking updates)", NamedTextColor.YELLOW);
             case UNAVAILABLE, DISABLED -> Component.empty();
         };
     }
 
     private Component outdatedStatus(Player player, String locale, UpdateChecker.UpdateStatus status) {
-        Component component = Component.text(" (" + plugin.localeService().message(locale, "command.info-outdated", Map.of("version", status.latestVersion())) + ")", NamedTextColor.RED);
+        Component component = Component.text(" (Outdated: " + status.latestVersion() + ")", NamedTextColor.RED);
         if (player.hasPermission("landward.admin") && status.asset() != null) {
             return component.clickEvent(ClickEvent.runCommand("/claim update"))
                     .hoverEvent(HoverEvent.showText(Component.text(plugin.localeService().message(locale, "updates.stage-info-click"), NamedTextColor.GRAY)));
         }
         return component.clickEvent(ClickEvent.openUrl("https://github.com/DEVKruidenier/LandWard/releases"))
-                .hoverEvent(HoverEvent.showText(Component.text(plugin.localeService().message(locale, "command.info-releases-hover"), NamedTextColor.GRAY)));
+                .hoverEvent(HoverEvent.showText(Component.text("Open releases", NamedTextColor.GRAY)));
     }
 
     private boolean list(Player player) {

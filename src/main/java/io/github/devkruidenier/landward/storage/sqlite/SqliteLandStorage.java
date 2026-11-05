@@ -5,6 +5,7 @@ import io.github.devkruidenier.landward.model.ClaimedChunk;
 import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.LandMember;
 import io.github.devkruidenier.landward.model.MemberPermissions;
+import io.github.devkruidenier.landward.model.LandProtectionSettings;
 import io.github.devkruidenier.landward.storage.LandStorage;
 import io.github.devkruidenier.landward.storage.StorageException;
 import io.github.devkruidenier.landward.storage.StorageSnapshot;
@@ -40,9 +41,19 @@ public final class SqliteLandStorage implements LandStorage {
                             id TEXT PRIMARY KEY,
                             owner_uuid TEXT NOT NULL UNIQUE,
                             name TEXT NOT NULL COLLATE NOCASE UNIQUE,
-                            created_at INTEGER NOT NULL
+                            created_at INTEGER NOT NULL,
+                            member_build INTEGER NOT NULL DEFAULT 1,
+                            member_containers INTEGER NOT NULL DEFAULT 1,
+                            member_entities INTEGER NOT NULL DEFAULT 1,
+                            member_pvp INTEGER NOT NULL DEFAULT 0,
+                            allow_hostile_mob_kills INTEGER NOT NULL DEFAULT 1,
+                            allow_passive_mob_kills INTEGER NOT NULL DEFAULT 1,
+                            allow_hostile_mob_spawns INTEGER NOT NULL DEFAULT 1,
+                            allow_doors INTEGER NOT NULL DEFAULT 1,
+                            allow_interactions INTEGER NOT NULL DEFAULT 1
                         )
                         """);
+                ensureLandColumns(connection);
                 statement.execute("""
                         CREATE TABLE IF NOT EXISTS claims (
                             world_uuid TEXT NOT NULL,
@@ -85,13 +96,15 @@ public final class SqliteLandStorage implements LandStorage {
         List<UUID> adminLandIds = new ArrayList<>();
         try (Connection connection = connection()) {
             try (Statement statement = connection.createStatement();
-                 ResultSet result = statement.executeQuery("SELECT id, owner_uuid, name, created_at FROM lands")) {
+                 ResultSet result = statement.executeQuery("SELECT id, owner_uuid, name, created_at, member_build, member_containers, member_entities, member_pvp, allow_hostile_mob_kills, allow_passive_mob_kills, allow_hostile_mob_spawns, allow_doors, allow_interactions FROM lands")) {
                 while (result.next()) {
                     lands.add(new Land(
                             UUID.fromString(result.getString("id")),
                             UUID.fromString(result.getString("owner_uuid")),
                             result.getString("name"),
-                            Instant.ofEpochMilli(result.getLong("created_at"))
+                            Instant.ofEpochMilli(result.getLong("created_at")),
+                            new MemberPermissions(result.getBoolean("member_build"), result.getBoolean("member_containers"), result.getBoolean("member_entities")),
+                            new LandProtectionSettings(result.getBoolean("member_pvp"), result.getBoolean("allow_hostile_mob_kills"), result.getBoolean("allow_passive_mob_kills"), result.getBoolean("allow_hostile_mob_spawns"), result.getBoolean("allow_doors"), result.getBoolean("allow_interactions"))
                     ));
                 }
             }
@@ -138,6 +151,19 @@ public final class SqliteLandStorage implements LandStorage {
 
     @Override
     public void importSnapshotAtomically(StorageSnapshot snapshot) throws StorageException {
+        writeSnapshotAtomically(snapshot, false);
+    }
+
+    @Override
+    public void clearSnapshotAtomically() throws StorageException {
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try { clearSnapshot(connection); connection.commit(); }
+            catch (SQLException exception) { connection.rollback(); throw exception; }
+        } catch (SQLException exception) { throw new StorageException("Could not clear SQLite snapshot", exception); }
+    }
+
+    private void writeSnapshotAtomically(StorageSnapshot snapshot, boolean replace) throws StorageException {
         try (Connection connection = connection()) {
             connection.setAutoCommit(false);
             try {
@@ -160,14 +186,20 @@ public final class SqliteLandStorage implements LandStorage {
         }
     }
 
+    private void clearSnapshot(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("DELETE FROM land_members");
+            statement.executeUpdate("DELETE FROM claims");
+            statement.executeUpdate("DELETE FROM admin_lands");
+            statement.executeUpdate("DELETE FROM lands");
+        }
+    }
+
     @Override
     public void insertLand(Land land) throws StorageException {
-        String sql = "INSERT INTO lands(id, owner_uuid, name, created_at) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO lands(id, owner_uuid, name, created_at, member_build, member_containers, member_entities, member_pvp, allow_hostile_mob_kills, allow_passive_mob_kills, allow_hostile_mob_spawns, allow_doors, allow_interactions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, land.id().toString());
-            statement.setString(2, land.ownerId().toString());
-            statement.setString(3, land.name());
-            statement.setLong(4, land.createdAt().toEpochMilli());
+            bindLand(statement, land);
             statement.executeUpdate();
         } catch (SQLException exception) {
             throw new StorageException("Could not save land", exception);
@@ -180,12 +212,9 @@ public final class SqliteLandStorage implements LandStorage {
             connection.setAutoCommit(false);
             try {
                 try (PreparedStatement statement = connection.prepareStatement(
-                        "INSERT INTO lands(id, owner_uuid, name, created_at) VALUES (?, ?, ?, ?)"
+                        "INSERT INTO lands(id, owner_uuid, name, created_at, member_build, member_containers, member_entities, member_pvp, allow_hostile_mob_kills, allow_passive_mob_kills, allow_hostile_mob_spawns, allow_doors, allow_interactions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 )) {
-                    statement.setString(1, land.id().toString());
-                    statement.setString(2, land.ownerId().toString());
-                    statement.setString(3, land.name());
-                    statement.setLong(4, land.createdAt().toEpochMilli());
+                    bindLand(statement, land);
                     statement.executeUpdate();
                 }
                 try (PreparedStatement statement = connection.prepareStatement(
@@ -251,6 +280,18 @@ public final class SqliteLandStorage implements LandStorage {
         } catch (SQLException exception) {
             throw new StorageException("Could not change land owner", exception);
         }
+    }
+
+    @Override public void updateLandMemberPermissions(UUID landId, MemberPermissions permissions) throws StorageException { updateLandPermissions(landId, permissions); }
+    @Override public void updateLandProtectionSettings(UUID landId, LandProtectionSettings settings) throws StorageException {
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("UPDATE lands SET member_pvp = ?, allow_hostile_mob_kills = ?, allow_passive_mob_kills = ?, allow_hostile_mob_spawns = ?, allow_doors = ?, allow_interactions = ? WHERE id = ?")) {
+            bindProtectionSettings(statement, settings, 1); statement.setString(7, landId.toString()); statement.executeUpdate();
+        } catch (SQLException exception) { throw new StorageException("Could not update land protection settings", exception); }
+    }
+    @Override public void updateAllMemberPermissions(UUID landId, MemberPermissions permissions) throws StorageException {
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("UPDATE land_members SET can_build = ?, can_containers = ?, can_entities = ? WHERE land_id = ?")) {
+            statement.setBoolean(1, permissions.build()); statement.setBoolean(2, permissions.containers()); statement.setBoolean(3, permissions.entities()); statement.setString(4, landId.toString()); statement.executeUpdate();
+        } catch (SQLException exception) { throw new StorageException("Could not update all land members", exception); }
     }
 
     @Override
@@ -355,11 +396,8 @@ public final class SqliteLandStorage implements LandStorage {
     }
 
     private static void insertLandAndClaim(Connection connection, Land land, ClaimedChunk claim) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO lands(id, owner_uuid, name, created_at) VALUES (?, ?, ?, ?)")) {
-            statement.setString(1, land.id().toString());
-            statement.setString(2, land.ownerId().toString());
-            statement.setString(3, land.name());
-            statement.setLong(4, land.createdAt().toEpochMilli());
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO lands(id, owner_uuid, name, created_at, member_build, member_containers, member_entities, member_pvp, allow_hostile_mob_kills, allow_passive_mob_kills, allow_hostile_mob_spawns, allow_doors, allow_interactions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            bindLand(statement, land);
             statement.executeUpdate();
         }
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO claims(world_uuid, chunk_x, chunk_z, land_id) VALUES (?, ?, ?, ?)")) {
@@ -372,11 +410,8 @@ public final class SqliteLandStorage implements LandStorage {
     }
 
     private static void insertLand(Connection connection, Land land) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO lands(id, owner_uuid, name, created_at) VALUES (?, ?, ?, ?)")) {
-            statement.setString(1, land.id().toString());
-            statement.setString(2, land.ownerId().toString());
-            statement.setString(3, land.name());
-            statement.setLong(4, land.createdAt().toEpochMilli());
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO lands(id, owner_uuid, name, created_at, member_build, member_containers, member_entities, member_pvp, allow_hostile_mob_kills, allow_passive_mob_kills, allow_hostile_mob_spawns, allow_doors, allow_interactions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+            bindLand(statement, land);
             statement.executeUpdate();
         }
     }
@@ -400,5 +435,45 @@ public final class SqliteLandStorage implements LandStorage {
             statement.setBoolean(5, member.permissions().entities());
             statement.executeUpdate();
         }
+    }
+
+    private void updateLandPermissions(UUID landId, MemberPermissions permissions) throws StorageException {
+        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("UPDATE lands SET member_build = ?, member_containers = ?, member_entities = ? WHERE id = ?")) {
+            statement.setBoolean(1, permissions.build()); statement.setBoolean(2, permissions.containers()); statement.setBoolean(3, permissions.entities()); statement.setString(4, landId.toString()); statement.executeUpdate();
+        } catch (SQLException exception) { throw new StorageException("Could not update land member permissions", exception); }
+    }
+
+    private static void ensureLandColumns(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            try { statement.execute("ALTER TABLE lands ADD COLUMN member_build INTEGER NOT NULL DEFAULT 1"); } catch (SQLException ignored) { }
+            try { statement.execute("ALTER TABLE lands ADD COLUMN member_containers INTEGER NOT NULL DEFAULT 1"); } catch (SQLException ignored) { }
+            try { statement.execute("ALTER TABLE lands ADD COLUMN member_entities INTEGER NOT NULL DEFAULT 1"); } catch (SQLException ignored) { }
+            try { statement.execute("ALTER TABLE lands ADD COLUMN member_pvp INTEGER NOT NULL DEFAULT 0"); } catch (SQLException ignored) { }
+            try { statement.execute("ALTER TABLE lands ADD COLUMN allow_hostile_mob_kills INTEGER NOT NULL DEFAULT 1"); } catch (SQLException ignored) { }
+            try { statement.execute("ALTER TABLE lands ADD COLUMN allow_passive_mob_kills INTEGER NOT NULL DEFAULT 1"); } catch (SQLException ignored) { }
+            try { statement.execute("ALTER TABLE lands ADD COLUMN allow_hostile_mob_spawns INTEGER NOT NULL DEFAULT 1"); } catch (SQLException ignored) { }
+            try { statement.execute("ALTER TABLE lands ADD COLUMN allow_doors INTEGER NOT NULL DEFAULT 1"); } catch (SQLException ignored) { }
+            try { statement.execute("ALTER TABLE lands ADD COLUMN allow_interactions INTEGER NOT NULL DEFAULT 1"); } catch (SQLException ignored) { }
+        }
+    }
+
+    private static void bindProtectionSettings(PreparedStatement statement, LandProtectionSettings settings, int offset) throws SQLException {
+        statement.setBoolean(offset, settings.memberPvp());
+        statement.setBoolean(offset + 1, settings.hostileMobKills());
+        statement.setBoolean(offset + 2, settings.passiveMobKills());
+        statement.setBoolean(offset + 3, settings.hostileMobSpawns());
+        statement.setBoolean(offset + 4, settings.doors());
+        statement.setBoolean(offset + 5, settings.interactions());
+    }
+
+    private static void bindLand(PreparedStatement statement, Land land) throws SQLException {
+        statement.setString(1, land.id().toString());
+        statement.setString(2, land.ownerId().toString());
+        statement.setString(3, land.name());
+        statement.setLong(4, land.createdAt().toEpochMilli());
+        statement.setBoolean(5, land.memberPermissions().build());
+        statement.setBoolean(6, land.memberPermissions().containers());
+        statement.setBoolean(7, land.memberPermissions().entities());
+        bindProtectionSettings(statement, land.protectionSettings(), 8);
     }
 }

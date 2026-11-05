@@ -11,12 +11,6 @@ territory:
   entered: "你进入了 {name} 的领地。"
   left: "你离开了 {name}，进入了未认领区域。"
 command:
-  info-author: "作者: DEVKruidenier"
-  info-author-hover: "打开 github.com/DEVKruidenier"
-  info-releases-hover: "打开发布页面"
-  info-latest: "最新"
-  info-outdated: "过期：{version}"
-  info-checking: "正在检查更新"
   header: "LandWard {version}"
   description: "为生存服务器提供简单的区块领地和可靠保护。"
   help: "/claim help - 显示此帮助。"
@@ -72,7 +66,7 @@ claim:
   paid-money: "你为该区块支付了 {cost}。"
 protection:
   denied: "此区域受 {name} 保护。"
-  denied-bypass: "此区域受 {name} 保护。使用 /claim bypass 可暂时绕过保护。"
+  denied-bypass: "受 {name} 保护。使用 /claim bypass。"
 admin-bypass:
   enabled: "管理员绕过已启用。在你关闭它或离开服务器前，领地保护将被绕过。"
   disabled: "管理员绕过已禁用。领地保护已重新启用。"
@@ -176,6 +170,7 @@ gui:
   management-build: "建造"
   management-containers: "容器"
   management-entities: "实体"
+  management-entity-interactions: "实体交互"
   management-allowed: "允许"
   management-denied: "拒绝"
   management-toggle: "点击切换"
@@ -204,3 +199,4 @@ updates:
   available: "有可用更新：{latest}（已安装：{current}）。下载：{url}"
   failed: "更新检查失败：{reason}。"
   failed-status: "更新检查失败：GitHub 返回了 HTTP {status}。"
+

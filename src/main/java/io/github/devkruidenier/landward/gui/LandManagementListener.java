@@ -3,6 +3,7 @@ package io.github.devkruidenier.landward.gui;
 import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.MemberPermissions;
+import io.github.devkruidenier.landward.model.LandProtectionSettings;
 import io.github.devkruidenier.landward.storage.StorageException;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,23 +35,62 @@ public final class LandManagementListener implements Listener {
             return;
         }
         if (holder.screen() == LandManagementHolder.Screen.MAIN) { if (slot == 11) new LandMapGui(plugin, landManager).open(player); else if (slot == 15) gui.openSettings(player); else if (slot == 26) player.closeInventory(); return; }
-        if (holder.screen() == LandManagementHolder.Screen.SETTINGS) { if (slot == 11) gui.openMembers(player); else if (slot == 13) gui.openMemberList(player); else if (slot == 15) renameListener.begin(player); else if (slot == 26) gui.openMain(player); return; }
+        if (holder.screen() == LandManagementHolder.Screen.SETTINGS) {
+            if (slot == 37) { gui.openMembers(player); return; }
+            if (slot == 40) { gui.openMemberList(player); return; }
+            if (slot == 43) { renameListener.begin(player); return; }
+            if (slot == 53) { gui.openMain(player); return; }
+            var land = landManager.ownedBy(player.getUniqueId()).orElseThrow();
+            MemberPermissions.Permission memberPermission = switch (slot) {
+                case 19 -> MemberPermissions.Permission.BUILD;
+                case 20 -> MemberPermissions.Permission.CONTAINERS;
+                case 21 -> MemberPermissions.Permission.ENTITIES;
+                default -> null;
+            };
+            if (memberPermission != null) {
+                MemberPermissions current = land.memberPermissions();
+                boolean enabled = switch (memberPermission) {
+                    case BUILD -> !current.build(); case CONTAINERS -> !current.containers(); case ENTITIES -> !current.entities();
+                };
+                landManager.updateAllMemberPermissions(player.getUniqueId(), memberPermission, enabled);
+                plugin.refreshAnalyticsIntegration(); gui.openSettings(player); return;
+            }
+            LandProtectionSettings.Setting setting = switch (slot) {
+                case 10 -> LandProtectionSettings.Setting.MEMBER_PVP;
+                case 11 -> LandProtectionSettings.Setting.HOSTILE_MOB_KILLS;
+                case 12 -> LandProtectionSettings.Setting.PASSIVE_MOB_KILLS;
+                case 13 -> LandProtectionSettings.Setting.HOSTILE_MOB_SPAWNS;
+                case 23 -> LandProtectionSettings.Setting.DOORS;
+                case 24 -> LandProtectionSettings.Setting.INTERACTIONS;
+                default -> null;
+            };
+            if (setting != null) {
+                LandProtectionSettings current = land.protectionSettings();
+                boolean enabled = switch (setting) {
+                    case MEMBER_PVP -> !current.memberPvp(); case HOSTILE_MOB_KILLS -> !current.hostileMobKills();
+                    case PASSIVE_MOB_KILLS -> !current.passiveMobKills(); case HOSTILE_MOB_SPAWNS -> !current.hostileMobSpawns();
+                    case DOORS -> !current.doors(); case INTERACTIONS -> !current.interactions();
+                };
+                landManager.updateProtectionSetting(player.getUniqueId(), setting, enabled);
+                plugin.refreshAnalyticsIntegration(); gui.openSettings(player);
+            }
+            return;
+        }
         if (holder.screen() == LandManagementHolder.Screen.ADD_MEMBERS) { if (slot == 53) { gui.openSettings(player); return; } UUID target = holder.playersBySlot().get(slot); if (target != null) { landManager.addMember(player.getUniqueId(), target); plugin.refreshAnalyticsIntegration(); gui.openMemberList(player); } return; }
-        if (holder.screen() == LandManagementHolder.Screen.MEMBERS) { if (slot == 53) { gui.openSettings(player); return; } UUID member = holder.playersBySlot().get(slot); if (member != null) gui.openRights(player, member); return; }
-        if (slot == 53) { gui.openMemberList(player); return; }
-        UUID member = holder.memberId(); if (member == null) return;
-        if (slot == 49) { landManager.removeMember(player.getUniqueId(), member); plugin.refreshAnalyticsIntegration(); gui.openMemberList(player); return; }
-        MemberPermissions.Permission permission = switch (slot) { case 20 -> MemberPermissions.Permission.BUILD; case 22 -> MemberPermissions.Permission.CONTAINERS; case 24 -> MemberPermissions.Permission.ENTITIES; default -> null; };
+        if (holder.screen() == LandManagementHolder.Screen.MEMBERS) { if (slot == 53) { gui.openSettings(player); return; } UUID member = holder.playersBySlot().get(slot); if (member != null) gui.openMemberActions(player, member); return; }
+        if (holder.screen() == LandManagementHolder.Screen.MEMBER) { if (slot == 26) { gui.openMemberList(player); return; } if (slot == 15 && holder.memberId() != null) { landManager.removeMember(player.getUniqueId(), holder.memberId()); plugin.refreshAnalyticsIntegration(); gui.openMemberList(player); } return; }
+        if (holder.screen() == LandManagementHolder.Screen.DEFAULT_RIGHTS && slot == 26) { gui.openSettings(player); return; }
+        MemberPermissions.Permission permission = switch (slot) { case 11 -> MemberPermissions.Permission.BUILD; case 13 -> MemberPermissions.Permission.CONTAINERS; case 15 -> MemberPermissions.Permission.ENTITIES; default -> null; };
         if (permission != null) {
-            var current = landManager.permissions(member, landManager.ownedBy(player.getUniqueId()).orElseThrow().id());
+            var current = landManager.ownedBy(player.getUniqueId()).orElseThrow().memberPermissions();
             boolean enabled = switch (permission) {
                 case BUILD -> !current.build();
                 case CONTAINERS -> !current.containers();
                 case ENTITIES -> !current.entities();
             };
-            landManager.updateMemberPermission(player.getUniqueId(), member, permission, enabled);
+            landManager.updateAllMemberPermissions(player.getUniqueId(), permission, enabled);
             plugin.refreshAnalyticsIntegration();
-            gui.openRights(player, member);
+            gui.openDefaultRights(player);
         }
     }
 }

@@ -5,6 +5,7 @@ import io.github.devkruidenier.landward.model.ClaimedChunk;
 import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.LandMember;
 import io.github.devkruidenier.landward.model.MemberPermissions;
+import io.github.devkruidenier.landward.model.LandProtectionSettings;
 import io.github.devkruidenier.landward.storage.StorageException;
 import io.github.devkruidenier.landward.storage.StorageSnapshot;
 
@@ -24,7 +25,7 @@ import java.util.UUID;
 /** Versioned, lossless backup format used before every storage migration. */
 public final class StorageSnapshotBackup {
     private static final String MAGIC = "LANDWARD-BACKUP";
-    private static final int VERSION = 1;
+    private static final int VERSION = 3;
 
     public void write(Path file, StorageSnapshot snapshot) throws StorageException {
         try {
@@ -44,8 +45,9 @@ public final class StorageSnapshotBackup {
     public StorageSnapshot read(Path file) throws StorageException {
         try (DataInputStream input = new DataInputStream(new BufferedInputStream(Files.newInputStream(file)))) {
             if (!MAGIC.equals(input.readUTF())) throw new StorageException("Not a LandWard migration backup", null);
-            if (input.readInt() != VERSION) throw new StorageException("Unsupported LandWard migration backup version", null);
-            List<Land> lands = readLands(input);
+            int version = input.readInt();
+            if (version < 1 || version > VERSION) throw new StorageException("Unsupported LandWard migration backup version", null);
+            List<Land> lands = readLands(input, version);
             List<ClaimedChunk> claims = readClaims(input);
             List<LandMember> members = readMembers(input);
             int adminCount = count(input);
@@ -59,11 +61,18 @@ public final class StorageSnapshotBackup {
 
     private void writeLands(DataOutputStream output, List<Land> lands) throws IOException {
         output.writeInt(lands.size());
-        for (Land land : lands) { writeUuid(output, land.id()); writeUuid(output, land.ownerId()); output.writeUTF(land.name()); output.writeLong(land.createdAt().toEpochMilli()); }
+        for (Land land : lands) { writeUuid(output, land.id()); writeUuid(output, land.ownerId()); output.writeUTF(land.name()); output.writeLong(land.createdAt().toEpochMilli()); output.writeBoolean(land.memberPermissions().build()); output.writeBoolean(land.memberPermissions().containers()); output.writeBoolean(land.memberPermissions().entities()); output.writeBoolean(land.protectionSettings().memberPvp()); output.writeBoolean(land.protectionSettings().hostileMobKills()); output.writeBoolean(land.protectionSettings().passiveMobKills()); output.writeBoolean(land.protectionSettings().hostileMobSpawns()); output.writeBoolean(land.protectionSettings().doors()); output.writeBoolean(land.protectionSettings().interactions()); }
     }
-    private List<Land> readLands(DataInputStream input) throws IOException, StorageException {
+    private List<Land> readLands(DataInputStream input, int version) throws IOException, StorageException {
         int size = count(input); List<Land> lands = new ArrayList<>(size);
-        for (int index = 0; index < size; index++) lands.add(new Land(readUuid(input), readUuid(input), input.readUTF(), Instant.ofEpochMilli(input.readLong())));
+        for (int index = 0; index < size; index++) {
+            UUID id = readUuid(input); UUID owner = readUuid(input); String name = input.readUTF(); Instant created = Instant.ofEpochMilli(input.readLong());
+            MemberPermissions permissions = version >= 2 ? new MemberPermissions(input.readBoolean(), input.readBoolean(), input.readBoolean()) : MemberPermissions.FULL;
+            LandProtectionSettings settings = version >= 3
+                    ? new LandProtectionSettings(input.readBoolean(), input.readBoolean(), input.readBoolean(), input.readBoolean(), input.readBoolean(), input.readBoolean())
+                    : LandProtectionSettings.DEFAULT;
+            lands.add(new Land(id, owner, name, created, permissions, settings));
+        }
         return lands;
     }
     private void writeClaims(DataOutputStream output, List<ClaimedChunk> claims) throws IOException {

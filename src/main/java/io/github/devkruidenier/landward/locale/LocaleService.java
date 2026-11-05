@@ -12,11 +12,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class LocaleService {
 
     public static final String FALLBACK_LOCALE = "en_US";
+    /** Plugin identity and official update metadata are intentionally not user-configurable. */
+    private static final Set<String> PROTECTED_METADATA_KEYS = Set.of(
+            "command.info-author", "command.info-author-hover", "command.info-releases-hover",
+            "command.info-latest", "command.info-outdated", "command.info-checking"
+    );
 
     private static final List<String> BUNDLED_LOCALES = List.of(
             "en_US", "nl_NL", "de_DE", "fr_FR", "es_ES", "pt_BR", "it_IT",
@@ -50,6 +56,11 @@ public final class LocaleService {
                             new InputStreamReader(input, StandardCharsets.UTF_8)
                     );
                     configured.setDefaults(bundled);
+                    // Merge newly shipped language keys into an existing file without
+                    // replacing any wording a server owner has customised.
+                    configured.options().copyDefaults(true);
+                    PROTECTED_METADATA_KEYS.forEach(key -> configured.set(key, null));
+                    configured.save(target);
                 }
             } catch (Exception exception) {
                 throw new IllegalStateException("Could not load bundled language: " + resource, exception);

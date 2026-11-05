@@ -38,6 +38,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.nio.charset.StandardCharsets;
 
 public final class LandWardPlugin extends JavaPlugin {
@@ -253,15 +257,38 @@ public final class LandWardPlugin extends JavaPlugin {
     private void mergeNewConfigDefaults() {
         try (InputStream resource = getResource("config.yml")) {
             if (resource == null) return;
+            org.bukkit.configuration.file.FileConfiguration existing = getConfig();
             YamlConfiguration bundled = YamlConfiguration.loadConfiguration(
                     new InputStreamReader(resource, StandardCharsets.UTF_8)
             );
-            getConfig().setDefaults(bundled);
-            getConfig().options().copyDefaults(true);
-            // A single deny-list is clearer than an allow-list plus exceptions.
-            getConfig().set("claims.enabled-worlds", null);
-            applyWorldConfigComments();
-            saveConfig();
+            YamlConfiguration newBaseline = new YamlConfiguration();
+            for (String path : bundled.getKeys(true)) {
+                if (!bundled.isConfigurationSection(path)) newBaseline.set(path, bundled.get(path));
+            }
+            File baselineFile = new File(getDataFolder(), ".config-defaults.yml");
+            YamlConfiguration previousBaseline = baselineFile.isFile()
+                    ? YamlConfiguration.loadConfiguration(baselineFile) : null;
+            // Keep values selected by the server owner, but always write the
+            // bundled order, grouping and comments. If a value still matches
+            // LandWard's previous default, a new official default may replace it.
+            // Obsolete keys deliberately disappear instead of accumulating forever.
+            for (String path : bundled.getKeys(true)) {
+                if (!bundled.isConfigurationSection(path) && existing.contains(path)) {
+                    Object current = existing.get(path);
+                    if (previousBaseline == null || !previousBaseline.contains(path)
+                            || !Objects.equals(current, previousBaseline.get(path))) {
+                        bundled.set(path, current);
+                    }
+                }
+            }
+            File configFile = new File(getDataFolder(), "config.yml");
+            File backup = new File(getDataFolder(), "config.yml.before-layout-migration");
+            if (configFile.isFile() && !backup.exists()) {
+                Files.copy(configFile.toPath(), backup.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+            }
+            bundled.save(configFile);
+            newBaseline.save(baselineFile);
+            reloadConfig();
         } catch (Exception exception) {
             getLogger().warning("Could not merge new LandWard config defaults: " + exception.getMessage());
         }

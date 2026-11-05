@@ -16,6 +16,9 @@ public interface LandStorage extends AutoCloseable {
      */
     void importSnapshotAtomically(StorageSnapshot snapshot) throws StorageException;
 
+    /** Removes all LandWard data in one transaction. The caller must make a verified backup first. */
+    void clearSnapshotAtomically() throws StorageException;
+
     void insertLand(Land land) throws StorageException;
 
     void insertLandWithClaim(Land land, ClaimedChunk claim) throws StorageException;
@@ -27,6 +30,15 @@ public interface LandStorage extends AutoCloseable {
 
     /** Changes the UUID that owns a player land. Names are deliberately not persisted. */
     void updateLandOwner(java.util.UUID landId, java.util.UUID ownerId) throws StorageException;
+
+    /** Updates the rights inherited by all current and future members of a player land. */
+    void updateLandMemberPermissions(java.util.UUID landId, io.github.devkruidenier.landward.model.MemberPermissions permissions) throws StorageException;
+
+    /** Applies the land-wide member rights to every existing member in one transaction. */
+    void updateAllMemberPermissions(java.util.UUID landId, io.github.devkruidenier.landward.model.MemberPermissions permissions) throws StorageException;
+
+    /** Updates the member-only gameplay settings of a player land. */
+    void updateLandProtectionSettings(java.util.UUID landId, io.github.devkruidenier.landward.model.LandProtectionSettings settings) throws StorageException;
 
     void insertClaim(ClaimedChunk claim) throws StorageException;
 

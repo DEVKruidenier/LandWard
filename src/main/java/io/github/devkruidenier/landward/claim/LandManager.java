@@ -5,6 +5,7 @@ import io.github.devkruidenier.landward.model.ClaimedChunk;
 import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.LandMember;
 import io.github.devkruidenier.landward.model.LandType;
+import io.github.devkruidenier.landward.model.LandProtectionSettings;
 import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.storage.LandStorage;
 import io.github.devkruidenier.landward.storage.StorageException;
@@ -89,7 +90,7 @@ public final class LandManager {
             return new CreateResult(CreateStatus.CHUNK_ALREADY_CLAIMED, landsById.get(claimedBy));
         }
 
-        Land land = new Land(UUID.randomUUID(), ownerId, name, Instant.now());
+        Land land = new Land(UUID.randomUUID(), ownerId, name, Instant.now(), MemberPermissions.FULL, LandProtectionSettings.DEFAULT);
         storage.insertLandWithClaim(land, new ClaimedChunk(initialPosition, land.id()));
         landsById.put(land.id(), land);
         landsByOwner.put(ownerId, land);
@@ -152,7 +153,7 @@ public final class LandManager {
                 .orElse(null);
         if (administrativeLand == null) {
             String name = nextAdministrativeName(requestedName);
-            administrativeLand = new Land(UUID.randomUUID(), UUID.randomUUID(), name, Instant.now());
+            administrativeLand = new Land(UUID.randomUUID(), UUID.randomUUID(), name, Instant.now(), MemberPermissions.FULL, LandProtectionSettings.DEFAULT);
             storage.insertAdminLandWithClaim(administrativeLand, new ClaimedChunk(position, administrativeLand.id()));
             landsById.put(administrativeLand.id(), administrativeLand);
             landsByName.put(normalizedName(administrativeLand.name()), administrativeLand);
@@ -252,7 +253,7 @@ public final class LandManager {
         Land existing = landsByOwner.get(newOwnerId);
         if (existing != null && !existing.id().equals(landId)) return new TransferResult(TransferStatus.NEW_OWNER_ALREADY_OWNS_LAND, current);
         storage.updateLandOwner(landId, newOwnerId);
-        Land updated = new Land(current.id(), newOwnerId, current.name(), current.createdAt());
+        Land updated = new Land(current.id(), newOwnerId, current.name(), current.createdAt(), current.memberPermissions(), current.protectionSettings());
         landsById.put(landId, updated);
         landsByOwner.remove(current.ownerId());
         landsByOwner.put(newOwnerId, updated);
@@ -273,7 +274,7 @@ public final class LandManager {
         if (existing != null && !existing.id().equals(current.id())) return new RenameResult(RenameStatus.NAME_TAKEN, existing);
         if (current.name().equals(name)) return new RenameResult(RenameStatus.UNCHANGED, current);
         storage.updateLandName(current.id(), name);
-        Land renamed = new Land(current.id(), current.ownerId(), name, current.createdAt());
+        Land renamed = new Land(current.id(), current.ownerId(), name, current.createdAt(), current.memberPermissions(), current.protectionSettings());
         landsById.put(renamed.id(), renamed);
         landsByOwner.put(ownerId, renamed);
         landsByName.remove(normalizedName(current.name()));
@@ -334,7 +335,7 @@ public final class LandManager {
         if (land == null) return new MemberResult(MemberStatus.NO_LAND, null, MemberPermissions.NONE);
         Map<UUID, MemberPermissions> members = membersByLand.computeIfAbsent(land.id(), ignored -> new HashMap<>());
         if (members.containsKey(memberId)) return new MemberResult(MemberStatus.ALREADY_MEMBER, land, members.get(memberId));
-        LandMember member = new LandMember(land.id(), memberId, MemberPermissions.FULL);
+        LandMember member = new LandMember(land.id(), memberId, land.memberPermissions());
         storage.insertMember(member);
         members.put(memberId, member.permissions());
         return new MemberResult(MemberStatus.ADDED, land, member.permissions());
@@ -377,7 +378,7 @@ public final class LandManager {
         if (members.containsKey(memberId)) {
             return new MemberResult(MemberStatus.ALREADY_MEMBER, land, members.get(memberId));
         }
-        LandMember member = new LandMember(land.id(), memberId, MemberPermissions.FULL);
+        LandMember member = new LandMember(land.id(), memberId, land.memberPermissions());
         storage.insertMember(member);
         members.put(memberId, member.permissions());
         return new MemberResult(MemberStatus.ADDED, land, member.permissions());
@@ -416,6 +417,39 @@ public final class LandManager {
         storage.updateMember(new LandMember(land.id(), memberId, updated));
         membersByLand.get(land.id()).put(memberId, updated);
         return new MemberResult(MemberStatus.PERMISSION_UPDATED, land, updated);
+    }
+
+    /** Changes a right for every member of the owner's land, including future additions. */
+    public synchronized MemberPermissions updateAllMemberPermissions(UUID ownerId, MemberPermissions.Permission permission, boolean enabled) throws StorageException {
+        Land current = landsByOwner.get(ownerId);
+        if (current == null) return MemberPermissions.NONE;
+        MemberPermissions updated = current.memberPermissions().with(permission, enabled);
+        storage.updateLandMemberPermissions(current.id(), updated);
+        storage.updateAllMemberPermissions(current.id(), updated);
+        Land land = new Land(current.id(), current.ownerId(), current.name(), current.createdAt(), updated, current.protectionSettings());
+        landsById.put(land.id(), land);
+        landsByOwner.put(land.ownerId(), land);
+        Map<UUID, MemberPermissions> members = membersByLand.get(land.id());
+        if (members != null) {
+            members.replaceAll((member, ignored) -> updated);
+        }
+        return updated;
+    }
+
+    /** Changes one member-only gameplay setting for the owner's land. */
+    public synchronized LandProtectionSettings updateProtectionSetting(
+            UUID ownerId,
+            LandProtectionSettings.Setting setting,
+            boolean enabled
+    ) throws StorageException {
+        Land current = landsByOwner.get(ownerId);
+        if (current == null) return LandProtectionSettings.DEFAULT;
+        LandProtectionSettings updated = current.protectionSettings().with(setting, enabled);
+        storage.updateLandProtectionSettings(current.id(), updated);
+        Land land = new Land(current.id(), current.ownerId(), current.name(), current.createdAt(), current.memberPermissions(), updated);
+        landsById.put(land.id(), land);
+        landsByOwner.put(land.ownerId(), land);
+        return updated;
     }
 
     private boolean isAdjacent(ChunkPosition position, UUID landId) {

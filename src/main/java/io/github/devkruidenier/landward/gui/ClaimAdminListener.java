@@ -66,17 +66,17 @@ public final class ClaimAdminListener implements Listener {
             return;
         }
         if (holder.screen() == ClaimAdminHolder.Screen.ADMIN_SETTINGS) {
-            if (event.getRawSlot() == 26) { gui.openMain(player); return; }
-            if (event.getRawSlot() == 19) { gui.openAdminMemberChoices(player); return; }
-            if (event.getRawSlot() == 21) { gui.openAdminMemberList(player); return; }
+            if (event.getRawSlot() == 53) { gui.openMain(player); return; }
+            if (event.getRawSlot() == 37) { gui.openAdminMemberChoices(player); return; }
+            if (event.getRawSlot() == 40) { gui.openAdminMemberList(player); return; }
             String key = switch (event.getRawSlot()) {
                 case 10 -> "protection.allow-pvp";
                 case 11 -> "protection.allow-hostile-mob-kills";
                 case 12 -> "protection.allow-passive-mob-kills";
-                case 14 -> "protection.allow-containers";
-                case 15 -> "protection.allow-doors";
-                case 16 -> "protection.allow-interactions";
-                case 17 -> "protection.allow-hostile-mob-spawns";
+                case 13 -> "protection.allow-hostile-mob-spawns";
+                case 19 -> "protection.allow-containers";
+                case 20 -> "protection.allow-doors";
+                case 21 -> "protection.allow-interactions";
                 default -> null;
             };
             if (key != null) {
