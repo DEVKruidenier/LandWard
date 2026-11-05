@@ -27,5 +27,8 @@ JAR. The remaining release task is real-release acceptance testing.
 
 ## Broader server compatibility
 
-Evaluate and document tested Paper releases beyond 26.2, and publish only the
-platform/version combinations that have passed the full acceptance suite.
+Paper 26.2 with Java 25 is the current tested runtime. Paper 26.3 is queued for
+a clean-environment acceptance run; it must not be advertised until the full
+matrix passes. Folia remains explicitly unsupported while LandWard is adapted
+for regionised scheduling and tested on Folia. The supported-platform policy is
+documented in [Compatibility](compatibility.md).

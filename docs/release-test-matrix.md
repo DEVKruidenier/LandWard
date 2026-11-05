@@ -1,8 +1,16 @@
 # Release test matrix
 
-Run this matrix against the shaded `LandWard.jar` on a clean Paper 26.2 test
-server before creating the first public release. Record the version, the server
-log and each pass/fail result with the release notes.
+Run this matrix against the shaded `LandWard.jar` on a clean, supported Paper
+test server before creating the first public release. Record the Paper build,
+Java version, server log and each pass/fail result with the release notes.
+
+## Runtime compatibility
+
+- [ ] Verify the tested runtime is Paper 26.2 with Java 25.
+- [ ] For every additional Paper release (including 26.3), use a copied test
+  world and run this complete matrix before declaring it supported.
+- [ ] Do not advertise Folia compatibility or add `folia-supported: true` until
+  LandWard has dedicated regionised-threading support and Folia acceptance tests.
 
 ## Startup and configuration
 

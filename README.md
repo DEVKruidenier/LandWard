@@ -28,8 +28,12 @@ disabled in LandWard's configuration or in the server-wide bStats configuration.
 
 ## Requirements
 
-- Paper 26.2 or newer
-- Java 25 or newer
+- Paper 26.2 (tested)
+- Java 25 (tested)
+
+Paper 26.3 is a planned compatibility target, not yet a supported release.
+Folia is currently unsupported while LandWard is adapted and tested for its
+regionised scheduler model. See [Compatibility](docs/compatibility.md).
 
 ## Build
 
@@ -54,6 +58,7 @@ integration and gameplay test pass is still in progress before the first stable 
 - [Commands](docs/commands.md)
 - [Configuration](docs/configuration.md)
 - [Integrations](docs/integrations.md)
+- [Compatibility](docs/compatibility.md)
 - [Translations](docs/translations.md)
 - [Roadmap](docs/roadmap.md)
 
