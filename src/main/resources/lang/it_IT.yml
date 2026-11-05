@@ -68,6 +68,8 @@ claim:
   not-enough-money: "Ti servono {cost} soldi per rivendicare un chunk."
   vault-unavailable: "L'economia Vault non è disponibile. Contatta un amministratore."
   payment-failed: "Il pagamento non può essere completato. Riprova."
+  paid-xp: "Hai pagato {cost} punti XP per questo chunk."
+  paid-money: "Hai pagato {cost} per questo chunk."
 protection:
   denied: "Questa area è protetta da {name}."
 admin-bypass:

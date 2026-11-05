@@ -68,6 +68,8 @@ claim:
   not-enough-money: "Bir chunk claimlemek için {cost} paraya ihtiyacınız var."
   vault-unavailable: "Vault ekonomisi kullanılamıyor. Lütfen bir yöneticiyle iletişime geçin."
   payment-failed: "Ödemeniz tamamlanamadı. Lütfen tekrar deneyin."
+  paid-xp: "Bu chunk için {cost} XP puanı ödedin."
+  paid-money: "Bu chunk için {cost} ödedin."
 protection:
   denied: "Bu alan {name} tarafından korunuyor."
 admin-bypass:

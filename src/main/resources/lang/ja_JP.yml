@@ -68,6 +68,8 @@ claim:
   not-enough-money: "チャンクを保護するには {cost} のお金が必要です。"
   vault-unavailable: "Vault 経済が利用できません。管理者に連絡してください。"
   payment-failed: "支払いを完了できませんでした。もう一度お試しください。"
+  paid-xp: "このチャンクに {cost} XP を支払いました。"
+  paid-money: "このチャンクに {cost} を支払いました。"
 protection:
   denied: "このエリアは {name} によって保護されています。"
 admin-bypass:

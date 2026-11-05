@@ -68,6 +68,8 @@ claim:
   not-enough-money: "Для привата чанка нужно {cost} денег."
   vault-unavailable: "Экономика Vault недоступна. Обратитесь к администратору."
   payment-failed: "Не удалось завершить платёж. Попробуйте ещё раз."
+  paid-xp: "Вы заплатили {cost} очков опыта за этот чанк."
+  paid-money: "Вы заплатили {cost} за этот чанк."
 protection:
   denied: "Эта область защищена территорией {name}."
 admin-bypass:

@@ -68,6 +68,8 @@ claim:
   not-enough-money: "청크를 점유하려면 {cost}의 돈이 필요합니다."
   vault-unavailable: "Vault 경제 시스템을 사용할 수 없습니다. 관리자에게 문의하세요."
   payment-failed: "결제를 완료할 수 없습니다. 다시 시도하세요."
+  paid-xp: "이 청크에 {cost} XP를 지불했습니다."
+  paid-money: "이 청크에 {cost}를 지불했습니다."
 protection:
   denied: "이 지역은 {name}에 의해 보호됩니다."
 admin-bypass:

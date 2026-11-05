@@ -68,6 +68,8 @@ claim:
   not-enough-money: "Je hebt {cost} geld nodig om een chunk te claimen."
   vault-unavailable: "Vault-economie is niet beschikbaar. Neem contact op met een beheerder."
   payment-failed: "Je betaling kon niet worden uitgevoerd. Probeer het opnieuw."
+  paid-xp: "Je hebt {cost} XP-punten betaald voor deze chunk."
+  paid-money: "Je hebt {cost} betaald voor deze chunk."
 protection:
   denied: "Dit gebied is beschermd door {name}."
 admin-bypass:

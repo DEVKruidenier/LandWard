@@ -200,7 +200,10 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 "name", result.land() == null ? name : result.land().name()
         )));
         if (result.status() != LandManager.CreateStatus.CREATED) charge.refund(player);
-        else plugin.syncMapIntegrations();
+        else {
+            announceCharge(player, charge);
+            plugin.syncMapIntegrations();
+        }
         return true;
     }
 
@@ -251,7 +254,10 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                 "limit", maximum
         )));
         if (result.status() != LandManager.ClaimStatus.CLAIMED) charge.refund(player);
-        else plugin.syncMapIntegrations();
+        else {
+            announceCharge(player, charge);
+            plugin.syncMapIntegrations();
+        }
         return true;
     }
 
@@ -485,6 +491,15 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         }
         plugin.getLogger().warning("Unknown payments.mode '" + mode + "'; treating claims as free.");
         return PaymentCharge.free();
+    }
+
+    /** Reports a completed charge only after the associated claim was saved. */
+    private void announceCharge(Player player, PaymentCharge charge) {
+        if (charge.experience != null) {
+            player.sendMessage(message(player, "claim.paid-xp", Map.of("cost", charge.cost())));
+        } else if (charge.vault != null) {
+            player.sendMessage(message(player, "claim.paid-money", Map.of("cost", charge.cost())));
+        }
     }
 
     private record PaymentCharge(ExperiencePayments experience, VaultPayments vault, String messageKey, double cost) {

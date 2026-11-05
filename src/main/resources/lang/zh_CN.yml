@@ -68,6 +68,8 @@ claim:
   not-enough-money: "认领一个区块需要 {cost} 金钱。"
   vault-unavailable: "Vault 经济系统不可用。请联系管理员。"
   payment-failed: "无法完成付款。请重试。"
+  paid-xp: "你为该区块支付了 {cost} 点经验。"
+  paid-money: "你为该区块支付了 {cost}。"
 protection:
   denied: "此区域受 {name} 保护。"
 admin-bypass:
