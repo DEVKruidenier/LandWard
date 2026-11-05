@@ -186,6 +186,13 @@ startup:
   status-enabled: "ativada"
   status-disabled: "desativada"
 updates:
+  stage-info-staging: "Downloading update"
+  stage-info-staged: "Update staged"
+  stage-info-click: "Click to safely download the update"
+  stage-unavailable: "No verified update download is available."
+  stage-started: "Downloading LandWard {version} to the update staging area..."
+  stage-complete: "Update verified and staged as {file}. Stop the server and replace the plugin JAR with this staged file."
+  stage-failed: "Update download failed: {reason}"
   no-release: "Verificação de atualizações: nenhuma versão publicada foi encontrada."
   up-to-date: "Verificação de atualizações: o LandWard está atualizado ({version})."
   available: "Atualização disponível: {latest} (instalada: {current}). Download: {url}"

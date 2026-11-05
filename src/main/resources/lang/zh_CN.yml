@@ -186,6 +186,13 @@ startup:
   status-enabled: "已启用"
   status-disabled: "已禁用"
 updates:
+  stage-info-staging: "Downloading update"
+  stage-info-staged: "Update staged"
+  stage-info-click: "Click to safely download the update"
+  stage-unavailable: "No verified update download is available."
+  stage-started: "Downloading LandWard {version} to the update staging area..."
+  stage-complete: "Update verified and staged as {file}. Stop the server and replace the plugin JAR with this staged file."
+  stage-failed: "Update download failed: {reason}"
   no-release: "更新检查：未找到已发布版本。"
   up-to-date: "更新检查：LandWard 已是最新版本（{version}）。"
   available: "有可用更新：{latest}（已安装：{current}）。下载：{url}"

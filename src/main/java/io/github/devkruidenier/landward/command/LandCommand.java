@@ -35,7 +35,7 @@ import java.util.Optional;
 
 public final class LandCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> ROOT_COMPLETIONS = List.of("help", "info", "menu", "adminbypass");
+    private static final List<String> ROOT_COMPLETIONS = List.of("help", "info", "menu", "adminbypass", "update");
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -58,6 +58,10 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
     ) {
         if (arguments.length == 1 && arguments[0].equalsIgnoreCase("help")) {
             sendHelp(sender);
+            return true;
+        }
+        if (arguments.length == 1 && arguments[0].equalsIgnoreCase("update")) {
+            stageUpdate(sender);
             return true;
         }
 
@@ -99,6 +103,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         String prefix = arguments[0].toLowerCase(Locale.ROOT);
         return ROOT_COMPLETIONS.stream()
                 .filter(completion -> !completion.equals("adminbypass") || sender.hasPermission("landward.bypass"))
+                .filter(completion -> !completion.equals("update") || sender.hasPermission("landward.admin"))
                 .filter(completion -> completion.startsWith(prefix))
                 .toList();
     }
@@ -124,6 +129,26 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         boolean enabled = plugin.adminBypasses().toggle(player.getUniqueId());
         player.sendMessage(message(player, enabled ? "admin-bypass.enabled" : "admin-bypass.disabled"));
         return true;
+    }
+
+    private void stageUpdate(CommandSender sender) {
+        if (!sender.hasPermission("landward.admin")) {
+            sender.sendMessage(message(sender, "general.no-permission"));
+            return;
+        }
+        UpdateChecker.UpdateStatus current = plugin.updateChecker().status();
+        if (current.state() != UpdateChecker.State.OUTDATED || current.asset() == null) {
+            sender.sendMessage(message(sender, "updates.stage-unavailable"));
+            return;
+        }
+        sender.sendMessage(message(sender, "updates.stage-started", Map.of("version", current.latestVersion())));
+        plugin.updateChecker().stageLatestRelease().whenComplete((result, error) -> plugin.getServer().getScheduler().runTask(plugin, () -> {
+            if (error != null || result == null || !result.success()) {
+                sender.sendMessage(message(sender, "updates.stage-failed", Map.of("reason", error == null && result != null ? result.detail() : "unexpected error")));
+                return;
+            }
+            sender.sendMessage(message(sender, "updates.stage-complete", Map.of("file", result.stagedFile().getFileName())));
+        }));
     }
 
     private boolean create(Player player, String[] arguments) throws StorageException {
@@ -294,12 +319,22 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         String locale = plugin.localeService().localeFor(player);
         return switch (status.state()) {
             case LATEST -> Component.text(" (" + plugin.localeService().message(locale, "command.info-latest") + ")", NamedTextColor.GREEN);
-            case OUTDATED -> Component.text(" (" + plugin.localeService().message(locale, "command.info-outdated", Map.of("version", status.latestVersion())) + ")", NamedTextColor.RED)
-                    .clickEvent(ClickEvent.openUrl("https://github.com/DEVKruidenier/LandWard/releases"))
-                    .hoverEvent(HoverEvent.showText(Component.text("Open releases", NamedTextColor.GRAY)));
+            case OUTDATED -> outdatedStatus(player, locale, status);
+            case STAGING -> Component.text(" (" + plugin.localeService().message(locale, "updates.stage-info-staging") + ")", NamedTextColor.YELLOW);
+            case STAGED -> Component.text(" (" + plugin.localeService().message(locale, "updates.stage-info-staged") + ")", NamedTextColor.GREEN);
             case CHECKING -> Component.text(" (" + plugin.localeService().message(locale, "command.info-checking") + ")", NamedTextColor.YELLOW);
             case UNAVAILABLE, DISABLED -> Component.empty();
         };
+    }
+
+    private Component outdatedStatus(Player player, String locale, UpdateChecker.UpdateStatus status) {
+        Component component = Component.text(" (" + plugin.localeService().message(locale, "command.info-outdated", Map.of("version", status.latestVersion())) + ")", NamedTextColor.RED);
+        if (player.hasPermission("landward.admin") && status.asset() != null) {
+            return component.clickEvent(ClickEvent.runCommand("/claim update"))
+                    .hoverEvent(HoverEvent.showText(Component.text(plugin.localeService().message(locale, "updates.stage-info-click"), NamedTextColor.GRAY)));
+        }
+        return component.clickEvent(ClickEvent.openUrl("https://github.com/DEVKruidenier/LandWard/releases"))
+                .hoverEvent(HoverEvent.showText(Component.text("Open releases", NamedTextColor.GRAY)));
     }
 
     private boolean list(Player player) {

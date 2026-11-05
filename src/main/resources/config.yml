@@ -38,6 +38,8 @@ console:
 updates:
   # Check GitHub Releases asynchronously during startup. This never blocks the Paper main thread.
   enabled: true
+  # Largest GitHub release JAR that an administrator may stage with /claim update, in MiB.
+  maximum-download-megabytes: 32
 
 claims:
   # Require every new chunk claim to share a horizontal edge with an existing chunk of the same land.

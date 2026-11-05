@@ -49,6 +49,13 @@ also disable bStats globally in `plugins/bStats/config.yml`.
 LandWard checks GitHub Releases asynchronously during startup. The check never
 blocks Paper's main server thread. Set `updates.enabled` to `false` to disable it.
 
+When an administrator runs `/claim info` and a release is marked **Outdated**,
+they can click it or run `/claim update`. LandWard accepts only an official
+GitHub Release JAR with a published SHA-256 digest, verifies its size, checksum
+and `plugin.yml`, then saves it in `plugins/LandWard/updates/`. It never replaces
+a loaded JAR. Stop the server and replace the plugin JAR with the staged file;
+`updates.maximum-download-megabytes` limits the accepted download size.
+
 ## Console colors
 
 LandWard uses Paper's Adventure component logger for colored, structured console
