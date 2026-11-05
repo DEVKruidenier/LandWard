@@ -1,0 +1,72 @@
+# Release test matrix
+
+Run this matrix against the shaded `LandWard.jar` on a clean Paper 26.2 test
+server before creating the first public release. Record the version, the server
+log and each pass/fail result with the release notes.
+
+## Startup and configuration
+
+- [ ] Start with a fresh `plugins/LandWard` directory. Confirm the startup panel
+  identifies the version, storage type, loaded-claim count, selected language,
+  metrics state and update-check state.
+- [ ] Confirm `config.yml` contains documented English comments, `myworld` in
+  `claims.disabled-worlds`, and every bundled language file.
+- [ ] Remove `myworld`, restart, then use **ClaimAdmin → Active worlds** to
+  disable and re-enable a world. Confirm the setting persists without removing
+  claims in that world.
+- [ ] Change a safe setting, restart and confirm configuration defaults were
+  merged without overwriting the changed value.
+
+## Player land workflow
+
+- [ ] With `landward.use`, run `/claim`, create a named land through the GUI,
+  and claim an adjacent grey tile from the chunk map.
+- [ ] Confirm the current chunk stays centred on slot 22, chunk coordinates and
+  owners are shown, and the back arrow is in the lower-right slot.
+- [ ] Verify unclaim confirmation, final-chunk deletion, anvil rename (including
+  rename cost `0`), member addition/removal and the build/container/entity
+  switches.
+- [ ] Verify `/land` and `/landward` route to `/claim`, while `/claim info`
+  shows the version, author and update state.
+- [ ] Verify entry/exit notifications contain only the owner/land message.
+
+## Protection and admin claims
+
+- [ ] As a non-member, verify block changes, containers, entities, fluids,
+  pistons, explosions and fire spread cannot damage another player's claim.
+- [ ] Verify `/claim adminbypass` requires `landward.bypass`, is opt-in and is
+  cleared on logout.
+- [ ] In **ClaimAdmin**, verify player claims and purple admin claims are kept
+  separate. Ensure an admin cannot delete one type from the other map.
+- [ ] Create an admin claim over a WorldGuard region and verify the player claim
+  map still rejects that overlap.
+- [ ] Test admin-claim PvP, hostile/passive mob kills, hostile spawning,
+  containers, doors, signs/buttons/levers and trusted admin members against each
+  corresponding config switch.
+
+## Payments, storage and integrations
+
+- [ ] Test `payments.mode: free`, `experience` and `vault`; confirm failed
+  claims refund XP/money and an unavailable Vault provider is reported safely.
+- [ ] Run `/claimadmin migrate mysql confirm` on an empty-player server with a
+  dedicated MySQL database. Restart using MySQL, validate every land, chunk,
+  member, permission and admin-claim marker, then migrate back to SQLite.
+- [ ] Verify WorldGuard overlap denial and vanilla spawn-protection denial.
+- [ ] Verify BlueMap, Squaremap and Pl3xMap show normal claims in green and
+  admin claims in purple, at exact 16×16 chunk boundaries.
+- [ ] With PlaceholderAPI, verify every documented `%landward_*%` placeholder.
+  With Plan installed, verify the read-only LandWard statistics panel.
+- [ ] Test LandWard's fallback combat tag and each installed supported tagger
+  (CombatLogX, DeluxeCombat, PvPManager, EternalCombat): tagged players cannot
+  abandon claims, and tagged combatants cannot use a protected claim to escape.
+
+## Release safeguards
+
+- [ ] Check `/claim update` accepts only a verified GitHub Release asset, stages
+  it without replacing the running JAR, and rejects an unexpected checksum.
+- [ ] Confirm bStats remains optional and does not require a separate plugin.
+- [ ] Run `./gradlew test shadowJar --no-daemon --console=plain` and preserve a
+  successful log with the release artifacts.
+
+Dynmap is optional and not a Paper 26.2 release gate until Dynmap publishes a
+compatible build. LandWard must simply skip a disabled Dynmap plugin safely.
