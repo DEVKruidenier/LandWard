@@ -4,8 +4,13 @@ import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.LandType;
 import io.github.devkruidenier.landward.model.MemberPermissions;
+import io.github.devkruidenier.landward.storage.migration.StorageMigrationService;
+import io.github.devkruidenier.landward.storage.sqlite.SqliteLandStorage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,20 +24,15 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  */
 final class MySqlLandStorageIntegrationTest {
 
+    @TempDir
+    Path temporaryDirectory;
+
     @Test
     void persistsPlayerAndAdministrativeClaimsOnRealMySql() throws Exception {
         assumeTrue(Boolean.parseBoolean(System.getenv("LANDWARD_MYSQL_INTEGRATION")),
                 "Set LANDWARD_MYSQL_INTEGRATION=true to run against a real MySQL-compatible server.");
 
-        try (MySqlLandStorage storage = new MySqlLandStorage(
-                setting("LANDWARD_MYSQL_HOST", "127.0.0.1"),
-                Integer.parseInt(setting("LANDWARD_MYSQL_PORT", "3306")),
-                required("LANDWARD_MYSQL_DATABASE"),
-                required("LANDWARD_MYSQL_USER"),
-                required("LANDWARD_MYSQL_PASSWORD"),
-                false,
-                2
-        )) {
+        try (MySqlLandStorage storage = mysqlStorage()) {
             storage.initialize();
             LandManager manager = new LandManager(storage);
             manager.load();
@@ -64,6 +64,35 @@ final class MySqlLandStorageIntegrationTest {
             assertEquals(LandType.ADMIN, reloaded.typeOf(reloaded.landAt(adminChunk).orElseThrow()));
             assertEquals(MemberPermissions.FULL, reloaded.permissions(administratorMember, adminLand.id()));
         }
+    }
+
+    @Test
+    void safelyMigratesARealMySqlSnapshotToSQLite() throws Exception {
+        assumeTrue(Boolean.parseBoolean(System.getenv("LANDWARD_MYSQL_INTEGRATION")),
+                "Set LANDWARD_MYSQL_INTEGRATION=true to run against a real MySQL-compatible server.");
+
+        try (MySqlLandStorage source = mysqlStorage()) {
+            source.initialize();
+            var sourceSnapshot = source.load();
+            assumeTrue(!sourceSnapshot.lands().isEmpty(), "Run the MySQL storage test before migration verification.");
+            try (SqliteLandStorage target = new SqliteLandStorage(temporaryDirectory.resolve("migrated.db"))) {
+                var result = new StorageMigrationService(temporaryDirectory.resolve("backups")).migrate(source, target);
+                assertEquals(sourceSnapshot, target.load());
+                assertTrue(Files.size(result.backup()) > 0);
+            }
+        }
+    }
+
+    private static MySqlLandStorage mysqlStorage() {
+        return new MySqlLandStorage(
+                setting("LANDWARD_MYSQL_HOST", "127.0.0.1"),
+                Integer.parseInt(setting("LANDWARD_MYSQL_PORT", "3306")),
+                required("LANDWARD_MYSQL_DATABASE"),
+                required("LANDWARD_MYSQL_USER"),
+                required("LANDWARD_MYSQL_PASSWORD"),
+                false,
+                2
+        );
     }
 
     private static String setting(String name, String fallback) {
