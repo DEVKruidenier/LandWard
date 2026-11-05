@@ -6,6 +6,7 @@ import io.github.devkruidenier.landward.model.ClaimedChunk;
 import io.github.devkruidenier.landward.model.Land;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -25,10 +26,13 @@ public final class DynmapIntegration {
     }
 
     public void sync() {
-        if (!plugin.getConfig().getBoolean("integrations.dynmap.enabled", true)
-                || plugin.getServer().getPluginManager().getPlugin("dynmap") == null) return;
+        if (!plugin.getConfig().getBoolean("integrations.dynmap.enabled", true)) return;
+        Plugin dynmapPlugin = plugin.getServer().getPluginManager().getPlugin("dynmap");
+        // Paper still exposes a plugin instance after that plugin disables itself
+        // for an unsupported server version. Never call its incomplete API.
+        if (dynmapPlugin == null || !dynmapPlugin.isEnabled()) return;
         try {
-            Object dynmap = plugin.getServer().getPluginManager().getPlugin("dynmap");
+            Object dynmap = dynmapPlugin;
             Object markerApi = invoke(dynmap, "getMarkerAPI");
             if (markerApi == null) return;
             Object priorSet = invoke(markerApi, "getMarkerSet", SET_ID);
