@@ -1,12 +1,13 @@
 # Roadmap
 
-This page tracks work deliberately deferred from the current test build. Items are
-not considered released features until they have automated coverage and an in-game
-Paper verification.
+This page tracks release follow-up work. Implemented features are documented here
+only when they still need broader Paper gameplay verification before the first
+stable release.
 
 ## Storage migration
 
-Provide an administrator-only, explicit migration workflow for both directions:
+The administrator-only, explicit migration workflow is implemented for both
+directions:
 
 - SQLite → MySQL/MariaDB
 - MySQL/MariaDB → SQLite
@@ -19,10 +20,10 @@ run as an implicit side effect of changing `storage.type`.
 
 ## Release update workflow
 
-Expose the result of the GitHub update check in `/claim info` as **Latest** or
-**Outdated**. For administrators, an available update should offer a safe download
-action which verifies the release artifact and stages it for the next server
-restart; it must not hot-replace a running plugin JAR.
+The GitHub update check exposes **Latest** or **Outdated** in `/claim info`. For
+administrators, `/claim update` safely downloads and verifies the release artifact
+and stages it for the next server restart; it never hot-replaces a running plugin
+JAR. The remaining release task is real-release acceptance testing.
 
 ## Broader server compatibility
 
