@@ -1,6 +1,7 @@
 package io.github.devkruidenier.landward.locale;
 
 import org.junit.jupiter.api.Test;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -32,6 +33,21 @@ final class LocaleCatalogParityTest {
             Set<String> translated = keys(locale);
             assertTrue(translated.containsAll(english),
                     "Language catalog is missing English message keys: " + locale);
+        }
+    }
+
+    @Test
+    void everyBundledCatalogIsValidYaml() {
+        Yaml yaml = new Yaml();
+        for (String locale : LOCALES) {
+            InputStream resource = getClass().getClassLoader().getResourceAsStream("lang/" + locale + ".yml");
+            if (resource == null) throw new IllegalStateException("Missing bundled language: " + locale);
+            try (InputStream input = resource) {
+                Object document = yaml.load(new InputStreamReader(input, StandardCharsets.UTF_8));
+                assertTrue(document instanceof Map<?, ?>, "Language catalog is not a YAML mapping: " + locale);
+            } catch (Exception exception) {
+                throw new IllegalStateException("Could not parse language catalog " + locale, exception);
+            }
         }
     }
 

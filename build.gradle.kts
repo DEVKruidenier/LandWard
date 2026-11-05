@@ -37,6 +37,7 @@ dependencies {
 
     testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.yaml:snakeyaml:2.5")
     testImplementation("com.djrapitops:plan-api:5.7-R0.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
