@@ -79,6 +79,11 @@ admin:
   owner-unchanged: "{player} já possui este terreno."
   owner-already-owns: "{player} já possui outro terreno."
   owner-invalid-land: "Somente terrenos de jogadores podem mudar de proprietário."
+  migration-usage: "Uso: /claimadmin migrate <sqlite|mysql> confirm"
+  migration-online: "Por segurança, execute a migração pelo console sem jogadores online."
+  migration-same-type: "O tipo de armazenamento selecionado já está ativo."
+  migration-complete: "Migração verificada: {lands} terrenos, {claims} claims e {members} membros. Backup: {backup}. Reinicie o servidor para ativar o novo armazenamento."
+  migration-failed: "A migração falhou. O armazenamento ativo não foi alterado. Verifique o console."
 gui:
   admin-reload: "Recarregar LandWard"
   admin-reload-hint: "Recarregar config, idiomas e camadas do mapa"

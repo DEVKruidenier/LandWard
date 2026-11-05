@@ -10,6 +10,12 @@ public interface LandStorage extends AutoCloseable {
 
     StorageSnapshot load() throws StorageException;
 
+    /**
+     * Imports a complete snapshot into an empty database in one transaction.
+     * Implementations must roll back the target completely if any row fails.
+     */
+    void importSnapshotAtomically(StorageSnapshot snapshot) throws StorageException;
+
     void insertLand(Land land) throws StorageException;
 
     void insertLandWithClaim(Land land, ClaimedChunk claim) throws StorageException;

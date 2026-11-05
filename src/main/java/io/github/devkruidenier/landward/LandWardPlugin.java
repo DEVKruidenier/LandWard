@@ -66,7 +66,7 @@ public final class LandWardPlugin extends JavaPlugin {
         this.localeService = new LocaleService(this);
         this.localeService.initialize();
 
-        this.storage = createStorage();
+        this.storage = createStorage(getConfig().getString("storage.type", "sqlite"));
         try {
             storage.initialize();
             this.landManager = new LandManager(storage);
@@ -226,8 +226,9 @@ public final class LandWardPlugin extends JavaPlugin {
         syncMapIntegrations();
     }
 
-    private LandStorage createStorage() {
-        String type = getConfig().getString("storage.type", "sqlite").trim();
+    /** Creates an independent configured storage connection for the selected backend. */
+    public LandStorage createStorage(String requestedType) {
+        String type = requestedType == null ? "sqlite" : requestedType.trim();
         if (type.equalsIgnoreCase("sqlite")) {
             return new SqliteLandStorage(getDataFolder().toPath().resolve("landward.db"));
         }

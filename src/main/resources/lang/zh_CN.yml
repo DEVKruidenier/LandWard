@@ -79,6 +79,11 @@ admin:
   owner-unchanged: "{player} 已是此领地的主人。"
   owner-already-owns: "{player} 已拥有另一块领地。"
   owner-invalid-land: "只有玩家领地可以更改所有者。"
+  migration-usage: "用法：/claimadmin migrate <sqlite|mysql> confirm"
+  migration-online: "为安全起见，请在没有玩家在线时从控制台执行存储迁移。"
+  migration-same-type: "所选存储类型已启用。"
+  migration-complete: "迁移已验证：{lands} 个领地、{claims} 个区块和 {members} 位成员。备份：{backup}。重启服务器以启用新存储。"
+  migration-failed: "存储迁移失败。活动存储未更改。请检查控制台。"
 gui:
   admin-reload: "重新加载 LandWard"
   admin-reload-hint: "重新加载配置、语言和地图图层"

@@ -79,6 +79,11 @@ admin:
   owner-unchanged: "{player} はすでにこの土地の所有者です。"
   owner-already-owns: "{player} はすでに別の土地を所有しています。"
   owner-invalid-land: "所有者を変更できるのはプレイヤーの土地だけです。"
+  migration-usage: "使用法: /claimadmin migrate <sqlite|mysql> confirm"
+  migration-online: "安全のため、プレイヤーがオンラインでないときにコンソールからストレージ移行を実行してください。"
+  migration-same-type: "選択したストレージ種別はすでに有効です。"
+  migration-complete: "移行を確認しました: 土地 {lands}、チャンク {claims}、メンバー {members}。バックアップ: {backup}。新しいストレージを有効にするにはサーバーを再起動してください。"
+  migration-failed: "ストレージ移行に失敗しました。使用中のストレージは変更されていません。コンソールを確認してください。"
 gui:
   admin-reload: "LandWard を再読み込み"
   admin-reload-hint: "設定、言語、地図レイヤーを再読み込み"

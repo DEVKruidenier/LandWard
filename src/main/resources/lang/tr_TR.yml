@@ -79,6 +79,11 @@ admin:
   owner-unchanged: "{player} zaten bu arazinin sahibi."
   owner-already-owns: "{player} zaten başka bir araziye sahip."
   owner-invalid-land: "Yalnızca oyuncu arazilerinin sahibi değiştirilebilir."
+  migration-usage: "Kullanım: /claimadmin migrate <sqlite|mysql> confirm"
+  migration-online: "Güvenlik için depolama geçişini oyuncu çevrimiçi değilken konsoldan çalıştırın."
+  migration-same-type: "Seçilen depolama türü zaten etkin."
+  migration-complete: "Geçiş doğrulandı: {lands} arazi, {claims} claim ve {members} üye. Yedek: {backup}. Yeni depolamayı etkinleştirmek için sunucuyu yeniden başlatın."
+  migration-failed: "Depolama geçişi başarısız oldu. Etkin depolama değiştirilmedi. Konsolu kontrol edin."
 gui:
   admin-reload: "LandWard'ı yeniden yükle"
   admin-reload-hint: "Yapılandırmayı, dilleri ve harita katmanlarını yeniden yükle"

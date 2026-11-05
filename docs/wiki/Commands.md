@@ -10,6 +10,7 @@ All player commands begin with `/claim`.
 | `/claim menu` | Open the land-management GUI. |
 | `/claimadmin` | Open administration: separate player-claim moderation, admin claims and active-world controls. Requires `landward.admin`. |
 | `/claimadmin reload` | Reload config, language files and map layers. Requires `landward.admin`. |
+| `/claimadmin migrate <sqlite\|mysql> confirm` | Console-only migration to an empty configured target backend. Requires no online players; creates and verifies a full backup before changing `storage.type` for the next restart. |
 
 Only the land owner can add members, remove members or change rights. Members may belong to multiple lands. Legacy typed mutation subcommands redirect to the GUI so every action follows the same confirmation and permission flow.
 

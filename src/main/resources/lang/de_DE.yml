@@ -80,6 +80,11 @@ admin:
   owner-unchanged: "{player} besitzt dieses Land bereits."
   owner-already-owns: "{player} besitzt bereits ein anderes Land."
   owner-invalid-land: "Nur Spielerland kann einen anderen Eigentümer erhalten."
+  migration-usage: "Verwendung: /claimadmin migrate <sqlite|mysql> confirm"
+  migration-online: "Führe die Speichermigration aus Sicherheitsgründen über die Konsole aus, wenn keine Spieler online sind."
+  migration-same-type: "Der gewählte Speichertyp ist bereits aktiv."
+  migration-complete: "Migration geprüft: {lands} Länder, {claims} Claims und {members} Mitglieder. Sicherung: {backup}. Starte den Server neu, um den neuen Speicher zu aktivieren."
+  migration-failed: "Speichermigration fehlgeschlagen. Der aktive Speicher wurde nicht geändert. Prüfe die Konsole."
 gui:
   admin-reload: "LandWard neu laden"
   admin-reload-hint: "Konfiguration, Sprachen und Kartenebenen neu laden"

@@ -79,6 +79,11 @@ admin:
   owner-unchanged: "{player} is al de eigenaar van dit land."
   owner-already-owns: "{player} bezit al een ander land."
   owner-invalid-land: "Alleen het eigenaarschap van spelersland kan worden gewijzigd."
+  migration-usage: "Gebruik: /claimadmin migrate <sqlite|mysql> confirm"
+  migration-online: "Voer de opslagmigratie voor de veiligheid uit vanuit de console wanneer er geen spelers online zijn."
+  migration-same-type: "Het gekozen opslagtype is al actief."
+  migration-complete: "Migratie gecontroleerd: {lands} landen, {claims} claims en {members} leden. Back-up: {backup}. Herstart de server om de nieuwe opslag te activeren."
+  migration-failed: "Opslagmigratie mislukt. De actieve opslag is niet gewijzigd. Controleer de console."
 gui:
   admin-reload: "LandWard herladen"
   admin-reload-hint: "Herlaad config, talen en kaartlagen"

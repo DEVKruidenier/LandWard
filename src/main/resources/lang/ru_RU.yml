@@ -79,6 +79,11 @@ admin:
   owner-unchanged: "{player} уже владеет этой территорией."
   owner-already-owns: "{player} уже владеет другой территорией."
   owner-invalid-land: "Сменить владельца можно только у территории игрока."
+  migration-usage: "Использование: /claimadmin migrate <sqlite|mysql> confirm"
+  migration-online: "Для безопасности запускайте миграцию из консоли, когда игроков нет в сети."
+  migration-same-type: "Выбранный тип хранилища уже активен."
+  migration-complete: "Миграция проверена: {lands} территорий, {claims} приватов и {members} участников. Резервная копия: {backup}. Перезапустите сервер для нового хранилища."
+  migration-failed: "Миграция хранилища не удалась. Активное хранилище не изменено. Проверьте консоль."
 gui:
   admin-reload: "Перезагрузить LandWard"
   admin-reload-hint: "Перезагрузить конфигурацию, языки и слои карты"

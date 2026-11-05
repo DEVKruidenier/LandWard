@@ -137,6 +137,30 @@ public final class SqliteLandStorage implements LandStorage {
     }
 
     @Override
+    public void importSnapshotAtomically(StorageSnapshot snapshot) throws StorageException {
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                for (Land land : snapshot.lands()) insertLand(connection, land);
+                for (UUID landId : snapshot.adminLandIds()) {
+                    try (PreparedStatement statement = connection.prepareStatement("INSERT INTO admin_lands(land_id) VALUES (?)")) {
+                        statement.setString(1, landId.toString());
+                        statement.executeUpdate();
+                    }
+                }
+                for (ClaimedChunk claim : snapshot.claims()) insertClaim(connection, claim);
+                for (LandMember member : snapshot.members()) insertMember(connection, member);
+                connection.commit();
+            } catch (SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
+        } catch (SQLException exception) {
+            throw new StorageException("Could not atomically import SQLite snapshot", exception);
+        }
+    }
+
+    @Override
     public void insertLand(Land land) throws StorageException {
         String sql = "INSERT INTO lands(id, owner_uuid, name, created_at) VALUES (?, ?, ?, ?)";
         try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -343,6 +367,37 @@ public final class SqliteLandStorage implements LandStorage {
             statement.setInt(2, claim.position().x());
             statement.setInt(3, claim.position().z());
             statement.setString(4, claim.landId().toString());
+            statement.executeUpdate();
+        }
+    }
+
+    private static void insertLand(Connection connection, Land land) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO lands(id, owner_uuid, name, created_at) VALUES (?, ?, ?, ?)")) {
+            statement.setString(1, land.id().toString());
+            statement.setString(2, land.ownerId().toString());
+            statement.setString(3, land.name());
+            statement.setLong(4, land.createdAt().toEpochMilli());
+            statement.executeUpdate();
+        }
+    }
+
+    private static void insertClaim(Connection connection, ClaimedChunk claim) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO claims(world_uuid, chunk_x, chunk_z, land_id) VALUES (?, ?, ?, ?)")) {
+            statement.setString(1, claim.position().worldId().toString());
+            statement.setInt(2, claim.position().x());
+            statement.setInt(3, claim.position().z());
+            statement.setString(4, claim.landId().toString());
+            statement.executeUpdate();
+        }
+    }
+
+    private static void insertMember(Connection connection, LandMember member) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO land_members(land_id, player_uuid, can_build, can_containers, can_entities) VALUES (?, ?, ?, ?, ?)")) {
+            statement.setString(1, member.landId().toString());
+            statement.setString(2, member.playerId().toString());
+            statement.setBoolean(3, member.permissions().build());
+            statement.setBoolean(4, member.permissions().containers());
+            statement.setBoolean(5, member.permissions().entities());
             statement.executeUpdate();
         }
     }
