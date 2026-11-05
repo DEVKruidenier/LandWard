@@ -7,6 +7,7 @@ import io.github.devkruidenier.landward.model.Land;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 import java.awt.Color;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -18,7 +19,8 @@ public final class SquaremapIntegration {
     private final LandWardPlugin plugin; private final LandManager lands; private boolean failureLogged;
     public SquaremapIntegration(LandWardPlugin plugin, LandManager lands) { this.plugin = plugin; this.lands = lands; }
     public void sync() {
-        if (!plugin.getConfig().getBoolean("integrations.squaremap.enabled", true) || plugin.getServer().getPluginManager().getPlugin("squaremap") == null) return;
+        Plugin squaremap = plugin.getServer().getPluginManager().getPlugin("squaremap");
+        if (!plugin.getConfig().getBoolean("integrations.squaremap.enabled", true) || squaremap == null || !squaremap.isEnabled()) return;
         try {
             Object map = Class.forName("xyz.jpenilla.squaremap.api.SquaremapProvider").getMethod("get").invoke(null);
             Object layerKey = key("landward_claims");

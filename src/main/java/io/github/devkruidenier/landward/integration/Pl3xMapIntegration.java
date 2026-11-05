@@ -26,7 +26,7 @@ public final class Pl3xMapIntegration {
     public void sync() {
         if (!plugin.getConfig().getBoolean("integrations.pl3xmap.enabled", true)) return;
         Plugin pl3x = plugin.getServer().getPluginManager().getPlugin("Pl3xMap");
-        if (pl3x == null) return;
+        if (pl3x == null || !pl3x.isEnabled()) return;
         for (World world : Bukkit.getWorlds()) {
             if (!plugin.isLandWorld(world)) continue;
             try {

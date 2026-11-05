@@ -6,6 +6,7 @@ import io.github.devkruidenier.landward.model.ClaimedChunk;
 import io.github.devkruidenier.landward.model.Land;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -29,9 +30,9 @@ public final class BlueMapIntegration {
      * authoritative readiness signal, unlike an arbitrary delayed task.
      */
     public void registerReadinessListener() {
+        Plugin blueMap = plugin.getServer().getPluginManager().getPlugin("BlueMap");
         if (!plugin.getConfig().getBoolean("integrations.bluemap.enabled", true)
-                || plugin.getServer().getPluginManager().getPlugin("BlueMap") == null
-                || readinessListener != null) return;
+                || blueMap == null || !blueMap.isEnabled() || readinessListener != null) return;
         try {
             Class<?> apiClass = Class.forName("de.bluecolored.bluemap.api.BlueMapAPI");
             readinessListener = ignored -> plugin.getServer().getScheduler().runTask(plugin, this::sync);
@@ -55,8 +56,9 @@ public final class BlueMapIntegration {
     }
 
     public void sync() {
+        Plugin blueMap = plugin.getServer().getPluginManager().getPlugin("BlueMap");
         if (!plugin.getConfig().getBoolean("integrations.bluemap.enabled", true)
-                || plugin.getServer().getPluginManager().getPlugin("BlueMap") == null) return;
+                || blueMap == null || !blueMap.isEnabled()) return;
         try {
             Class<?> apiClass = Class.forName("de.bluecolored.bluemap.api.BlueMapAPI");
             @SuppressWarnings("unchecked") Optional<Object> optionalApi = (Optional<Object>) apiClass.getMethod("getInstance").invoke(null);
