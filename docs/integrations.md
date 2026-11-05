@@ -58,3 +58,23 @@ expansion. Available placeholders are `%landward_land_name%`,
 `%landward_is_owner%`, `%landward_owned_chunks%`, `%landward_member_lands%`,
 `%landward_current_claim%`, `%landward_current_owner%` and
 `%landward_current_chunk_claimed%`.
+
+## Combat taggers
+
+LandWard always has its own short-lived PvP-hit tracker, so combat protection
+works even when no combat plugin is installed. When PlaceholderAPI and a
+supported combat tagger are present, LandWard also checks the configured
+external placeholders. The default mappings are:
+
+| Combat tagger | Placeholder | Tagged value |
+| --- | --- | --- |
+| CombatLogX | `%combatlogx_in_combat%` | `true` |
+| DeluxeCombat | `%deluxecombat_in_combat%` | `true` |
+| PvPManager | `%pvpmanager_combat_timeleft%` | a number greater than `0` |
+| EternalCombat | `%eternalcombat_opponent%` | a non-empty opponent name |
+
+An unresolved placeholder is treated as **not tagged**, preventing a missing
+PlaceholderAPI expansion from blocking players. The value interpretation is
+covered by automated contract tests. Before a release, still install each
+tagger and its PlaceholderAPI expansion on a clean test server to verify its
+current output and a real PvP encounter.

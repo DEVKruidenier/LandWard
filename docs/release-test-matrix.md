@@ -64,9 +64,13 @@ Java version, server log and each pass/fail result with the release notes.
   admin claims in purple, at exact 16×16 chunk boundaries.
 - [ ] With PlaceholderAPI, verify every documented `%landward_*%` placeholder.
   With Plan installed, verify the read-only LandWard statistics panel.
-- [ ] Test LandWard's fallback combat tag and each installed supported tagger
-  (CombatLogX, DeluxeCombat, PvPManager, EternalCombat): tagged players cannot
-  abandon claims, and tagged combatants cannot use a protected claim to escape.
+- [ ] Test LandWard's fallback combat tag: after a real PvP hit, both players
+  are tagged; tagged players cannot abandon claims, and tagged combatants can
+  continue their PvP encounter inside a protected claim until expiry.
+- [ ] For every externally installed combat tagger (CombatLogX, DeluxeCombat,
+  PvPManager or EternalCombat), install its matching PlaceholderAPI expansion
+  and repeat the fallback test. An unresolved placeholder must never tag a
+  player or block a command.
 
 ## Release safeguards
 

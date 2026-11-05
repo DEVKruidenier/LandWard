@@ -84,7 +84,12 @@ public final class CombatTagService {
         }
     }
 
-    private boolean activeValue(String value, String original) {
+    /**
+     * Interprets a configured external combat placeholder without coupling the
+     * integration to any combat plugin's API. Package-visible for the contract
+     * tests that cover the supported PlaceholderAPI value shapes.
+     */
+    static boolean activeValue(String value, String original) {
         if (value == null || value.equalsIgnoreCase(original)) return false;
         String normalized = value.trim().toLowerCase(Locale.ROOT);
         if (normalized.equals("true") || normalized.equals("yes") || normalized.equals("in combat") || normalized.equals("combat")) {
