@@ -2,7 +2,7 @@
 
 LandWard supports SQLite out of the box and MySQL for shared or remote storage.
 
-> **Before you begin:** back up `plugins/LandWard/` and ensure no one is online. Migration and maintenance commands are deliberately console-only.
+> **Before you begin:** back up the active storage data and ensure no one is online. Migration and maintenance commands are deliberately console-only.
 
 ## SQLite
 
@@ -37,7 +37,7 @@ LandWard uses a connection pool and creates the `lands`, `claims`, `admin_lands`
 This procedure moves every player land, chunk, Safe Zone, member and setting from the local `landward.db` to MySQL/MariaDB.
 
 1. **Stop normal player activity.** Keep the server running only long enough to use its console; every player must be offline.
-2. **Make a manual backup.** Copy the complete `plugins/LandWard/` directory somewhere safe.
+2. **Make a manual backup.** Copy `plugins/LandWard/landward.db` somewhere safe. This is the active SQLite data file; copying the entire plugin directory is optional, not required for this migration.
 3. **Create an empty MySQL/MariaDB database and account.** The account needs permission to create and alter tables in that database. Do not reuse a database that belongs to another plugin.
 4. **Edit only the nested `mysql:` connection details** in `plugins/LandWard/config.yml`—host, port, database, username, password, TLS and pool size. Leave the storage type set to SQLite:
 
@@ -65,7 +65,7 @@ This procedure moves every player land, chunk, Safe Zone, member and setting fro
 
 Use this when moving back to the local `plugins/LandWard/landward.db` file.
 
-1. Ensure every player is offline and make a manual backup of `plugins/LandWard/`.
+1. Ensure every player is offline and make a manual export/backup of the active LandWard MySQL/MariaDB database.
 2. Keep the existing MySQL connection settings in `config.yml`. Leave the storage type set to MySQL; LandWard needs the current backend as its source.
 
    ```yml
