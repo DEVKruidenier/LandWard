@@ -63,7 +63,7 @@ integrations:
 - Per player: owns a land, owned chunks, and member lands.
 - Per server: number of lands and claimed chunks.
 
-No additional LandWard database table is created for this integration. Plan is a soft dependency, so LandWard starts normally without it.
+Plan is optional. If Plan is not installed, LandWard simply starts without these statistics.
 
 ## PlaceholderAPI
 
@@ -79,7 +79,7 @@ When PlaceholderAPI is installed, LandWard registers these placeholders:
 | `%landward_current_owner%` | Owner name of the current claimed chunk, or `none`. |
 | `%landward_current_chunk_claimed%` | `true` when the player's current chunk is claimed; otherwise `false`. |
 
-LandWard registers its internal expansion automatically when PlaceholderAPI is installed. You do **not** download it from eCloud; eCloud is for independently distributed expansions.
+LandWard registers this expansion automatically. You do **not** download it from eCloud.
 
 ## Combat taggers
 
@@ -95,12 +95,10 @@ external placeholders. The default mappings are:
 | PvPManager | `%pvpmanager_combat_timeleft%` | a number greater than `0` |
 | EternalCombat | `%eternalcombat_opponent%` | a non-empty opponent name |
 
-With the following settings, two tagged combatants may continue their PvP
-encounter inside normal claims until their tag expires, while tagged players
-cannot unclaim land. An unresolved external placeholder is treated as **not
-tagged**, so a missing expansion cannot lock players out of a command. Before a
-release, install every tagger and its PlaceholderAPI expansion on a clean test
-server to verify its current output and a real PvP encounter.
+With the following settings, tagged players can continue fighting each other
+inside a normal claim until their tag expires. Tagged players also cannot
+unclaim land. If an external placeholder is unavailable, LandWard treats the
+player as not tagged so a missing expansion never blocks a command.
 
 ```yaml
 integrations:

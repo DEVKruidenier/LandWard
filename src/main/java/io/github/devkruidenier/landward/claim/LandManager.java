@@ -25,7 +25,7 @@ public final class LandManager {
 
     private static final Pattern VALID_NAME = Pattern.compile("^[\\p{L}\\p{N} _-]{3,24}$");
 
-    private final LandStorage storage;
+    private LandStorage storage;
     private final Map<UUID, Land> landsById = new HashMap<>();
     private final Map<UUID, Land> landsByOwner = new HashMap<>();
     private final Map<String, Land> landsByName = new HashMap<>();
@@ -68,6 +68,11 @@ public final class LandManager {
             membersByLand.computeIfAbsent(member.landId(), ignored -> new HashMap<>())
                     .put(member.playerId(), member.permissions());
         }
+    }
+
+    /** Switches the durable backend while keeping the already verified in-memory snapshot. */
+    public synchronized void replaceStorage(LandStorage replacement) {
+        this.storage = java.util.Objects.requireNonNull(replacement, "replacement");
     }
 
     public synchronized CreateResult create(

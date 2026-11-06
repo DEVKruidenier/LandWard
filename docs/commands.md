@@ -12,9 +12,9 @@ LandWard is GUI-first: players normally only need /claim.
 | /claim update | Stages a verified GitHub Release JAR for a manual server-stopped replacement; requires landward.admin. |
 | /claimadmin | Opens administration: separate player-claim moderation, admin claims and active-world controls; requires landward.admin. |
 | /claimadmin reload | Reloads config, language files and map layers; requires landward.admin. |
-| /claimadmin migrate <sqlite\|mysql> confirm | Console-only migration to an empty configured backend; requires no online players. |
-| /claimadmin storage status <sqlite\|mysql> | Console-only check of the selected backend and whether its LandWard tables contain data. |
-| /claimadmin storage clear <sqlite\|mysql> confirm | Console-only maintenance operation that backs up then clears LandWard tables in the selected backend. |
+| /claimadmin migrate <sqlite\|mysql> confirm | Console-only live migration to an empty configured backend. Players stay online while LandWard briefly pauses claim changes; requires `landward.dbadmin`. |
+| /claimadmin storage status <sqlite\|mysql> | Console-only check of the selected backend and whether its LandWard tables contain data; requires `landward.dbadmin`. |
+| /claimadmin storage clear <sqlite\|mysql> confirm | Console-only maintenance operation that backs up then clears LandWard tables in the selected backend; requires `landward.dbadmin` and no online players. |
 
 ## In-game flow
 
@@ -33,9 +33,9 @@ player uses the same confirmation and permission flow.
 
 The **Admin claims** card is reserved for server-owned protected areas such as spawn. Its map uses purple tiles. Clicking an unclaimed chunk creates or extends the server-owned administrative area; it intentionally bypasses WorldGuard and vanilla spawn-overlap checks. The separate **Player claims** card can only review or remove player claims, and the Admin claims card can only remove administrative claims.
 
-The admin reload does not replace the active storage backend. Change the `type`
-value or database connection settings in the `storage:` section only while the
-server is stopped.
+The admin reload refreshes edited database connection details. Leave the active
+`type` unchanged, then use the explicit live migration command to switch the
+backend safely.
 
 `/claim update` never replaces the JAR that Paper currently has loaded. It only
 stages an official checksum-verified release JAR in `plugins/LandWard/updates/`.

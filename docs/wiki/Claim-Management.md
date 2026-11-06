@@ -7,7 +7,7 @@ LandWard is intentionally built around the Minecraft inventory GUI. There are no
 1. Run `/claim`.
 2. Select **Create land**.
 3. Enter a name in the native anvil window and click the output slot.
-4. Open **Chunk map**. The compass marks your current chunk; click an eligible grey chunk adjacent to your land to claim it.
+4. Open **Chunk map**. The compass marks your current chunk; click an available grey chunk next to your land to claim it.
 
 ![Creating a LandWard land in the real Minecraft GUI.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claim.gif)
 
@@ -21,14 +21,9 @@ LandWard is intentionally built around the Minecraft inventory GUI. There are no
 | Red | A chunk owned by another player. |
 | Purple | A server-owned Safe Zone (admin claim). |
 
-The map shows the chunk coordinates and owner in each tile’s tooltip. Claiming
-requires adjacency when this setting is enabled. Unclaiming always asks for
-confirmation.
-
-```yml
-claims:
-  require-adjacent-chunks: true
-```
+The tooltip shows the chunk coordinates and owner. By default, you can only
+claim a chunk next to one you already own. Unclaiming always asks for
+confirmation. Server owners can change this in [Configuration](Configuration).
 
 ![Navigating the real LandWard chunk map.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimmap.gif)
 

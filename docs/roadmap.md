@@ -12,11 +12,12 @@ directions:
 - SQLite → MySQL/MariaDB
 - MySQL/MariaDB → SQLite
 
-The workflow must create a timestamped source backup, validate the target
-connection before writing, transfer lands, chunks, members and administrative
-claims in one controlled operation, compare source and target record totals, and
-leave the currently active backend unchanged when validation fails. It must never
-run as an implicit side effect of changing the `type` value in `storage:`.
+The workflow creates a timestamped source backup, validates the target
+connection before writing, transfers lands, chunks, members and administrative
+claims in one controlled operation, compares source and target record totals,
+and activates the verified target without a restart or player kick. It leaves
+the currently active backend unchanged when validation fails and never runs as
+an implicit side effect of changing the `type` value in `storage:`.
 
 ## Release update workflow
 

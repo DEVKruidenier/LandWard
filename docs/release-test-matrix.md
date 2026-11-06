@@ -67,11 +67,14 @@ Java version, server log and each pass/fail result with the release notes.
   payments:
     mode: free # then experience and vault
   ```
-- [ ] Run `/claimadmin migrate mysql confirm` on an empty-player server with a
-  dedicated MySQL database. Restart using MySQL, validate every land, chunk,
-  member, permission and admin-claim marker, then migrate back to SQLite.
-- [ ] Before migration, use `/claimadmin storage status mysql`. If a target must
-  be deliberately reset, verify its backup and test `/claimadmin storage clear mysql confirm`.
+- [ ] With players online, run `/claimadmin migrate mysql confirm` from the
+  console using a dedicated MySQL database. Confirm claim changes pause only
+  during the migration, no player is kicked and MySQL becomes active without a
+  restart. Validate every land, chunk, member, permission and admin-claim
+  marker, then migrate back to SQLite.
+- [ ] Before migration, use `/claimadmin storage status mysql`. Verify that
+  migration and maintenance require `landward.dbadmin`. If a target must be
+  deliberately reset, verify its backup and test `/claimadmin storage clear mysql confirm` with no players online.
 - [ ] Verify WorldGuard overlap denial and vanilla spawn-protection denial.
 - [ ] Verify BlueMap, Squaremap and Pl3xMap show normal claims in green and
   admin claims in purple, at exact 16×16 chunk boundaries.

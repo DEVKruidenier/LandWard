@@ -1,8 +1,8 @@
 # Configuration
 
-`plugins/LandWard/config.yml` is grouped by concern: language and storage first, then claims, notifications, payments and integrations. Every generated setting includes an English explanation in the file itself.
+`plugins/LandWard/config.yml` contains all LandWard settings. Each setting has an English explanation in the file itself.
 
-> **Safe updates:** LandWard retains administrator-made values. On an update it adds genuinely new defaults, preserves values that were changed by the server owner, creates a configuration baseline/backup for comparison, and removes obsolete layout keys when the new structure replaces them. Review the generated file after each major update.
+> **Safe updates:** Your changed values are kept when LandWard updates. New settings are added automatically; check the file after a major update.
 
 ## Language and storage
 
@@ -15,7 +15,10 @@ storage:
   type: sqlite
 ```
 
-Language packs live in `plugins/LandWard/lang/`. LandWard includes English, Dutch, German, French, Spanish, Brazilian Portuguese, Italian, Polish, Turkish, Russian, Simplified Chinese, Japanese and Korean. Every player-facing message is loaded from these files; `use-client-locale` selects the matching bundled pack when possible, then falls back to the `default` value in the language section above.
+Language packs live in `plugins/LandWard/lang/`. LandWard includes English,
+Dutch, German, French, Spanish and several other common languages. With
+`use-client-locale: true`, players see a matching installed language when
+available; otherwise LandWard uses the `default` language above.
 
 See [Storage](Storage) before changing the backend.
 
@@ -31,7 +34,9 @@ claims:
     - myworld
 ```
 
-LandWard is active in every world by default. Keep only worlds where claims should be unavailable under `disabled-worlds`; the included `myworld` is an example and can be removed. The setting scopes claiming, protection, entry/exit notices and map markers.
+LandWard is active in every world by default. List only worlds where it should
+be off, such as creative or minigame worlds. `myworld` is only an example; you
+can remove it.
 
 ## Payments and rename cost
 
@@ -65,11 +70,15 @@ admin-claims:
     allow-hostile-mob-spawns: false
 ```
 
-Admin claims are purple server-owned Safe Zones for spawn and facilities. They are managed only through the separate **Admin claims** map. Public behaviour can be adjusted in ClaimAdmin; trusted admin-claim members always have full access.
+Admin claims are purple server-owned Safe Zones, for example at spawn. Manage
+them through the separate **Admin claims** map. Public protection can be changed
+in ClaimAdmin; trusted members always have full access.
 
 ## Integrations and updates
 
-The remaining sections configure WorldGuard, vanilla spawn protection, maps, PlaceholderAPI, Plan, combat-tag providers, metrics and release checks. Enabling a switch never installs a dependency: LandWard only activates an integration when the companion plugin is present and compatible.
+The remaining sections configure optional integrations, metrics and release
+checks. Turning on a setting does not install another plugin; LandWard simply
+uses that integration when the other plugin is installed.
 
 See [Integrations](Integrations) for what each bridge does.
 

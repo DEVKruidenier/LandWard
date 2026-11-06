@@ -68,3 +68,22 @@ the relevant documentation in the same change.
   replaces a running plugin JAR. Live-update feasibility remains an explicit
   future investigation.
 - Keep GitHub Projects in English and track substantial planned work there.
+- Every new feature, adjustment, correction or cleanup follows this order:
+  1. create or update an English GitHub Project item;
+  2. implement the change, including a logically placed and clearly commented
+     configuration entry when configuration is needed;
+  3. update every bundled language file for new or changed player/admin text;
+  4. update the GitHub Wiki and the matching repository documentation together;
+  5. test the result before publishing it.
+- Move the Project item to **In Progress** when implementation starts. Move it
+  to **Done** only after the implementation, configuration, translations,
+  documentation and relevant tests are complete.
+
+## Storage administration
+
+- Storage migration and maintenance require `landward.dbadmin` (operators have
+  it by default). Regular ClaimAdmin access is not enough.
+- A verified migration may switch between SQLite and MySQL/MariaDB while Paper
+  stays online. LandWard temporarily pauses claim changes, creates a verified
+  backup, checks the destination and activates the new backend only after a
+  successful check. Players are not kicked and a restart is not required.

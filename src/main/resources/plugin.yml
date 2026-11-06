@@ -44,3 +44,6 @@ permissions:
   landward.bypass:
     description: Allows toggling the temporary LandWard protection bypass with /claim bypass.
     default: op
+  landward.dbadmin:
+    description: Allows console-only LandWard storage migration and maintenance.
+    default: op

@@ -174,6 +174,23 @@ public final class LandWardPlugin extends JavaPlugin {
         return storage;
     }
 
+    /** Activates a verified migration target without disconnecting players or restarting Paper. */
+    public void activateMigratedStorage(LandStorage replacement, String type) throws StorageException {
+        LandStorage previous = storage;
+        landManager.replaceStorage(replacement);
+        storage = replacement;
+        getConfig().set("storage.type", type);
+        saveConfig();
+        syncMapIntegrations();
+        if (previous != replacement) {
+            try {
+                previous.close();
+            } catch (StorageException exception) {
+                getLogger().warning("Migrated storage is active, but the previous connection could not close: " + exception.getMessage());
+            }
+        }
+    }
+
     public CombatTagService combatTags() {
         return combatTags;
     }

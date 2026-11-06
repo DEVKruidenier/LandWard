@@ -65,6 +65,10 @@ public final class ClaimAdminCommand implements CommandExecutor, TabCompleter {
     }
 
     private void storage(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("landward.dbadmin")) {
+            sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "general.no-permission"));
+            return;
+        }
         if (sender instanceof Player || !plugin.getServer().getOnlinePlayers().isEmpty()) {
             sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "admin.migration-online"));
             return;
@@ -103,11 +107,15 @@ public final class ClaimAdminCommand implements CommandExecutor, TabCompleter {
 
     private void migrate(CommandSender sender, String[] args) {
         String locale = plugin.localeService().localeFor(sender);
+        if (!sender.hasPermission("landward.dbadmin")) {
+            sender.sendMessage(plugin.localeService().message(locale, "general.no-permission"));
+            return;
+        }
         if (args.length != 3 || !(args[1].equalsIgnoreCase("sqlite") || args[1].equalsIgnoreCase("mysql")) || !args[2].equalsIgnoreCase("confirm")) {
             sender.sendMessage(plugin.localeService().message(locale, "admin.migration-usage"));
             return;
         }
-        if (sender instanceof Player || !plugin.getServer().getOnlinePlayers().isEmpty()) {
+        if (sender instanceof Player) {
             sender.sendMessage(plugin.localeService().message(locale, "admin.migration-online"));
             return;
         }
@@ -118,12 +126,13 @@ public final class ClaimAdminCommand implements CommandExecutor, TabCompleter {
         }
         LandStorage target = null;
         try {
+            sender.sendMessage(plugin.localeService().message(locale, "admin.migration-live-started"));
             target = plugin.createStorage(targetType);
             StorageMigrationService.MigrationResult result = new StorageMigrationService(plugin.getDataFolder().toPath().resolve("migration-backups"))
                     .migrate(plugin.storage(), target);
-            plugin.getConfig().set("storage.type", targetType);
-            plugin.saveConfig();
-            sender.sendMessage(plugin.localeService().message(locale, "admin.migration-complete", java.util.Map.of(
+            plugin.activateMigratedStorage(target, targetType);
+            target = null;
+            sender.sendMessage(plugin.localeService().message(locale, "admin.migration-live-complete", java.util.Map.of(
                     "backup", result.backup().getFileName(), "lands", result.lands(), "claims", result.claims(), "members", result.members()
             )));
         } catch (StorageException | IllegalArgumentException exception) {
