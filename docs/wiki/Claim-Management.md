@@ -9,7 +9,7 @@ LandWard is intentionally built around the Minecraft inventory GUI. There are no
 3. Enter a name in the native anvil window and click the output slot.
 4. Open **Chunk map**. The compass marks your current chunk; click an eligible grey chunk adjacent to your land to claim it.
 
-![LandWard’s real Minecraft main menu.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/codex-clipboard-5d257eeb-0651-4ec1-87d9-23cd3c49b5f5.png)
+![Creating a LandWard land in the real Minecraft GUI.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claim.gif)
 
 ## Understanding the chunk map
 
@@ -22,6 +22,8 @@ LandWard is intentionally built around the Minecraft inventory GUI. There are no
 | Purple | A server-owned Safe Zone (admin claim). |
 
 The map shows the chunk coordinates and owner in each tile’s tooltip. Claiming requires adjacency when `claims.require-adjacent-chunks` is enabled. Unclaiming always asks for confirmation.
+
+![Navigating the real LandWard chunk map.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimmap.gif)
 
 ## Owner controls
 
@@ -37,7 +39,7 @@ Only an owner can:
 
 Member rights are intentionally land-wide—not individual per player—so every member receives the same predictable access. In **Settings**, an owner can toggle build access, containers, protected entities, doors and interaction blocks, mob rules, and PvP between members.
 
-![Real Minecraft settings menu from the LandWard test server.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/codex-clipboard-8da055b9-7295-4a30-9d72-2dd648fc1ceb.png)
+![Configuring shared member rules in the real Minecraft GUI.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimsettings.gif)
 
 The world’s own PvP setting always remains the upper limit: LandWard cannot enable member PvP in a world where PvP is disabled.
 

@@ -18,15 +18,27 @@ This page separates LandWard’s visual identity from functional screenshots. Th
 
 ## Player land menu
 
-![Standard Minecraft LandWard GUI for a player land.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/codex-clipboard-5d257eeb-0651-4ec1-87d9-23cd3c49b5f5.png)
+![Real Minecraft capture of the LandWard player-land menu.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claim.gif)
 
 The player menu keeps the important actions compact: members, settings, renaming, chunk map and the lower-right back arrow.
 
 ## Shared settings
 
-![Standard Minecraft LandWard settings GUI.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/codex-clipboard-8da055b9-7295-4a30-9d72-2dd648fc1ceb.png)
+![Real Minecraft capture of LandWard’s shared settings.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimsettings.gif)
 
 Settings group member access, protection behaviour and navigation so a land owner can understand them at a glance.
+
+## ClaimAdmin
+
+![Real Minecraft capture of the ClaimAdmin menu.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimadmin.gif)
+
+ClaimAdmin separates player claims, Safe Zones, global admin settings and active-world controls.
+
+## Safe Zone settings
+
+![Real Minecraft capture of ClaimAdmin settings.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimadminsettings.gif)
+
+Administrators can configure public access for Safe Zones without changing player-land settings.
 
 ## Live map integration
 
