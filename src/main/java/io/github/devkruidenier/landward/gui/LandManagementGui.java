@@ -62,9 +62,8 @@ public final class LandManagementGui {
         inventory.setItem(4, item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of(
                 message(player, "gui.status-member"),
                 message(player, "gui.management-claimed-chunks", Map.of("count", landManager.claimCount(land.id()))),
-                message(player, "gui.management-owner", Map.of("name", name(land.ownerId())))
+                message(player, "gui.management-owner", Map.of("name", name(player, land.ownerId())))
         )));
-        inventory.setItem(13, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
         inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
@@ -77,7 +76,7 @@ public final class LandManagementGui {
             if (slot >= 45) break;
             holder.playersBySlot().put(slot, land.id());
             inventory.setItem(slot++, item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of(
-                    message(player, "gui.management-owner", Map.of("name", name(land.ownerId()))),
+                    message(player, "gui.management-owner", Map.of("name", name(player, land.ownerId()))),
                     message(player, "gui.management-claimed-chunks", Map.of("count", landManager.claimCount(land.id())))
             )));
         }
@@ -153,7 +152,7 @@ public final class LandManagementGui {
         for (LandMember member : landManager.members(optionalLand.get().id())) {
             if (slot >= 45) break;
             holder.playersBySlot().put(slot, member.playerId());
-            inventory.setItem(slot++, playerHead(member.playerId(), name(member.playerId()), message(player, "gui.management-manage-rights")));
+            inventory.setItem(slot++, playerHead(member.playerId(), name(player, member.playerId()), message(player, "gui.management-manage-rights")));
         }
         if (slot == 0) inventory.setItem(22, item(Material.GRAY_DYE, message(player, "gui.management-no-members"), NamedTextColor.GRAY, List.of(message(player, "gui.management-add-member-hint"))));
         inventory.setItem(53, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
@@ -176,7 +175,7 @@ public final class LandManagementGui {
     public void openMemberActions(Player player, UUID memberId) {
         LandManagementHolder holder = holder(LandManagementHolder.Screen.MEMBER, memberId, message(player, "gui.management-members"), COMPACT_SIZE);
         Inventory inventory = holder.getInventory();
-        inventory.setItem(13, playerHead(memberId, name(memberId), message(player, "gui.management-configure-member")));
+        inventory.setItem(13, playerHead(memberId, name(player, memberId), message(player, "gui.management-configure-member")));
         inventory.setItem(15, item(Material.BARRIER, message(player, "gui.management-remove-member"), NamedTextColor.RED, List.of(message(player, "gui.management-remove-hint"))));
         inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
@@ -193,7 +192,11 @@ public final class LandManagementGui {
     private ItemStack permissionItem(Player player, Material material, String label, boolean enabled) { return item(material, label + ": " + message(player, enabled ? "gui.management-allowed" : "gui.management-denied"), enabled ? NamedTextColor.GREEN : NamedTextColor.RED, List.of(message(player, "gui.management-toggle"))); }
     private ItemStack playerHead(UUID id, String label, String lore) { ItemStack item = item(Material.PLAYER_HEAD, label, NamedTextColor.AQUA, List.of(lore)); SkullMeta meta = (SkullMeta) item.getItemMeta(); meta.setOwningPlayer(Bukkit.getOfflinePlayer(id)); item.setItemMeta(meta); return item; }
     private ItemStack item(Material material, String label, NamedTextColor color, List<String> lore) { ItemStack item = new ItemStack(material); ItemMeta meta = item.getItemMeta(); meta.displayName(Component.text(label, color).decoration(TextDecoration.ITALIC, false)); meta.lore(lore.stream().map(text -> Component.text(text, NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)).toList()); item.setItemMeta(meta); return item; }
-    private String name(UUID id) { OfflinePlayer player = Bukkit.getOfflinePlayer(id); return player.getName() == null ? id.toString().substring(0, 8) : player.getName(); }
+    /** Never expose a raw UUID in a player-facing menu when a profile is unavailable. */
+    private String name(Player viewer, UUID id) {
+        OfflinePlayer player = Bukkit.getOfflinePlayer(id);
+        return player.getName() == null ? message(viewer, "gui.unknown-player") : player.getName();
+    }
     private String message(Player player, String key) { return plugin.localeService().message(plugin.localeService().localeFor(player), key); }
     private String message(Player player, String key, Map<String, ?> placeholders) { return plugin.localeService().message(plugin.localeService().localeFor(player), key, placeholders); }
 }

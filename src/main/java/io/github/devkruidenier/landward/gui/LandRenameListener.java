@@ -46,7 +46,9 @@ public final class LandRenameListener implements Listener {
         activeAnvils.put(player.getUniqueId(), holder);
         String locale = plugin.localeService().localeFor(player);
         InventoryView inventory = player.openAnvil(null, true);
-        inventory.setTitle(plugin.localeService().message(locale, creating ? "gui.welcome-title" : "gui.management-rename"));
+        // Native anvil headers are narrow; keep the creation title deliberately
+        // short instead of reusing the full LandWard welcome-menu title.
+        inventory.setTitle(plugin.localeService().message(locale, creating ? "gui.create-anvil-title" : "gui.management-rename"));
         ItemStack input = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = input.getItemMeta();
         String currentName = creating ? plugin.localeService().message(locale, "gui.welcome-create")

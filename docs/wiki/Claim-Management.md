@@ -43,7 +43,7 @@ The world’s own PvP setting always remains the upper limit: LandWard cannot en
 
 ## Members who own a land too
 
-A player may be a member of multiple other lands *and* own one separate land. `/claim` continues to show their create/owned-land flow while providing a read-only **Member lands** route to lands that they do not own. Membership never exposes the owner’s settings.
+A player may be a member of multiple other lands *and* own one separate land. `/claim` continues to show their create/owned-land flow while providing a read-only **Member lands** overview for lands that they do not own. It deliberately does not include the claim map or owner settings.
 
 ## Entry and protection feedback
 

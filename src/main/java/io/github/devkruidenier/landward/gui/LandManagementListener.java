@@ -40,8 +40,7 @@ public final class LandManagementListener implements Listener {
             return;
         }
         if (holder.screen() == LandManagementHolder.Screen.MEMBER_MAIN) {
-            if (slot == 13) new LandMapGui(plugin, landManager).open(player);
-            else if (slot == 26) player.closeInventory();
+            if (slot == 26) player.closeInventory();
             return;
         }
         if (holder.screen() == LandManagementHolder.Screen.MEMBER_LANDS) {
