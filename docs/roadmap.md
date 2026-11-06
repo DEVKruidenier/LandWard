@@ -4,7 +4,7 @@ This page tracks release follow-up work. Implemented features are documented her
 only when they still need broader Paper gameplay verification before the first
 stable release.
 
-## Storage migration
+## Completed: storage migration
 
 The administrator-only, explicit migration workflow is implemented for both
 directions:

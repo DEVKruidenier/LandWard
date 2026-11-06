@@ -1,28 +1,60 @@
 # Configuration
 
-`plugins/LandWard/config.yml` controls the installed server.
+`plugins/LandWard/config.yml` is grouped by concern: language and storage first, then claims, notifications, payments and integrations. Every generated setting includes an English explanation in the file itself.
 
-## Claims
+> **Safe updates:** LandWard retains administrator-made values. On an update it adds genuinely new defaults, preserves values that were changed by the server owner, creates a configuration baseline/backup for comparison, and removes obsolete layout keys when the new structure replaces them. Review the generated file after each major update.
+
+## Language and storage
+
+```yaml
+language:
+  default: en_US
+  use-client-locale: true
+
+storage:
+  type: sqlite
+```
+
+Language packs live in `plugins/LandWard/lang/`. LandWard includes English, Dutch, German, French, Spanish, Brazilian Portuguese, Italian, Polish, Turkish, Russian, Simplified Chinese, Japanese and Korean. Every player-facing message is loaded from these files; `use-client-locale` selects the matching bundled pack when possible, then falls back to `language.default`.
+
+See [Storage](Storage) before changing the backend.
+
+## Claims and worlds
 
 ```yaml
 claims:
   require-adjacent-chunks: true
   maximum-lands-per-player: 1
   maximum-chunks-per-land: 25 # -1 means unlimited
-  # Example world: LandWard is disabled in this world until you remove it from this list.
+  # LandWard is active everywhere except worlds listed here.
   disabled-worlds:
     - myworld
 ```
 
-LandWard is active in every world except those explicitly listed under `disabled-worlds`.
-Fresh configurations include `myworld` as a harmless example: remove or replace it
-with worlds where claims should stay disabled.
+LandWard is active in every world by default. Keep only worlds where claims should be unavailable under `disabled-worlds`; the included `myworld` is an example and can be removed. The setting scopes claiming, protection, entry/exit notices and map markers.
+
+## Payments and rename cost
+
+```yaml
+payments:
+  mode: free # free, experience or vault
+  experience-points-per-chunk: 150
+  vault-money-per-chunk: 100.0
+
+rename:
+  experience-level-cost: 0
+```
+
+- `free` charges nothing.
+- `experience` charges total experience points for each newly claimed chunk.
+- `vault` uses Vault’s active economy provider, such as EssentialsX Economy.
+- `rename.experience-level-cost: 0` keeps renaming free; a positive value charges that many XP levels after a successful anvil confirmation.
 
 ## Admin claims
 
 ```yaml
 admin-claims:
-  default-name: "" # empty uses the configured language, e.g. Safe Zone / Veilige Zone
+  default-name: "" # empty uses Safe Zone / Veilige Zone from the selected language
   protection:
     allow-pvp: false
     allow-hostile-mob-kills: false
@@ -33,21 +65,14 @@ admin-claims:
     allow-hostile-mob-spawns: false
 ```
 
-Admin claims are server-owned purple areas, designed for spawn and other server facilities. They are created only from the **Admin claims** map and may overlap WorldGuard and vanilla spawn-protection regions. Trusted members added through Admin claim settings always have full access. The public-access toggles can also be changed in that GUI.
+Admin claims are purple server-owned Safe Zones for spawn and facilities. They are managed only through the separate **Admin claims** map. Public behaviour can be adjusted in ClaimAdmin; trusted admin-claim members always have full access.
 
-## Payments
+## Integrations and updates
 
-```yaml
-payments:
-  mode: free
-  experience-points-per-chunk: 150
-  vault-money-per-chunk: 100.0
-```
+The remaining sections configure WorldGuard, vanilla spawn protection, maps, PlaceholderAPI, Plan, combat-tag providers, metrics and release checks. Enabling a switch never installs a dependency: LandWard only activates an integration when the companion plugin is present and compatible.
 
-`free` does not charge players. `experience` charges the configured number of total experience points for every new claimed chunk. `vault` charges the active Vault economy provider (such as EssentialsX Economy); LandWard refuses the claim when Vault or its economy provider is unavailable.
+See [Integrations](Integrations) for what each bridge does.
 
-## Language and integrations
+---
 
-`language.default` selects the fallback language. With `language.use-client-locale: true`, a player's Minecraft locale is used when a bundled translation is available.
-
-WorldGuard, BlueMap, Dynmap and Plan settings are in the `integrations` section. With `integrations.worldguard.deny-any-overlap: true`, LandWard refuses a chunk if it overlaps any WorldGuard region, including spawn regions. `integrations.plan.enabled: true` makes land statistics available in Plan's web panel when Plan is installed. An integration setting does not install the dependency; it only enables LandWard's integration when that plugin is present and supported.
+Next: [Storage](Storage) · [Integrations](Integrations) · [Installation](Installation)

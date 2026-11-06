@@ -1,12 +1,12 @@
 # Configuration
 
-`config.yml` controls language selection, storage, claim limits, enabled worlds, and optional integrations. Secrets such as MySQL passwords must not be committed to source control.
+`config.yml` controls language selection, storage, claim limits, disabled-world exceptions, and optional integrations. Secrets such as MySQL passwords must not be committed to source control.
 
-On update, LandWard preserves every existing value and only adds newly introduced default keys. Administrator choices and credentials remain untouched.
+On update, LandWard adds genuinely new defaults and preserves values changed by the administrator. It also maintains a baseline/backup to recognise prior defaults and remove obsolete layout keys when a new structure replaces them. Review the generated file after major updates.
 
 SQLite is the default. Set `storage.type` to `mysql` and complete the documented
 `storage.mysql` fields to use a shared MySQL/MariaDB database. LandWard creates
-its `lands`, `claims` and `land_members` tables automatically.
+its `lands`, `claims`, `admin_lands` and `land_members` tables automatically.
 
 ## Claim limits
 
@@ -81,3 +81,14 @@ or set the LandWard integration to `false` if the area should be claimable.
 `integrations.bluemap`, `integrations.dynmap`, `integrations.squaremap` and
 `integrations.pl3xmap` each have an `enabled` switch. A map plugin is never
 required: LandWard detects it at runtime and quietly skips its layer when absent.
+
+## PlaceholderAPI and combat tags
+
+When PlaceholderAPI is installed, LandWard registers its internal `landward`
+expansion automatically; it does not need to be downloaded from eCloud. The
+documented placeholders are available immediately.
+
+LandWard includes a fallback PvP-hit combat tag and can additionally read
+configured PlaceholderAPI values from CombatLogX, DeluxeCombat, PvPManager and
+EternalCombat. Configure these under `integrations.combat-tag`; a missing or
+unresolved external placeholder is treated as not tagged.

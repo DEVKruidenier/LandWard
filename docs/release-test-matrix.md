@@ -32,8 +32,8 @@ Java version, server log and each pass/fail result with the release notes.
 - [ ] Confirm the current chunk stays centred on slot 22, chunk coordinates and
   owners are shown, and the back arrow is in the lower-right slot.
 - [ ] Verify unclaim confirmation, final-chunk deletion, anvil rename (including
-  rename cost `0`), member addition/removal and the build/container/entity
-  switches.
+  rename cost `0`), member addition/removal and shared member build/container/entity
+  settings.
 - [ ] Verify `/land` and `/landward` route to `/claim`, while `/claim info`
   shows the version, author and update state.
 - [ ] Verify entry/exit notifications contain only the owner/land message.
@@ -59,6 +59,8 @@ Java version, server log and each pass/fail result with the release notes.
 - [ ] Run `/claimadmin migrate mysql confirm` on an empty-player server with a
   dedicated MySQL database. Restart using MySQL, validate every land, chunk,
   member, permission and admin-claim marker, then migrate back to SQLite.
+- [ ] Before migration, use `/claimadmin storage status mysql`. If a target must
+  be deliberately reset, verify its backup and test `/claimadmin storage clear mysql confirm`.
 - [ ] Verify WorldGuard overlap denial and vanilla spawn-protection denial.
 - [ ] Verify BlueMap, Squaremap and Pl3xMap show normal claims in green and
   admin claims in purple, at exact 16×16 chunk boundaries.

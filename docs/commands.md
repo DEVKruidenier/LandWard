@@ -4,7 +4,7 @@ LandWard is GUI-first: players normally only need /claim.
 
 | Command | Purpose |
 | --- | --- |
-| /claim | Opens land management. Players without a land get the create-land GUI. |
+| /claim | Opens land management. Players without an owned land get the create-land GUI and can view their member lands. |
 | /claim info | Shows the installed LandWard version and author. |
 | /claim menu | Opens the same land management GUI explicitly. |
 | /claim help | Shows the compact command reference. |
@@ -13,6 +13,8 @@ LandWard is GUI-first: players normally only need /claim.
 | /claimadmin | Opens administration: separate player-claim moderation, admin claims and active-world controls; requires landward.admin. |
 | /claimadmin reload | Reloads config, language files and map layers; requires landward.admin. |
 | /claimadmin migrate <sqlite\|mysql> confirm | Console-only migration to an empty configured backend; requires no online players. |
+| /claimadmin storage status <sqlite\|mysql> | Console-only check of the selected backend and whether its LandWard tables contain data. |
+| /claimadmin storage clear <sqlite\|mysql> confirm | Console-only maintenance operation that backs up then clears LandWard tables in the selected backend. |
 
 ## In-game flow
 
@@ -22,7 +24,7 @@ LandWard is GUI-first: players normally only need /claim.
   chunk also removes that land and its member rights.
 - **Rename:** click the name tag in land management, enter a name in the anvil GUI,
   then click the result item.
-- **Members and rights:** use the member and rights screens in land management.
+- **Members and rights:** use the member and settings screens in land management. Rights are shared by every member of that land; they are not individual per-player roles.
 
 Former typed mutation subcommands are intentionally redirected to the GUI, so every
 player uses the same confirmation and permission flow.

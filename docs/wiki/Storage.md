@@ -2,6 +2,8 @@
 
 LandWard supports SQLite out of the box and MySQL for shared or remote storage.
 
+> **Before you begin:** back up `plugins/LandWard/` and ensure no one is online. Migration and maintenance commands are deliberately console-only.
+
 ## SQLite
 
 SQLite is the default. It stores data locally at `plugins/LandWard/landward.db` and needs no separate database service.
@@ -32,17 +34,37 @@ LandWard uses a connection pool and creates the `lands`, `claims`, `admin_lands`
 
 ## Safe migration
 
-LandWard can transfer all lands, claimed chunks, member rights and administrative claims between SQLite and MySQL without hand-editing tables. This is intentionally a maintenance action:
+LandWard migrates all lands, claimed chunks, member rights and administrative claims between SQLite and MySQL. It is intentionally a maintenance action.
 
-1. Configure the **target** database connection in `config.yml` first. Do not change `storage.type` yourself.
-2. Stop normal play so no players are online, then run this from the server console:
+1. Configure the target MySQL connection in `config.yml` first, but do **not** change `storage.type` yourself.
+2. With no players online, execute this from the server console:
 
    ```text
    claimadmin migrate mysql confirm
    ```
 
-   Use `sqlite` instead to move from MySQL back to the local database.
-3. LandWard validates the source, writes a complete versioned backup in `plugins/LandWard/migration-backups/`, verifies that backup, requires an empty target and imports the target in a single transaction.
-4. It compares the complete source and target snapshot. Only after that succeeds it stores the new `storage.type`; restart the server to use it.
+   Use `sqlite` instead when moving back to the local database.
+3. LandWard validates the source, writes a complete versioned backup in `plugins/LandWard/migration-backups/`, verifies it, requires an empty target and imports it in one transaction.
+4. It compares the complete source and target snapshot. Only then does it set `storage.type`; restart the server to activate the migrated backend.
 
-If any validation, backup, import or comparison fails, the active source backend remains unchanged. A non-empty target is always refused rather than overwritten.
+If a check, backup, import or comparison fails, the active storage remains unchanged. A non-empty target is always refused rather than overwritten.
+
+## Inspecting or clearing a target
+
+Before a migration, query whether a configured backend already has LandWard data:
+
+```text
+claimadmin storage status mysql
+```
+
+If you intentionally want to discard the **LandWard tables only** in a target backend, first make your own backup and then use:
+
+```text
+claimadmin storage clear mysql confirm
+```
+
+The command is console-only and requires no players online. It does not delete databases, database users, server files or tables belonging to other plugins. It exists solely to prepare a target after the administrator has explicitly decided its existing LandWard data can be removed.
+
+---
+
+Next: [Configuration](Configuration) · [Installation](Installation)

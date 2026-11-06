@@ -10,11 +10,11 @@ LandWard is an open-source chunk-claiming plugin for Paper survival servers. It 
 ## Goals
 
 - Claim nearby chunks with a visual GUI map opened using /claim.
-- Manage lands, members, roles, and permissions in an in-game GUI.
+- Manage lands, members and shared member rights in an in-game GUI.
 - Show nearby chunks as a color-coded map centered on the player.
 - Protect blocks, containers, entities, fluids, pistons, and explosions.
 - Support SQLite and MySQL storage.
-- Respect vanilla spawn protection and integrate with WorldGuard, BlueMap, Dynmap, Plan, and EssentialsX modules when installed.
+- Respect vanilla spawn protection and integrate with WorldGuard, BlueMap, Squaremap, Pl3xMap, Dynmap, Plan, PlaceholderAPI and EssentialsX modules when installed.
 - Localize every player-facing and administrative message.
 
 ## Anonymous metrics
@@ -47,10 +47,11 @@ The `-unshaded` JAR is a development artifact and does not include bStats.
 ## Project status
 
 LandWard is actively developed and not yet production-ready. The current development
-build includes persistent SQLite/MySQL storage, GUI-first chunk claims, member
-management, anvil-based naming, claim protection, XP/Vault payments, WorldGuard
-checks, BlueMap/Dynmap markers and an optional Plan analytics panel. The final
-integration and gameplay test pass is still in progress before the first stable release.
+build includes persistent SQLite/MySQL storage, GUI-first chunk claims, shared
+member settings, anvil-based naming, claim protection, XP/Vault payments, WorldGuard
+checks, BlueMap/Squaremap/Pl3xMap markers, PlaceholderAPI placeholders, combat-tag
+protection and an optional Plan analytics panel. The final integration and gameplay
+test pass is still in progress before the first stable release.
 
 ## Documentation
 
@@ -61,6 +62,7 @@ integration and gameplay test pass is still in progress before the first stable 
 - [Compatibility](docs/compatibility.md)
 - [Translations](docs/translations.md)
 - [Roadmap](docs/roadmap.md)
+- [Public wiki](https://github.com/DEVKruidenier/LandWard/wiki)
 
 ## License
 
