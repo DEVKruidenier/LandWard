@@ -18,7 +18,13 @@ Java version, server log and each pass/fail result with the release notes.
   identifies the version, storage type, loaded-claim count, selected language,
   metrics state and update-check state.
 - [ ] Confirm `config.yml` contains documented English comments, `myworld` in
-  `claims.disabled-worlds`, and every bundled language file.
+  the following list, and every bundled language file:
+
+  ```yml
+  claims:
+    disabled-worlds:
+      - myworld
+  ```
 - [ ] Remove `myworld`, restart, then use **ClaimAdmin → Active worlds** to
   disable and re-enable a world. Confirm the setting persists without removing
   claims in that world.
@@ -54,8 +60,13 @@ Java version, server log and each pass/fail result with the release notes.
 
 ## Payments, storage and integrations
 
-- [ ] Test `payments.mode: free`, `experience` and `vault`; confirm failed
+- [ ] Test the following `mode` values; confirm failed
   claims refund XP/money and an unavailable Vault provider is reported safely.
+
+  ```yml
+  payments:
+    mode: free # then experience and vault
+  ```
 - [ ] Run `/claimadmin migrate mysql confirm` on an empty-player server with a
   dedicated MySQL database. Restart using MySQL, validate every land, chunk,
   member, permission and admin-claim marker, then migrate back to SQLite.

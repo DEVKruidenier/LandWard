@@ -15,7 +15,7 @@ storage:
   type: sqlite
 ```
 
-Language packs live in `plugins/LandWard/lang/`. LandWard includes English, Dutch, German, French, Spanish, Brazilian Portuguese, Italian, Polish, Turkish, Russian, Simplified Chinese, Japanese and Korean. Every player-facing message is loaded from these files; `use-client-locale` selects the matching bundled pack when possible, then falls back to `language.default`.
+Language packs live in `plugins/LandWard/lang/`. LandWard includes English, Dutch, German, French, Spanish, Brazilian Portuguese, Italian, Polish, Turkish, Russian, Simplified Chinese, Japanese and Korean. Every player-facing message is loaded from these files; `use-client-locale` selects the matching bundled pack when possible, then falls back to the `default` value in the language section above.
 
 See [Storage](Storage) before changing the backend.
 
@@ -48,7 +48,7 @@ rename:
 - `free` charges nothing.
 - `experience` charges total experience points for each newly claimed chunk.
 - `vault` uses Vault’s active economy provider, such as EssentialsX Economy.
-- `rename.experience-level-cost: 0` keeps renaming free; a positive value charges that many XP levels after a successful anvil confirmation.
+- `experience-level-cost: 0` keeps renaming free; a positive value charges that many XP levels after a successful anvil confirmation.
 
 ## Admin claims
 

@@ -5,11 +5,17 @@ All integrations are optional and discovered at runtime.
 ## Vanilla spawn protection and EssentialsX AntiBuild
 
 LandWard can refuse claims that touch the primary world's built-in
-`server.properties` `spawn-protection` square. This guard is enabled through
-`integrations.vanilla-spawn-protection.enabled` and is evaluated even when no
+`server.properties` `spawn-protection` square. This guard is enabled by the
+following setting and is evaluated even when no
 other plugin is installed. Paper may require its corresponding system setting
 to honour vanilla spawn protection itself; LandWard still uses the configured
 radius to keep its claims out of that area.
+
+```yml
+integrations:
+  vanilla-spawn-protection:
+    enabled: true
+```
 
 EssentialsX AntiBuild is declared as a soft dependency so it can enforce its
 global build and interaction rules before/alongside LandWard. AntiBuild does
@@ -27,23 +33,39 @@ the layer after a claim is created, removed or renamed. BlueMap, Squaremap and
 Pl3xMap are all optional. Pl3xMap receives a managed JSON layer in its markers
 directory; the other maps use their supported runtime marker APIs.
 
-Install only the map plugin(s) your server needs and leave the matching
-`integrations.<map>.enabled` option enabled. If more than one map plugin is used
+Install only the map plugin(s) your server needs and leave the matching option
+enabled. If more than one map plugin is used
 on the same server, configure a different web port for each map in that map
 plugin's own configuration. LandWard never opens a web port itself.
+
+```yml
+integrations:
+  bluemap:
+    enabled: true
+  squaremap:
+    enabled: true
+  pl3xmap:
+    enabled: true
+```
 
 BlueMap may ask the server owner to accept its own Mojang-resource download before
 BlueMap can render maps. This is a BlueMap requirement, not a LandWard setting.
 
 ## Plan
 
-When [Plan](https://github.com/plan-player-analytics/plan) is installed and
-`integrations.plan.enabled` is `true`, LandWard registers a read-only Plan DataExtension.
+When [Plan](https://github.com/plan-player-analytics/plan) is installed and this
+setting is `true`, LandWard registers a read-only Plan DataExtension.
 The Plan web panel then shows per-player ownership, owned-chunk and member-land
 statistics, together with server-wide land and claimed-chunk totals. It stores no
 additional player data and does not need a separate LandWard database table.
 
 Plan remains optional: without it LandWard starts and operates normally.
+
+```yml
+integrations:
+  plan:
+    enabled: true
+```
 
 ## PlaceholderAPI
 

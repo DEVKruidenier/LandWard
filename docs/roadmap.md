@@ -16,7 +16,7 @@ The workflow must create a timestamped source backup, validate the target
 connection before writing, transfer lands, chunks, members and administrative
 claims in one controlled operation, compare source and target record totals, and
 leave the currently active backend unchanged when validation fails. It must never
-run as an implicit side effect of changing `storage.type`.
+run as an implicit side effect of changing the `type` value in `storage:`.
 
 ## Release update workflow
 

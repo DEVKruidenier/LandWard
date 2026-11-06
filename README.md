@@ -61,6 +61,7 @@ test pass is still in progress before the first stable release.
 - [Integrations](docs/integrations.md)
 - [Compatibility](docs/compatibility.md)
 - [Translations](docs/translations.md)
+- [Project standards](docs/project-standards.md)
 - [Roadmap](docs/roadmap.md)
 - [Public wiki](https://github.com/DEVKruidenier/LandWard/wiki)
 

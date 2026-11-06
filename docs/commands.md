@@ -33,8 +33,9 @@ player uses the same confirmation and permission flow.
 
 The **Admin claims** card is reserved for server-owned protected areas such as spawn. Its map uses purple tiles. Clicking an unclaimed chunk creates or extends the server-owned administrative area; it intentionally bypasses WorldGuard and vanilla spawn-overlap checks. The separate **Player claims** card can only review or remove player claims, and the Admin claims card can only remove administrative claims.
 
-The admin reload does not replace the active storage backend. Change `storage.type`
-or its database connection settings only while the server is stopped.
+The admin reload does not replace the active storage backend. Change the `type`
+value or database connection settings in the `storage:` section only while the
+server is stopped.
 
 `/claim update` never replaces the JAR that Paper currently has loaded. It only
 stages an official checksum-verified release JAR in `plugins/LandWard/updates/`.

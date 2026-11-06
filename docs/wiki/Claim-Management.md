@@ -21,7 +21,14 @@ LandWard is intentionally built around the Minecraft inventory GUI. There are no
 | Red | A chunk owned by another player. |
 | Purple | A server-owned Safe Zone (admin claim). |
 
-The map shows the chunk coordinates and owner in each tile’s tooltip. Claiming requires adjacency when `claims.require-adjacent-chunks` is enabled. Unclaiming always asks for confirmation.
+The map shows the chunk coordinates and owner in each tile’s tooltip. Claiming
+requires adjacency when this setting is enabled. Unclaiming always asks for
+confirmation.
+
+```yml
+claims:
+  require-adjacent-chunks: true
+```
 
 ![Navigating the real LandWard chunk map.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimmap.gif)
 
