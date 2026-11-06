@@ -69,11 +69,18 @@ integrations:
 
 ## PlaceholderAPI
 
-When PlaceholderAPI is installed, LandWard registers an internal `landward`
-expansion. Available placeholders are `%landward_land_name%`,
-`%landward_is_owner%`, `%landward_owned_chunks%`, `%landward_member_lands%`,
-`%landward_current_claim%`, `%landward_current_owner%` and
-`%landward_current_chunk_claimed%`.
+When PlaceholderAPI is installed, LandWard automatically registers its internal
+`landward` expansion. Nothing needs to be downloaded from eCloud.
+
+| Placeholder | Returns |
+| --- | --- |
+| `%landward_land_name%` | The player's owned land name, or `none`. |
+| `%landward_is_owner%` | `true` when the player owns a land; otherwise `false`. |
+| `%landward_owned_chunks%` | Number of chunks in the player's owned land, or `0`. |
+| `%landward_member_lands%` | Number of other lands the player belongs to. |
+| `%landward_current_claim%` | Name of the land in the player's current chunk, or `none`. |
+| `%landward_current_owner%` | Owner name of the current claimed chunk, or `none`. |
+| `%landward_current_chunk_claimed%` | `true` when the player's current chunk is claimed; otherwise `false`. |
 
 ## Combat taggers
 

@@ -67,9 +67,17 @@ No additional LandWard database table is created for this integration. Plan is a
 
 ## PlaceholderAPI
 
-When PlaceholderAPI is installed, LandWard registers `%landward_...%` placeholders:
-`land_name`, `is_owner`, `owned_chunks`, `member_lands`, `current_claim`,
-`current_owner` and `current_chunk_claimed`.
+When PlaceholderAPI is installed, LandWard registers these placeholders:
+
+| Placeholder | Returns |
+| --- | --- |
+| `%landward_land_name%` | The player's owned land name, or `none`. |
+| `%landward_is_owner%` | `true` when the player owns a land; otherwise `false`. |
+| `%landward_owned_chunks%` | Number of chunks in the player's owned land, or `0`. |
+| `%landward_member_lands%` | Number of other lands the player belongs to. |
+| `%landward_current_claim%` | Name of the land in the player's current chunk, or `none`. |
+| `%landward_current_owner%` | Owner name of the current claimed chunk, or `none`. |
+| `%landward_current_chunk_claimed%` | `true` when the player's current chunk is claimed; otherwise `false`. |
 
 LandWard registers its internal expansion automatically when PlaceholderAPI is installed. You do **not** download it from eCloud; eCloud is for independently distributed expansions.
 
