@@ -9,6 +9,6 @@ LandWard is organized around independent domain, storage, protection, GUI, local
 - **protection** — event listeners and cross-boundary protection rules
 - **gui** — inventory menus and the chunk map
 - **locale** — per-player translations with an English fallback
-- **integration** — optional WorldGuard, map, economy, analytics, PlaceholderAPI and combat-tag adapters
+- **integration** — optional WorldGuard; map plugins (BlueMap, Squaremap and Pl3xMap); Vault economy; Plan analytics; PlaceholderAPI; and combat-tag adapters
 
 Database work runs asynchronously. World and entity access remains on Paper's server thread or an appropriate scheduler.
