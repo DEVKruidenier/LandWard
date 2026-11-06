@@ -51,6 +51,8 @@ the relevant documentation in the same change.
 - Optional integrations must use soft dependencies and gracefully do nothing
   when the companion plugin is absent. Supported maps are BlueMap, Squaremap
   and Pl3xMap; Dynmap is not supported.
+- Any remaining legacy Dynmap code or configuration must be removed before a
+  public release.
 - Claiming honours WorldGuard regions, vanilla spawn protection and EssentialsX
   AntiBuild where applicable. Administrative Safe Zones may deliberately cover
   protected spawn areas.
@@ -67,19 +69,20 @@ the relevant documentation in the same change.
 - A release update is staged and verified before a manual restart; it never
   replaces a running plugin JAR. Live-update feasibility remains an explicit
   future investigation.
-- Keep GitHub Projects in English and track substantial planned work there.
 - Every new feature, adjustment, correction or cleanup follows this order:
   1. create or update an English GitHub Project item;
-  2. implement the change, including a logically placed and clearly commented
+  2. move the Project item to **In Progress**;
+  3. implement the change, including a logically placed and clearly commented
      configuration entry when configuration is needed;
-  3. update every bundled language file for new or changed player/admin text;
-  4. update the GitHub Wiki and the matching repository documentation together;
-  5. after publishing, verify the actual GitHub repository documentation and
+  4. update every bundled language file for new or changed player/admin text;
+  5. update the GitHub Wiki and the matching repository documentation together;
+  6. run relevant tests;
+  7. publish the change;
+  8. verify the actual GitHub repository documentation and
      GitHub Wiki for stale, contradictory or superseded information;
-  6. test the result before publishing it.
-- Move the Project item to **In Progress** when implementation starts. Move it
-  to **Done** only after the implementation, configuration, translations,
-  documentation, published-GitHub verification and relevant tests are complete.
+  9. move the Project item to **Done** only after the implementation,
+     configuration, translations, documentation, published-GitHub verification
+     and relevant tests are complete.
 
 ## Storage administration
 
