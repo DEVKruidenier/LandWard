@@ -16,14 +16,16 @@ LandWard is an open-source Paper plugin by [DEVKruidenier](https://github.com/DE
 2. Follow the [Claim Management guide](Claim-Management) for the player flow.
 3. Review [Configuration](Configuration) before opening your server.
 
-## Guides and reference
+## Wiki pages
 
-| Player & server guide | Reference |
-| --- | --- |
-| [Claim Management](Claim-Management) | [Commands](Commands) |
-| [Brand & Media](Visual-Guide) | [Permissions](Permissions) |
-| [Installation](Installation) | [Storage](Storage) |
-| [Configuration](Configuration) | [Integrations](Integrations) |
+Everything in the sidebar is also linked here.
+
+| Getting started | Running LandWard | Project & release |
+| --- | --- | --- |
+| [Installation](Installation) | [Claim Management](Claim-Management) | [Visual Guide](Visual-Guide) |
+| [Configuration](Configuration) | [Commands](Commands) | [Release Testing](Release-Testing) |
+| [Storage](Storage) | [Permissions](Permissions) | [Release Presentation](Release-Presentation) |
+| [Integrations](Integrations) |  |  |
 
 ## Requirements
 
