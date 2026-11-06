@@ -30,5 +30,3 @@ Run this checklist against the shaded `LandWard.jar` on a clean Paper 26.2 test 
 
 1. Verify `/claim update` only stages a checksum-verified GitHub Release JAR and never replaces the running JAR.
 2. Run `./gradlew test shadowJar --no-daemon --console=plain` successfully and retain its output with the release artifacts.
-
-Dynmap is intentionally optional and is not a Paper 26.2 release gate until Dynmap provides a compatible build. LandWard must simply skip a disabled Dynmap plugin safely.

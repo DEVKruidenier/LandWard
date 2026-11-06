@@ -78,8 +78,8 @@ or set the LandWard integration to `false` if the area should be claimable.
 
 ## Map integrations
 
-`integrations.bluemap`, `integrations.dynmap`, `integrations.squaremap` and
-`integrations.pl3xmap` each have an `enabled` switch. A map plugin is never
+`integrations.bluemap`, `integrations.squaremap` and `integrations.pl3xmap` each
+have an `enabled` switch. A map plugin is never
 required: LandWard detects it at runtime and quietly skips its layer when absent.
 
 ## PlaceholderAPI and combat tags

@@ -16,9 +16,9 @@ spawn region.
 
 When WorldGuard is installed, LandWard refuses a claim that overlaps a protected WorldGuard region. This includes typical spawn regions. Configure this under `integrations.worldguard`.
 
-## BlueMap, Dynmap, Squaremap and Pl3xMap
+## BlueMap, Squaremap and Pl3xMap
 
-When BlueMap, Dynmap, Squaremap or Pl3xMap is installed, LandWard publishes claims in a dedicated, toggleable marker layer. The layer refreshes after a chunk is claimed, unclaimed or renamed.
+When BlueMap, Squaremap or Pl3xMap is installed, LandWard publishes claims in a dedicated, toggleable marker layer. The layer refreshes after a chunk is claimed, unclaimed or renamed.
 
 Each map remains optional; LandWard never opens a web port. If you run more than
 one map plugin, assign a separate web port in each map plugin's own configuration.
@@ -26,12 +26,6 @@ BlueMap may additionally require the server owner to accept its Mojang-resource
 download before it can render maps.
 
 ![Actual BlueMap claim overlay: chunk boundaries follow exact 16×16 chunks.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/codex-clipboard-9963635d-7113-4cf3-a038-4ecfbc94da43.png)
-
-> **Dynmap availability:** LandWard's Dynmap bridge is optional and uses Dynmap's
-> marker API when a compatible Dynmap build is installed. At the time of writing,
-> Dynmap's official releases do not list Paper 26.x support, so it is deliberately
-> not included in the Paper 26.2 test server. Do not install an unofficial port on
-> a production server solely for this integration.
 
 ## Plan
 

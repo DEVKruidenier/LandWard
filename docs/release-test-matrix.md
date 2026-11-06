@@ -81,6 +81,3 @@ Java version, server log and each pass/fail result with the release notes.
 - [ ] Confirm bStats remains optional and does not require a separate plugin.
 - [ ] Run `./gradlew test shadowJar --no-daemon --console=plain` and preserve a
   successful log with the release artifacts.
-
-Dynmap is optional and not a Paper 26.2 release gate until Dynmap publishes a
-compatible build. LandWard must simply skip a disabled Dynmap plugin safely.

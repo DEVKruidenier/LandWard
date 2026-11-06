@@ -12,7 +12,7 @@ LandWard is an open-source Paper plugin by [DEVKruidenier](https://github.com/DE
 
 | Built for players | Built for administrators |
 | --- | --- |
-| Native Minecraft GUI, no claim tool | Separate purple Safe Zones for spawn and server areas |
+| Native Minecraft GUI, no claim tool | Separate Safe Zones for spawn and server areas |
 | One owned land, membership in many lands | SQLite and MySQL/MariaDB with verified migration |
 | Member, PvP, mobs and interaction settings | WorldGuard, map, economy and analytics integrations |
 

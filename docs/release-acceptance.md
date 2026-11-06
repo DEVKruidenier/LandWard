@@ -9,6 +9,4 @@ startup diagnostics. It must also verify the separate player-claims and
 admin-claims maps: type separation, purple markers, WorldGuard/spawn overlap
 behaviour, trusted members, PvP, mob, container, door and interaction toggles.
 A full build, unit tests and a local Paper runtime test are required before the
-test JAR is installed. Dynmap remains an optional best-effort integration: it is
-not a release gate while Dynmap has no compatible Paper 26.2 build. LandWard must
-instead detect a disabled Dynmap instance safely and continue without warnings.
+test JAR is installed.

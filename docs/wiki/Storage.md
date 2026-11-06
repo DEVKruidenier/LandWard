@@ -15,7 +15,7 @@ storage:
 
 ## MySQL
 
-Set `storage.type` to `mysql`, then configure a database and account with permission to create and alter LandWard's tables.
+For a brand-new server with no existing LandWard data, set `storage.type` to `mysql`, then configure a database and account with permission to create and alter LandWard's tables. For an existing SQLite server, follow the migration procedure below instead—do **not** change `storage.type` by hand first.
 
 ```yaml
 storage:
@@ -32,38 +32,68 @@ storage:
 
 LandWard uses a connection pool and creates the `lands`, `claims`, `admin_lands` and `land_members` tables automatically. Use InnoDB and UTF-8 (`utf8mb4`); do not point multiple unrelated plugins at LandWard's tables.
 
-## Safe migration
+## Migration: SQLite → MySQL / MariaDB
 
-LandWard migrates all lands, claimed chunks, member rights and administrative claims between SQLite and MySQL. It is intentionally a maintenance action.
+This procedure moves every player land, chunk, Safe Zone, member and setting from the local `landward.db` to MySQL/MariaDB.
 
-1. Configure the target MySQL connection in `config.yml` first, but do **not** change `storage.type` yourself.
-2. With no players online, execute this from the server console:
+1. **Stop normal player activity.** Keep the server running only long enough to use its console; every player must be offline.
+2. **Make a manual backup.** Copy the complete `plugins/LandWard/` directory somewhere safe.
+3. **Create an empty MySQL/MariaDB database and account.** The account needs permission to create and alter tables in that database. Do not reuse a database that belongs to another plugin.
+4. **Edit only the MySQL connection details** under `storage.mysql` in `plugins/LandWard/config.yml`—host, port, database, username, password, TLS and pool size. Leave `storage.type: sqlite` unchanged.
+5. In the **server console**, verify that the target is empty:
+
+   ```text
+   claimadmin storage status mysql
+   ```
+
+   Continue only when it reports no LandWard data.
+6. Run the migration from the **server console**:
 
    ```text
    claimadmin migrate mysql confirm
    ```
+7. Wait for the success message. LandWard writes and verifies a `.lwbak` snapshot in `plugins/LandWard/migration-backups/`, imports the data atomically, compares the complete source and target snapshot, and then changes `storage.type` to `mysql`.
+8. **Restart Paper normally.** The startup panel must report `MYSQL` as the active storage.
+9. Validate the result before reopening the server: run `/claim`, inspect a player land, a member, a Safe Zone and several chunk claims. Keep the original SQLite file and migration backup until you are satisfied.
 
-   Use `sqlite` instead when moving back to the local database.
-3. LandWard validates the source, writes a complete versioned backup in `plugins/LandWard/migration-backups/`, verifies it, requires an empty target and imports it in one transaction.
-4. It compares the complete source and target snapshot. Only then does it set `storage.type`; restart the server to activate the migrated backend.
+## Migration: MySQL / MariaDB → SQLite
 
-If a check, backup, import or comparison fails, the active storage remains unchanged. A non-empty target is always refused rather than overwritten.
+Use this when moving back to the local `plugins/LandWard/landward.db` file.
 
-## Inspecting or clearing a target
+1. Ensure every player is offline and make a manual backup of `plugins/LandWard/`.
+2. Keep the existing MySQL connection settings in `config.yml`. Leave `storage.type: mysql` unchanged; LandWard needs the current backend as its source.
+3. In the **server console**, check the SQLite target:
 
-Before a migration, query whether a configured backend already has LandWard data:
+   ```text
+   claimadmin storage status sqlite
+   ```
+
+   It must be empty before migration.
+4. Run:
+
+   ```text
+   claimadmin migrate sqlite confirm
+   ```
+5. Wait for LandWard to create and verify the migration backup, import and compare the data. It then changes `storage.type` to `sqlite`.
+6. Restart Paper normally. The startup panel must report `SQLITE`, then validate lands, members, Safe Zones and claimed chunks as above.
+
+## If the target is not empty
+
+LandWard refuses to overwrite existing LandWard data. Inspect the target first:
 
 ```text
 claimadmin storage status mysql
 ```
 
-If you intentionally want to discard the **LandWard tables only** in a target backend, first make your own backup and then use:
+If the existing **LandWard tables only** are intentionally disposable, run this from the server console with nobody online:
 
 ```text
 claimadmin storage clear mysql confirm
 ```
 
-The command is console-only and requires no players online. It does not delete databases, database users, server files or tables belonging to other plugins. It exists solely to prepare a target after the administrator has explicitly decided its existing LandWard data can be removed.
+LandWard first creates and verifies a `.lwbak` backup, then clears only its own tables and verifies the empty result. It never deletes a database, database user, server file or another plugin’s tables. Replace `mysql` with `sqlite` when preparing the local target.
+
+> **Safety rule:** never run a storage command as a player, never migrate with players online, and never manually flip `storage.type` before a migration. If backup, validation, import or comparison fails, LandWard leaves the active backend unchanged.
 
 ---
 

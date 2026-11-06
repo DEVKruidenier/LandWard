@@ -14,7 +14,7 @@ LandWard is an open-source chunk-claiming plugin for Paper survival servers. It 
 - Show nearby chunks as a color-coded map centered on the player.
 - Protect blocks, containers, entities, fluids, pistons, and explosions.
 - Support SQLite and MySQL storage.
-- Respect vanilla spawn protection and integrate with WorldGuard, BlueMap, Squaremap, Pl3xMap, Dynmap, Plan, PlaceholderAPI and EssentialsX modules when installed.
+- Respect vanilla spawn protection and integrate with WorldGuard, BlueMap, Squaremap, Pl3xMap, Plan, PlaceholderAPI and EssentialsX modules when installed.
 - Localize every player-facing and administrative message.
 
 ## Anonymous metrics

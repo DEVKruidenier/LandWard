@@ -32,7 +32,7 @@ Settings group member access, protection behaviour and navigation so a land owne
 
 ![BlueMap showing exact LandWard chunk overlays.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/codex-clipboard-9963635d-7113-4cf3-a038-4ecfbc94da43.png)
 
-LandWard publishes exact 16×16 chunk boundaries to supported map plugins. See [Integrations](Integrations) for BlueMap, Squaremap, Pl3xMap and Dynmap notes.
+LandWard publishes exact 16×16 chunk boundaries to supported map plugins. See [Integrations](Integrations) for BlueMap, Squaremap and Pl3xMap notes.
 
 ## Branding banner
 
