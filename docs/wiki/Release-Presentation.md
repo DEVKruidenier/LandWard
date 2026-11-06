@@ -1,8 +1,6 @@
-# Release Presentation
+# Publication Checklist
 
-![LandWard banner](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/landward-banner.png)
-
-LandWard now has a visual direction: teal represents normal player claims, purple represents Safe Zones, and the LandWard shield/grid/compass emblem represents protected territory.
+Use the approved branding assets on [Brand & Media](Visual-Guide). Teal represents normal player claims, purple represents Safe Zones, and the LandWard shield/grid/compass emblem represents protected territory.
 
 ## Required assets
 
@@ -20,7 +18,7 @@ LandWard now has a visual direction: teal represents normal player claims, purpl
 4. Publish the exact same verified JAR and release notes to Modrinth, PaperMC and SpigotMC.
 5. Use fresh, minimum-scope API tokens only at release time.
 
-The hero and branding illustrations in this wiki are original LandWard art. Functional documentation uses standard Minecraft screenshots from the test server; it must never use a mock GUI as evidence of a feature.
+The LandWard branding artwork in this wiki is original. Functional documentation uses standard Minecraft screenshots from the test server; it must never use a mock GUI as evidence of a feature.
 
 ---
 

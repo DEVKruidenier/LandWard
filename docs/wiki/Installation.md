@@ -1,7 +1,5 @@
 # Installation
 
-![LandWard emblem](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/landward-logo.png)
-
 1. Download the normal `LandWard-<version>.jar` release file. Do not use the `-unshaded` development artifact.
 2. Stop the Paper server.
 3. Put the JAR in `plugins/`.

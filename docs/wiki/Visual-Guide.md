@@ -1,6 +1,6 @@
-# Visual Guide
+# Brand & Media
 
-This page separates LandWard’s visual identity from functional screenshots. The illustrations are branding art; the interface and map examples below are captured from the real Paper test server using the standard Minecraft style.
+This page contains LandWard’s reusable brand assets and the live-map visual. Player and administrator GUI demonstrations belong in [Claim Management](Claim-Management), so every feature is explained in one place.
 
 ## LandWard identity
 
@@ -16,41 +16,15 @@ This page separates LandWard’s visual identity from functional screenshots. Th
 | Red | Chunks owned by another player |
 | Purple | Server-owned Safe Zones / admin claims |
 
-## Player land menu
-
-![Real Minecraft capture of the LandWard player-land menu.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claim.gif)
-
-The player menu keeps the important actions compact: members, settings, renaming, chunk map and the lower-right back arrow.
-
-## Shared settings
-
-![Real Minecraft capture of LandWard’s shared settings.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimsettings.gif)
-
-Settings group member access, protection behaviour and navigation so a land owner can understand them at a glance.
-
-## ClaimAdmin
-
-![Real Minecraft capture of the ClaimAdmin menu.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimadmin.gif)
-
-ClaimAdmin separates player claims, Safe Zones, global admin settings and active-world controls.
-
-## Safe Zone settings
-
-![Real Minecraft capture of ClaimAdmin settings.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimadminsettings.gif)
-
-Administrators can configure public access for Safe Zones without changing player-land settings.
-
 ## Live map integration
 
-![BlueMap showing exact LandWard chunk overlays.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/codex-clipboard-9963635d-7113-4cf3-a038-4ecfbc94da43.png)
+LandWard publishes exact 16×16 chunk boundaries to supported map plugins. See the single map-overlay example and integration details on [Integrations](Integrations).
 
-LandWard publishes exact 16×16 chunk boundaries to supported map plugins. See [Integrations](Integrations) for BlueMap, Squaremap and Pl3xMap notes.
+## Header banner
 
-## Branding banner
+![LandWard branded header banner](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/landward-banner-v2.png)
 
-![LandWard banner artwork](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/landward-hero.png)
-
-The header/banner and logo are original visual assets prepared for LandWard’s documentation and future listing pages. They do not represent a literal in-game GUI.
+Use this banner for LandWard documentation and future listing pages. It is branding artwork, not a literal in-game screen.
 
 ---
 

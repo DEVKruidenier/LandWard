@@ -13,14 +13,7 @@ LandWard keeps the public command surface deliberately small. Players manage lan
 | `/claim bypass` | Toggles the temporary admin protection bypass. It requires `landward.bypass` and resets when you leave. |
 | `/claim update` | Stages a checksum-verified official GitHub Release JAR for manual installation. Requires `landward.admin`. |
 
-### Player flow
-
-1. Run `/claim`.
-2. Choose **Create land** and enter its name through the native Minecraft anvil screen.
-3. Open the **Chunk map** and click an eligible adjacent unclaimed chunk.
-4. Use the land menu for members, settings, renaming and unclaim confirmation.
-
-> **Ownership:** A player may own one land and be a member of any number of other lands. Being a member never grants ownership controls.
+For the complete player flow—creating a land, the native anvil screen, chunk-map colours, membership and owner controls—see [Claim Management](Claim-Management).
 
 ## Administration
 
@@ -32,13 +25,7 @@ LandWard keeps the public command surface deliberately small. Players manage lan
 | `/claimadmin storage status <sqlite\|mysql>` | Console-only check of the configured backend and whether its LandWard tables contain data. |
 | `/claimadmin storage clear <sqlite\|mysql> confirm` | Console-only maintenance command that clears LandWard tables in the selected backend. Use only after reading [Storage](Storage). |
 
-## Native anvil naming
-
-Land names are entered through Minecraft’s normal anvil interface. The name is only saved when the output slot is clicked. When `rename.experience-level-cost` is `0`, renaming is free—even if vanilla still displays its cosmetic “Enchantment Cost: 1” label.
-
-## What is intentionally GUI-only?
-
-Creating a land, claiming or unclaiming chunks, renaming, members, land settings and administration maps are GUI actions. This prevents accidental changes, makes the flow discoverable, and keeps confirmation screens consistent.
+> **GUI-first:** creating, claiming, unclaiming, renaming, member management and administration maps are handled through the in-game GUI. This keeps confirmations and permissions consistent.
 
 ---
 

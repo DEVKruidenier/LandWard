@@ -43,6 +43,16 @@ Member rights are intentionally land-wide—not individual per player—so every
 
 The world’s own PvP setting always remains the upper limit: LandWard cannot enable member PvP in a world where PvP is disabled.
 
+## Administration and Safe Zones
+
+ClaimAdmin keeps server-owned Safe Zones separate from player claims. Administrators can review player claims, manage Safe Zones and choose which worlds use LandWard.
+
+![Real Minecraft capture of the ClaimAdmin menu.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimadmin.gif)
+
+Safe Zone settings control public PvP, mob rules, containers, doors and interactions. Trusted Safe Zone members retain full access.
+
+![Real Minecraft capture of ClaimAdmin settings.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimadminsettings.gif)
+
 ## Members who own a land too
 
 A player may be a member of multiple other lands *and* own one separate land. `/claim` continues to show their create/owned-land flow while providing a read-only **Member lands** overview for lands that they do not own. It deliberately does not include the claim map or owner settings.
