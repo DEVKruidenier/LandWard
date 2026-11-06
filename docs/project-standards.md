@@ -10,6 +10,8 @@ the relevant documentation in the same change.
   the same product and must be updated together.
 - Configuration is shown as complete, nested YAML sections. Do not document
   settings only as dotted paths such as `section.option`.
+- Write every Minecraft command with its leading `/` in prose, tables and code
+  blocks, for example `/claimadmin reload`.
 - Documentation, configuration comments, commands, permissions and GUI text
   must reflect the shipped behaviour. Remove obsolete integrations and flows
   rather than leaving historical instructions behind.
