@@ -108,10 +108,11 @@ console:
 
 ## Plan analytics
 
-With Plan installed, this setting publishes a read-only
-LandWard panel in Plan. It contains server totals (lands and claimed chunks) and
-per-player values (whether the player owns a land, owned chunks and member lands).
-No new database table or player tracking is created by LandWard.
+With Plan installed, this setting publishes a read-only LandWard panel in Plan.
+It contains unambiguous server totals for player lands, protected chunks, Safe
+Zones, Safe Zone chunks, unique owners and land memberships. Player pages show
+the owned land and memberships. No new database table or player tracking is
+created by LandWard.
 
 ```yml
 integrations:

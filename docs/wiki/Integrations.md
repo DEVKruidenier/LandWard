@@ -60,8 +60,12 @@ integrations:
     enabled: true
 ```
 
-- Per player: owns a land, owned chunks, and member lands.
-- Per server: number of lands and claimed chunks.
+- Per player: owned land with claimed chunks, and lands where the player is a member.
+- Per server: Player lands, Claimed chunks, Safe Zones, Safe Zone chunks, Unique land owners and Land memberships.
+
+Plan's supported plugin API does not provide a fixed left-sidebar item. LandWard
+therefore uses the standard Plan integration panel instead of modifying Plan's
+web bundle.
 
 Plan is optional. If Plan is not installed, LandWard simply starts without these statistics.
 

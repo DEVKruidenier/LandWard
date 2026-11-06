@@ -54,10 +54,15 @@ BlueMap can render maps. This is a BlueMap requirement, not a LandWard setting.
 ## Plan
 
 When [Plan](https://github.com/plan-player-analytics/plan) is installed and this
-setting is `true`, LandWard registers a read-only Plan DataExtension.
-The Plan web panel then shows per-player ownership, owned-chunk and member-land
-statistics, together with server-wide land and claimed-chunk totals. It stores no
+setting is `true`, LandWard registers a read-only Plan DataExtension. Its server
+card shows Player lands, Claimed chunks, Safe Zones, Safe Zone chunks, Unique
+land owners and Land memberships. A player's Plan page shows their owned land
+and claimed-chunk count plus the lands where they are a member. It stores no
 additional player data and does not need a separate LandWard database table.
+
+Plan's public DataExtension API does not provide a supported way for a plugin
+to add a fixed item to Plan's left sidebar. LandWard therefore uses Plan's
+standard integration panel instead of modifying Plan's web bundle.
 
 Plan remains optional: without it LandWard starts and operates normally.
 

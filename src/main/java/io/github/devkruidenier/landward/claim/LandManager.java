@@ -311,6 +311,34 @@ public final class LandManager {
         return landsById.size();
     }
 
+    /** Returns the number of player-owned lands, excluding server Safe Zones. */
+    public synchronized int playerLandCount() {
+        return landsById.size() - administrativeLandIds.size();
+    }
+
+    /** Returns the number of server-owned Safe Zones. */
+    public synchronized int administrativeLandCount() {
+        return administrativeLandIds.size();
+    }
+
+    /** Returns the chunks protected by normal player lands only. */
+    public synchronized int playerClaimCount() {
+        return claims.values().stream().filter(landId -> !administrativeLandIds.contains(landId)).mapToInt(ignored -> 1).sum();
+    }
+
+    /** Returns the chunks protected by server-owned Safe Zones only. */
+    public synchronized int administrativeClaimCount() {
+        return claims.values().stream().filter(administrativeLandIds::contains).mapToInt(ignored -> 1).sum();
+    }
+
+    /** Returns all active member records, excluding land owners and Safe Zone members. */
+    public synchronized int playerMembershipCount() {
+        return membersByLand.entrySet().stream()
+                .filter(entry -> !administrativeLandIds.contains(entry.getKey()))
+                .mapToInt(entry -> entry.getValue().size())
+                .sum();
+    }
+
     /**
      * Returns the number of lands where the player is a member, excluding land they own.
      */

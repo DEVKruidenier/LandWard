@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LandWardPlanExtensionTest {
@@ -32,15 +31,18 @@ class LandWardPlanExtensionTest {
         lands.create(owner, "Plan Test", new ChunkPosition(world, 0, 0));
         lands.claim(owner, new ChunkPosition(world, 1, 0), -1, true);
         lands.addMember(owner, member);
+        lands.claimAdministration("Safe Zone", new ChunkPosition(world, 10, 10));
 
         LandWardPlanExtension extension = new LandWardPlanExtension(lands);
         new ExtensionExtractor(extension).validateAnnotations();
 
-        assertTrue(extension.ownsLand(owner));
-        assertFalse(extension.ownsLand(member));
-        assertEquals(2, extension.ownedChunks(owner));
-        assertEquals(1, extension.memberLands(member));
-        assertEquals(1, extension.lands());
-        assertEquals(2, extension.claimedChunks());
+        assertEquals(1, extension.playerLands());
+        assertEquals(2, extension.playerClaimedChunks());
+        assertEquals(1, extension.safeZones());
+        assertEquals(1, extension.safeZoneChunks());
+        assertEquals(1, extension.uniqueLandOwners());
+        assertEquals(1, extension.landMemberships());
+        assertTrue(extension.ownedLand(owner).startsWith("Plan Test (2 chunks)"));
+        assertTrue(extension.memberLandNames(member).startsWith("Plan Test (2 chunks)"));
     }
 }
