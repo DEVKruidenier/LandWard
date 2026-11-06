@@ -199,6 +199,7 @@ startup:
   status-enabled: "有効"
   status-disabled: "無効"
 updates:
+  checking: "アップデートを確認中"
   stage-info-staging: "更新をダウンロード中"
   stage-info-staged: "更新を準備しました"
   stage-info-click: "クリックして更新を安全にダウンロード"

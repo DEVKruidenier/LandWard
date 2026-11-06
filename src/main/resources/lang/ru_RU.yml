@@ -199,6 +199,7 @@ startup:
   status-enabled: "включена"
   status-disabled: "выключена"
 updates:
+  checking: "Проверка обновлений"
   stage-info-staging: "Загрузка обновления"
   stage-info-staged: "Обновление подготовлено"
   stage-info-click: "Нажмите, чтобы безопасно скачать обновление"

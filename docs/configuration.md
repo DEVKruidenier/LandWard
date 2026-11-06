@@ -92,6 +92,9 @@ GitHub Release JAR with a published SHA-256 digest, verifies its size, checksum
 and `plugin.yml`, then saves it in `plugins/LandWard/updates/`. It never replaces
 a loaded JAR. Stop the server and replace the plugin JAR with the staged file;
 the `maximum-download-megabytes` value above limits the accepted download size.
+Paper does not provide a safe live replacement for a running plugin's classes,
+listeners, integrations and open storage connections, so LandWard deliberately
+does not offer a live update.
 
 ## Console colors
 

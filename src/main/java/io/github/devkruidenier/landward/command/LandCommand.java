@@ -326,7 +326,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             case OUTDATED -> outdatedStatus(player, locale, status);
             case STAGING -> Component.text(" (" + plugin.localeService().message(locale, "updates.stage-info-staging") + ")", NamedTextColor.YELLOW);
             case STAGED -> Component.text(" (" + plugin.localeService().message(locale, "updates.stage-info-staged") + ")", NamedTextColor.GREEN);
-            case CHECKING -> Component.text(" (Checking updates)", NamedTextColor.YELLOW);
+            case CHECKING -> Component.text(" (" + plugin.localeService().message(locale, "updates.checking") + ")", NamedTextColor.YELLOW);
             case UNAVAILABLE, DISABLED -> Component.empty();
         };
     }

@@ -199,6 +199,7 @@ startup:
   status-enabled: "etkin"
   status-disabled: "devre dışı"
 updates:
+  checking: "Güncellemeler kontrol ediliyor"
   stage-info-staging: "Güncelleme indiriliyor"
   stage-info-staged: "Güncelleme hazırlandı"
   stage-info-click: "Güncellemeyi güvenle indirmek için tıklayın"

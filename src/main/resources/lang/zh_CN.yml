@@ -199,6 +199,7 @@ startup:
   status-enabled: "已启用"
   status-disabled: "已禁用"
 updates:
+  checking: "正在检查更新"
   stage-info-staging: "正在下载更新"
   stage-info-staged: "更新已准备好"
   stage-info-click: "点击以安全下载更新"

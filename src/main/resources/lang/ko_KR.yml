@@ -199,6 +199,7 @@ startup:
   status-enabled: "활성화됨"
   status-disabled: "비활성화됨"
 updates:
+  checking: "업데이트 확인 중"
   stage-info-staging: "업데이트 다운로드 중"
   stage-info-staged: "업데이트 준비됨"
   stage-info-click: "안전하게 업데이트를 다운로드하려면 클릭하세요"

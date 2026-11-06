@@ -199,6 +199,7 @@ startup:
   status-enabled: "enabled"
   status-disabled: "disabled"
 updates:
+  checking: "Checking updates"
   stage-info-staging: "Downloading update"
   stage-info-staged: "Update staged"
   stage-info-click: "Click to safely download the update"

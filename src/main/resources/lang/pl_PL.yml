@@ -199,6 +199,7 @@ startup:
   status-enabled: "włączone"
   status-disabled: "wyłączone"
 updates:
+  checking: "Sprawdzanie aktualizacji"
   stage-info-staging: "Pobieranie aktualizacji"
   stage-info-staged: "Aktualizacja przygotowana"
   stage-info-click: "Kliknij, aby bezpiecznie pobrać aktualizację"

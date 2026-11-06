@@ -82,6 +82,18 @@ uses that integration when the other plugin is installed.
 
 See [Integrations](Integrations) for what each bridge does.
 
+```yaml
+updates:
+  enabled: true
+  maximum-download-megabytes: 32
+```
+
+When an official release is newer, `/claim update` can download a verified JAR
+to `plugins/LandWard/updates/`. It is deliberately staged only: Paper does not
+provide a safe live replacement for a running plugin's classes, listeners,
+integrations and open storage connections. Stop the server, replace the plugin
+JAR with the staged file, then start Paper normally.
+
 ---
 
 Next: [Storage](Storage) · [Integrations](Integrations) · [Installation](Installation)
