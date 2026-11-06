@@ -21,9 +21,9 @@ For the complete player flow—creating a land, the native anvil screen, chunk-m
 | --- | --- |
 | `/claimadmin` | Opens ClaimAdmin: player claims, purple Safe Zones and active-world controls. Requires `landward.admin`. |
 | `/claimadmin reload` | Reloads configuration, language files and map layers. Requires `landward.admin`. |
-| `/claimadmin migrate <sqlite\|mysql> confirm` | Console-only live migration to the configured, empty target backend. Players stay online; LandWard briefly pauses claim changes. Requires `landward.dbadmin`. |
-| `/claimadmin storage status <sqlite\|mysql>` | Console-only check of the configured backend and whether its LandWard tables contain data. Requires `landward.dbadmin`. |
-| `/claimadmin storage clear <sqlite\|mysql> confirm` | Console-only maintenance command that clears LandWard tables in the selected backend. Requires `landward.dbadmin`; use only after reading [Storage](Storage). |
+| `/claimadmin migrate <sqlite\|mysql> confirm` | Live migration to the configured, empty target backend. Players stay online; LandWard briefly pauses claim changes. Requires `landward.dbadmin`. |
+| `/claimadmin storage status <sqlite\|mysql>` | Checks the configured backend and whether its LandWard tables contain data. Requires `landward.dbadmin`. |
+| `/claimadmin storage clear <sqlite\|mysql> confirm` | Clears LandWard tables in the selected backend. Requires `landward.dbadmin`; use only after reading [Storage](Storage). |
 
 > **GUI-first:** creating, claiming, unclaiming, renaming, member management and administration maps are handled through the in-game GUI. This keeps confirmations and permissions consistent.
 

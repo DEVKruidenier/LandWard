@@ -2,7 +2,7 @@
 
 LandWard uses SQLite by default. Use MySQL/MariaDB when you want a separate database server.
 
-> **Before you begin:** migration commands are console-only and require `landward.dbadmin` (operators have it by default). Players may stay online; LandWard briefly pauses claim changes during the migration. LandWard creates and checks its own migration backup automatically.
+> **Before you begin:** migration requires `landward.dbadmin` (operators have it by default). Players may stay online; LandWard briefly pauses claim changes during the migration. LandWard creates and checks its own migration backup automatically.
 
 ## SQLite
 
@@ -47,7 +47,7 @@ This moves all player lands, chunks, Safe Zones, members and settings from
    storage:
      type: sqlite
    ```
-3. In the **server console**, reload the configuration:
+3. Reload the configuration:
 
    ```text
    claimadmin reload
@@ -76,7 +76,7 @@ Use this when moving back to the local `plugins/LandWard/landward.db` file.
    storage:
      type: mysql
    ```
-2. In the **server console**, check the SQLite target:
+2. Check the SQLite target:
 
    ```text
    claimadmin storage status sqlite
@@ -98,7 +98,7 @@ LandWard refuses to overwrite existing LandWard data. Inspect the target first:
 claimadmin storage status mysql
 ```
 
-If the existing **LandWard tables only** are intentionally disposable, run this from the server console while no players are online:
+If the existing **LandWard tables only** are intentionally disposable, run this while no other players are online:
 
 ```text
 claimadmin storage clear mysql confirm
@@ -106,7 +106,7 @@ claimadmin storage clear mysql confirm
 
 LandWard first creates a backup, then clears only its own tables. It never deletes a database, database user, server file or another plugin’s tables. Replace `mysql` with `sqlite` when preparing the local target.
 
-> **Safety rule:** never run a storage command as a player, and never manually change the storage type before a migration. If a migration fails, LandWard keeps the current storage unchanged.
+> **Safety rule:** never manually change the storage type before a migration. If a migration fails, LandWard keeps the current storage unchanged.
 
 ---
 

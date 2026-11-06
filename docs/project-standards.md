@@ -41,8 +41,8 @@ the relevant documentation in the same change.
   clear English comments. Language and storage stay at the top of `config.yml`.
 - Configuration updates preserve administrator changes while adding new
   defaults; language files are refreshed without discarding custom additions.
-- SQLite and MySQL/MariaDB are supported. Migration is explicit, console-only,
-  validated, backed up, and never silently overwrites an existing target.
+- SQLite and MySQL/MariaDB are supported. Migration is explicit, validated,
+  backed up, and never silently overwrites an existing target.
 
 ## Compatibility and integrations
 
@@ -74,10 +74,12 @@ the relevant documentation in the same change.
      configuration entry when configuration is needed;
   3. update every bundled language file for new or changed player/admin text;
   4. update the GitHub Wiki and the matching repository documentation together;
-  5. test the result before publishing it.
+  5. after publishing, verify the actual GitHub repository documentation and
+     GitHub Wiki for stale, contradictory or superseded information;
+  6. test the result before publishing it.
 - Move the Project item to **In Progress** when implementation starts. Move it
   to **Done** only after the implementation, configuration, translations,
-  documentation and relevant tests are complete.
+  documentation, published-GitHub verification and relevant tests are complete.
 
 ## Storage administration
 

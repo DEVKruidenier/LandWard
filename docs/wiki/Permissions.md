@@ -5,7 +5,7 @@
 | `landward.use` | Everyone | Use `/claim`, `/land` and `/landward`. |
 | `landward.admin` | Operators | Use ClaimAdmin, reload and release staging. |
 | `landward.bypass` | Operators | Allows `/claim bypass`; it does **not** bypass claims until the holder deliberately enables it. |
-| `landward.dbadmin` | Operators | Use console-only storage migration and storage maintenance. |
+| `landward.dbadmin` | Operators | Use storage migration and storage maintenance. |
 
 ## The admin bypass
 

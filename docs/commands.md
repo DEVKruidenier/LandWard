@@ -12,9 +12,9 @@ LandWard is GUI-first: players normally only need /claim.
 | /claim update | Stages a verified GitHub Release JAR for a manual server-stopped replacement; requires landward.admin. |
 | /claimadmin | Opens administration: separate player-claim moderation, admin claims and active-world controls; requires landward.admin. |
 | /claimadmin reload | Reloads config, language files and map layers; requires landward.admin. |
-| /claimadmin migrate <sqlite\|mysql> confirm | Console-only live migration to an empty configured backend. Players stay online while LandWard briefly pauses claim changes; requires `landward.dbadmin`. |
-| /claimadmin storage status <sqlite\|mysql> | Console-only check of the selected backend and whether its LandWard tables contain data; requires `landward.dbadmin`. |
-| /claimadmin storage clear <sqlite\|mysql> confirm | Console-only maintenance operation that backs up then clears LandWard tables in the selected backend; requires `landward.dbadmin` and no online players. |
+| /claimadmin migrate <sqlite\|mysql> confirm | Live migration to an empty configured backend. Players stay online while LandWard briefly pauses claim changes; requires `landward.dbadmin`. |
+| /claimadmin storage status <sqlite\|mysql> | Checks the selected backend and whether its LandWard tables contain data; requires `landward.dbadmin`. |
+| /claimadmin storage clear <sqlite\|mysql> confirm | Maintenance operation that backs up then clears LandWard tables in the selected backend; requires `landward.dbadmin` and no other online players. |
 
 ## In-game flow
 

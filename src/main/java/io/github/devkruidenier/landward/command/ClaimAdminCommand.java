@@ -69,14 +69,16 @@ public final class ClaimAdminCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "general.no-permission"));
             return;
         }
-        if (sender instanceof Player || !plugin.getServer().getOnlinePlayers().isEmpty()) {
-            sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "admin.migration-online"));
-            return;
-        }
         if (args.length < 3 || !(args[1].equalsIgnoreCase("status") || args[1].equalsIgnoreCase("clear"))
                 || !(args[2].equalsIgnoreCase("sqlite") || args[2].equalsIgnoreCase("mysql"))
                 || (args[1].equalsIgnoreCase("clear") && (args.length != 4 || !args[3].equalsIgnoreCase("confirm")))) {
             sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "admin.storage-usage"));
+            return;
+        }
+        if (args[1].equalsIgnoreCase("clear")
+                && plugin.getServer().getOnlinePlayers().stream().anyMatch(player -> !(sender instanceof Player invoker)
+                        || !player.getUniqueId().equals(invoker.getUniqueId()))) {
+            sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "admin.migration-online"));
             return;
         }
         LandStorage target = null;
@@ -113,10 +115,6 @@ public final class ClaimAdminCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length != 3 || !(args[1].equalsIgnoreCase("sqlite") || args[1].equalsIgnoreCase("mysql")) || !args[2].equalsIgnoreCase("confirm")) {
             sender.sendMessage(plugin.localeService().message(locale, "admin.migration-usage"));
-            return;
-        }
-        if (sender instanceof Player) {
-            sender.sendMessage(plugin.localeService().message(locale, "admin.migration-online"));
             return;
         }
         String targetType = args[1].toLowerCase(java.util.Locale.ROOT);
