@@ -7,7 +7,6 @@ author: DEVKruidenier
 website: https://github.com/DEVKruidenier/LandWard
 softdepend:
   - BlueMap
-  - dynmap
   - WorldGuard
   - Vault
   - Plan
@@ -45,5 +44,5 @@ permissions:
     description: Allows toggling the temporary LandWard protection bypass with /claim bypass.
     default: op
   landward.dbadmin:
-    description: Allows console-only LandWard storage migration and maintenance.
+    description: Allows LandWard storage migration and maintenance.
     default: op

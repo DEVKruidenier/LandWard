@@ -85,7 +85,7 @@ admin:
   owner-already-owns: "{player} possède déjà un autre terrain."
   owner-invalid-land: "Seuls les terrains de joueurs peuvent changer de propriétaire."
   migration-usage: "Utilisation : /claimadmin migrate <sqlite|mysql> confirm"
-  migration-online: "Cette commande doit être exécutée depuis la console du serveur."
+  migration-online: "Les autres joueurs doivent être hors ligne avant de pouvoir vider le stockage."
   migration-same-type: "Le type de stockage choisi est déjà actif."
   migration-complete: "Migration terminée et active : {lands} terrains, {claims} claims et {members} membres. Sauvegarde : {backup}. Aucun redémarrage nécessaire."
   migration-failed: "La migration a échoué. Le stockage actif n'a pas changé. Consultez la console."

@@ -9,7 +9,6 @@ import io.github.devkruidenier.landward.console.LandWardConsole;
 import io.github.devkruidenier.landward.console.LandWardConsole.Tone;
 import io.github.devkruidenier.landward.locale.LocaleService;
 import io.github.devkruidenier.landward.metrics.MetricsService;
-import io.github.devkruidenier.landward.integration.DynmapIntegration;
 import io.github.devkruidenier.landward.integration.BlueMapIntegration;
 import io.github.devkruidenier.landward.integration.plan.PlanIntegration;
 import io.github.devkruidenier.landward.integration.SquaremapIntegration;
@@ -51,7 +50,6 @@ public final class LandWardPlugin extends JavaPlugin {
     private LandWardConsole console;
     private LandStorage storage;
     private LandManager landManager;
-    private DynmapIntegration dynmapIntegration;
     private BlueMapIntegration blueMapIntegration;
     private PlanIntegration planIntegration;
     private SquaremapIntegration squaremapIntegration;
@@ -78,7 +76,6 @@ public final class LandWardPlugin extends JavaPlugin {
         } catch (StorageException exception) {
             throw new IllegalStateException("LandWard storage could not be initialized", exception);
         }
-        this.dynmapIntegration = new DynmapIntegration(this, landManager);
         this.blueMapIntegration = new BlueMapIntegration(this, landManager);
         this.squaremapIntegration = new SquaremapIntegration(this, landManager);
         this.pl3xMapIntegration = new Pl3xMapIntegration(this, landManager);
@@ -86,7 +83,6 @@ public final class LandWardPlugin extends JavaPlugin {
         this.adminBypasses = new AdminBypassService();
         blueMapIntegration.registerReadinessListener();
         blueMapIntegration.sync();
-        dynmapIntegration.sync();
         squaremapIntegration.sync();
         pl3xMapIntegration.sync();
         // Map plugins can finish their own asynchronous API initialization after
@@ -209,7 +205,6 @@ public final class LandWardPlugin extends JavaPlugin {
 
     public void syncMapIntegrations() {
         if (blueMapIntegration != null) blueMapIntegration.sync();
-        if (dynmapIntegration != null) dynmapIntegration.sync();
         if (squaremapIntegration != null) squaremapIntegration.sync();
         if (pl3xMapIntegration != null) pl3xMapIntegration.sync();
         if (planIntegration != null) planIntegration.refresh();

@@ -85,7 +85,7 @@ admin:
   owner-already-owns: "{player} zaten başka bir araziye sahip."
   owner-invalid-land: "Yalnızca oyuncu arazilerinin sahibi değiştirilebilir."
   migration-usage: "Kullanım: /claimadmin migrate <sqlite|mysql> confirm"
-  migration-online: "Bu komut yalnızca sunucu konsolundan çalıştırılabilir."
+  migration-online: "Depolama temizlenmeden önce diğer oyuncular çevrimdışı olmalıdır."
   migration-same-type: "Seçilen depolama türü zaten etkin."
   migration-complete: "Geçiş tamamlandı ve etkin: {lands} arazi, {claims} claim ve {members} üye. Yedek: {backup}. Sunucuyu yeniden başlatmak gerekmez."
   migration-failed: "Depolama geçişi başarısız oldu. Etkin depolama değiştirilmedi. Konsolu kontrol edin."

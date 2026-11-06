@@ -85,7 +85,7 @@ admin:
   owner-already-owns: "{player} 已拥有另一块领地。"
   owner-invalid-land: "只有玩家领地可以更改所有者。"
   migration-usage: "用法：/claimadmin migrate <sqlite|mysql> confirm"
-  migration-online: "此命令只能从服务器控制台执行。"
+  migration-online: "清空存储前，其他玩家必须离线。"
   migration-same-type: "所选存储类型已启用。"
   migration-complete: "迁移已完成并生效：{lands} 个领地、{claims} 个区块和 {members} 位成员。备份：{backup}。无需重启服务器。"
   migration-failed: "存储迁移失败。活动存储未更改。请检查控制台。"

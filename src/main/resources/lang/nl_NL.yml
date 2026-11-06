@@ -85,7 +85,7 @@ admin:
   owner-already-owns: "{player} bezit al een ander land."
   owner-invalid-land: "Alleen het eigenaarschap van spelersland kan worden gewijzigd."
   migration-usage: "Gebruik: /claimadmin migrate <sqlite|mysql> confirm"
-  migration-online: "Dit commando kan alleen vanuit de serverconsole worden uitgevoerd."
+  migration-online: "Andere spelers moeten offline zijn voordat de opslag kan worden geleegd."
   migration-same-type: "Het gekozen opslagtype is al actief."
   migration-complete: "Migratie voltooid en actief: {lands} landen, {claims} chunks en {members} leden. Back-up: {backup}. Geen serverherstart nodig."
   migration-failed: "Opslagmigratie mislukt. De actieve opslag is niet gewijzigd. Controleer de console."

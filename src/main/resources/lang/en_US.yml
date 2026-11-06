@@ -85,7 +85,7 @@ admin:
   owner-already-owns: "{player} already owns another land."
   owner-invalid-land: "Only player lands can have their owner changed."
   migration-usage: "Usage: /claimadmin migrate <sqlite|mysql> confirm"
-  migration-online: "This command can only be run from the server console."
+  migration-online: "Other players must be offline before storage can be cleared."
   migration-same-type: "The selected storage type is already active."
   migration-complete: "Migration complete and active: {lands} lands, {claims} claims and {members} members. Backup: {backup}. No server restart is needed."
   migration-failed: "Storage migration failed. Your active storage was not changed. Check the console."
