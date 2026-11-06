@@ -2,7 +2,7 @@
 
 # LandWard
 
-LandWard is an open-source Paper plugin by [DEVKruidenier](https://github.com/DEVKruidenier) for survival servers that want claims to feel obvious: create a land, open the map, and click the adjacent chunk you want to protect.
+LandWard is an open-source Paper plugin for survival servers that want claims to feel obvious: create a land, open the map, and click the adjacent chunk you want to protect.
 
 | For players | For administrators |
 | --- | --- |
