@@ -101,3 +101,11 @@ PlaceholderAPI expansion from blocking players. The value interpretation is
 covered by automated contract tests. Before a release, still install each
 tagger and its PlaceholderAPI expansion on a clean test server to verify its
 current output and a real PvP encounter.
+
+```yml
+integrations:
+  combat-tag:
+    enabled: true
+    claim-pvp-bypass: true
+    block-claim-abandon: true
+```

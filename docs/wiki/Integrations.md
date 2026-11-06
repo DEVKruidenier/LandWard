@@ -83,9 +83,24 @@ LandWard registers its internal expansion automatically when PlaceholderAPI is i
 
 ## Combat taggers
 
-LandWard has its own short-lived PvP-hit tracker, so the claim-combat safeguard works even when no combat plugin is installed. It can also read configured PlaceholderAPI values from CombatLogX, DeluxeCombat, PvPManager and EternalCombat when their matching PlaceholderAPI expansion is available.
+LandWard always has its own short-lived PvP-hit tracker, so combat protection
+works even when no combat plugin is installed. When PlaceholderAPI and a
+supported combat tagger are present, LandWard also checks the configured
+external placeholders. The default mappings are:
 
-With the following settings, two tagged combatants may continue their PvP encounter inside normal claims until their tag expires, while tagged players cannot unclaim land. An unresolved external placeholder is treated as **not tagged**, so a missing expansion cannot lock players out of a command.
+| Combat tagger | Placeholder | Tagged value |
+| --- | --- | --- |
+| CombatLogX | `%combatlogx_in_combat%` | `true` |
+| DeluxeCombat | `%deluxecombat_in_combat%` | `true` |
+| PvPManager | `%pvpmanager_combat_timeleft%` | a number greater than `0` |
+| EternalCombat | `%eternalcombat_opponent%` | a non-empty opponent name |
+
+With the following settings, two tagged combatants may continue their PvP
+encounter inside normal claims until their tag expires, while tagged players
+cannot unclaim land. An unresolved external placeholder is treated as **not
+tagged**, so a missing expansion cannot lock players out of a command. Before a
+release, install every tagger and its PlaceholderAPI expansion on a clean test
+server to verify its current output and a real PvP encounter.
 
 ```yaml
 integrations:
