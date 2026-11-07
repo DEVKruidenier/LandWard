@@ -1,6 +1,6 @@
 # Publication Checklist
 
-Use the approved branding assets on [Brand & Media](Visual-Guide). Teal represents normal player claims, purple represents Safe Zones, and the LandWard shield/grid/compass emblem represents protected territory.
+Use the approved LandWard branding assets. Teal represents normal player claims, purple represents Safe Zones, and the LandWard shield/grid/compass emblem represents protected territory.
 
 ## Required assets
 
@@ -20,6 +20,3 @@ Use the approved branding assets on [Brand & Media](Visual-Guide). Teal represen
 
 The LandWard branding artwork in this wiki is original. Functional documentation uses standard Minecraft screenshots from the test server; it must never use a mock GUI as evidence of a feature.
 
----
-
-See [Visual Guide](Visual-Guide).

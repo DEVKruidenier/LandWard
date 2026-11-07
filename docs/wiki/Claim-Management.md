@@ -65,4 +65,4 @@ Players receive a concise localized notice when entering a claimed area. Protect
 
 ---
 
-Next: [Commands](Commands) · [Permissions](Permissions) · [Visual Guide](Visual-Guide)
+Next: [Commands](Commands) · [Permissions](Permissions)

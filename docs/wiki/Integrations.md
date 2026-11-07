@@ -135,4 +135,4 @@ integrations:
 
 ---
 
-Next: [Configuration](Configuration) · [Visual Guide](Visual-Guide)
+Next: [Configuration](Configuration)

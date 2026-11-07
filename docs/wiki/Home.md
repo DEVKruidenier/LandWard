@@ -22,7 +22,7 @@ Everything in the sidebar is also linked here.
 
 | Getting started | Running LandWard | Project & release |
 | --- | --- | --- |
-| [Installation](Installation) | [Claim Management](Claim-Management) | [Visual Guide](Visual-Guide) |
+| [Installation](Installation) | [Claim Management](Claim-Management) | [Release Testing](Release-Testing) |
 | [Configuration](Configuration) | [Commands](Commands) | [Release Testing](Release-Testing) |
 | [Storage](Storage) | [Permissions](Permissions) | [Release Presentation](Release-Presentation) |
 | [Integrations](Integrations) |  |  |
@@ -31,8 +31,6 @@ Everything in the sidebar is also linked here.
 
 - Paper 26.2 or newer
 - Java 25 or newer
-
-> **Development builds:** LandWard is actively developed. Test snapshots on a staging server before using them in production.
 
 ## Project
 

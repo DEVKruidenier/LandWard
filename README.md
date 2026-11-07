@@ -6,9 +6,6 @@ LandWard is an open-source chunk-claiming plugin for Paper survival servers. It
 uses a visual in-game map instead of claim tools, selection wands, or mandatory
 economies.
 
-> [!IMPORTANT]
-> LandWard is in early development and is not ready for production servers.
-
 ## Documentation
 
 The [LandWard Wiki](https://github.com/DEVKruidenier/LandWard/wiki) is the
@@ -33,12 +30,6 @@ disabled in LandWard's configuration or in the server-wide bStats configuration.
 
 The distributable plugin JAR is written to `build/libs/LandWard-<version>.jar`.
 The `-unshaded` JAR is a development artifact and does not include bStats.
-
-## Project status
-
-LandWard is actively developed and not yet production-ready. Consult the
-[Wiki](https://github.com/DEVKruidenier/LandWard/wiki) for the current feature
-set, compatibility status and administrator guidance.
 
 ## License
 

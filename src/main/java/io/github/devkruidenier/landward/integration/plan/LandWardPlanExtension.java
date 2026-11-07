@@ -50,7 +50,6 @@ public final class LandWardPlanExtension implements DataExtension {
         };
     }
 
-    @Tab("Overview")
     @NumberProvider(
             text = "Player lands",
             description = "Normal player-owned lands on this server.",
@@ -64,7 +63,6 @@ public final class LandWardPlanExtension implements DataExtension {
         return landManager.playerLandCount();
     }
 
-    @Tab("Overview")
     @NumberProvider(
             text = "Claimed chunks",
             description = "Protected chunks belonging to player lands.",
@@ -78,7 +76,6 @@ public final class LandWardPlanExtension implements DataExtension {
         return landManager.playerClaimCount();
     }
 
-    @Tab("Overview")
     @NumberProvider(
             text = "Safe Zones",
             description = "Server-owned administrative claims.",
@@ -92,7 +89,6 @@ public final class LandWardPlanExtension implements DataExtension {
         return landManager.administrativeLandCount();
     }
 
-    @Tab("Overview")
     @NumberProvider(
             text = "Safe Zone chunks",
             description = "Protected chunks belonging to Safe Zones.",
@@ -106,7 +102,6 @@ public final class LandWardPlanExtension implements DataExtension {
         return landManager.administrativeClaimCount();
     }
 
-    @Tab("Overview")
     @NumberProvider(
             text = "Unique land owners",
             description = "Players who own one normal player land.",
@@ -120,7 +115,6 @@ public final class LandWardPlanExtension implements DataExtension {
         return landManager.playerLandCount();
     }
 
-    @Tab("Overview")
     @NumberProvider(
             text = "Land memberships",
             description = "Active player memberships, excluding owners and Safe Zones.",
