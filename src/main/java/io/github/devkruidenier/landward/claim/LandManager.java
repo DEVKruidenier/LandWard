@@ -26,6 +26,9 @@ public final class LandManager {
     private static final Pattern VALID_NAME = Pattern.compile("^[\\p{L}\\p{N} _-]{3,24}$");
 
     private LandStorage storage;
+    /** Defaults copied into a land when it is first created. Existing lands keep their own choices. */
+    private MemberPermissions playerMemberDefaults;
+    private MemberPermissions administrativeMemberDefaults;
     private final Map<UUID, Land> landsById = new HashMap<>();
     private final Map<UUID, Land> landsByOwner = new HashMap<>();
     private final Map<String, Land> landsByName = new HashMap<>();
@@ -34,8 +37,25 @@ public final class LandManager {
     private final Map<UUID, Map<UUID, MemberPermissions>> membersByLand = new HashMap<>();
     private final java.util.Set<UUID> administrativeLandIds = new HashSet<>();
 
+    /**
+     * Keeps storage and migration callers backwards-compatible. The plugin
+     * constructor supplies configured defaults; direct callers receive the
+     * historic full-access defaults.
+     */
     public LandManager(LandStorage storage) {
+        this(storage, MemberPermissions.FULL, MemberPermissions.FULL);
+    }
+
+    public LandManager(LandStorage storage, MemberPermissions playerMemberDefaults, MemberPermissions administrativeMemberDefaults) {
         this.storage = storage;
+        this.playerMemberDefaults = java.util.Objects.requireNonNull(playerMemberDefaults, "playerMemberDefaults");
+        this.administrativeMemberDefaults = java.util.Objects.requireNonNull(administrativeMemberDefaults, "administrativeMemberDefaults");
+    }
+
+    /** Updates creation defaults only; already-created lands and members are never changed. */
+    public synchronized void memberDefaults(MemberPermissions playerDefaults, MemberPermissions adminDefaults) {
+        this.playerMemberDefaults = java.util.Objects.requireNonNull(playerDefaults, "playerDefaults");
+        this.administrativeMemberDefaults = java.util.Objects.requireNonNull(adminDefaults, "adminDefaults");
     }
 
     public synchronized void load() throws StorageException {
@@ -95,7 +115,7 @@ public final class LandManager {
             return new CreateResult(CreateStatus.CHUNK_ALREADY_CLAIMED, landsById.get(claimedBy));
         }
 
-        Land land = new Land(UUID.randomUUID(), ownerId, name, Instant.now(), MemberPermissions.FULL, LandProtectionSettings.DEFAULT);
+        Land land = new Land(UUID.randomUUID(), ownerId, name, Instant.now(), playerMemberDefaults, LandProtectionSettings.DEFAULT);
         storage.insertLandWithClaim(land, new ClaimedChunk(initialPosition, land.id()));
         landsById.put(land.id(), land);
         landsByOwner.put(ownerId, land);
@@ -158,7 +178,7 @@ public final class LandManager {
                 .orElse(null);
         if (administrativeLand == null) {
             String name = nextAdministrativeName(requestedName);
-            administrativeLand = new Land(UUID.randomUUID(), UUID.randomUUID(), name, Instant.now(), MemberPermissions.FULL, LandProtectionSettings.DEFAULT);
+            administrativeLand = new Land(UUID.randomUUID(), UUID.randomUUID(), name, Instant.now(), administrativeMemberDefaults, LandProtectionSettings.DEFAULT);
             storage.insertAdminLandWithClaim(administrativeLand, new ClaimedChunk(position, administrativeLand.id()));
             landsById.put(administrativeLand.id(), administrativeLand);
             landsByName.put(normalizedName(administrativeLand.name()), administrativeLand);
@@ -461,20 +481,36 @@ public final class LandManager {
         return new MemberResult(MemberStatus.PERMISSION_UPDATED, land, updated);
     }
 
-    /** Changes a right for every member of the owner's land, including future additions. */
+    /** Changes one individual member right in the server-owned administrative land. */
+    public synchronized MemberResult updateAdministrativeMemberPermission(
+            UUID memberId,
+            MemberPermissions.Permission permission,
+            boolean enabled
+    ) throws StorageException {
+        Land land = administrativeLand().orElse(null);
+        if (land == null) return new MemberResult(MemberStatus.NO_LAND, null, MemberPermissions.NONE);
+        Map<UUID, MemberPermissions> members = membersByLand.getOrDefault(land.id(), Map.of());
+        MemberPermissions current = members.get(memberId);
+        if (current == null) return new MemberResult(MemberStatus.NOT_MEMBER, land, MemberPermissions.NONE);
+        MemberPermissions updated = current.with(permission, enabled);
+        storage.updateMember(new LandMember(land.id(), memberId, updated));
+        membersByLand.get(land.id()).put(memberId, updated);
+        return new MemberResult(MemberStatus.PERMISSION_UPDATED, land, updated);
+    }
+
+    /**
+     * Changes the default used for future members of the owner's land. Existing
+     * member records are deliberately left untouched because they may have
+     * individual rights chosen by the owner.
+     */
     public synchronized MemberPermissions updateAllMemberPermissions(UUID ownerId, MemberPermissions.Permission permission, boolean enabled) throws StorageException {
         Land current = landsByOwner.get(ownerId);
         if (current == null) return MemberPermissions.NONE;
         MemberPermissions updated = current.memberPermissions().with(permission, enabled);
         storage.updateLandMemberPermissions(current.id(), updated);
-        storage.updateAllMemberPermissions(current.id(), updated);
         Land land = new Land(current.id(), current.ownerId(), current.name(), current.createdAt(), updated, current.protectionSettings());
         landsById.put(land.id(), land);
         landsByOwner.put(land.ownerId(), land);
-        Map<UUID, MemberPermissions> members = membersByLand.get(land.id());
-        if (members != null) {
-            members.replaceAll((member, ignored) -> updated);
-        }
         return updated;
     }
 

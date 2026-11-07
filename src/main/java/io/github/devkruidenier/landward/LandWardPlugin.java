@@ -29,6 +29,7 @@ import io.github.devkruidenier.landward.storage.LandStorage;
 import io.github.devkruidenier.landward.storage.StorageException;
 import io.github.devkruidenier.landward.storage.mysql.MySqlLandStorage;
 import io.github.devkruidenier.landward.storage.sqlite.SqliteLandStorage;
+import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.update.UpdateChecker;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -38,8 +39,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.nio.charset.StandardCharsets;
 
@@ -71,7 +70,7 @@ public final class LandWardPlugin extends JavaPlugin {
         this.storage = createStorage(getConfig().getString("storage.type", "sqlite"));
         try {
             storage.initialize();
-            this.landManager = new LandManager(storage);
+            this.landManager = new LandManager(storage, playerMemberDefaults(), administrativeMemberDefaults());
             landManager.load();
         } catch (StorageException exception) {
             throw new IllegalStateException("LandWard storage could not be initialized", exception);
@@ -239,7 +238,24 @@ public final class LandWardPlugin extends JavaPlugin {
         reloadConfig();
         mergeNewConfigDefaults();
         localeService.initialize();
+        landManager.memberDefaults(playerMemberDefaults(), administrativeMemberDefaults());
         syncMapIntegrations();
+    }
+
+    private MemberPermissions playerMemberDefaults() {
+        return memberDefaults("player-claims.member-rights");
+    }
+
+    private MemberPermissions administrativeMemberDefaults() {
+        return memberDefaults("admin-claims.member-rights");
+    }
+
+    private MemberPermissions memberDefaults(String path) {
+        return new MemberPermissions(
+                getConfig().getBoolean(path + ".build", true),
+                getConfig().getBoolean(path + ".containers", true),
+                getConfig().getBoolean(path + ".entities", true)
+        );
     }
 
     /** Creates an independent configured storage connection for the selected backend. */
@@ -269,7 +285,12 @@ public final class LandWardPlugin extends JavaPlugin {
     private void mergeNewConfigDefaults() {
         try (InputStream resource = getResource("config.yml")) {
             if (resource == null) return;
-            org.bukkit.configuration.file.FileConfiguration existing = getConfig();
+            File configFile = new File(getDataFolder(), "config.yml");
+            // Read the file directly instead of relying on Bukkit's cached
+            // configuration instance. This makes additions of an entirely new
+            // section reliable during an update as well as during /claimadmin
+            // reload.
+            YamlConfiguration existing = YamlConfiguration.loadConfiguration(configFile);
             YamlConfiguration bundled = YamlConfiguration.loadConfiguration(
                     new InputStreamReader(resource, StandardCharsets.UTF_8)
             );
@@ -284,7 +305,7 @@ public final class LandWardPlugin extends JavaPlugin {
             // bundled order, grouping and comments. If a value still matches
             // LandWard's previous default, a new official default may replace it.
             // Obsolete keys deliberately disappear instead of accumulating forever.
-            for (String path : bundled.getKeys(true)) {
+            for (String path : new java.util.ArrayList<>(bundled.getKeys(true))) {
                 if (!bundled.isConfigurationSection(path) && existing.contains(path)) {
                     Object current = existing.get(path);
                     if (previousBaseline == null || !previousBaseline.contains(path)
@@ -293,11 +314,9 @@ public final class LandWardPlugin extends JavaPlugin {
                     }
                 }
             }
-            File configFile = new File(getDataFolder(), "config.yml");
-            File backup = new File(getDataFolder(), "config.yml.before-layout-migration");
-            if (configFile.isFile() && !backup.exists()) {
-                Files.copy(configFile.toPath(), backup.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
-            }
+            // A normal update must not leave surprise backup files beside the
+            // administrator's configuration. The value merge above preserves
+            // deliberate choices while the bundled file restores the structure.
             bundled.save(configFile);
             newBaseline.save(baselineFile);
             reloadConfig();

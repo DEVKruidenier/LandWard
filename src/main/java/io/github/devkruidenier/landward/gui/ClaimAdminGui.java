@@ -2,6 +2,7 @@ package io.github.devkruidenier.landward.gui;
 
 import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
+import io.github.devkruidenier.landward.model.MemberPermissions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -177,6 +178,28 @@ public final class ClaimAdminGui {
         player.openInventory(inventory);
     }
 
+    /** Lets an administrator change the access of one trusted Safe Zone member. */
+    public void openAdminMemberActions(Player player, UUID memberId) {
+        String locale = plugin.localeService().localeFor(player);
+        var land = lands.administrativeLand();
+        if (land.isEmpty()) { openAdminMemberList(player); return; }
+        MemberPermissions permissions = lands.members(land.get().id()).stream()
+                .filter(member -> member.playerId().equals(memberId)).findFirst()
+                .map(io.github.devkruidenier.landward.model.LandMember::permissions)
+                .orElse(MemberPermissions.NONE);
+        ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.ADMIN_MEMBER, locale, 27, "gui.management-members");
+        holder.selectedMemberId(memberId);
+        Inventory inventory = holder.getInventory();
+        inventory.setItem(4, playerHead(memberId, name(locale, memberId), plugin.localeService().message(locale, "gui.management-configure-member")));
+        inventory.setItem(10, permissionItem(locale, Material.IRON_PICKAXE, "gui.management-build", permissions.build()));
+        inventory.setItem(13, permissionItem(locale, Material.CHEST, "gui.management-containers", permissions.containers()));
+        inventory.setItem(16, permissionItem(locale, Material.LEAD, "gui.management-entities", permissions.entities()));
+        inventory.setItem(22, item(Material.BARRIER, plugin.localeService().message(locale, "gui.management-remove-member"), NamedTextColor.RED,
+                List.of(plugin.localeService().message(locale, "gui.management-remove-hint"))));
+        inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        player.openInventory(inventory);
+    }
+
     private ClaimAdminHolder holder(ClaimAdminHolder.Screen screen, String locale, int size, String titleKey) {
         ClaimAdminHolder holder = new ClaimAdminHolder(screen);
         Inventory inventory = Bukkit.createInventory(holder, size, Component.text(plugin.localeService().message(locale, titleKey), NamedTextColor.DARK_AQUA));
@@ -199,6 +222,13 @@ public final class ClaimAdminGui {
                 plugin.localeService().message(locale, titleKey) + ": " + plugin.localeService().message(locale, enabled ? "gui.management-allowed" : "gui.management-denied"),
                 enabled ? NamedTextColor.GREEN : NamedTextColor.RED,
                 List.of(plugin.localeService().message(locale, "gui.management-toggle"))));
+    }
+
+    private ItemStack permissionItem(String locale, Material material, String titleKey, boolean enabled) {
+        return item(material,
+                plugin.localeService().message(locale, titleKey) + ": " + plugin.localeService().message(locale, enabled ? "gui.management-allowed" : "gui.management-denied"),
+                enabled ? NamedTextColor.GREEN : NamedTextColor.RED,
+                List.of(plugin.localeService().message(locale, "gui.management-toggle")));
     }
 
     private ItemStack playerHead(UUID id, String label, String lore) {

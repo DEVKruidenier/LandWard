@@ -53,12 +53,28 @@ claims:
   disabled-worlds:
     - myworld
 
+player-claims:
+  member-rights:
+    # Default access for members added to a newly created player land.
+    # The land owner can change these defaults for their own land and can also customise each member separately.
+    # Existing lands and members keep their own saved rights when this configuration changes.
+    build: true
+    containers: true
+    entities: true
+
 admin-claims:
   # Optional name for the first server-owned administrative land.
-  # Keep default-name: "" to use the selected LandWard language.
-  # To set a custom name, use for example: default-name: "Spawn"
+  # Keep default-name: '' to use the selected LandWard language.
+  # To set a custom name, use for example: default-name: Spawn
   # Configure this before creating the first admin claim.
-  default-name: ""
+  default-name: ''
+  member-rights:
+    # Default access for trusted members added to a newly created Safe Zone.
+    # Administrators can customise each trusted member separately in /claimadmin.
+    # Existing Safe Zones and members keep their own saved rights when this configuration changes.
+    build: true
+    containers: true
+    entities: true
   protection:
     # Allow player-versus-player combat inside administrative claims.
     allow-pvp: false

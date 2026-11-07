@@ -175,8 +175,14 @@ public final class LandManagementGui {
     public void openMemberActions(Player player, UUID memberId) {
         LandManagementHolder holder = holder(LandManagementHolder.Screen.MEMBER, memberId, message(player, "gui.management-members"), COMPACT_SIZE);
         Inventory inventory = holder.getInventory();
-        inventory.setItem(13, playerHead(memberId, name(player, memberId), message(player, "gui.management-configure-member")));
-        inventory.setItem(15, item(Material.BARRIER, message(player, "gui.management-remove-member"), NamedTextColor.RED, List.of(message(player, "gui.management-remove-hint"))));
+        MemberPermissions permissions = landManager.ownedBy(player.getUniqueId())
+                .flatMap(land -> landManager.members(land.id()).stream().filter(member -> member.playerId().equals(memberId)).findFirst())
+                .map(LandMember::permissions).orElse(MemberPermissions.NONE);
+        inventory.setItem(4, playerHead(memberId, name(player, memberId), message(player, "gui.management-configure-member")));
+        inventory.setItem(10, permissionItem(player, Material.IRON_PICKAXE, message(player, "gui.management-build"), permissions.build()));
+        inventory.setItem(13, permissionItem(player, Material.CHEST, message(player, "gui.management-containers"), permissions.containers()));
+        inventory.setItem(16, permissionItem(player, Material.LEAD, message(player, "gui.management-entities"), permissions.entities()));
+        inventory.setItem(22, item(Material.BARRIER, message(player, "gui.management-remove-member"), NamedTextColor.RED, List.of(message(player, "gui.management-remove-hint"))));
         inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }

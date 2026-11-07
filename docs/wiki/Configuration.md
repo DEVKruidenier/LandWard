@@ -55,13 +55,34 @@ rename:
 - `vault` uses Vault’s active economy provider, such as EssentialsX Economy.
 - `experience-level-cost: 0` keeps renaming free; a positive value charges that many XP levels after a successful anvil confirmation.
 
+## Player-claim member defaults
+
+```yaml
+player-claims:
+  member-rights:
+    build: true
+    containers: true
+    entities: true
+```
+
+These values are copied to a player land when it is created. The owner can
+change the land's defaults in **Settings** and can then customise build,
+container and protected-entity access for any individual member. Existing lands
+and members keep their saved choices when this section changes. Changing a
+land's default affects members added afterwards and never replaces an existing
+member's individual choice.
+
 ## Admin claims
 
 ```yaml
 admin-claims:
-  # Keep this as "" to use the name from the selected LandWard language.
-  # Custom example: default-name: "Spawn"
-  default-name: ""
+  # Keep default-name: '' to use the name from the selected LandWard language.
+  # To set a custom name, use for example: default-name: Spawn
+  default-name: ''
+  member-rights:
+    build: true
+    containers: true
+    entities: true
   protection:
     allow-pvp: false
     allow-hostile-mob-kills: false
@@ -74,7 +95,9 @@ admin-claims:
 
 Admin claims are purple server-owned Safe Zones, for example at spawn. Manage
 them through the separate **Admin claims** map. Public protection can be changed
-in ClaimAdmin; trusted members always have full access.
+in ClaimAdmin. `member-rights` supplies the initial rights for members of a new
+Safe Zone; administrators can customise each trusted member separately. Existing
+Safe Zones and members keep their saved choices when this section changes.
 
 ## Integrations and updates
 

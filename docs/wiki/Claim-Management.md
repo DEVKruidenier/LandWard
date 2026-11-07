@@ -34,16 +34,24 @@ Only an owner can:
 - rename the land;
 - claim and unclaim chunks;
 - add or remove members;
-- set the shared rules for all members;
+- set the default rules for members;
+- customise the rights of each individual member;
 - open the land map and member management controls.
 
-## Shared member rules
+## Member rights
 
-Member rights are intentionally land-wide—not individual per player—so every member receives the same predictable access. In **Settings**, an owner can toggle build access, containers, protected entities, doors and interaction blocks, mob rules, and PvP between members.
+When a player land is created, it receives the member-right defaults from the
+server configuration. In **Settings**, its owner can change those defaults and
+select any member to customise build access, containers and protected entities
+for that person. The member-specific value takes priority over the land's
+default. Changing the land default affects members added afterwards; it never
+silently replaces a member's individual choice.
 
-![Configuring shared member rules in the real Minecraft GUI.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimsettings.gif)
+Doors, interaction blocks, mob rules and PvP between members are land-wide
+protection rules. They apply to every trusted member of that land. The world's
+own PvP setting always remains the upper limit.
 
-The world’s own PvP setting always remains the upper limit: LandWard cannot enable member PvP in a world where PvP is disabled.
+![Configuring member defaults and individual member rights in the real Minecraft GUI.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimsettings.gif)
 
 ## Administration and Safe Zones
 
@@ -51,7 +59,10 @@ ClaimAdmin keeps server-owned Safe Zones separate from player claims. Administra
 
 ![Real Minecraft capture of the ClaimAdmin menu.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimadmin.gif)
 
-Safe Zone settings control public PvP, mob rules, containers, doors and interactions. Trusted Safe Zone members retain full access.
+Safe Zone settings control public PvP, mob rules, containers, doors and
+interactions. Safe Zone members start with the `admin-claims.member-rights`
+defaults and administrators can customise build, container and protected-entity
+access for each member separately.
 
 ![Real Minecraft capture of ClaimAdmin settings.](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claimadminsettings.gif)
 

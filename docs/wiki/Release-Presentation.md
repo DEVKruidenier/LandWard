@@ -6,7 +6,7 @@ Use the approved LandWard branding assets. Teal represents normal player claims,
 
 - A square LandWard project icon for GitHub, Modrinth, PaperMC and SpigotMC.
 - A clean **real Minecraft** claim-map screenshot showing the green, grey and red chunk states.
-- A **real Minecraft** land-management screenshot showing members and shared member rights.
+- A **real Minecraft** land-management screenshot showing members, their defaults and individual rights.
 - A protection screenshot or short GIF demonstrating a denied interaction in another player's claim.
 - A concise feature image for every public platform page.
 

@@ -38,7 +38,7 @@ Java version, server log and each pass/fail result with the release notes.
 - [ ] Confirm the current chunk stays centred on slot 22, chunk coordinates and
   owners are shown, and the back arrow is in the lower-right slot.
 - [ ] Verify unclaim confirmation, final-chunk deletion, anvil rename (including
-  rename cost `0`), member addition/removal and shared member build/container/entity
+  rename cost `0`), member addition/removal, configured member defaults and individual member build/container/entity
   settings.
 - [ ] Verify `/land` and `/landward` route to `/claim`, while `/claim info`
   shows the version, author and update state.

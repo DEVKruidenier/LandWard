@@ -1,6 +1,6 @@
 # Commands
 
-LandWard keeps the public command surface deliberately small. Players manage land through the GUI; `/land` and `/landward` are friendly aliases for `/claim`.
+LandWard keeps the public command surface deliberately small. Players manage land through the GUI; `/land` and `/landward` are aliases for `/claim` and every one of its subcommands. For example, `/landward info` is the same as `/claim info`, and `/landward update` is the same as `/claim update`.
 
 ## Player commands
 

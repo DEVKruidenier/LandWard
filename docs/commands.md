@@ -1,6 +1,8 @@
 # Commands
 
-LandWard is GUI-first: players normally only need /claim.
+LandWard is GUI-first: players normally only need `/claim`. Every `/claim`
+subcommand also works with `/landward` (and `/land`) in its place: for example,
+`/landward info` and `/landward update`.
 
 | Command | Purpose |
 | --- | --- |
@@ -24,7 +26,7 @@ LandWard is GUI-first: players normally only need /claim.
   chunk also removes that land and its member rights.
 - **Rename:** click the name tag in land management, enter a name in the anvil GUI,
   then click the result item.
-- **Members and rights:** use the member and settings screens in land management. Rights are shared by every member of that land; they are not individual per-player roles.
+- **Members and rights:** use the member and settings screens in land management. New lands start with the configured member defaults; owners can customise build, container and protected-entity access for each member.
 
 Former typed mutation subcommands are intentionally redirected to the GUI, so every
 player uses the same confirmation and permission flow.

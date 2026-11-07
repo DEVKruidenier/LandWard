@@ -92,6 +92,31 @@ class LandManagerPersistenceTest {
     }
 
     @Test
+    void copiesConfiguredMemberDefaultsWithoutOverwritingIndividualRights() throws Exception {
+        SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("member-defaults.db"));
+        storage.initialize();
+        MemberPermissions configuredDefaults = new MemberPermissions(false, true, false);
+        LandManager manager = new LandManager(storage, configuredDefaults, MemberPermissions.NONE);
+        manager.load();
+
+        UUID owner = UUID.randomUUID();
+        UUID firstMember = UUID.randomUUID();
+        UUID secondMember = UUID.randomUUID();
+        UUID world = UUID.randomUUID();
+        LandManager.CreateResult created = manager.create(owner, "Default Rights", new ChunkPosition(world, 0, 0));
+        assertEquals(configuredDefaults, created.land().memberPermissions());
+        manager.addMember(owner, firstMember);
+        assertEquals(configuredDefaults, manager.permissions(firstMember, created.land().id()));
+
+        manager.updateMemberPermission(owner, firstMember, MemberPermissions.Permission.BUILD, true);
+        manager.updateAllMemberPermissions(owner, MemberPermissions.Permission.CONTAINERS, false);
+        manager.addMember(owner, secondMember);
+
+        assertEquals(new MemberPermissions(true, true, false), manager.permissions(firstMember, created.land().id()));
+        assertEquals(new MemberPermissions(false, false, false), manager.permissions(secondMember, created.land().id()));
+    }
+
+    @Test
     void refusesToUnclaimLastChunkAndPersistsOtherUnclaims() throws Exception {
         SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("unclaim.db"));
         storage.initialize();

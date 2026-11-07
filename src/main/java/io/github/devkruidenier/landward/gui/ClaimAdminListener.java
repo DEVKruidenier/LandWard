@@ -104,7 +104,14 @@ public final class ClaimAdminListener implements Listener {
         if (holder.screen() == ClaimAdminHolder.Screen.ADMIN_MEMBERS) {
             if (event.getRawSlot() == 53) { gui.openAdminSettings(player); return; }
             UUID member = holder.playersBySlot().get(event.getRawSlot());
-            if (member != null) {
+            if (member != null) gui.openAdminMemberActions(player, member);
+            return;
+        }
+        if (holder.screen() == ClaimAdminHolder.Screen.ADMIN_MEMBER) {
+            if (event.getRawSlot() == 26) { gui.openAdminMemberList(player); return; }
+            UUID member = holder.selectedMemberId();
+            if (member == null) { gui.openAdminMemberList(player); return; }
+            if (event.getRawSlot() == 22) {
                 try {
                     lands.removeAdministrativeMember(member);
                     plugin.refreshAnalyticsIntegration();
@@ -112,6 +119,32 @@ public final class ClaimAdminListener implements Listener {
                     player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
                 }
                 gui.openAdminMemberList(player);
+                return;
+            }
+            io.github.devkruidenier.landward.model.MemberPermissions.Permission permission = switch (event.getRawSlot()) {
+                case 10 -> io.github.devkruidenier.landward.model.MemberPermissions.Permission.BUILD;
+                case 13 -> io.github.devkruidenier.landward.model.MemberPermissions.Permission.CONTAINERS;
+                case 16 -> io.github.devkruidenier.landward.model.MemberPermissions.Permission.ENTITIES;
+                default -> null;
+            };
+            if (permission != null) {
+                var land = lands.administrativeLand().orElse(null);
+                var current = land == null ? null : lands.members(land.id()).stream()
+                        .filter(value -> value.playerId().equals(member)).findFirst().orElse(null);
+                if (current != null) {
+                    boolean enabled = switch (permission) {
+                        case BUILD -> !current.permissions().build();
+                        case CONTAINERS -> !current.permissions().containers();
+                        case ENTITIES -> !current.permissions().entities();
+                    };
+                    try {
+                        lands.updateAdministrativeMemberPermission(member, permission, enabled);
+                        plugin.refreshAnalyticsIntegration();
+                    } catch (io.github.devkruidenier.landward.storage.StorageException exception) {
+                        player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
+                    }
+                }
+                gui.openAdminMemberActions(player, member);
             }
             return;
         }

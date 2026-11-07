@@ -3,7 +3,6 @@ package io.github.devkruidenier.landward.integration.plan;
 import com.djrapitops.plan.extension.CallEvents;
 import com.djrapitops.plan.extension.DataExtension;
 import com.djrapitops.plan.extension.ElementOrder;
-import com.djrapitops.plan.extension.annotation.NumberProvider;
 import com.djrapitops.plan.extension.annotation.PluginInfo;
 import com.djrapitops.plan.extension.annotation.StringProvider;
 import com.djrapitops.plan.extension.annotation.Tab;
@@ -50,80 +49,26 @@ public final class LandWardPlanExtension implements DataExtension {
         };
     }
 
-    @NumberProvider(
-            text = "Player lands",
-            description = "Normal player-owned lands on this server.",
-            priority = 60,
-            iconName = "map",
-            iconFamily = Family.SOLID,
-            iconColor = Color.GREEN,
-            showInPlayerTable = false
-    )
     public long playerLands() {
         return landManager.playerLandCount();
     }
 
-    @NumberProvider(
-            text = "Claimed chunks",
-            description = "Protected chunks belonging to player lands.",
-            priority = 50,
-            iconName = "square",
-            iconFamily = Family.SOLID,
-            iconColor = Color.GREEN,
-            showInPlayerTable = false
-    )
     public long playerClaimedChunks() {
         return landManager.playerClaimCount();
     }
 
-    @NumberProvider(
-            text = "Safe Zones",
-            description = "Server-owned administrative claims.",
-            priority = 40,
-            iconName = "shield",
-            iconFamily = Family.SOLID,
-            iconColor = Color.PURPLE,
-            showInPlayerTable = false
-    )
     public long safeZones() {
         return landManager.administrativeLandCount();
     }
 
-    @NumberProvider(
-            text = "Safe Zone chunks",
-            description = "Protected chunks belonging to Safe Zones.",
-            priority = 30,
-            iconName = "shield",
-            iconFamily = Family.SOLID,
-            iconColor = Color.PURPLE,
-            showInPlayerTable = false
-    )
     public long safeZoneChunks() {
         return landManager.administrativeClaimCount();
     }
 
-    @NumberProvider(
-            text = "Unique land owners",
-            description = "Players who own one normal player land.",
-            priority = 20,
-            iconName = "user",
-            iconFamily = Family.SOLID,
-            iconColor = Color.BLUE,
-            showInPlayerTable = false
-    )
     public long uniqueLandOwners() {
         return landManager.playerLandCount();
     }
 
-    @NumberProvider(
-            text = "Land memberships",
-            description = "Active player memberships, excluding owners and Safe Zones.",
-            priority = 10,
-            iconName = "users",
-            iconFamily = Family.SOLID,
-            iconColor = Color.BLUE,
-            showInPlayerTable = false
-    )
     public long landMemberships() {
         return landManager.playerMembershipCount();
     }

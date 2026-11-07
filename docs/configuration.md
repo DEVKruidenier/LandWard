@@ -34,6 +34,28 @@ claims, claim protection and map markers without deleting existing claim data. A
 configuration includes `myworld` as a harmless example; remove or replace that entry
 with your own excluded worlds.
 
+## Member-right defaults
+
+LandWard copies these values into a land when it is created. They are the
+starting rights for members added to that land. A player-land owner can change
+their land's defaults in **Settings** and customise individual members there;
+an administrator can do the same for Safe Zone members in ClaimAdmin. Changing
+the configuration never changes existing lands or members.
+
+```yml
+player-claims:
+  member-rights:
+    build: true
+    containers: true
+    entities: true
+
+admin-claims:
+  member-rights:
+    build: true
+    containers: true
+    entities: true
+```
+
 ## Claim payments
 
 Use the following section. `free` is the default; `experience` charges raw XP
