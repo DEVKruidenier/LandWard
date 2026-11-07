@@ -55,7 +55,9 @@ claims:
 
 admin-claims:
   # Optional name for the first server-owned administrative land.
-  # Leave as "" to use the selected LandWard language. Configure this before creating the first admin claim.
+  # Keep default-name: "" to use the selected LandWard language.
+  # To set a custom name, use for example: default-name: "Spawn"
+  # Configure this before creating the first admin claim.
   default-name: ""
   protection:
     # Allow player-versus-player combat inside administrative claims.

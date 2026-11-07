@@ -59,7 +59,8 @@ rename:
 
 ```yaml
 admin-claims:
-  # Leave empty to use the name from the selected LandWard language.
+  # Keep this as "" to use the name from the selected LandWard language.
+  # Custom example: default-name: "Spawn"
   default-name: ""
   protection:
     allow-pvp: false
