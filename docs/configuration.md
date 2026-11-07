@@ -4,6 +4,9 @@
 
 On update, LandWard adds genuinely new defaults and preserves values changed by the administrator. It also maintains a baseline/backup to recognise prior defaults and remove obsolete layout keys when a new structure replaces them. Review the generated file after major updates.
 
+`plugin-version` is the first line in the file. It is informational only and is
+updated automatically to the version of the installed JAR; do not edit it.
+
 SQLite is the default. Set `type` to `mysql` and complete the nested `mysql:`
 fields in the storage section to use a shared MySQL/MariaDB database. LandWard creates
 its `lands`, `claims`, `admin_lands` and `land_members` tables automatically.

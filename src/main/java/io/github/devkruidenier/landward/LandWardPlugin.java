@@ -314,6 +314,9 @@ public final class LandWardPlugin extends JavaPlugin {
                     }
                 }
             }
+            // This is informational metadata rather than an administrator
+            // setting: always show the version of the JAR currently running.
+            bundled.set("plugin-version", getDescription().getVersion());
             // A normal update must not leave surprise backup files beside the
             // administrator's configuration. The value merge above preserves
             // deliberate choices while the bundled file restores the structure.

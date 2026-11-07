@@ -71,6 +71,12 @@ the relevant documentation in the same change.
 
 ## Quality and releases
 
+- `CHANGELOG.md` is the public, release-oriented history. Every completed
+  feature, fix, behaviour change and deprecation must be added under
+  **Unreleased** in clear administrator-facing language; move those entries to
+  the matching numbered release heading when a release is published. GitHub
+  Projects tracks planned and in-progress work, while the changelog records
+  only completed work.
 - Release versions use four numeric parts in the order
   `major.compatibility.feature.fix`, starting at `1.0.0.0` for the first public
   release. Increase only one part per release and reset every part to its right

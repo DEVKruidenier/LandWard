@@ -85,9 +85,8 @@ integrations:
 - Per player: owned land with claimed chunks, and lands where the player is a member.
 - Per server: Player lands, Claimed chunks, Safe Zones, Safe Zone chunks, Unique land owners and Land memberships.
 
-LandWard publishes a wide overview table, so Plan exposes **LandWard** as a
-clickable item in the left sidebar. The page contains the complete claim and
-Safe Zone statistics; no Plan files are modified.
+The statistics appear in Plan's standard **Plugins Overview** page. LandWard
+does not add a duplicate navigation item or modify any Plan files.
 
 Plan is optional. If Plan is not installed, LandWard simply starts without these statistics.
 

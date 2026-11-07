@@ -2,11 +2,9 @@ package io.github.devkruidenier.landward.integration.plan;
 
 import com.djrapitops.plan.extension.CallEvents;
 import com.djrapitops.plan.extension.DataExtension;
-import com.djrapitops.plan.extension.ElementOrder;
 import com.djrapitops.plan.extension.annotation.PluginInfo;
 import com.djrapitops.plan.extension.annotation.StringProvider;
 import com.djrapitops.plan.extension.annotation.Tab;
-import com.djrapitops.plan.extension.annotation.TabInfo;
 import com.djrapitops.plan.extension.annotation.TableProvider;
 import com.djrapitops.plan.extension.icon.Color;
 import com.djrapitops.plan.extension.icon.Family;
@@ -24,12 +22,6 @@ import java.util.stream.Collectors;
  * loaded after the optional Plan plugin was detected by {@link PlanIntegration}.</p>
  */
 @PluginInfo(name = "LandWard", iconName = "map", iconFamily = Family.SOLID, color = Color.GREEN)
-@TabInfo(
-        tab = "Overview",
-        iconName = "map",
-        iconFamily = Family.SOLID,
-        elementOrder = {ElementOrder.TABLE}
-)
 public final class LandWardPlanExtension implements DataExtension {
 
     private final LandManager landManager;
@@ -105,10 +97,7 @@ public final class LandWardPlanExtension implements DataExtension {
         return names.isBlank() ? "None" : names;
     }
 
-    /**
-     * A three-column table intentionally makes this a wide Plan extension.
-     * Plan then exposes LandWard as its own clickable item in the left sidebar.
-     */
+    /** Provides the LandWard rows in Plan's standard Plugins Overview page. */
     @Tab("Overview")
     @TableProvider(tableColor = Color.GREEN)
     public Table landWardOverview() {
