@@ -19,7 +19,8 @@ integrations:
 
 EssentialsX AntiBuild and Protect are soft dependencies. They apply their global
 build and interaction rules alongside LandWard; use WorldGuard for a shaped
-spawn region.
+spawn region. Vanilla spawn protection blocks **player claims** only; ClaimAdmin
+Safe Zones deliberately bypass it so the spawn can be protected by LandWard.
 
 ## Economy: Vault
 
@@ -33,7 +34,9 @@ Vault or an economy provider is absent.
 Download: [WorldGuard](https://enginehub.org/worldguard). WorldGuard requires
 [WorldEdit](https://enginehub.org/worldedit).
 
-When WorldGuard is installed, LandWard refuses a claim that overlaps a protected WorldGuard region. This includes typical spawn regions.
+When WorldGuard is installed, LandWard refuses a **player claim** that overlaps
+a protected WorldGuard region. This includes typical spawn regions. ClaimAdmin
+Safe Zones deliberately bypass this overlap check for server-owned areas.
 
 ```yaml
 integrations:

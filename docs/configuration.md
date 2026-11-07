@@ -148,6 +148,8 @@ This setting prevents LandWard claims that
 overlap the built-in `server.properties` `spawn-protection` square around the
 primary world spawn. Set `spawn-protection: 0` to disable that vanilla setting,
 or set the LandWard integration to `false` if the area should be claimable.
+It applies only to player claims. ClaimAdmin Safe Zones deliberately bypass it,
+so a server can protect its spawn with a purple Safe Zone.
 
 ```yml
 integrations:

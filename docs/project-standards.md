@@ -40,7 +40,14 @@ the relevant documentation in the same change.
   languages are English, Dutch, German, French, Spanish, Brazilian Portuguese,
   Italian, Polish, Turkish, Russian, Simplified Chinese, Japanese and Korean.
 - New configuration entries belong in the logical existing section and include
-  clear English comments. Language and storage stay at the top of `config.yml`.
+  clear English comments. Every comment must state what the setting controls,
+  who or what it applies to, its practical effect, and any important exception
+  or interaction (for example, player claims versus ClaimAdmin Safe Zones).
+  Language and storage stay at the top of `config.yml`.
+- Before publishing a configuration change, verify that its wording matches the
+  shipped behavior in `config.yml`, repository documentation and the public
+  GitHub Wiki. Avoid ambiguous words such as “claims” when only player claims
+  or only Safe Zones are affected.
 - Configuration updates preserve administrator changes while adding new
   defaults; language files are refreshed without discarding custom additions.
 - SQLite and MySQL/MariaDB are supported. Migration is explicit, validated,

@@ -37,7 +37,10 @@ Vault or an economy provider is absent.
 Download: [WorldGuard](https://enginehub.org/worldguard). WorldGuard requires
 [WorldEdit](https://enginehub.org/worldedit).
 
-LandWard will reject a chunk claim when any part of that chunk intersects a protected WorldGuard region. The policy is configurable and defaults to denying every overlap.
+LandWard will reject a **player** chunk claim when any part of that chunk
+intersects a protected WorldGuard region. The policy is configurable and
+defaults to denying every overlap. ClaimAdmin Safe Zones deliberately bypass
+this check, so administrators can protect spawn and other server-owned regions.
 
 ## BlueMap, Squaremap and Pl3xMap
 
