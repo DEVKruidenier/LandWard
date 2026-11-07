@@ -16,10 +16,6 @@ central and current documentation source. It covers installation, commands,
 claim management, configuration, integrations, permissions, storage migration
 and release testing.
 
-For contributors, the repository keeps its internal
-[project standards](docs/project-standards.md),
-[contribution guide](CONTRIBUTING.md) and [security policy](SECURITY.md).
-
 ## Anonymous metrics
 
 LandWard includes bStats for anonymous, aggregated usage statistics such as server
