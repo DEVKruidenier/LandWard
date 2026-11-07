@@ -2,6 +2,9 @@
 
 `plugins/LandWard/config.yml` contains all LandWard settings. Each setting has an English explanation in the file itself.
 
+`plugin-version` at the top is informational only. LandWard sets it to the
+installed JAR version automatically; do not edit it.
+
 > **Safe updates:** Your changed values are kept when LandWard updates. New settings are added automatically; check the file after a major update.
 
 ## Language and storage
