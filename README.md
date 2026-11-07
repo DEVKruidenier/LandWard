@@ -2,20 +2,23 @@
 
 **Simple land claims. Reliable protection.**
 
-LandWard is an open-source chunk-claiming plugin for Paper survival servers. It is designed around a simple command flow and a visual chunk map instead of claim tools, selection wands, or mandatory economies.
+LandWard is an open-source chunk-claiming plugin for Paper survival servers. It
+uses a visual in-game map instead of claim tools, selection wands, or mandatory
+economies.
 
 > [!IMPORTANT]
 > LandWard is in early development and is not ready for production servers.
 
-## Goals
+## Documentation
 
-- Claim nearby chunks with a visual GUI map opened using /claim.
-- Manage lands, members and shared member rights in an in-game GUI.
-- Show nearby chunks as a color-coded map centered on the player.
-- Protect blocks, containers, entities, fluids, pistons, and explosions.
-- Support SQLite and MySQL storage.
-- Respect vanilla spawn protection and integrate with WorldGuard, BlueMap, Squaremap, Pl3xMap, Plan, PlaceholderAPI and EssentialsX modules when installed.
-- Localize every player-facing and administrative message.
+The [LandWard Wiki](https://github.com/DEVKruidenier/LandWard/wiki) is the
+central and current documentation source. It covers installation, commands,
+claim management, configuration, integrations, permissions, storage migration
+and release testing.
+
+For contributors, the repository keeps its internal
+[project standards](docs/project-standards.md),
+[contribution guide](CONTRIBUTING.md) and [security policy](SECURITY.md).
 
 ## Anonymous metrics
 
@@ -25,15 +28,6 @@ names, chat, world data, server addresses, or exact locations. Metrics can be
 disabled in LandWard's configuration or in the server-wide bStats configuration.
 
 [View LandWard on bStats](https://bstats.org/plugin/bukkit/LandWard/35128)
-
-## Requirements
-
-- Paper 26.2 (tested)
-- Java 25 (tested)
-
-Paper 26.3 is a planned compatibility target, not yet a supported release.
-Folia is currently unsupported while LandWard is adapted and tested for its
-regionised scheduler model. See [Compatibility](docs/compatibility.md).
 
 ## Build
 
@@ -46,24 +40,9 @@ The `-unshaded` JAR is a development artifact and does not include bStats.
 
 ## Project status
 
-LandWard is actively developed and not yet production-ready. The current development
-build includes persistent SQLite/MySQL storage, GUI-first chunk claims, shared
-member settings, anvil-based naming, claim protection, XP/Vault payments, WorldGuard
-checks, BlueMap/Squaremap/Pl3xMap markers, PlaceholderAPI placeholders, combat-tag
-protection and an optional Plan analytics panel. The final integration and gameplay
-test pass is still in progress before the first stable release.
-
-## Documentation
-
-- [Architecture](docs/architecture.md)
-- [Commands](docs/commands.md)
-- [Configuration](docs/configuration.md)
-- [Integrations](docs/integrations.md)
-- [Compatibility](docs/compatibility.md)
-- [Translations](docs/translations.md)
-- [Project standards](docs/project-standards.md)
-- [Roadmap](docs/roadmap.md)
-- [Public wiki](https://github.com/DEVKruidenier/LandWard/wiki)
+LandWard is actively developed and not yet production-ready. Consult the
+[Wiki](https://github.com/DEVKruidenier/LandWard/wiki) for the current feature
+set, compatibility status and administrator guidance.
 
 ## License
 
