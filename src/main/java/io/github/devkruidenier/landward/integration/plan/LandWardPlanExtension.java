@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
         tab = "Overview",
         iconName = "map",
         iconFamily = Family.SOLID,
-        elementOrder = {ElementOrder.VALUES, ElementOrder.TABLE}
+        elementOrder = {ElementOrder.TABLE}
 )
 public final class LandWardPlanExtension implements DataExtension {
 
