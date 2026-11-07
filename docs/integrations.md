@@ -4,6 +4,9 @@ All integrations are optional and discovered at runtime.
 
 ## Vanilla spawn protection and EssentialsX AntiBuild
 
+Downloads: [EssentialsX](https://essentialsx.net/downloads.html) (including its
+optional AntiBuild module).
+
 LandWard can refuse claims that touch the primary world's built-in
 `server.properties` `spawn-protection` square. This guard is enabled by the
 following setting and is evaluated even when no
@@ -22,11 +25,25 @@ global build and interaction rules before/alongside LandWard. AntiBuild does
 not offer region protection, so it does not define claimable boundaries; use
 WorldGuard for protected spawn regions with custom shapes.
 
+## Economy: Vault
+
+Download: [Vault](https://dev.bukkit.org/projects/vault) and an economy provider
+such as [EssentialsX](https://essentialsx.net/downloads.html). LandWard uses
+Vault only when claim payments are configured as money; it keeps working when
+Vault or an economy provider is absent.
+
 ## WorldGuard
+
+Download: [WorldGuard](https://enginehub.org/worldguard). WorldGuard requires
+[WorldEdit](https://enginehub.org/worldedit).
 
 LandWard will reject a chunk claim when any part of that chunk intersects a protected WorldGuard region. The policy is configurable and defaults to denying every overlap.
 
 ## BlueMap, Squaremap and Pl3xMap
+
+Downloads: [BlueMap](https://modrinth.com/plugin/bluemap),
+[squaremap](https://modrinth.com/plugin/squaremap), and
+[Pl3xMap](https://hangar.papermc.io/granny/Pl3xMap/).
 
 Claim boundaries are published in dedicated, toggleable map layers. LandWard refreshes
 the layer after a claim is created, removed or renamed. BlueMap, Squaremap and
@@ -53,6 +70,8 @@ BlueMap can render maps. This is a BlueMap requirement, not a LandWard setting.
 
 ## Plan
 
+Download: [Plan](https://github.com/plan-player-analytics/Plan/releases).
+
 When [Plan](https://github.com/plan-player-analytics/plan) is installed and this
 setting is `true`, LandWard registers a read-only Plan DataExtension. Its server
 card shows Player lands, Claimed chunks, Safe Zones, Safe Zone chunks, Unique
@@ -73,6 +92,8 @@ integrations:
 ```
 
 ## PlaceholderAPI
+
+Download: [PlaceholderAPI](https://placeholderapi.com/downloads/).
 
 When PlaceholderAPI is installed, LandWard automatically registers its internal
 `landward` expansion. Nothing needs to be downloaded from eCloud.
@@ -96,10 +117,10 @@ external placeholders. The default mappings are:
 
 | Combat tagger | Placeholder | Tagged value |
 | --- | --- | --- |
-| CombatLogX | `%combatlogx_in_combat%` | `true` |
-| DeluxeCombat | `%deluxecombat_in_combat%` | `true` |
-| PvPManager | `%pvpmanager_combat_timeleft%` | a number greater than `0` |
-| EternalCombat | `%eternalcombat_opponent%` | a non-empty opponent name |
+| [CombatLogX](https://www.spigotmc.org/resources/combatlogx.31689/) | `%combatlogx_in_combat%` | `true` |
+| [DeluxeCombat](https://deluxecombat.com/) | `%deluxecombat_in_combat%` | `true` |
+| [PvPManager](https://www.curseforge.com/minecraft/bukkit-plugins/pvpmanager) | `%pvpmanager_combat_timeleft%` | a number greater than `0` |
+| [EternalCombat](https://hangar.papermc.io/EternalCodeTeam/EternalCombat/) | `%eternalcombat_opponent%` | a non-empty opponent name |
 
 An unresolved placeholder is treated as **not tagged**, preventing a missing
 PlaceholderAPI expansion from blocking players. The value interpretation is

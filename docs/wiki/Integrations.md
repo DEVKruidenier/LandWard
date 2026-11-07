@@ -4,6 +4,9 @@ All integrations are optional. LandWard works normally when none are installed.
 
 ## Vanilla spawn protection and EssentialsX
 
+Download: [EssentialsX](https://essentialsx.net/downloads.html), including its
+optional AntiBuild module.
+
 LandWard can reserve the primary world's built-in `server.properties`
 `spawn-protection` square, even when no protection plugin is installed. It can
 be disabled here:
@@ -18,7 +21,17 @@ EssentialsX AntiBuild and Protect are soft dependencies. They apply their global
 build and interaction rules alongside LandWard; use WorldGuard for a shaped
 spawn region.
 
+## Economy: Vault
+
+Download: [Vault](https://dev.bukkit.org/projects/vault) and an economy provider
+such as [EssentialsX](https://essentialsx.net/downloads.html). LandWard uses
+Vault only when claim payments are configured as money; it keeps working when
+Vault or an economy provider is absent.
+
 ## WorldGuard
+
+Download: [WorldGuard](https://enginehub.org/worldguard). WorldGuard requires
+[WorldEdit](https://enginehub.org/worldedit).
 
 When WorldGuard is installed, LandWard refuses a claim that overlaps a protected WorldGuard region. This includes typical spawn regions.
 
@@ -30,6 +43,10 @@ integrations:
 ```
 
 ## BlueMap, Squaremap and Pl3xMap
+
+Downloads: [BlueMap](https://modrinth.com/plugin/bluemap),
+[squaremap](https://modrinth.com/plugin/squaremap), and
+[Pl3xMap](https://hangar.papermc.io/granny/Pl3xMap/).
 
 When BlueMap, Squaremap or Pl3xMap is installed, LandWard publishes claims in a dedicated, toggleable marker layer. The layer refreshes after a chunk is claimed, unclaimed or renamed.
 
@@ -52,6 +69,8 @@ download before it can render maps.
 
 ## Plan
 
+Download: [Plan](https://github.com/plan-player-analytics/Plan/releases).
+
 When [Plan](https://github.com/plan-player-analytics/plan) is installed and this setting is enabled, LandWard adds read-only claim statistics to the Plan web panel.
 
 ```yaml
@@ -70,6 +89,8 @@ web bundle.
 Plan is optional. If Plan is not installed, LandWard simply starts without these statistics.
 
 ## PlaceholderAPI
+
+Download: [PlaceholderAPI](https://placeholderapi.com/downloads/).
 
 When PlaceholderAPI is installed, LandWard registers these placeholders:
 
@@ -94,10 +115,10 @@ external placeholders. The default mappings are:
 
 | Combat tagger | Placeholder | Tagged value |
 | --- | --- | --- |
-| CombatLogX | `%combatlogx_in_combat%` | `true` |
-| DeluxeCombat | `%deluxecombat_in_combat%` | `true` |
-| PvPManager | `%pvpmanager_combat_timeleft%` | a number greater than `0` |
-| EternalCombat | `%eternalcombat_opponent%` | a non-empty opponent name |
+| [CombatLogX](https://www.spigotmc.org/resources/combatlogx.31689/) | `%combatlogx_in_combat%` | `true` |
+| [DeluxeCombat](https://deluxecombat.com/) | `%deluxecombat_in_combat%` | `true` |
+| [PvPManager](https://www.curseforge.com/minecraft/bukkit-plugins/pvpmanager) | `%pvpmanager_combat_timeleft%` | a number greater than `0` |
+| [EternalCombat](https://hangar.papermc.io/EternalCodeTeam/EternalCombat/) | `%eternalcombat_opponent%` | a non-empty opponent name |
 
 With the following settings, tagged players can continue fighting each other
 inside a normal claim until their tag expires. Tagged players also cannot
