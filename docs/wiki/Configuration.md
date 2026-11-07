@@ -59,7 +59,8 @@ rename:
 
 ```yaml
 admin-claims:
-  default-name: "" # empty uses Safe Zone / Veilige Zone from the selected language
+  # Leave empty to use the name from the selected LandWard language.
+  default-name: ""
   protection:
     allow-pvp: false
     allow-hostile-mob-kills: false
