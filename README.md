@@ -13,6 +13,9 @@ central and current documentation source. It covers installation, commands,
 claim management, configuration, integrations, permissions, storage migration
 and release testing.
 
+Completed features, fixes and behaviour changes are listed in the
+[Changelog](CHANGELOG.md).
+
 ## Anonymous metrics
 
 LandWard includes bStats for anonymous, aggregated usage statistics such as server
