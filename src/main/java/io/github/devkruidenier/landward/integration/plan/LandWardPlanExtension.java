@@ -2,21 +2,18 @@ package io.github.devkruidenier.landward.integration.plan;
 
 import com.djrapitops.plan.extension.CallEvents;
 import com.djrapitops.plan.extension.DataExtension;
+import com.djrapitops.plan.extension.annotation.NumberProvider;
 import com.djrapitops.plan.extension.annotation.PluginInfo;
 import com.djrapitops.plan.extension.annotation.StringProvider;
-import com.djrapitops.plan.extension.annotation.Tab;
-import com.djrapitops.plan.extension.annotation.TableProvider;
 import com.djrapitops.plan.extension.icon.Color;
 import com.djrapitops.plan.extension.icon.Family;
-import com.djrapitops.plan.extension.icon.Icon;
-import com.djrapitops.plan.extension.table.Table;
 import io.github.devkruidenier.landward.claim.LandManager;
 
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Provides read-only LandWard statistics to Plan's web panel.
+ * Provides read-only LandWard statistics in Plan's standard Plugins Overview.
  *
  * <p>This class deliberately contains all direct Plan API references. It is only
  * loaded after the optional Plan plugin was detected by {@link PlanIntegration}.</p>
@@ -41,76 +38,56 @@ public final class LandWardPlanExtension implements DataExtension {
         };
     }
 
+    @NumberProvider(text = "Player lands", description = "Normal player-owned lands on this server.", priority = 60,
+            iconName = "map", iconFamily = Family.SOLID, iconColor = Color.GREEN, showInPlayerTable = false)
     public long playerLands() {
         return landManager.playerLandCount();
     }
 
+    @NumberProvider(text = "Player-claimed chunks", description = "Chunks protected by normal player lands.", priority = 50,
+            iconName = "square", iconFamily = Family.SOLID, iconColor = Color.GREEN, showInPlayerTable = false)
     public long playerClaimedChunks() {
         return landManager.playerClaimCount();
     }
 
+    @NumberProvider(text = "Safe Zones", description = "Server-owned administrative lands.", priority = 40,
+            iconName = "shield-alt", iconFamily = Family.SOLID, iconColor = Color.PURPLE, showInPlayerTable = false)
     public long safeZones() {
         return landManager.administrativeLandCount();
     }
 
+    @NumberProvider(text = "Safe Zone chunks", description = "Chunks protected by server-owned Safe Zones.", priority = 30,
+            iconName = "square", iconFamily = Family.SOLID, iconColor = Color.PURPLE, showInPlayerTable = false)
     public long safeZoneChunks() {
         return landManager.administrativeClaimCount();
     }
 
+    @NumberProvider(text = "Land owners", description = "Players who own a normal player land.", priority = 20,
+            iconName = "user", iconFamily = Family.SOLID, iconColor = Color.BLUE, showInPlayerTable = false)
     public long uniqueLandOwners() {
         return landManager.playerLandCount();
     }
 
+    @NumberProvider(text = "Land memberships", description = "Player memberships in other lands, excluding owners and Safe Zones.", priority = 10,
+            iconName = "users", iconFamily = Family.SOLID, iconColor = Color.BLUE, showInPlayerTable = false)
     public long landMemberships() {
         return landManager.playerMembershipCount();
     }
 
-    @Tab("Overview")
-    @StringProvider(
-            text = "Owned land",
-            description = "The player's land and its claimed-chunk count.",
-            priority = 20,
-            iconName = "map",
-            iconFamily = Family.SOLID,
-            iconColor = Color.GREEN,
-            showInPlayerTable = false
-    )
+    @StringProvider(text = "Land name", description = "The player's owned land and its claimed-chunk count.", priority = 30,
+            iconName = "map", iconFamily = Family.SOLID, iconColor = Color.GREEN, showInPlayerTable = false)
     public String ownedLand(UUID playerId) {
         return landManager.ownedBy(playerId)
                 .map(land -> land.name() + " (" + landManager.claimCount(land.id()) + " chunks)")
                 .orElse("None");
     }
 
-    @Tab("Overview")
-    @StringProvider(
-            text = "Land memberships",
-            description = "Other player lands where this player is a member.",
-            priority = 10,
-            iconName = "users",
-            iconFamily = Family.SOLID,
-            iconColor = Color.BLUE,
-            showInPlayerTable = false
-    )
+    @StringProvider(text = "Member land names", description = "Other player lands where this player is a member.", priority = 20,
+            iconName = "users", iconFamily = Family.SOLID, iconColor = Color.BLUE, showInPlayerTable = false)
     public String memberLandNames(UUID playerId) {
-        String names = landManager.memberLands(playerId).stream().map(land -> land.name() + " (" + landManager.claimCount(land.id()) + " chunks)")
+        String names = landManager.memberLands(playerId).stream()
+                .map(land -> land.name() + " (" + landManager.claimCount(land.id()) + " chunks)")
                 .collect(Collectors.joining(", "));
         return names.isBlank() ? "None" : names;
-    }
-
-    /** Provides the LandWard rows in Plan's standard Plugins Overview page. */
-    @Tab("Overview")
-    @TableProvider(tableColor = Color.GREEN)
-    public Table landWardOverview() {
-        return Table.builder()
-                .columnOne("Type", new Icon(Family.SOLID, "map", Color.GREEN))
-                .columnTwo("Metric", new Icon(Family.SOLID, "chart-bar", Color.BLUE))
-                .columnThree("Value", new Icon(Family.SOLID, "hashtag", Color.GREEN))
-                .addRow("Player lands", "Lands", playerLands())
-                .addRow("Player lands", "Claimed chunks", playerClaimedChunks())
-                .addRow("Safe Zones", "Safe Zones", safeZones())
-                .addRow("Safe Zones", "Claimed chunks", safeZoneChunks())
-                .addRow("Players", "Unique land owners", uniqueLandOwners())
-                .addRow("Players", "Land memberships", landMemberships())
-                .build();
     }
 }

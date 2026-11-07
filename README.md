@@ -11,7 +11,7 @@ economies.
 The [LandWard Wiki](https://github.com/DEVKruidenier/LandWard/wiki) is the
 central and current documentation source. It covers installation, commands,
 claim management, configuration, integrations, permissions, storage migration
-and release testing.
+and updates.
 
 Completed features, fixes and behaviour changes are listed in the
 [Changelog](CHANGELOG.md).
