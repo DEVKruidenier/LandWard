@@ -71,6 +71,17 @@ the relevant documentation in the same change.
 
 ## Quality and releases
 
+- Release versions use four numeric parts in the order
+  `major.compatibility.feature.fix`, starting at `1.0.0.0` for the first public
+  release. Increase only one part per release and reset every part to its right
+  to `0`:
+  - `major` for a breaking or major product release, for example `2.0.0.0`;
+  - `compatibility` for a new supported Minecraft/Paper server version, for
+    example `1.1.0.0`;
+  - `feature` for a backward-compatible new LandWard feature, for example
+    `1.0.1.0`;
+  - `fix` for a small correction, security patch or documentation/configuration
+    correction that does not add a feature, for example `1.0.0.1`.
 - Do not ship temporary fixes. Implement the actual durable behaviour, test it,
   and keep test-only helpers out of the release JAR.
 - Restarting the local test server is allowed when needed for a reliable test;
