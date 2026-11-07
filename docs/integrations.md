@@ -79,9 +79,9 @@ land owners and Land memberships. A player's Plan page shows their owned land
 and claimed-chunk count plus the lands where they are a member. It stores no
 additional player data and does not need a separate LandWard database table.
 
-Plan's public DataExtension API does not provide a supported way for a plugin
-to add a fixed item to Plan's left sidebar. LandWard therefore uses Plan's
-standard integration panel instead of modifying Plan's web bundle.
+LandWard publishes a wide overview table, so Plan exposes **LandWard** as a
+clickable item in the left sidebar. The page contains the complete claim and
+Safe Zone statistics; no Plan files are modified.
 
 Plan remains optional: without it LandWard starts and operates normally.
 
