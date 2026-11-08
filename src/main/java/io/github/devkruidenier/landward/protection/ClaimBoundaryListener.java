@@ -4,8 +4,9 @@ import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.Land;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,9 +41,9 @@ public final class ClaimBoundaryListener implements Listener {
         String locale = plugin.localeService().localeFor(player);
         if (current.isPresent()) {
             Land land = current.get();
-            actionbar(player, plugin.localeService().message(locale, "territory.entered", Map.of("name", land.name())), NamedTextColor.AQUA);
+            actionbar(player, plugin.localeService().message(locale, "territory.entered", Map.of("name", land.name())), ChatColor.AQUA);
         } else if (previous.isPresent()) {
-            actionbar(player, plugin.localeService().message(locale, "territory.left", Map.of("name", previous.get().name())), NamedTextColor.GRAY);
+            actionbar(player, plugin.localeService().message(locale, "territory.left", Map.of("name", previous.get().name())), ChatColor.GRAY);
         }
     }
 
@@ -57,7 +58,7 @@ public final class ClaimBoundaryListener implements Listener {
                 && (one.getBlockZ() >> 4) == (two.getBlockZ() >> 4);
     }
 
-    private void actionbar(Player player, String message, NamedTextColor color) {
-        player.sendActionBar(Component.text(message, color));
+    private void actionbar(Player player, String message, ChatColor color) {
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(color + message));
     }
 }

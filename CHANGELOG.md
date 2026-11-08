@@ -4,6 +4,14 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.0.2] - 2026-11-08
+
+### Fixed
+
+- Replaced the remaining Paper-only GUI, item metadata and player-message API
+  calls with Bukkit/Spigot-safe equivalents. ClaimAdmin and all LandWard menus
+  now work on Spigot 26.2 as well as Paper.
+
 ## [1.0.0.1] - 2026-11-08
 
 ### Fixed

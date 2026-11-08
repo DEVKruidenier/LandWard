@@ -4,8 +4,6 @@ import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.command.LandCommand;
 import io.github.devkruidenier.landward.storage.StorageException;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -53,7 +51,7 @@ public final class LandRenameListener implements Listener {
         ItemMeta meta = input.getItemMeta();
         String currentName = creating ? plugin.localeService().message(locale, "gui.welcome-create")
                 : landManager.ownedBy(player.getUniqueId()).map(land -> land.name()).orElse("");
-        meta.displayName(Component.text(currentName));
+        meta.setDisplayName(currentName);
         input.setItemMeta(meta);
         inventory.getTopInventory().setItem(0, input);
     }
@@ -67,7 +65,7 @@ public final class LandRenameListener implements Listener {
         enteredNames.put(event.getView().getPlayer().getUniqueId(), name.strip());
         ItemStack result = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = result.getItemMeta();
-        meta.displayName(Component.text(name));
+        meta.setDisplayName(name);
         result.setItemMeta(meta);
         event.setResult(result);
         configureRepairCost(event.getView(), holder.creating() ? 0 : renameCost());
@@ -124,7 +122,7 @@ public final class LandRenameListener implements Listener {
         if (result == null || result.getType().isAir() || !result.hasItemMeta()) return null;
         ItemMeta meta = result.getItemMeta();
         if (!meta.hasDisplayName()) return null;
-        return PlainTextComponentSerializer.plainText().serialize(meta.displayName()).strip();
+        return meta.getDisplayName().strip();
     }
 
     private void create(Player player, String name) {

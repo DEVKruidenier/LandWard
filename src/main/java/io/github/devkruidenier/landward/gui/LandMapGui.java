@@ -6,9 +6,7 @@ import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.model.LandType;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -60,14 +58,14 @@ public final class LandMapGui {
     private void open(Player player, LandMapHolder.Mode mode, UUID restrictedLandId) {
         String locale = plugin.localeService().localeFor(player);
         LandMapHolder holder = new LandMapHolder(mode, restrictedLandId);
-        Inventory inventory = Bukkit.createInventory(
+        Inventory inventory = GuiText.inventory(
                 holder,
                 SIZE,
-                Component.text(plugin.localeService().message(locale, switch (mode) {
+                plugin.localeService().message(locale, switch (mode) {
                     case PLAYER -> "gui.map-title";
                     case ADMIN_PLAYER_CLAIMS -> "gui.admin-player-claims-title";
                     case ADMIN_CLAIMS -> "gui.admin-claims-title";
-                }), NamedTextColor.DARK_AQUA)
+                })
         );
         holder.setInventory(inventory);
 
@@ -88,13 +86,13 @@ public final class LandMapGui {
     public void openUnclaimConfirmation(Player player, ChunkPosition position, boolean administrator, boolean administrativeClaims, UUID restrictedLandId) {
         String locale = plugin.localeService().localeFor(player);
         UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position, administrator, administrativeClaims, restrictedLandId);
-        Inventory inventory = Bukkit.createInventory(holder, 27, Component.text(plugin.localeService().message(locale, administrator ? "gui.admin-confirm-title" : "gui.unclaim-confirm-title"), NamedTextColor.DARK_AQUA));
+        Inventory inventory = GuiText.inventory(holder, 27, plugin.localeService().message(locale, administrator ? "gui.admin-confirm-title" : "gui.unclaim-confirm-title"));
         holder.setInventory(inventory);
         ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
         for (int slot = 0; slot < inventory.getSize(); slot++) inventory.setItem(slot, frame);
         inventory.setItem(11, item(Material.LIME_DYE, plugin.localeService().message(locale, administrator ? "gui.admin-confirm" : "gui.unclaim-confirm"), NamedTextColor.GREEN, List.of(
-                Component.text(plugin.localeService().message(locale, "gui.coordinates", Map.of("x", position.x(), "z", position.z())), NamedTextColor.GRAY),
-                Component.text(plugin.localeService().message(locale, "gui.unclaim-warning"), NamedTextColor.RED)
+                plugin.localeService().message(locale, "gui.coordinates", Map.of("x", position.x(), "z", position.z())),
+                plugin.localeService().message(locale, "gui.unclaim-warning")
         )));
         inventory.setItem(15, item(Material.BARRIER, plugin.localeService().message(locale, "gui.cancel"), NamedTextColor.RED, List.of()));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
@@ -158,36 +156,27 @@ public final class LandMapGui {
             title = land.get().name();
             status = plugin.localeService().message(locale, "gui.status-other");
         }
-        java.util.ArrayList<Component> lore = new java.util.ArrayList<>();
-        if (current) lore.add(Component.text(plugin.localeService().message(locale, "gui.current-chunk"), NamedTextColor.GOLD));
-        lore.add(Component.text(status, NamedTextColor.DARK_GRAY));
+        java.util.ArrayList<String> lore = new java.util.ArrayList<>();
+        if (current) lore.add(plugin.localeService().message(locale, "gui.current-chunk"));
+        lore.add(status);
         if (land.isEmpty()) {
-            lore.add(Component.text(plugin.localeService().message(locale, "gui.click-to-claim"), NamedTextColor.GREEN));
+            lore.add(plugin.localeService().message(locale, "gui.click-to-claim"));
         } else {
             String owner = Bukkit.getOfflinePlayer(land.get().ownerId()).getName();
-            lore.add(Component.text(
-                    plugin.localeService().message(locale, "gui.management-owner", Map.of("name", owner == null ? "-" : owner)),
-                    NamedTextColor.AQUA
-            ));
+            lore.add(plugin.localeService().message(locale, "gui.management-owner", Map.of("name", owner == null ? "-" : owner)));
         }
-        lore.add(Component.text(plugin.localeService().message(locale, "gui.coordinates", Map.of("x", chunkX, "z", chunkZ)), NamedTextColor.GRAY));
+        lore.add(plugin.localeService().message(locale, "gui.coordinates", Map.of("x", chunkX, "z", chunkZ)));
         if (current) {
             material = Material.COMPASS;
             color = NamedTextColor.GOLD;
             title = plugin.localeService().message(locale, "gui.current-chunk");
         }
-        return item(material, title, color, List.of(
-                lore.toArray(Component[]::new)
-        ));
+        return item(material, title, color, lore);
     }
 
-    private ItemStack item(Material material, String title, NamedTextColor color, List<Component> lore) {
-        ItemStack item = new ItemStack(material);
+    private ItemStack item(Material material, String title, NamedTextColor color, List<String> lore) {
+        ItemStack item = GuiText.item(material, title, color, lore);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text(title, color).decoration(TextDecoration.ITALIC, false));
-        if (!lore.isEmpty()) {
-            meta.lore(lore.stream().map(line -> line.decoration(TextDecoration.ITALIC, false)).toList());
-        }
         meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         item.setItemMeta(meta);
         return item;

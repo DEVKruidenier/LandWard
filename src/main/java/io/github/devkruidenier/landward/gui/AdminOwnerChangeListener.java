@@ -3,8 +3,6 @@ package io.github.devkruidenier.landward.gui;
 import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.storage.StorageException;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -40,7 +38,7 @@ public final class AdminOwnerChangeListener implements Listener {
         view.setTitle(plugin.localeService().message(locale, "gui.admin-change-owner"));
         ItemStack input = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = input.getItemMeta();
-        meta.displayName(Component.text(plugin.localeService().message(locale, "gui.admin-owner-input")));
+        meta.setDisplayName(plugin.localeService().message(locale, "gui.admin-owner-input"));
         input.setItemMeta(meta);
         view.getTopInventory().setItem(0, input);
     }
@@ -51,7 +49,7 @@ public final class AdminOwnerChangeListener implements Listener {
         String entered = event.getView().getRenameText();
         if (entered == null || !PLAYER_NAME.matcher(entered.strip()).matches()) { event.setResult(null); return; }
         ItemStack result = new ItemStack(Material.NAME_TAG);
-        ItemMeta meta = result.getItemMeta(); meta.displayName(Component.text(entered.strip())); result.setItemMeta(meta);
+        ItemMeta meta = result.getItemMeta(); meta.setDisplayName(entered.strip()); result.setItemMeta(meta);
         event.setResult(result);
         event.getView().setRepairCost(0);
         event.getView().setMaximumRepairCost(40);
@@ -97,7 +95,7 @@ public final class AdminOwnerChangeListener implements Listener {
 
     private String name(ItemStack item) {
         if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) return null;
-        return PlainTextComponentSerializer.plainText().serialize(item.getItemMeta().displayName()).strip();
+        return item.getItemMeta().getDisplayName().strip();
     }
 
     private void clear(org.bukkit.inventory.InventoryView view) {

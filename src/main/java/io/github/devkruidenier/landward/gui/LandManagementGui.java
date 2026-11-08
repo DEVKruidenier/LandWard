@@ -6,9 +6,7 @@ import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.LandMember;
 import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.model.LandProtectionSettings;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -191,13 +189,13 @@ public final class LandManagementGui {
         LandManagementHolder holder = new LandManagementHolder(screen, member);
         // Inventory headers sit on Minecraft's light GUI background. Dark aqua keeps
         // LandWard's teal identity while retaining strong contrast.
-        Inventory inventory = Bukkit.createInventory(holder, size, Component.text(title, NamedTextColor.DARK_AQUA));
+        Inventory inventory = GuiText.inventory(holder, size, title);
         holder.inventory(inventory);
         return holder;
     }
     private ItemStack permissionItem(Player player, Material material, String label, boolean enabled) { return item(material, label + ": " + message(player, enabled ? "gui.management-allowed" : "gui.management-denied"), enabled ? NamedTextColor.GREEN : NamedTextColor.RED, List.of(message(player, "gui.management-toggle"))); }
     private ItemStack playerHead(UUID id, String label, String lore) { ItemStack item = item(Material.PLAYER_HEAD, label, NamedTextColor.AQUA, List.of(lore)); SkullMeta meta = (SkullMeta) item.getItemMeta(); meta.setOwningPlayer(Bukkit.getOfflinePlayer(id)); item.setItemMeta(meta); return item; }
-    private ItemStack item(Material material, String label, NamedTextColor color, List<String> lore) { ItemStack item = new ItemStack(material); ItemMeta meta = item.getItemMeta(); meta.displayName(Component.text(label, color).decoration(TextDecoration.ITALIC, false)); meta.lore(lore.stream().map(text -> Component.text(text, NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)).toList()); item.setItemMeta(meta); return item; }
+    private ItemStack item(Material material, String label, NamedTextColor color, List<String> lore) { return GuiText.item(material, label, color, lore); }
     /** Never expose a raw UUID in a player-facing menu when a profile is unavailable. */
     private String name(Player viewer, UUID id) {
         OfflinePlayer player = Bukkit.getOfflinePlayer(id);

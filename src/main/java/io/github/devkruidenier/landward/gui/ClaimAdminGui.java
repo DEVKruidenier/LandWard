@@ -3,9 +3,7 @@ package io.github.devkruidenier.landward.gui;
 import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.MemberPermissions;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -253,18 +251,13 @@ public final class ClaimAdminGui {
 
     private ClaimAdminHolder holder(ClaimAdminHolder.Screen screen, String locale, int size, String titleKey) {
         ClaimAdminHolder holder = new ClaimAdminHolder(screen);
-        Inventory inventory = Bukkit.createInventory(holder, size, Component.text(plugin.localeService().message(locale, titleKey), NamedTextColor.DARK_AQUA));
+        Inventory inventory = GuiText.inventory(holder, size, plugin.localeService().message(locale, titleKey));
         holder.inventory(inventory);
         return holder;
     }
 
     private ItemStack item(Material material, String label, NamedTextColor color, List<String> lore) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text(label, color).decoration(TextDecoration.ITALIC, false));
-        meta.lore(lore.stream().map(line -> Component.text(line, NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)).toList());
-        item.setItemMeta(meta);
-        return item;
+        return GuiText.item(material, label, color, lore);
     }
 
     private void setting(Inventory inventory, int slot, Material material, String locale, String titleKey, String configKey) {

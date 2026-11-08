@@ -2,8 +2,7 @@ package io.github.devkruidenier.landward.gui;
 
 import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -35,8 +34,8 @@ public final class ClaimAdminListener implements Listener {
             else if (event.getRawSlot() == 13) gui.openAdminSettings(player);
             else if (event.getRawSlot() == 15) {
                 plugin.reloadLandWard();
-                player.sendMessage(Component.text("LandWard » ", NamedTextColor.GOLD)
-                        .append(Component.text(plugin.localeService().message(plugin.localeService().localeFor(player), "general.reloaded"), NamedTextColor.GREEN)));
+                player.sendMessage(ChatColor.GOLD + "LandWard " + ChatColor.DARK_GRAY + "» " + ChatColor.GREEN
+                        + plugin.localeService().message(plugin.localeService().localeFor(player), "general.reloaded"));
                 gui.openMain(player);
             }
             else if (event.getRawSlot() == 17) gui.openWorlds(player);
