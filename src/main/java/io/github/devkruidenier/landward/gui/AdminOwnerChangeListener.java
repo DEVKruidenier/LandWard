@@ -37,12 +37,12 @@ public final class AdminOwnerChangeListener implements Listener {
         String locale = plugin.localeService().localeFor(player);
         Inventory anvil = Bukkit.createInventory(null, InventoryType.ANVIL,
                 plugin.localeService().message(locale, "gui.admin-change-owner"));
-        AnvilView view = (AnvilView) player.openInventory(anvil);
         ItemStack input = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = input.getItemMeta();
         meta.setDisplayName(plugin.localeService().message(locale, "gui.admin-owner-input"));
         input.setItemMeta(meta);
-        view.getTopInventory().setItem(0, input);
+        anvil.setItem(0, input);
+        player.openInventory(anvil);
     }
 
     @EventHandler
@@ -64,7 +64,9 @@ public final class AdminOwnerChangeListener implements Listener {
         if (landId == null) return;
         event.setCancelled(true);
         if (event.getRawSlot() != 2) return;
-        String name = name(event.getCurrentItem());
+        String name = event.getView() instanceof AnvilView anvilView ? anvilView.getRenameText() : null;
+        if (name != null) name = name.strip();
+        if (name == null || name.isBlank()) name = name(event.getCurrentItem());
         if (name == null || !PLAYER_NAME.matcher(name).matches()) return;
         OfflinePlayer target = Bukkit.getOfflinePlayer(name);
         try {

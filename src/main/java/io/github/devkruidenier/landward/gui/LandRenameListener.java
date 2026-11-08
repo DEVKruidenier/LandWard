@@ -49,14 +49,16 @@ public final class LandRenameListener implements Listener {
         // works on both Spigot and Paper while retaining the native text field.
         Inventory anvil = Bukkit.createInventory(null, InventoryType.ANVIL,
                 plugin.localeService().message(locale, creating ? "gui.create-anvil-title" : "gui.management-rename"));
-        InventoryView inventory = player.openInventory(anvil);
         ItemStack input = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = input.getItemMeta();
         String currentName = creating ? plugin.localeService().message(locale, "gui.welcome-create")
                 : landManager.ownedBy(player.getUniqueId()).map(land -> land.name()).orElse("");
         meta.setDisplayName(currentName);
         input.setItemMeta(meta);
-        inventory.getTopInventory().setItem(0, input);
+        // Set the seed before opening so Spigot calculates the anvil output
+        // against the actual input item from the first client tick.
+        anvil.setItem(0, input);
+        player.openInventory(anvil);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -81,7 +83,11 @@ public final class LandRenameListener implements Listener {
         if (holder == null || event.getView().getType() != InventoryType.ANVIL) return;
         event.setCancelled(true);
         if (event.getRawSlot() != 2) return;
-        String name = enteredNames.remove(player.getUniqueId());
+        // Spigot may render the output slot as a red cross even though the
+        // anvil text itself is valid. Its AnvilView remains authoritative.
+        String name = event.getView() instanceof AnvilView anvilView ? anvilView.getRenameText() : null;
+        if (name != null) name = name.strip();
+        if (name == null || name.isBlank()) name = enteredNames.remove(player.getUniqueId());
         if (name == null || name.isBlank()) name = nameFromResult(event.getCurrentItem());
         if (name == null || name.isBlank()) return;
         if (holder.creating()) { player.closeInventory(); create(player, name); return; }

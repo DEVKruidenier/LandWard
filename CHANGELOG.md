@@ -4,6 +4,14 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.1.4] - 2026-11-08
+
+### Fixed
+
+- Made native anvil confirmation read directly from Spigot's rename field,
+  restoring land creation and admin owner entry when the output slot is not
+  rendered by Spigot.
+
 ## [1.0.1.3] - 2026-11-08
 
 ### Fixed
