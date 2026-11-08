@@ -56,7 +56,8 @@ jobs:
               status: "listed",
               file_parts: ["landward"],
               primary_file: "landward",
-              environment: "server_only"
+              environment: "server_only",
+              dependencies: []
             }' > modrinth-version.json
           curl --fail-with-body --request POST \
             --header "Authorization: $MODRINTH_TOKEN" \
