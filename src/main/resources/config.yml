@@ -35,11 +35,11 @@ metrics:
   enabled: true
 
 console:
-  # Use Paper's coloured component logger for the LandWard startup banner and status messages.
+  # Use coloured output for the LandWard startup banner and status messages when supported by the server.
   colored-output: true
 
 updates:
-  # Check GitHub Releases asynchronously during startup. This never blocks the Paper main thread.
+  # Check GitHub Releases asynchronously during startup. This never blocks the server main thread.
   enabled: true
   # Largest GitHub release JAR that an administrator may stage with /claim update, in MiB.
   maximum-download-megabytes: 32

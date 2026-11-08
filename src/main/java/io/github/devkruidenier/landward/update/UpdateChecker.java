@@ -46,7 +46,7 @@ public final class UpdateChecker {
         }
         status = UpdateStatus.checking();
 
-        String currentVersion = plugin.getPluginMeta().getVersion();
+        String currentVersion = plugin.getDescription().getVersion();
         HttpRequest request = HttpRequest.newBuilder(LATEST_RELEASE)
                 .timeout(Duration.ofSeconds(8))
                 .header("Accept", "application/vnd.github+json")
@@ -113,7 +113,7 @@ public final class UpdateChecker {
         status = new UpdateStatus(State.STAGING, current.latestVersion(), current.asset(), null);
         long maximumBytes = Math.max(1L, plugin.getConfig().getLong("updates.maximum-download-megabytes", 32L)) * 1024L * 1024L;
         ReleaseArtifactStager stager = new ReleaseArtifactStager(client, plugin.getDataFolder().toPath().resolve("updates"), maximumBytes,
-                "LandWard/" + plugin.getPluginMeta().getVersion() + " (https://github.com/DEVKruidenier/LandWard)");
+                "LandWard/" + plugin.getDescription().getVersion() + " (https://github.com/DEVKruidenier/LandWard)");
         return CompletableFuture.supplyAsync(() -> stager.stage(current.asset())).thenApply(result -> {
             status = result.success()
                     ? new UpdateStatus(State.STAGED, current.latestVersion(), current.asset(), result.stagedFile())

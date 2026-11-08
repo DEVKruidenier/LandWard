@@ -17,7 +17,7 @@ public final class LandWardExpansion extends PlaceholderExpansion {
     public LandWardExpansion(LandWardPlugin plugin, LandManager lands) { this.plugin = plugin; this.lands = lands; }
     @Override public @NotNull String getIdentifier() { return "landward"; }
     @Override public @NotNull String getAuthor() { return "DEVKruidenier"; }
-    @Override public @NotNull String getVersion() { return plugin.getPluginMeta().getVersion(); }
+    @Override public @NotNull String getVersion() { return plugin.getDescription().getVersion(); }
     @Override public boolean persist() { return true; }
 
     @Override

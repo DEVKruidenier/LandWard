@@ -2,7 +2,7 @@
 
 **Simple land claims. Reliable survival protection.**
 
-LandWard is a GUI-first chunk-claim plugin for Paper survival servers. Players
+LandWard is a GUI-first chunk-claim plugin for Paper and Spigot survival servers. Players
 create a named land, open a visual chunk map and click the chunks they want to
 protect—no golden shovel, selection wand or claim shop required.
 
@@ -18,7 +18,7 @@ protect—no golden shovel, selection wand or claim shop required.
 
 ## Requirements
 
-- Paper 26.2 or newer
+- Paper or Spigot 26.2 or newer
 - Java 25 or newer
 
 ## Documentation and support

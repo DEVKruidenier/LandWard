@@ -1,7 +1,7 @@
 name: LandWard
 version: '${version}'
 main: io.github.devkruidenier.landward.LandWardPlugin
-description: Simple chunk claims and reliable protection for Paper survival servers.
+description: Simple chunk claims and reliable protection for Paper and Spigot survival servers.
 api-version: '26.2'
 author: DEVKruidenier
 website: https://github.com/DEVKruidenier/LandWard

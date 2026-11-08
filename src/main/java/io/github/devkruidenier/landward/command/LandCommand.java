@@ -110,7 +110,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(message(sender, "command.header", Map.of(
-                "version", plugin.getPluginMeta().getVersion()
+                "version", plugin.getDescription().getVersion()
         )));
         sender.sendMessage(message(sender, "command.description"));
         sender.sendMessage(message(sender, "command.help"));
@@ -305,7 +305,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
 
     private boolean info(Player player) {
         Component header = LegacyComponentSerializer.legacySection().deserialize(
-                message(player, "command.header", Map.of("version", plugin.getPluginMeta().getVersion()))
+                message(player, "command.header", Map.of("version", plugin.getDescription().getVersion()))
         ).append(updateStatus(player));
         player.sendMessage(header);
         player.sendMessage(Component.text("LandWard ", NamedTextColor.GOLD, TextDecoration.BOLD)

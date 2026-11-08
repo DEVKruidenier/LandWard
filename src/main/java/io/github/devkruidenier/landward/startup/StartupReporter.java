@@ -15,7 +15,7 @@ public final class StartupReporter {
     }
 
     public void log(int loadedClaims) {
-        String version = plugin.getPluginMeta().getVersion();
+        String version = plugin.getDescription().getVersion();
         String storage = plugin.storage().type().toUpperCase(Locale.ROOT);
         String consoleLocale = plugin.getConfig().getString("language.console", "en_US");
         boolean metricsEnabled = plugin.metricsService().isInitialized();

@@ -4,6 +4,14 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.0.1] - 2026-11-08
+
+### Fixed
+
+- Added verified Spigot 26.2 compatibility while retaining Paper support.
+- Replaced Paper-only logger and plugin-metadata calls with safe cross-platform
+  fallbacks.
+
 ## [1.0.0.0] - 2026-11-08
 
 First public LandWard release for Paper 26.2+ and Java 25.

@@ -2,7 +2,7 @@
 
 **Simple land claims. Reliable protection.**
 
-LandWard is an open-source chunk-claiming plugin for Paper survival servers. It
+LandWard is an open-source chunk-claiming plugin for Paper and Spigot survival servers. It
 uses a visual in-game map instead of claim tools, selection wands, or mandatory
 economies.
 

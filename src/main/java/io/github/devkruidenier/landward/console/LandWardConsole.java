@@ -6,6 +6,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -28,15 +29,15 @@ public final class LandWardConsole {
     }
 
     public void info(String message, Tone tone) {
-        plugin.getComponentLogger().info(component(message, tone));
+        infoRaw(component(message, tone));
     }
 
     public void info(String template, Map<String, ?> placeholders, Tone valueTone) {
-        plugin.getComponentLogger().info(template(template, placeholders, valueTone));
+        infoRaw(template(template, placeholders, valueTone));
     }
 
     public void warning(String template, Map<String, ?> placeholders) {
-        plugin.getComponentLogger().warn(template(template, placeholders, Tone.ERROR));
+        warningRaw(template(template, placeholders, Tone.ERROR));
     }
 
     public void bannerTop() {
@@ -110,7 +111,33 @@ public final class LandWardConsole {
     }
 
     private void infoRaw(Component component) {
-        plugin.getComponentLogger().info(component);
+        logComponent("info", component);
+    }
+
+    private void warningRaw(Component component) {
+        logComponent("warn", component);
+    }
+
+    /**
+     * Paper has a component-aware logger while Spigot exposes the standard
+     * java.util.logging logger. Resolve the Paper method only at runtime so a
+     * single LandWard JAR can run on both platforms.
+     */
+    private void logComponent(String level, Component component) {
+        try {
+            Object componentLogger = plugin.getClass().getMethod("getComponentLogger").invoke(plugin);
+            componentLogger.getClass().getMethod(level, Component.class).invoke(componentLogger, component);
+            return;
+        } catch (ReflectiveOperationException ignored) {
+            // Spigot does not provide JavaPlugin#getComponentLogger().
+        }
+
+        String message = PlainTextComponentSerializer.plainText().serialize(component);
+        if ("warn".equals(level)) {
+            plugin.getLogger().warning(message);
+        } else {
+            plugin.getLogger().info(message);
+        }
     }
 
     private String fit(String value, int width) {
