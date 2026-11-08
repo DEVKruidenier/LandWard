@@ -159,6 +159,19 @@ public final class LandManager {
     }
 
     /**
+     * Adds an unclaimed chunk to one existing player land for ClaimAdmin.
+     * This deliberately bypasses player limits, adjacency checks and payments.
+     */
+    public synchronized boolean adminClaimPlayerLand(UUID landId, ChunkPosition position) throws StorageException {
+        Land land = landsById.get(landId);
+        if (land == null || isAdministrative(land) || claims.containsKey(position)) return false;
+        storage.insertClaim(new ClaimedChunk(position, land.id()));
+        claims.put(position, land.id());
+        claimCounts.merge(land.id(), 1, Integer::sum);
+        return true;
+    }
+
+    /**
      * Adds a chunk to the single server-owned administrative land. Administrative
      * claims deliberately have no adjacency, per-player limit or player payment.
      */

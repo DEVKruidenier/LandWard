@@ -52,6 +52,10 @@ public final class LandMapListener implements Listener {
             return;
         }
         if (holder.administrativeClaims()) {
+            if (!plugin.isLandWorld(player.getWorld())) {
+                player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "claim.world-disabled"));
+                return;
+            }
             try {
                 String configuredName = plugin.getConfig().getString("admin-claims.default-name", "").strip();
                 String name = configuredName.isEmpty()
@@ -65,7 +69,21 @@ public final class LandMapListener implements Listener {
             }
             return;
         }
-        if (holder.administrator()) return;
+        if (holder.administrator()) {
+            if (holder.restrictedLandId() == null) return;
+            if (!plugin.isLandWorld(player.getWorld())) {
+                player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "claim.world-disabled"));
+                return;
+            }
+            try {
+                landManager.adminClaimPlayerLand(holder.restrictedLandId(), position);
+                plugin.syncMapIntegrations();
+                new LandMapGui(plugin, landManager).openAdmin(player, holder.restrictedLandId());
+            } catch (StorageException exception) {
+                player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
+            }
+            return;
+        }
         try { command.claimFromMenu(player, position); new LandMapGui(plugin, landManager).open(player); }
         catch (StorageException exception) { player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error")); }
     }

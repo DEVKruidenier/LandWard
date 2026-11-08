@@ -185,6 +185,24 @@ class LandManagerPersistenceTest {
     }
 
     @Test
+    void administratorCanAddAnUnclaimedChunkToAnExistingPlayerLand() throws Exception {
+        SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("admin-claim-player-land.db"));
+        storage.initialize();
+        LandManager manager = new LandManager(storage);
+        manager.load();
+        UUID owner = UUID.randomUUID();
+        UUID world = UUID.randomUUID();
+        ChunkPosition initial = new ChunkPosition(world, 0, 0);
+        ChunkPosition distant = new ChunkPosition(world, 12, 12);
+        var land = manager.create(owner, "Admin Add", initial).land();
+
+        assertTrue(manager.adminClaimPlayerLand(land.id(), distant));
+        assertEquals(2, manager.claimCount(land.id()));
+        assertEquals(land.id(), manager.landAt(distant).orElseThrow().id());
+        assertTrue(!manager.adminClaimPlayerLand(land.id(), distant));
+    }
+
+    @Test
     void administrativeClaimsPersistSeparatelyFromPlayerOwnership() throws Exception {
         SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("admin-claims.db"));
         storage.initialize();
