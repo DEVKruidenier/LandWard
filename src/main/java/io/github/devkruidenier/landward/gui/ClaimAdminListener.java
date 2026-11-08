@@ -40,6 +40,7 @@ public final class ClaimAdminListener implements Listener {
                 gui.openMain(player);
             }
             else if (event.getRawSlot() == 17) gui.openWorlds(player);
+            else if (event.getRawSlot() == 20) gui.openAdminLandDeleteConfirmation(player);
             else if (event.getRawSlot() == 26) player.closeInventory();
             return;
         }
@@ -59,10 +60,46 @@ public final class ClaimAdminListener implements Listener {
             }
             if (event.getRawSlot() == 12) { player.closeInventory(); plugin.adminOwnerChangeListener().begin(player, landId); return; }
             if (event.getRawSlot() == 16) gui.openPlayerClaimMembers(player, landId);
+            if (event.getRawSlot() == 18) {
+                if (gui.teleportToClaim(player, landId)) new LandMapGui(plugin, lands).openAdmin(player);
+                else player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "admin.claim-no-teleport"));
+                return;
+            }
+            if (event.getRawSlot() == 20) gui.openPlayerLandDeleteConfirmation(player, landId);
             return;
         }
         if (holder.screen() == ClaimAdminHolder.Screen.PLAYER_CLAIM_MEMBERS) {
             if (event.getRawSlot() == 53 && holder.selectedLandId() != null) gui.openPlayerClaimDetails(player, holder.selectedLandId());
+            return;
+        }
+        if (holder.screen() == ClaimAdminHolder.Screen.PLAYER_LAND_DELETE_CONFIRM) {
+            UUID landId = holder.selectedLandId();
+            if (event.getRawSlot() == 11 && landId != null) {
+                try {
+                    var land = lands.land(landId).filter(value -> !lands.isAdministrative(value)).orElse(null);
+                    if (land != null) {
+                        lands.deleteOwnedLand(land.ownerId());
+                        plugin.syncMapIntegrations();
+                        plugin.refreshAnalyticsIntegration();
+                    }
+                } catch (io.github.devkruidenier.landward.storage.StorageException exception) {
+                    player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
+                }
+            }
+            if (event.getRawSlot() == 11 || event.getRawSlot() == 15 || event.getRawSlot() == 26) gui.openPlayerClaims(player);
+            return;
+        }
+        if (holder.screen() == ClaimAdminHolder.Screen.ADMIN_LAND_DELETE_CONFIRM) {
+            if (event.getRawSlot() == 11) {
+                try {
+                    lands.deleteAdministrativeLand();
+                    plugin.syncMapIntegrations();
+                    plugin.refreshAnalyticsIntegration();
+                } catch (io.github.devkruidenier.landward.storage.StorageException exception) {
+                    player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
+                }
+            }
+            if (event.getRawSlot() == 11 || event.getRawSlot() == 15 || event.getRawSlot() == 26) gui.openMain(player);
             return;
         }
         if (holder.screen() == ClaimAdminHolder.Screen.ADMIN_SETTINGS) {

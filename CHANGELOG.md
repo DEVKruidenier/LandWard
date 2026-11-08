@@ -4,9 +4,9 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
-This section records everything completed since the current development build.
-The first public release will move the applicable entries into a numbered
-release heading using LandWard's `major.compatibility.feature.fix` versioning.
+## [1.0.0.0] - 2026-11-08
+
+First public LandWard release for Paper 26.2+ and Java 25.
 
 ### Added
 
@@ -17,6 +17,8 @@ release heading using LandWard's `major.compatibility.feature.fix` versioning.
   and configure land settings.
 - Separate ClaimAdmin Safe Zones for spawn and server areas, including their
   own map, settings, member management and player-claim administration tools.
+- ClaimAdmin removal controls for individual player-claim chunks, complete
+  player lands and all Safe Zones, each protected by a confirmation screen.
 - Individual member permissions for building, containers and entities, with
   configurable default permissions for both player lands and Safe Zones.
 - Claim protection for building, containers, entities, fire spread, PvP rules,

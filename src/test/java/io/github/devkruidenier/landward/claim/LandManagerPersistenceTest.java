@@ -212,6 +212,31 @@ class LandManagerPersistenceTest {
     }
 
     @Test
+    void deletesEveryAdministrativeClaimAndMemberWhenSafeZonesAreRemoved() throws Exception {
+        SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("delete-safe-zones.db"));
+        storage.initialize();
+        LandManager manager = new LandManager(storage);
+        manager.load();
+        UUID world = UUID.randomUUID();
+        ChunkPosition first = new ChunkPosition(world, 2, 4);
+        ChunkPosition second = new ChunkPosition(world, 3, 4);
+        var land = manager.claimAdministration(first).land();
+        manager.claimAdministration(second);
+        manager.addAdministrativeMember(UUID.randomUUID());
+
+        assertTrue(manager.deleteAdministrativeLand().isPresent());
+        assertTrue(manager.administrativeLand().isEmpty());
+        assertTrue(manager.landAt(first).isEmpty());
+        assertTrue(manager.landAt(second).isEmpty());
+        assertTrue(manager.members(land.id()).isEmpty());
+
+        LandManager reloaded = new LandManager(storage);
+        reloaded.load();
+        assertTrue(reloaded.administrativeLand().isEmpty());
+        assertEquals(0, reloaded.totalClaimCount());
+    }
+
+    @Test
     void renamesLandAndPersistsTheNewName() throws Exception {
         SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("rename.db"));
         storage.initialize();

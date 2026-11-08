@@ -1,5 +1,5 @@
 # Installed LandWard version for reference only. LandWard updates this value automatically; do not edit it.
-plugin-version: 0.1.0-SNAPSHOT
+plugin-version: 1.0.0.0
 
 language:
   # Default language used for console senders and players without a matching client locale.

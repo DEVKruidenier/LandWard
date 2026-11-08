@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 final class ClaimAdminHolder implements InventoryHolder {
-    enum Screen { MAIN, WORLDS, ADMIN_SETTINGS, ADMIN_ADD_MEMBERS, ADMIN_MEMBERS, ADMIN_MEMBER, PLAYER_CLAIMS, PLAYER_CLAIM_DETAILS, PLAYER_CLAIM_MEMBERS }
+    enum Screen { MAIN, WORLDS, ADMIN_SETTINGS, ADMIN_ADD_MEMBERS, ADMIN_MEMBERS, ADMIN_MEMBER, PLAYER_CLAIMS, PLAYER_CLAIM_DETAILS, PLAYER_CLAIM_MEMBERS, PLAYER_LAND_DELETE_CONFIRM, ADMIN_LAND_DELETE_CONFIRM }
 
     private final Screen screen;
     private final Map<Integer, String> worldsBySlot = new HashMap<>();

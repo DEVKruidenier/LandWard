@@ -223,6 +223,14 @@ public final class LandManager {
         return Optional.of(land);
     }
 
+    /** Deletes the complete server-owned Safe Zone land and every administrative chunk in it. */
+    public synchronized Optional<Land> deleteAdministrativeLand() throws StorageException {
+        Land land = administrativeLand().orElse(null);
+        if (land == null) return Optional.empty();
+        deleteLand(land);
+        return Optional.of(land);
+    }
+
     private void deleteLand(Land land) throws StorageException {
         storage.deleteLand(land.id());
         claims.entrySet().removeIf(entry -> entry.getValue().equals(land.id()));
