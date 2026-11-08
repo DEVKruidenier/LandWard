@@ -4,6 +4,14 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.1.0] - 2026-11-08
+
+### Added
+
+- Player-menu controls to teleport to the first claimed chunk after a configurable
+  delay (two seconds by default), and to delete the player's complete land with
+  a confirmation screen.
+
 ## [1.0.0.2] - 2026-11-08
 
 ### Fixed

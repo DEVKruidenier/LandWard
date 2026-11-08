@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 final class LandManagementHolder implements InventoryHolder {
-    enum Screen { WELCOME, MAIN, SETTINGS, MEMBERS, ADD_MEMBERS, DEFAULT_RIGHTS, MEMBER, MEMBER_LANDS, MEMBER_MAIN }
+    enum Screen { WELCOME, MAIN, SETTINGS, MEMBERS, ADD_MEMBERS, DEFAULT_RIGHTS, MEMBER, MEMBER_LANDS, MEMBER_MAIN, LAND_DELETE_CONFIRM }
     private final Screen screen;
     private final UUID memberId;
     private UUID selectedLandId;

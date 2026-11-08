@@ -49,7 +49,33 @@ public final class LandManagementListener implements Listener {
             if (landId != null) landManager.land(landId).ifPresent(land -> gui.openMemberMain(player, land));
             return;
         }
-        if (holder.screen() == LandManagementHolder.Screen.MAIN) { if (slot == 11) new LandMapGui(plugin, landManager).open(player); else if (slot == 15) gui.openSettings(player); else if (slot == 26) player.closeInventory(); return; }
+        if (holder.screen() == LandManagementHolder.Screen.MAIN) {
+            if (slot == 11) new LandMapGui(plugin, landManager).open(player);
+            else if (slot == 13) {
+                player.closeInventory();
+                if (!gui.teleportToOwnedLand(player)) player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "admin.claim-no-teleport"));
+            } else if (slot == 15) gui.openSettings(player);
+            else if (slot == 17) gui.openLandDeleteConfirmation(player);
+            else if (slot == 26) player.closeInventory();
+            return;
+        }
+        if (holder.screen() == LandManagementHolder.Screen.LAND_DELETE_CONFIRM) {
+            if (slot == 11) {
+                if (plugin.combatTags().blocksClaimAbandon(player)) {
+                    player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "combat.claim-abandon-blocked"));
+                    gui.openMain(player);
+                    return;
+                }
+                var land = landManager.deleteOwnedLand(player.getUniqueId());
+                if (land.isPresent()) {
+                    plugin.syncMapIntegrations();
+                    plugin.refreshAnalyticsIntegration();
+                    player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "gui.management-delete-land-complete", java.util.Map.of("name", land.get().name())));
+                }
+                gui.openWelcome(player);
+            } else if (slot == 15 || slot == 26) gui.openMain(player);
+            return;
+        }
         if (holder.screen() == LandManagementHolder.Screen.SETTINGS) {
             if (slot == 37) { gui.openMembers(player); return; }
             if (slot == 40) { gui.openMemberList(player); return; }

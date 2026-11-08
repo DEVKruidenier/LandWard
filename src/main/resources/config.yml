@@ -111,6 +111,10 @@ rename:
   # XP levels charged when a player confirms a land rename in the anvil GUI. Set to 0 for free renames.
   experience-level-cost: 0
 
+teleportation:
+  # Delay before an owner is teleported to the first claimed chunk of their land from the LandWard menu. Set to 0 for instant teleportation.
+  player-land-delay-seconds: 2
+
 integrations:
   vanilla-spawn-protection:
     # Prevent player claims in the built-in server.properties spawn-protection square around the primary world spawn.

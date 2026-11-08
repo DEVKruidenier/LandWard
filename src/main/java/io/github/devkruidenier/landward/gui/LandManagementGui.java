@@ -8,6 +8,8 @@ import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.model.LandProtectionSettings;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -46,7 +48,9 @@ public final class LandManagementGui {
                 message(player, "gui.management-owner", Map.of("name", player.getName()))
         )));
         inventory.setItem(11, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
+        inventory.setItem(13, item(Material.ENDER_PEARL, message(player, "gui.management-teleport"), NamedTextColor.AQUA, List.of(message(player, "gui.management-teleport-hint"))));
         inventory.setItem(15, item(Material.COMPARATOR, message(player, "gui.management-settings"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-settings-hint"))));
+        inventory.setItem(17, item(Material.BARRIER, message(player, "gui.management-delete-land"), NamedTextColor.RED, List.of(message(player, "gui.management-delete-land-hint"))));
         inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
@@ -107,6 +111,46 @@ public final class LandManagementGui {
         inventory.setItem(43, item(Material.NAME_TAG, message(player, "gui.management-rename"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-rename-hint"))));
         inventory.setItem(53, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
+    }
+
+    public void openLandDeleteConfirmation(Player player) {
+        Optional<Land> optionalLand = landManager.ownedBy(player.getUniqueId());
+        if (optionalLand.isEmpty()) { openWelcome(player); return; }
+        Land land = optionalLand.get();
+        LandManagementHolder holder = holder(LandManagementHolder.Screen.LAND_DELETE_CONFIRM, null,
+                message(player, "gui.management-delete-land-title"), COMPACT_SIZE);
+        Inventory inventory = holder.getInventory();
+        ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
+        for (int slot = 0; slot < inventory.getSize(); slot++) inventory.setItem(slot, frame);
+        inventory.setItem(11, item(Material.LIME_DYE, message(player, "gui.management-delete-land-confirm"), NamedTextColor.GREEN,
+                List.of(message(player, "gui.management-delete-land-warning", Map.of("name", land.name())))));
+        inventory.setItem(15, item(Material.BARRIER, message(player, "gui.cancel"), NamedTextColor.RED, List.of()));
+        inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
+        player.openInventory(inventory);
+    }
+
+    public boolean teleportToOwnedLand(Player player) {
+        return landManager.ownedBy(player.getUniqueId()).flatMap(land -> landManager.claims().stream()
+                .filter(claim -> claim.landId().equals(land.id())).findFirst()).map(claim -> {
+            World world = Bukkit.getWorld(claim.position().worldId());
+            if (world == null) return false;
+            int x = claim.position().x() * 16 + 8;
+            int z = claim.position().z() * 16 + 8;
+            int delaySeconds = Math.max(0, plugin.getConfig().getInt("teleportation.player-land-delay-seconds", 2));
+            String locale = plugin.localeService().localeFor(player);
+            if (delaySeconds == 0) {
+                player.teleport(new Location(world, x + 0.5D, world.getHighestBlockYAt(x, z) + 1, z + 0.5D));
+                player.sendMessage(message(player, "gui.management-teleport-complete"));
+                return true;
+            }
+            player.sendMessage(message(player, "gui.management-teleport-started", Map.of("seconds", delaySeconds)));
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (!player.isOnline()) return;
+                player.teleport(new Location(world, x + 0.5D, world.getHighestBlockYAt(x, z) + 1, z + 0.5D));
+                player.sendMessage(plugin.localeService().message(locale, "gui.management-teleport-complete"));
+            }, delaySeconds * 20L);
+            return true;
+        }).orElse(false);
     }
 
     public void openWelcome(Player player) {
