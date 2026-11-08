@@ -28,7 +28,9 @@ public final class LandMapListener implements Listener {
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
         if (event.getRawSlot() == 53) {
-            if (holder.administrator()) new ClaimAdminGui(plugin, landManager).openMain(player);
+            if (holder.administrator() && holder.restrictedLandId() != null) {
+                new ClaimAdminGui(plugin, landManager).openPlayerClaimDetails(player, holder.restrictedLandId());
+            } else if (holder.administrator()) new ClaimAdminGui(plugin, landManager).openMain(player);
             else new LandManagementGui(plugin, landManager).openMain(player);
             return;
         }
@@ -38,8 +40,11 @@ public final class LandMapListener implements Listener {
         if (existingLand.isPresent()) {
             if (holder.administrator()) {
                 boolean administrative = landManager.typeOf(existingLand.get()) == LandType.ADMIN;
-                if (administrative == holder.administrativeClaims()) {
-                    new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position, true, holder.administrativeClaims());
+                boolean matchesRestriction = holder.restrictedLandId() == null
+                        || existingLand.get().id().equals(holder.restrictedLandId());
+                if (administrative == holder.administrativeClaims() && matchesRestriction) {
+                    new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position, true,
+                            holder.administrativeClaims(), holder.restrictedLandId());
                 }
             } else if (existingLand.get().ownerId().equals(player.getUniqueId())) {
                 new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position, false, false);
@@ -82,7 +87,13 @@ public final class LandMapListener implements Listener {
         }
         if (event.getRawSlot() == 11 || event.getRawSlot() == 15 || event.getRawSlot() == 26) {
             if (confirmation.administrator() && confirmation.administrativeClaims()) new LandMapGui(plugin, landManager).openAdminClaims(player);
-            else if (confirmation.administrator()) new LandMapGui(plugin, landManager).openAdmin(player);
+            else if (confirmation.administrator() && confirmation.restrictedLandId() != null) {
+                if (landManager.land(confirmation.restrictedLandId()).isPresent()) {
+                    new LandMapGui(plugin, landManager).openAdmin(player, confirmation.restrictedLandId());
+                } else {
+                    new ClaimAdminGui(plugin, landManager).openPlayerClaims(player);
+                }
+            } else if (confirmation.administrator()) new LandMapGui(plugin, landManager).openAdmin(player);
             else new LandMapGui(plugin, landManager).open(player);
         }
     }

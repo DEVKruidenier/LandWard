@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 public final class LandMapGui {
 
@@ -43,13 +44,22 @@ public final class LandMapGui {
         open(player, LandMapHolder.Mode.ADMIN_PLAYER_CLAIMS);
     }
 
+    /** Opens an administrator chunk map limited to one selected player land. */
+    public void openAdmin(Player player, UUID landId) {
+        open(player, LandMapHolder.Mode.ADMIN_PLAYER_CLAIMS, landId);
+    }
+
     public void openAdminClaims(Player player) {
         open(player, LandMapHolder.Mode.ADMIN_CLAIMS);
     }
 
     private void open(Player player, LandMapHolder.Mode mode) {
+        open(player, mode, null);
+    }
+
+    private void open(Player player, LandMapHolder.Mode mode, UUID restrictedLandId) {
         String locale = plugin.localeService().localeFor(player);
-        LandMapHolder holder = new LandMapHolder(mode);
+        LandMapHolder holder = new LandMapHolder(mode, restrictedLandId);
         Inventory inventory = Bukkit.createInventory(
                 holder,
                 SIZE,
@@ -72,8 +82,12 @@ public final class LandMapGui {
     }
 
     public void openUnclaimConfirmation(Player player, ChunkPosition position, boolean administrator, boolean administrativeClaims) {
+        openUnclaimConfirmation(player, position, administrator, administrativeClaims, null);
+    }
+
+    public void openUnclaimConfirmation(Player player, ChunkPosition position, boolean administrator, boolean administrativeClaims, UUID restrictedLandId) {
         String locale = plugin.localeService().localeFor(player);
-        UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position, administrator, administrativeClaims);
+        UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position, administrator, administrativeClaims, restrictedLandId);
         Inventory inventory = Bukkit.createInventory(holder, 27, Component.text(plugin.localeService().message(locale, administrator ? "gui.admin-confirm-title" : "gui.unclaim-confirm-title"), NamedTextColor.DARK_AQUA));
         holder.setInventory(inventory);
         ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());

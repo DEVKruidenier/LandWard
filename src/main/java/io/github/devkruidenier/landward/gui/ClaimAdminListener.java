@@ -47,7 +47,7 @@ public final class ClaimAdminListener implements Listener {
         if (holder.screen() == ClaimAdminHolder.Screen.PLAYER_CLAIMS) {
             if (event.getRawSlot() == 53) { gui.openMain(player); return; }
             UUID landId = holder.landsBySlot().get(event.getRawSlot());
-            if (landId != null) gui.openPlayerClaimDetails(player, landId);
+            if (landId != null) gui.openPlayerClaimRemoval(player, landId);
             return;
         }
         if (holder.screen() == ClaimAdminHolder.Screen.PLAYER_CLAIM_DETAILS) {
@@ -61,15 +61,27 @@ public final class ClaimAdminListener implements Listener {
             if (event.getRawSlot() == 12) { player.closeInventory(); plugin.adminOwnerChangeListener().begin(player, landId); return; }
             if (event.getRawSlot() == 16) gui.openPlayerClaimMembers(player, landId);
             if (event.getRawSlot() == 18) {
-                if (gui.teleportToClaim(player, landId)) new LandMapGui(plugin, lands).openAdmin(player);
+                if (gui.teleportToClaim(player, landId)) new LandMapGui(plugin, lands).openAdmin(player, landId);
                 else player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "admin.claim-no-teleport"));
                 return;
             }
-            if (event.getRawSlot() == 20) gui.openPlayerLandDeleteConfirmation(player, landId);
+            if (event.getRawSlot() == 20) gui.openPlayerClaimRemoval(player, landId);
             return;
         }
         if (holder.screen() == ClaimAdminHolder.Screen.PLAYER_CLAIM_MEMBERS) {
             if (event.getRawSlot() == 53 && holder.selectedLandId() != null) gui.openPlayerClaimDetails(player, holder.selectedLandId());
+            return;
+        }
+        if (holder.screen() == ClaimAdminHolder.Screen.PLAYER_CLAIM_REMOVE) {
+            UUID landId = holder.selectedLandId();
+            if (landId == null) { gui.openPlayerClaims(player); return; }
+            if (event.getRawSlot() == 11) {
+                if (gui.teleportToClaim(player, landId)) new LandMapGui(plugin, lands).openAdmin(player, landId);
+                else player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "admin.claim-no-teleport"));
+                return;
+            }
+            if (event.getRawSlot() == 15) gui.openPlayerLandDeleteConfirmation(player, landId);
+            else if (event.getRawSlot() == 26) gui.openPlayerClaimDetails(player, landId);
             return;
         }
         if (holder.screen() == ClaimAdminHolder.Screen.PLAYER_LAND_DELETE_CONFIRM) {
