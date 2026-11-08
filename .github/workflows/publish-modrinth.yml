@@ -29,15 +29,15 @@ jobs:
       - name: Publish release JAR to Modrinth
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
           VERSION_NUMBER: ${{ github.event.release.tag_name }}
           RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
         run: |
           test -n "$MODRINTH_TOKEN"
-          test -n "$MODRINTH_PROJECT_ID"
           JAR="build/libs/LandWard-${VERSION_NUMBER}.jar"
           test -f "$JAR"
           if [ "$RELEASE_PRERELEASE" = 'true' ]; then VERSION_TYPE='beta'; else VERSION_TYPE='release'; fi
+          MODRINTH_PROJECT_ID="$(curl --fail-with-body --header "Authorization: $MODRINTH_TOKEN" https://api.modrinth.com/v2/project/landward | jq -r '.id')"
+          test -n "$MODRINTH_PROJECT_ID"
           jq -n \
             --arg name "LandWard $VERSION_NUMBER" \
             --arg version_number "$VERSION_NUMBER" \

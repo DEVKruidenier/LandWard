@@ -16,15 +16,12 @@ jobs:
       - name: Verify publishing configuration
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
         run: |
           test -n "$MODRINTH_TOKEN"
-          test -n "$MODRINTH_PROJECT_ID"
 
       - name: Synchronize public project details
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
         run: |
           jq -n \
             --rawfile body .github/modrinth/description.md \
@@ -37,4 +34,4 @@ jobs:
             --header "Authorization: $MODRINTH_TOKEN" \
             --header 'Content-Type: application/json' \
             --data @modrinth-project.json \
-            "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT_ID"
+            https://api.modrinth.com/v2/project/landward
