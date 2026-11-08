@@ -1,0 +1,40 @@
+name: Sync Modrinth project
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Verify publishing configuration
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+        run: |
+          test -n "$MODRINTH_TOKEN"
+          test -n "$MODRINTH_PROJECT_ID"
+
+      - name: Synchronize public project details
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+        run: |
+          jq -n \
+            --rawfile body .github/modrinth/description.md \
+            --arg source_url 'https://github.com/DEVKruidenier/LandWard' \
+            --arg issues_url 'https://github.com/DEVKruidenier/LandWard/issues' \
+            --arg wiki_url 'https://github.com/DEVKruidenier/LandWard/wiki' \
+            '{body: $body, source_url: $source_url, issues_url: $issues_url, wiki_url: $wiki_url}' \
+            > modrinth-project.json
+          curl --fail-with-body --request PATCH \
+            --header "Authorization: $MODRINTH_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data @modrinth-project.json \
+            "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT_ID"

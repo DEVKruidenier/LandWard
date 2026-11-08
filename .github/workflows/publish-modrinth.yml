@@ -1,0 +1,65 @@
+name: Publish Modrinth release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: gradle
+
+      - name: Build and test
+        run: ./gradlew test shadowJar --no-daemon
+
+      - name: Publish release JAR to Modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+          VERSION_NUMBER: ${{ github.event.release.tag_name }}
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          test -n "$MODRINTH_TOKEN"
+          test -n "$MODRINTH_PROJECT_ID"
+          JAR="build/libs/LandWard-${VERSION_NUMBER}.jar"
+          test -f "$JAR"
+          if [ "$RELEASE_PRERELEASE" = 'true' ]; then VERSION_TYPE='beta'; else VERSION_TYPE='release'; fi
+          jq -n \
+            --arg name "LandWard $VERSION_NUMBER" \
+            --arg version_number "$VERSION_NUMBER" \
+            --arg version_type "$VERSION_TYPE" \
+            --arg project_id "$MODRINTH_PROJECT_ID" \
+            --rawfile changelog "$GITHUB_EVENT_PATH" \
+            '{
+              name: $name,
+              version_number: $version_number,
+              version_type: $version_type,
+              project_id: $project_id,
+              changelog: ($changelog | fromjson | .release.body),
+              loaders: ["paper"],
+              game_versions: ["26.2", "26.3"],
+              featured: true,
+              status: "listed",
+              file_parts: ["landward"],
+              primary_file: "landward",
+              environment: "server_only"
+            }' > modrinth-version.json
+          curl --fail-with-body --request POST \
+            --header "Authorization: $MODRINTH_TOKEN" \
+            --form 'data=@modrinth-version.json;type=application/json' \
+            --form "landward=@$JAR;type=application/java-archive" \
+            https://api.modrinth.com/v2/version
