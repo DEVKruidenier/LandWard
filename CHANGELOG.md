@@ -4,6 +4,29 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.1.3] - 2026-11-08
+
+### Fixed
+
+- Restored native anvil text entry for creating, renaming and transferring
+  lands on Spigot by replacing Paper-only `Player#openAnvil` calls.
+
+## [1.0.1.2] - 2026-11-08
+
+### Fixed
+
+- Made the version value in the packaged `plugin.yml` a Gradle build input, so
+  every LandWard JAR reports its exact release version after a version change.
+
+## [1.0.1.1] - 2026-11-08
+
+### Fixed
+
+- Restored `/claim` and client-language selection on Spigot by using its
+  cross-platform player locale API.
+- Removed the internal `.config-defaults.yml` file; configuration updates now
+  merge new defaults directly from the JAR while preserving existing values.
+
 ## [1.0.1.0] - 2026-11-08
 
 ### Added

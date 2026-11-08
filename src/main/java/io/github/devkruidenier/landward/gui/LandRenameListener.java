@@ -5,6 +5,7 @@ import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.command.LandCommand;
 import io.github.devkruidenier.landward.storage.StorageException;
 import org.bukkit.Material;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,6 +15,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.view.AnvilView;
@@ -43,10 +45,11 @@ public final class LandRenameListener implements Listener {
         RenameAnvilHolder holder = new RenameAnvilHolder(creating);
         activeAnvils.put(player.getUniqueId(), holder);
         String locale = plugin.localeService().localeFor(player);
-        InventoryView inventory = player.openAnvil(null, true);
-        // Native anvil headers are narrow; keep the creation title deliberately
-        // short instead of reusing the full LandWard welcome-menu title.
-        inventory.setTitle(plugin.localeService().message(locale, creating ? "gui.create-anvil-title" : "gui.management-rename"));
+        // Spigot has no Player#openAnvil API. Opening a Bukkit anvil inventory
+        // works on both Spigot and Paper while retaining the native text field.
+        Inventory anvil = Bukkit.createInventory(null, InventoryType.ANVIL,
+                plugin.localeService().message(locale, creating ? "gui.create-anvil-title" : "gui.management-rename"));
+        InventoryView inventory = player.openInventory(anvil);
         ItemStack input = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = input.getItemMeta();
         String currentName = creating ? plugin.localeService().message(locale, "gui.welcome-create")

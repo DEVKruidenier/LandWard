@@ -104,7 +104,9 @@ public final class LocaleService {
     public String localeFor(CommandSender sender) {
         if (sender instanceof Player player
                 && plugin.getConfig().getBoolean("language.use-client-locale", true)) {
-            return normalize(player.locale().toString());
+            // Spigot exposes the client locale as a legacy String, while Paper
+            // also offers an Adventure Locale. The String API works on both.
+            return normalize(player.getLocale());
         }
         return normalize(plugin.getConfig().getString("language.default", FALLBACK_LOCALE));
     }

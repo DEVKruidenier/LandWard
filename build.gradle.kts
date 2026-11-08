@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.devkruidenier"
-version = "1.0.1.0"
+version = "1.0.1.3"
 
 val pluginVersion = version.toString()
 
@@ -55,6 +55,9 @@ tasks {
 
     processResources {
         filteringCharset = "UTF-8"
+        // Changing only the project version must invalidate the processed
+        // plugin.yml; otherwise Gradle may package a stale plugin version.
+        inputs.property("landwardPluginVersion", pluginVersion)
         filesMatching("plugin.yml") {
             expand("version" to pluginVersion)
         }

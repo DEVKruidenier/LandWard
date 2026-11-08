@@ -14,6 +14,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.view.AnvilView;
 
@@ -34,8 +35,9 @@ public final class AdminOwnerChangeListener implements Listener {
     public void begin(Player player, UUID landId) {
         activeLandByAdmin.put(player.getUniqueId(), landId);
         String locale = plugin.localeService().localeFor(player);
-        AnvilView view = (AnvilView) player.openAnvil(null, true);
-        view.setTitle(plugin.localeService().message(locale, "gui.admin-change-owner"));
+        Inventory anvil = Bukkit.createInventory(null, InventoryType.ANVIL,
+                plugin.localeService().message(locale, "gui.admin-change-owner"));
+        AnvilView view = (AnvilView) player.openInventory(anvil);
         ItemStack input = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = input.getItemMeta();
         meta.setDisplayName(plugin.localeService().message(locale, "gui.admin-owner-input"));
