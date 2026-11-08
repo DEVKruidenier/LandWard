@@ -142,6 +142,7 @@ gui:
   unclaim-confirm: "Kaldırmayı onayla"
   unclaim-warning: "Bu işlem geri alınamaz."
   cancel: "İptal"
+  anvil-confirm: "Onayla"
   map-title: "LandWard • Yakındaki chunklar"
   current-chunk: "Mevcut chunk"
   coordinates: "X: {x}  Z: {z}"

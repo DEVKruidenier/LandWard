@@ -142,6 +142,7 @@ gui:
   unclaim-confirm: "Unclaim bestätigen"
   unclaim-warning: "Dies kann nicht rückgängig gemacht werden."
   cancel: "Abbrechen"
+  anvil-confirm: "Bestätigen"
   map-title: "LandWard • Nahe Chunks"
   current-chunk: "Aktueller Chunk"
   coordinates: "X: {x}  Z: {z}"

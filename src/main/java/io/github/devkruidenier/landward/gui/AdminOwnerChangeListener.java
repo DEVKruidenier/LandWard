@@ -42,6 +42,11 @@ public final class AdminOwnerChangeListener implements Listener {
         meta.setDisplayName(plugin.localeService().message(locale, "gui.admin-owner-input"));
         input.setItemMeta(meta);
         anvil.setItem(0, input);
+        ItemStack confirm = new ItemStack(Material.LIME_DYE);
+        ItemMeta confirmMeta = confirm.getItemMeta();
+        confirmMeta.setDisplayName(plugin.localeService().message(locale, "gui.anvil-confirm"));
+        confirm.setItemMeta(confirmMeta);
+        anvil.setItem(1, confirm);
         player.openInventory(anvil);
     }
 
@@ -63,7 +68,7 @@ public final class AdminOwnerChangeListener implements Listener {
         UUID landId = activeLandByAdmin.get(player.getUniqueId());
         if (landId == null) return;
         event.setCancelled(true);
-        if (event.getRawSlot() != 2) return;
+        if (event.getRawSlot() != 1 && event.getRawSlot() != 2) return;
         String name = event.getView() instanceof AnvilView anvilView ? anvilView.getRenameText() : null;
         if (name != null) name = name.strip();
         if (name == null || name.isBlank()) name = name(event.getCurrentItem());

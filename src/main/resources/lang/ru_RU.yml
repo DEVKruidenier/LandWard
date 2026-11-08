@@ -142,6 +142,7 @@ gui:
   unclaim-confirm: "Подтвердить снятие"
   unclaim-warning: "Это действие нельзя отменить."
   cancel: "Отмена"
+  anvil-confirm: "Подтвердить"
   map-title: "LandWard • Ближайшие чанки"
   current-chunk: "Текущий чанк"
   coordinates: "X: {x}  Z: {z}"

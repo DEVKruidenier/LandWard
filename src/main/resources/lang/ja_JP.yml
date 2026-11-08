@@ -142,6 +142,7 @@ gui:
   unclaim-confirm: "解除を確認"
   unclaim-warning: "この操作は元に戻せません。"
   cancel: "キャンセル"
+  anvil-confirm: "確定"
   map-title: "LandWard • 近くのチャンク"
   current-chunk: "現在のチャンク"
   coordinates: "X: {x}  Z: {z}"

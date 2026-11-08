@@ -4,6 +4,14 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.1.5] - 2026-11-08
+
+### Fixed
+
+- Added a green confirmation control to native anvil screens, so land creation,
+  renaming and owner transfer work on Spigot even when its output slot cannot
+  render a result.
+
 ## [1.0.1.4] - 2026-11-08
 
 ### Fixed

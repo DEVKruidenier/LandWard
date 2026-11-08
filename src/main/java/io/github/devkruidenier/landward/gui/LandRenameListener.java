@@ -58,6 +58,13 @@ public final class LandRenameListener implements Listener {
         // Set the seed before opening so Spigot calculates the anvil output
         // against the actual input item from the first client tick.
         anvil.setItem(0, input);
+        ItemStack confirm = new ItemStack(Material.LIME_DYE);
+        ItemMeta confirmMeta = confirm.getItemMeta();
+        confirmMeta.setDisplayName(plugin.localeService().message(locale, "gui.anvil-confirm"));
+        confirm.setItemMeta(confirmMeta);
+        // The second input slot is a reliable clickable confirmation control
+        // on both Paper and Spigot, even where Spigot cannot render an output.
+        anvil.setItem(1, confirm);
         player.openInventory(anvil);
     }
 
@@ -82,7 +89,7 @@ public final class LandRenameListener implements Listener {
         RenameAnvilHolder holder = activeAnvils.get(player.getUniqueId());
         if (holder == null || event.getView().getType() != InventoryType.ANVIL) return;
         event.setCancelled(true);
-        if (event.getRawSlot() != 2) return;
+        if (event.getRawSlot() != 1 && event.getRawSlot() != 2) return;
         // Spigot may render the output slot as a red cross even though the
         // anvil text itself is valid. Its AnvilView remains authoritative.
         String name = event.getView() instanceof AnvilView anvilView ? anvilView.getRenameText() : null;

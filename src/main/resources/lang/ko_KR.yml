@@ -142,6 +142,7 @@ gui:
   unclaim-confirm: "해제 확인"
   unclaim-warning: "이 작업은 되돌릴 수 없습니다."
   cancel: "취소"
+  anvil-confirm: "확인"
   map-title: "LandWard • 주변 청크"
   current-chunk: "현재 청크"
   coordinates: "X: {x}  Z: {z}"

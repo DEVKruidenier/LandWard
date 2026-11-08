@@ -142,6 +142,7 @@ gui:
   unclaim-confirm: "Confirmar liberación"
   unclaim-warning: "Esto no se puede deshacer."
   cancel: "Cancelar"
+  anvil-confirm: "Confirmar"
   map-title: "LandWard • Chunks cercanos"
   current-chunk: "Chunk actual"
   coordinates: "X: {x}  Z: {z}"

@@ -142,6 +142,7 @@ gui:
   unclaim-confirm: "Conferma rimozione"
   unclaim-warning: "Questa azione non può essere annullata."
   cancel: "Annulla"
+  anvil-confirm: "Conferma"
   map-title: "LandWard • Chunk vicini"
   current-chunk: "Chunk attuale"
   coordinates: "X: {x}  Z: {z}"
