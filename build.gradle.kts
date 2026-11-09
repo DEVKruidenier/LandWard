@@ -1,12 +1,17 @@
+import io.papermc.hangarpublishplugin.model.Platforms
+
 plugins {
     java
     id("com.gradleup.shadow") version "9.6.1"
+    id("io.papermc.hangar-publish-plugin") version "0.1.4"
 }
 
 group = "io.github.devkruidenier"
 version = "1.0.1.5"
 
 val pluginVersion = version.toString()
+val hangarChangelog = providers.environmentVariable("HANGAR_CHANGELOG")
+    .orElse(providers.fileContents(layout.projectDirectory.file("CHANGELOG.md")).asText)
 
 repositories {
     mavenCentral()
@@ -104,5 +109,28 @@ tasks {
 
     build {
         dependsOn(shadowJar)
+    }
+}
+
+hangarPublish {
+    publications.register("plugin") {
+        version.set(pluginVersion)
+        channel.set("Release")
+        id.set("LandWard")
+        apiKey.set(providers.environmentVariable("HANGAR_API_TOKEN"))
+        changelog.set(hangarChangelog)
+
+        // Keep Hangar's public page aligned with the repository's concise overview.
+        pages.resourcePage(providers.fileContents(layout.projectDirectory.file("README.md")).asText)
+
+        platforms {
+            register(Platforms.PAPER) {
+                jar.set(tasks.shadowJar.flatMap { it.archiveFile })
+                platformVersions.set(
+                    providers.gradleProperty("hangarPaperVersions")
+                        .map { it.split(",").map(String::trim) },
+                )
+            }
+        }
     }
 }

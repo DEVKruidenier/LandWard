@@ -1,0 +1,44 @@
+name: Publish Hangar release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version_number:
+        description: Published LandWard version to upload to Hangar.
+        required: true
+        type: string
+      changelog:
+        description: Optional release notes for the Hangar version.
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    # Never expose the publishing secret to forks.
+    if: github.repository == 'DEVKruidenier/LandWard'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name || github.ref }}
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: gradle
+
+      - name: Publish the Paper build and synchronise the resource page
+        env:
+          HANGAR_API_TOKEN: ${{ secrets.HANGAR_API_TOKEN }}
+          HANGAR_CHANGELOG: ${{ github.event.release.body || inputs.changelog || '' }}
+        run: |
+          test -n "$HANGAR_API_TOKEN"
+          ./gradlew test shadowJar publishPluginPublicationToHangar syncPluginPublicationMainResourcePagePageToHangar --no-daemon --stacktrace
