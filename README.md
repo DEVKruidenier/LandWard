@@ -16,18 +16,6 @@ and updates.
 For the complete feature list and detailed usage instructions, see the
 [LandWard Wiki](https://github.com/DEVKruidenier/LandWard/wiki).
 
-## See it in action
-
-**Create a land** — open `/claim`, choose **Create land**, and enter the land name
-in the native Minecraft anvil interface.
-
-![Creating a land in the Minecraft GUI](https://github.com/DEVKruidenier/LandWard/wiki/images/claim.gif)
-
-**Claim map** — open the visual map centred on your current chunk, then click an
-available neighbouring chunk to protect it.
-
-![Using the LandWard claim map](https://github.com/DEVKruidenier/LandWard/wiki/images/playerclaims.gif)
-
 Completed features, fixes and behaviour changes are listed in the
 [Changelog](CHANGELOG.md).
 

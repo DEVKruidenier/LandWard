@@ -144,7 +144,7 @@ hangarPublish {
         changelog.set(hangarChangelog)
 
         // Keep Hangar's public page aligned with the repository's concise overview.
-        pages.resourcePage(providers.fileContents(layout.projectDirectory.file("README.md")).asText)
+        pages.resourcePage(providers.fileContents(layout.projectDirectory.file(".github/hangar/description.md")).asText)
 
         platforms {
             register(Platforms.PAPER) {
