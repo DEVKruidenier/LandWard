@@ -13,6 +13,11 @@ on:
         description: Optional release notes for the Hangar version.
         required: false
         type: string
+      sync_only:
+        description: Only synchronise the Hangar resource page without publishing a new version.
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -36,9 +41,18 @@ jobs:
           cache: gradle
 
       - name: Publish the Paper build and synchronise the resource page
+        if: inputs.sync_only != true
         env:
           HANGAR_API_TOKEN: ${{ secrets.HANGAR_API_TOKEN }}
           HANGAR_CHANGELOG: ${{ github.event.release.body || inputs.changelog || '' }}
         run: |
           test -n "$HANGAR_API_TOKEN"
           ./gradlew test shadowJar publishPluginPublicationToHangar syncPluginPublicationMainResourcePagePageToHangar --no-daemon --stacktrace
+
+      - name: Synchronise the Hangar resource page
+        if: inputs.sync_only == true
+        env:
+          HANGAR_API_TOKEN: ${{ secrets.HANGAR_API_TOKEN }}
+        run: |
+          test -n "$HANGAR_API_TOKEN"
+          ./gradlew syncPluginPublicationMainResourcePagePageToHangar --no-daemon --stacktrace

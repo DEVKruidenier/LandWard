@@ -16,10 +16,25 @@ protect—no golden shovel, selection wand or claim shop required.
   PlaceholderAPI, bStats and combat-tagger integrations.
 - Localized player-facing messages and configurable protection behaviour.
 
+## See it in action
+
+**Create a land** — open `/claim`, choose **Create land**, and enter the land name
+in the native Minecraft anvil interface.
+
+![Creating a land in the Minecraft GUI](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/claim.gif)
+
+**Claim map** — open the visual map centred on your current chunk, then click an
+available neighbouring chunk to protect it.
+
+![Using the LandWard claim map](https://raw.githubusercontent.com/DEVKruidenier/LandWard.wiki/master/images/playerclaims.gif)
+
 ## Requirements
 
 - Paper or Spigot 26.2 or newer
 - Java 25 or newer
+
+For the complete feature list and detailed usage instructions, see the
+[LandWard Wiki](https://github.com/DEVKruidenier/LandWard/wiki).
 
 ## Documentation and support
 
