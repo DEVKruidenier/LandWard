@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.devkruidenier"
-version = "1.0.1.5"
+version = "1.0.1.6"
 
 val pluginVersion = version.toString()
 val hangarChangelog = providers.environmentVariable("HANGAR_CHANGELOG")
