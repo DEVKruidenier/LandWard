@@ -79,6 +79,13 @@ admin-claims:
     containers: true
     entities: true
   protection:
+    # Allow all players to place/break blocks and use building tools in Safe Zones.
+    # Keep false to protect server areas. Trusted members can have separate build rights.
+    allow-build: false
+    # Allow all players to interact with entities, use leads and place entities in Safe Zones.
+    # This does not enable PvP, mob killing, container access or hostile natural spawning.
+    # Trusted members can have separate entity-interaction rights.
+    allow-entities: false
     # Allow player-versus-player combat inside administrative claims.
     allow-pvp: false
     # Allow players to kill hostile mobs in administrative claims.

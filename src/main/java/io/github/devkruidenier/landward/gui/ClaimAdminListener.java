@@ -125,6 +125,8 @@ public final class ClaimAdminListener implements Listener {
                 case 11 -> "protection.allow-hostile-mob-kills";
                 case 12 -> "protection.allow-passive-mob-kills";
                 case 13 -> "protection.allow-hostile-mob-spawns";
+                case 14 -> "protection.allow-build";
+                case 15 -> "protection.allow-entities";
                 case 19 -> "protection.allow-containers";
                 case 20 -> "protection.allow-doors";
                 case 21 -> "protection.allow-interactions";

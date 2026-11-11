@@ -197,6 +197,8 @@ public final class ClaimAdminGui {
         setting(inventory, 19, Material.CHEST, locale, "gui.management-containers", "protection.allow-containers");
         setting(inventory, 20, Material.OAK_DOOR, locale, "gui.admin-doors", "protection.allow-doors");
         setting(inventory, 21, Material.OAK_SIGN, locale, "gui.admin-interactions", "protection.allow-interactions");
+        setting(inventory, 14, Material.IRON_PICKAXE, locale, "gui.management-build", "protection.allow-build");
+        setting(inventory, 15, Material.LEAD, locale, "gui.management-entity-interactions", "protection.allow-entities");
         inventory.setItem(37, item(Material.LIME_DYE, plugin.localeService().message(locale, "gui.management-add-member"), NamedTextColor.GREEN, List.of(plugin.localeService().message(locale, "gui.management-choose-online"))));
         inventory.setItem(40, item(Material.PLAYER_HEAD, plugin.localeService().message(locale, "gui.management-members"), NamedTextColor.AQUA, List.of(plugin.localeService().message(locale, "gui.admin-members-hint"))));
         inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));

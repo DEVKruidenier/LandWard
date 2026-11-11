@@ -85,7 +85,12 @@ final class GuiLayout {
         Map<Integer, Integer> rendered = map ? positions : GuiPositions.center(positions, present, size);
         rendered.forEach((source, target) -> {
             ItemStack item = template.getItem(source);
-            if (item != null) { display.setItem(target, item); actions.put(target, source); }
+            if (item != null) {
+                display.setItem(target, item);
+                // Land-management slot 4 is descriptive information, never an action.
+                if (!(source == 4 && template.getHolder() instanceof LandManagementHolder))
+                    actions.put(target, source);
+            }
         });
         close(display, actions, player, plugin);
         ACTIONS.put(display, actions);

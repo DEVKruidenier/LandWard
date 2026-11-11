@@ -89,7 +89,8 @@ public final class ClaimProtectionListener implements Listener {
         if (clicked != null) {
             Optional<Land> land = landAt(clicked.getLocation());
             if (land.isPresent() && landManager.typeOf(land.get()) == LandType.ADMIN) {
-                if (!adminAllowedToInteract(event.getPlayer(), land.get(), clicked)) {
+                if (spawningEntity ? !allowed(event.getPlayer(), land.get(), MemberPermissions.Permission.ENTITIES)
+                        : !adminAllowedToInteract(event.getPlayer(), land.get(), clicked)) {
                     deny(event.getPlayer(), land.get(), event::setCancelled);
                 }
                 return;
@@ -263,9 +264,10 @@ public final class ClaimProtectionListener implements Listener {
         }
         MemberPermissions permissions = landManager.permissions(player.getUniqueId(), land.id());
         if (landManager.typeOf(land) == LandType.ADMIN) {
-            if (!permissions.equals(MemberPermissions.NONE)) return true;
-            return permission == MemberPermissions.Permission.CONTAINERS
-                    && plugin.getConfig().getBoolean("admin-claims.protection.allow-containers", false);
+            return SafeZoneAccess.allowed(permission, permissions,
+                    plugin.getConfig().getBoolean("admin-claims.protection.allow-build", false),
+                    plugin.getConfig().getBoolean("admin-claims.protection.allow-containers", false),
+                    plugin.getConfig().getBoolean("admin-claims.protection.allow-entities", false));
         }
         return switch (permission) {
             case BUILD -> permissions.build();
@@ -277,7 +279,7 @@ public final class ClaimProtectionListener implements Listener {
     private boolean adminDamageAllowed(Player player, org.bukkit.entity.Entity target, Location location) {
         Optional<Land> land = landAt(location);
         if (land.isEmpty() || landManager.typeOf(land.get()) != LandType.ADMIN) return false;
-        if (adminBypasses.isEnabled(player.getUniqueId()) || !landManager.permissions(player.getUniqueId(), land.get().id()).equals(MemberPermissions.NONE)) return true;
+        if (adminBypasses.isEnabled(player.getUniqueId()) || landManager.permissions(player.getUniqueId(), land.get().id()).entities()) return true;
         boolean allowed = target instanceof Player
                 ? plugin.getConfig().getBoolean("admin-claims.protection.allow-pvp", false)
                 : target instanceof Enemy
@@ -295,6 +297,11 @@ public final class ClaimProtectionListener implements Listener {
         if (landManager.typeOf(land) == LandType.ADMIN) {
             if (adminDamageAllowed(player, target, location)) return;
             if (target instanceof Player victim && combatTags.mayFightInClaim(player, victim)) return;
+            // Entity interactions must not override separate PvP or mob-killing rules.
+            if (target instanceof Player || target instanceof Enemy || target instanceof Animals) {
+                deny(player, land, cancellation);
+                return;
+            }
             denyIfNeeded(player, location, MemberPermissions.Permission.ENTITIES, cancellation);
             return;
         }
@@ -329,18 +336,19 @@ public final class ClaimProtectionListener implements Listener {
     }
 
     private boolean adminAllowedToInteract(Player player, Land land, Block block) {
-        if (adminBypasses.isEnabled(player.getUniqueId()) || !landManager.permissions(player.getUniqueId(), land.id()).equals(MemberPermissions.NONE)) return true;
+        if (adminBypasses.isEnabled(player.getUniqueId())) return true;
+        boolean trusted = !landManager.permissions(player.getUniqueId(), land.id()).equals(MemberPermissions.NONE);
         org.bukkit.Material type = block.getType();
         if (block.getState() instanceof InventoryHolder || type == org.bukkit.Material.ENDER_CHEST) {
-            return plugin.getConfig().getBoolean("admin-claims.protection.allow-containers", false);
+            return allowed(player, land, MemberPermissions.Permission.CONTAINERS);
         }
         if (type.name().endsWith("_DOOR") || type.name().endsWith("_TRAPDOOR")) {
-            return plugin.getConfig().getBoolean("admin-claims.protection.allow-doors", false);
+            return trusted || plugin.getConfig().getBoolean("admin-claims.protection.allow-doors", false);
         }
         if (Tag.SIGNS.isTagged(type) || type.name().endsWith("_BUTTON") || type.name().endsWith("_PRESSURE_PLATE") || type == org.bukkit.Material.LEVER) {
-            return plugin.getConfig().getBoolean("admin-claims.protection.allow-interactions", false);
+            return trusted || plugin.getConfig().getBoolean("admin-claims.protection.allow-interactions", false);
         }
-        return false;
+        return allowed(player, land, MemberPermissions.Permission.BUILD);
     }
 
     private boolean playerAllowedToInteract(Player player, Land land, Block block) {

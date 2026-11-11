@@ -6,6 +6,15 @@ All notable changes to LandWard will be documented here.
 
 ### Changed
 
+- Keep the land information book centered in the top row and place the delete
+  button in the center of the footer in both player and administrator main menus.
+- Compact player and Safe Zone settings to three rows, with member management
+  and player-land renaming centered in the bottom row between back and close.
+- Add building and entity-interaction controls to Safe Zone settings; both
+  public permissions default to disabled and remain separate from mob/PvP rules.
+- Place all nine player-land and Safe Zone setting controls on the top row in the order:
+  sword, pickaxe, chest, door, sign, lead, meat, zombie, creeper. Keep member
+  management and renaming centered in the bottom row, with one empty row between.
 - Use red glass for the previous page and blue glass for the next page,
   keeping the arrow exclusively for back navigation.
 - Center functional icons directly next to one another in each content row,
