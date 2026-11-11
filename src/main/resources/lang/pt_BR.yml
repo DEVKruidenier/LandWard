@@ -92,7 +92,7 @@ admin:
   migration-live-started: "Migração do LandWard iniciada. Jogadores podem ficar online; não altere claims até a mensagem final."
   migration-live-complete: "Migração concluída e ativa: {lands} terrenos, {claims} claims e {members} membros. Backup: {backup}. Não é necessário reiniciar o servidor."
 gui:
-  hint-pvp-blocked: "As regras do servidor ou da região proíbem PvP aqui"
+  hint-pvp-disabled: "O PvP está desativado nas configurações do servidor ou da região."
   hint-delete-safezones: "Remover todas as zonas seguras após confirmação"
   hint-delete-player-land: "Remover todo o terreno do jogador após confirmação"
   management-unavailable: "Indisponível"

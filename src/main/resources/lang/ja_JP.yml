@@ -92,7 +92,7 @@ admin:
   migration-live-started: "LandWard の移行を開始しました。プレイヤーはオンラインのままで構いませんが、完了メッセージまでクレームを変更しないでください。"
   migration-live-complete: "移行が完了し有効になりました: 土地 {lands}、チャンク {claims}、メンバー {members}。バックアップ: {backup}。サーバーの再起動は不要です。"
 gui:
-  hint-pvp-blocked: "サーバーまたは地域のルールで PvP が禁止されています"
+  hint-pvp-disabled: "サーバーまたは地域の設定で PvP が無効になっています。"
   hint-delete-safezones: "確認後にすべての安全地帯を削除"
   hint-delete-player-land: "確認後にこのプレイヤーの領地全体を削除"
   management-unavailable: "利用不可"

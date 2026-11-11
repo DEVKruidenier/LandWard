@@ -6,6 +6,7 @@ All notable changes to LandWard will be documented here.
 
 ### Changed
 
+- Shorten unavailable-PvP hover feedback to one explanation in every language.
 - Explain setting effects and member/public scope in localized hover text;
   add navigation, selection and anvil confirmation hints across menus.
 - Disable player-land and Safe Zone PvP controls when the current world

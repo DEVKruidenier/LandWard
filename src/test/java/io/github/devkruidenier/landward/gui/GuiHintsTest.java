@@ -15,7 +15,7 @@ final class GuiHintsTest {
     @Test
     void worldDisabledPvpExplainsTheBlockWithoutPromisingAToggle() {
         var lore = GuiHints.pvpUnavailable(Function.identity());
-        assertTrue(lore.contains("gui.hint-pvp-blocked"));
+        assertEquals(List.of("gui.hint-pvp-disabled"), lore);
         assertFalse(lore.contains("gui.management-toggle"));
     }
 

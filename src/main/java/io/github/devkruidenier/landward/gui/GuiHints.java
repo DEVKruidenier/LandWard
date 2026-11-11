@@ -9,7 +9,7 @@ final class GuiHints {
     private GuiHints() {}
 
     static List<String> pvpUnavailable(Function<String, String> message) {
-        return List.of(message.apply("gui.hint-pvp-blocked"), message.apply("gui.hint-world-pvp"));
+        return List.of(message.apply("gui.hint-pvp-disabled"));
     }
 
     static List<String> setting(String material, boolean safeZone, String scope, Function<String, String> message) {

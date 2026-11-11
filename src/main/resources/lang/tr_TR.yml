@@ -92,7 +92,7 @@ admin:
   migration-live-started: "LandWard geçişi başladı. Oyuncular çevrimiçi kalabilir; tamamlanma mesajına kadar claim değiştirmeyin."
   migration-live-complete: "Geçiş tamamlandı ve etkin: {lands} arazi, {claims} claim ve {members} üye. Yedek: {backup}. Sunucuyu yeniden başlatmak gerekmez."
 gui:
-  hint-pvp-blocked: "Sunucu veya bölge kuralları burada PvP'yi engelliyor"
+  hint-pvp-disabled: "PvP, sunucu veya bölge ayarları tarafından devre dışı bırakılmıştır."
   hint-delete-safezones: "Onaydan sonra tüm Güvenli Bölgeleri kaldır"
   hint-delete-player-land: "Onaydan sonra oyuncunun tüm arazisini kaldır"
   management-unavailable: "Kullanılamıyor"

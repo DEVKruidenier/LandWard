@@ -92,7 +92,7 @@ admin:
   migration-live-started: "LandWard 이전이 시작되었습니다. 플레이어는 온라인 상태로 있어도 되지만 완료 메시지 전에는 클레임을 변경하지 마세요."
   migration-live-complete: "이전이 완료되어 활성화되었습니다: 토지 {lands}, 청크 {claims}, 구성원 {members}. 백업: {backup}. 서버를 재시작할 필요가 없습니다."
 gui:
-  hint-pvp-blocked: "서버 또는 지역 규칙에서 이곳의 PvP를 금지합니다"
+  hint-pvp-disabled: "서버 또는 지역 설정에서 PvP가 비활성화되어 있습니다."
   hint-delete-safezones: "확인 후 모든 안전 구역 삭제"
   hint-delete-player-land: "확인 후 이 플레이어의 전체 영토 삭제"
   management-unavailable: "사용 불가"
