@@ -4,6 +4,12 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- Made native anvil land creation, renaming and owner transfer use only the
+  text entered in the anvil field. Confirmation-item labels can no longer be
+  read or saved as player input on Paper or Spigot.
+
 ## [1.0.1.5] - 2026-11-08
 
 ### Fixed

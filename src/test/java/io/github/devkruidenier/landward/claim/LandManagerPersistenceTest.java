@@ -273,6 +273,33 @@ class LandManagerPersistenceTest {
     }
 
     @Test
+    void createsAndRenamesExactAnvilNamesWithoutPersistingConfirmationText() throws Exception {
+        SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("anvil-name-regression.db"));
+        storage.initialize();
+        LandManager manager = new LandManager(storage);
+        manager.load();
+        UUID owner = UUID.randomUUID();
+        UUID world = UUID.randomUUID();
+
+        assertEquals(LandManager.CreateStatus.CREATED,
+                manager.create(owner, "Amsterdam", new ChunkPosition(world, 0, 0)).status());
+        assertEquals("Amsterdam", manager.ownedBy(owner).orElseThrow().name());
+
+        assertEquals(LandManager.RenameStatus.RENAMED, manager.rename(owner, "Rotterdam").status());
+        assertEquals(LandManager.RenameStatus.UNCHANGED, manager.rename(owner, "Rotterdam").status());
+        assertEquals(LandManager.RenameStatus.RENAMED, manager.rename(owner, "Utrecht").status());
+        assertEquals("Utrecht", manager.ownedBy(owner).orElseThrow().name());
+
+        assertEquals(LandManager.RenameStatus.INVALID_NAME, manager.rename(owner, "   ").status());
+        assertEquals(LandManager.RenameStatus.INVALID_NAME, manager.rename(owner, "x".repeat(25)).status());
+        assertEquals(LandManager.RenameStatus.INVALID_NAME, manager.rename(owner, "Invalid!").status());
+
+        LandManager reloaded = new LandManager(storage);
+        reloaded.load();
+        assertEquals("Utrecht", reloaded.ownedBy(owner).orElseThrow().name());
+    }
+
+    @Test
     void administratorCanTransferAPlayerLandToAnOfflineUuidWithoutCreatingSecondOwnership() throws Exception {
         SqliteLandStorage storage = new SqliteLandStorage(temporaryDirectory.resolve("transfer-owner.db"));
         storage.initialize();

@@ -21,17 +21,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.view.AnvilView;
 
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /** Provides native anvil text entry for both creating and renaming a land. */
 public final class LandRenameListener implements Listener {
     private final LandWardPlugin plugin;
     private final LandManager landManager;
     private final LandCommand command;
-    private final Map<UUID, String> enteredNames = new ConcurrentHashMap<>();
-    private final Map<UUID, RenameAnvilHolder> activeAnvils = new ConcurrentHashMap<>();
-
     public LandRenameListener(LandWardPlugin plugin, LandManager landManager, LandCommand command) {
         this.plugin = plugin;
         this.landManager = landManager;
@@ -43,41 +38,41 @@ public final class LandRenameListener implements Listener {
 
     private void openAnvil(Player player, boolean creating) {
         RenameAnvilHolder holder = new RenameAnvilHolder(creating);
-        activeAnvils.put(player.getUniqueId(), holder);
         String locale = plugin.localeService().localeFor(player);
         // Spigot has no Player#openAnvil API. Opening a Bukkit anvil inventory
         // works on both Spigot and Paper while retaining the native text field.
-        Inventory anvil = Bukkit.createInventory(null, InventoryType.ANVIL,
+        Inventory anvil = Bukkit.createInventory(holder, InventoryType.ANVIL,
                 plugin.localeService().message(locale, creating ? "gui.create-anvil-title" : "gui.management-rename"));
+        holder.setInventory(anvil);
         ItemStack input = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = input.getItemMeta();
-        String currentName = creating ? plugin.localeService().message(locale, "gui.welcome-create")
-                : landManager.ownedBy(player.getUniqueId()).map(land -> land.name()).orElse("");
+        // A single whitespace seed gives creation a truly empty text field.
+        // The native AnvilView text is the only accepted source of a name.
+        String currentName = creating ? " "
+                : landManager.ownedBy(player.getUniqueId()).map(land -> land.name()).orElse(" ");
         meta.setDisplayName(currentName);
         input.setItemMeta(meta);
-        // Set the seed before opening so Spigot calculates the anvil output
-        // against the actual input item from the first client tick.
         anvil.setItem(0, input);
-        ItemStack confirm = new ItemStack(Material.LIME_DYE);
-        ItemMeta confirmMeta = confirm.getItemMeta();
-        confirmMeta.setDisplayName(plugin.localeService().message(locale, "gui.anvil-confirm"));
-        confirm.setItemMeta(confirmMeta);
-        // The second input slot is a reliable clickable confirmation control
-        // on both Paper and Spigot, even where Spigot cannot render an output.
-        anvil.setItem(1, confirm);
+        // Slot 1 is a real anvil input slot. It must remain empty: putting a
+        // Confirm item there made its display name look like player input on
+        // Spigot. The generated output in slot 2 is the only confirm action.
         player.openInventory(anvil);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPrepareAnvil(PrepareAnvilEvent event) {
-        RenameAnvilHolder holder = activeAnvils.get(event.getView().getPlayer().getUniqueId());
+        RenameAnvilHolder holder = holder(event.getView());
         if (holder == null) return;
-        String name = event.getView().getRenameText();
-        if (name == null || name.isBlank()) { event.setResult(null); return; }
-        enteredNames.put(event.getView().getPlayer().getUniqueId(), name.strip());
-        ItemStack result = new ItemStack(Material.NAME_TAG);
+        String name = enteredName(event.getView());
+        holder.setEnteredName(name);
+        if (name == null) {
+            event.setResult(null);
+            return;
+        }
+        ItemStack result = new ItemStack(Material.LIME_DYE);
         ItemMeta meta = result.getItemMeta();
-        meta.setDisplayName(name);
+        meta.setDisplayName(plugin.localeService().message(
+                plugin.localeService().localeFor(event.getView().getPlayer()), "gui.anvil-confirm"));
         result.setItemMeta(meta);
         event.setResult(result);
         configureRepairCost(event.getView(), holder.creating() ? 0 : renameCost());
@@ -86,18 +81,18 @@ public final class LandRenameListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAnvilClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        RenameAnvilHolder holder = activeAnvils.get(player.getUniqueId());
-        if (holder == null || event.getView().getType() != InventoryType.ANVIL) return;
+        RenameAnvilHolder holder = holder(event.getView());
+        if (holder == null) return;
         event.setCancelled(true);
-        if (event.getRawSlot() != 1 && event.getRawSlot() != 2) return;
-        // Spigot may render the output slot as a red cross even though the
-        // anvil text itself is valid. Its AnvilView remains authoritative.
-        String name = event.getView() instanceof AnvilView anvilView ? anvilView.getRenameText() : null;
-        if (name != null) name = name.strip();
-        if (name == null || name.isBlank()) name = enteredNames.remove(player.getUniqueId());
-        if (name == null || name.isBlank()) name = nameFromResult(event.getCurrentItem());
-        if (name == null || name.isBlank()) return;
-        if (holder.creating()) { player.closeInventory(); create(player, name); return; }
+        if (event.getRawSlot() != 2) return;
+        String name = holder.enteredName();
+        if (name == null) return;
+        if (holder.creating()) {
+            finish(event.getView());
+            player.closeInventory();
+            create(player, name);
+            return;
+        }
         int cost = renameCost();
         if (player.getLevel() < cost) {
             player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "land.rename-not-enough-xp", Map.of("cost", cost)));
@@ -105,21 +100,15 @@ public final class LandRenameListener implements Listener {
         }
         if (rename(player, name)) {
             if (cost > 0) player.setLevel(player.getLevel() - cost);
-            // This tag is only a visual text-input seed. Clear it before closing
-            // the vanilla container so Minecraft cannot return it to the player.
-            clearTemporaryItems(event.getView());
-            activeAnvils.remove(player.getUniqueId());
+            finish(event.getView());
             player.closeInventory();
         }
     }
 
     @EventHandler
     public void onAnvilClose(InventoryCloseEvent event) {
-        if (event.getView().getType() != InventoryType.ANVIL || !(event.getPlayer() instanceof Player player)) return;
-        if (!activeAnvils.containsKey(player.getUniqueId())) return;
+        if (holder(event.getView()) == null) return;
         clearTemporaryItems(event.getView());
-        activeAnvils.remove(player.getUniqueId());
-        enteredNames.remove(player.getUniqueId());
     }
 
     /** Removes only LandWard's temporary anvil contents before vanilla returns inputs on close. */
@@ -134,11 +123,20 @@ public final class LandRenameListener implements Listener {
         view.setRepairCost(cost);
     }
 
-    private String nameFromResult(ItemStack result) {
-        if (result == null || result.getType().isAir() || !result.hasItemMeta()) return null;
-        ItemMeta meta = result.getItemMeta();
-        if (!meta.hasDisplayName()) return null;
-        return meta.getDisplayName().strip();
+    private RenameAnvilHolder holder(InventoryView view) {
+        if (view.getType() != InventoryType.ANVIL) return null;
+        return view.getTopInventory().getHolder() instanceof RenameAnvilHolder holder ? holder : null;
+    }
+
+    private String enteredName(InventoryView view) {
+        if (!(view instanceof AnvilView anvilView)) return null;
+        return AnvilTextInput.capture(anvilView.getRenameText());
+    }
+
+    private void finish(InventoryView view) {
+        clearTemporaryItems(view);
+        RenameAnvilHolder holder = holder(view);
+        if (holder != null) holder.setEnteredName(null);
     }
 
     private void create(Player player, String name) {
