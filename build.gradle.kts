@@ -7,9 +7,28 @@ plugins {
 }
 
 group = "io.github.devkruidenier"
-version = "1.0.1.6-beta5"
+version = "1.0.1.6-beta6"
 
 val pluginVersion = version.toString()
+
+// Explicit development-only fixture runner; test classes are excluded from release JARs.
+tasks.register<JavaExec>("paginationFixture") {
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("io.github.devkruidenier.landward.gui.PaginationFixture")
+    args(providers.gradleProperty("fixtureOperation").getOrElse("verify"),
+        layout.buildDirectory.dir("fixtures/landward-pagination").get().asFile.absolutePath)
+}
+
+tasks.register<JavaExec>("existingServerFixture") {
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("io.github.devkruidenier.landward.gui.ExistingServerFixture")
+    doFirst {
+        args(providers.gradleProperty("fixtureOperation").getOrElse("verify"),
+            providers.gradleProperty("fixtureServer").get())
+    }
+}
 val hangarChangelog = providers.environmentVariable("HANGAR_CHANGELOG")
     .orElse(providers.fileContents(layout.projectDirectory.file("CHANGELOG.md")).asText)
 
@@ -35,6 +54,10 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.54.1.0")
     implementation("com.zaxxer:HikariCP:6.3.0")
     implementation("com.mysql:mysql-connector-j:9.3.0")
+    // Spigot has no built-in Adventure API. Bundle the API used by GUI/console
+    // code so other installed plugins are never required to supply it.
+    implementation("net.kyori:adventure-api:5.2.0")
+    implementation("net.kyori:adventure-text-serializer-plain:5.2.0")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("com.djrapitops:plan-api:5.7-R0.2")
     compileOnly("xyz.jpenilla:squaremap-api:1.4.3")
@@ -92,7 +115,7 @@ tasks {
         archiveClassifier.set("")
         configurations = project.configurations.runtimeClasspath.map { setOf(it) }
         dependencies {
-            exclude { it.moduleGroup !in setOf("org.bstats", "org.xerial", "com.zaxxer", "com.mysql") }
+            exclude { it.moduleGroup !in setOf("org.bstats", "org.xerial", "com.zaxxer", "com.mysql", "net.kyori") }
         }
         relocate(
             "org.bstats",

@@ -50,7 +50,7 @@ public final class LandManagementGui {
         inventory.setItem(11, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
         inventory.setItem(13, item(Material.ENDER_PEARL, message(player, "gui.management-teleport"), NamedTextColor.AQUA, List.of(message(player, "gui.management-teleport-hint"))));
         inventory.setItem(15, item(Material.COMPARATOR, message(player, "gui.management-settings"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-settings-hint"))));
-        inventory.setItem(17, item(Material.BARRIER, message(player, "gui.management-delete-land"), NamedTextColor.RED, List.of(message(player, "gui.management-delete-land-hint"))));
+        inventory.setItem(17, item(Material.HOPPER, message(player, "gui.management-delete-land"), NamedTextColor.RED, List.of(message(player, "gui.management-delete-land-hint"))));
         inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
     }
@@ -78,7 +78,7 @@ public final class LandManagementGui {
         for (Land land : lands) {
 
 
-            entries.add(item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of(
+            entries.add(() -> item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of(
                     message(player, "gui.management-owner", Map.of("name", name(player, land.ownerId()))),
                     message(player, "gui.management-claimed-chunks", Map.of("count", landManager.claimCount(land.id())))
             )), key -> holder.playersBySlot().put(key, land.id()));
@@ -122,9 +122,9 @@ public final class LandManagementGui {
         LandManagementHolder holder = holder(LandManagementHolder.Screen.LAND_DELETE_CONFIRM, null,
                 message(player, "gui.management-delete-land-title"), COMPACT_SIZE);
         Inventory inventory = holder.getInventory();
-        inventory.setItem(11, item(Material.LIME_DYE, message(player, "gui.management-delete-land-confirm"), NamedTextColor.GREEN,
+        inventory.setItem(11, item(Material.HOPPER, message(player, "gui.management-delete-land-confirm"), NamedTextColor.GREEN,
                 List.of(message(player, "gui.management-delete-land-warning", Map.of("name", land.name())))));
-        inventory.setItem(15, item(Material.BARRIER, message(player, "gui.cancel"), NamedTextColor.RED, List.of()));
+        inventory.setItem(15, item(Material.RED_DYE, message(player, "gui.cancel"), NamedTextColor.RED, List.of()));
         inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
     }
@@ -174,13 +174,13 @@ public final class LandManagementGui {
         Inventory inventory = holder.getInventory();
         GuiLayout.Entries entries = new GuiLayout.Entries();
         int slot = 0;
-        for (Player target : Bukkit.getOnlinePlayers()) {
+        for (Player target : Bukkit.getOnlinePlayers().stream().sorted(java.util.Comparator.comparing(Player::getName, String.CASE_INSENSITIVE_ORDER)).toList()) {
             if (target.getUniqueId().equals(player.getUniqueId()) || landManager.ownedBy(player.getUniqueId()).isEmpty()) continue;
             Land land = landManager.ownedBy(player.getUniqueId()).orElseThrow();
             if (landManager.members(land.id()).stream().anyMatch(member -> member.playerId().equals(target.getUniqueId()))) continue;
 
 
-            entries.add(playerHead(target.getUniqueId(), target.getName(), message(player, "gui.management-add-player")), key -> holder.playersBySlot().put(key, target.getUniqueId()));
+            entries.add(() -> playerHead(target.getUniqueId(), target.getName(), message(player, "gui.management-add-player")), key -> holder.playersBySlot().put(key, target.getUniqueId()));
             slot++;
         }
         inventory.setItem(53, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
@@ -197,7 +197,7 @@ public final class LandManagementGui {
         for (LandMember member : landManager.members(optionalLand.get().id())) {
 
 
-            entries.add(playerHead(member.playerId(), name(player, member.playerId()), message(player, "gui.management-manage-rights")), key -> holder.playersBySlot().put(key, member.playerId()));
+            entries.add(() -> playerHead(member.playerId(), name(player, member.playerId()), message(player, "gui.management-manage-rights")), key -> holder.playersBySlot().put(key, member.playerId()));
             slot++;
         }
         if (slot == 0) inventory.setItem(22, item(Material.GRAY_DYE, message(player, "gui.management-no-members"), NamedTextColor.GRAY, List.of(message(player, "gui.management-add-member-hint"))));
@@ -228,7 +228,7 @@ public final class LandManagementGui {
         inventory.setItem(10, permissionItem(player, Material.IRON_PICKAXE, message(player, "gui.management-build"), permissions.build()));
         inventory.setItem(13, permissionItem(player, Material.CHEST, message(player, "gui.management-containers"), permissions.containers()));
         inventory.setItem(16, permissionItem(player, Material.LEAD, message(player, "gui.management-entities"), permissions.entities()));
-        inventory.setItem(22, item(Material.BARRIER, message(player, "gui.management-remove-member"), NamedTextColor.RED, List.of(message(player, "gui.management-remove-hint"))));
+        inventory.setItem(22, item(Material.HOPPER, message(player, "gui.management-remove-member"), NamedTextColor.RED, List.of(message(player, "gui.management-remove-hint"))));
         inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
     }

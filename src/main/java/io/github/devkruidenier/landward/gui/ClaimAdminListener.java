@@ -26,9 +26,10 @@ public final class ClaimAdminListener implements Listener {
         if (!(event.getView().getTopInventory().getHolder() instanceof ClaimAdminHolder holder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() < 0 || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
+        if (!player.hasPermission("landward.admin")) { player.closeInventory(); return; }
         if (GuiLayout.navigation(event)) return;
         int slot = GuiLayout.action(event.getView().getTopInventory(), event.getRawSlot());
-        if (!player.hasPermission("landward.admin")) { player.closeInventory(); return; }
+        if (slot < 0) return;
         ClaimAdminGui gui = new ClaimAdminGui(plugin, lands);
         if (holder.screen() == ClaimAdminHolder.Screen.MAIN) {
             if (slot == 9) gui.openPlayerClaims(player);

@@ -438,6 +438,7 @@ public final class LandManager {
     public synchronized List<LandMember> members(UUID landId) {
         return membersByLand.getOrDefault(landId, Map.of()).entrySet().stream()
                 .map(entry -> new LandMember(landId, entry.getKey(), entry.getValue()))
+                .sorted(java.util.Comparator.comparing(LandMember::playerId))
                 .toList();
     }
 

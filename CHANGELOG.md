@@ -6,12 +6,17 @@ All notable changes to LandWard will be documented here.
 
 ### Changed
 
+- Reserve the full bottom row for navigation, including on chunk maps. Use
+  hoppers for deletion and barriers for closing; group settings above the footer.
+- Render list icons only for the displayed page and retain the last valid page
+  when returning from management or after removing the final entry.
 - Standardized chest menus with compact settings, hidden gray-glass backgrounds,
   bottom-left back navigation and bottom-right close buttons. Lists now resize
   to their content and provide pages for worlds, lands and members beyond 45 entries.
 
 ### Fixed
 
+- Bundle the Adventure text API required for standalone Spigot installations.
 - Open actual native anvil menus on Spigot so typed names reach the server,
   and identify input sessions independently of custom inventory holders.
 - Made native anvil land creation, renaming and owner transfer use only the

@@ -24,7 +24,7 @@ public final class LandMapGui {
 
     private static final int SIZE = 54;
     private static final int MAP_WIDTH = 9;
-    private static final int MAP_HEIGHT = 6;
+    private static final int MAP_HEIGHT = 5;
 
     private final LandWardPlugin plugin;
     private final LandManager landManager;
@@ -88,11 +88,11 @@ public final class LandMapGui {
         UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position, administrator, administrativeClaims, restrictedLandId);
         Inventory inventory = GuiText.inventory(holder, 27, plugin.localeService().message(locale, administrator ? "gui.admin-confirm-title" : "gui.unclaim-confirm-title"));
         holder.setInventory(inventory);
-        inventory.setItem(11, item(Material.LIME_DYE, plugin.localeService().message(locale, administrator ? "gui.admin-confirm" : "gui.unclaim-confirm"), NamedTextColor.GREEN, List.of(
+        inventory.setItem(11, item(Material.HOPPER, plugin.localeService().message(locale, administrator ? "gui.admin-confirm" : "gui.unclaim-confirm"), NamedTextColor.GREEN, List.of(
                 plugin.localeService().message(locale, "gui.coordinates", Map.of("x", position.x(), "z", position.z())),
                 plugin.localeService().message(locale, "gui.unclaim-warning")
         )));
-        inventory.setItem(15, item(Material.BARRIER, plugin.localeService().message(locale, "gui.cancel"), NamedTextColor.RED, List.of()));
+        inventory.setItem(15, item(Material.RED_DYE, plugin.localeService().message(locale, "gui.cancel"), NamedTextColor.RED, List.of()));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
     }
