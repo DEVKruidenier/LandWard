@@ -244,6 +244,10 @@ startup:
   status-enabled: "已启用"
   status-disabled: "已禁用"
 updates:
+  notice-title: "LandWard 有可用更新！"
+  notice-current: "已安装版本：{version}"
+  notice-latest: "最新版本：{version}"
+  notice-download: "在此下载最新版本："
   checking: "正在检查更新"
   stage-info-staging: "正在下载更新"
   stage-info-staged: "更新已准备好"

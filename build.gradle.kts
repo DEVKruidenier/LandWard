@@ -7,9 +7,16 @@ plugins {
 }
 
 group = "io.github.devkruidenier"
-version = "1.0.1.6"
+version = "1.0.2.0-beta1"
 
 val pluginVersion = version.toString()
+
+tasks.register<JavaExec>("updateFixture") {
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("io.github.devkruidenier.landward.update.UpdaterFixture")
+    args(layout.buildDirectory.dir("fixtures/landward-update").get().asFile.absolutePath)
+}
 
 // Explicit development-only fixture runner; test classes are excluded from release JARs.
 tasks.register<JavaExec>("paginationFixture") {
@@ -66,6 +73,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.yaml:snakeyaml:2.5")
+    testImplementation("com.google.code.gson:gson:2.13.2")
     testImplementation("com.djrapitops:plan-api:5.7-R0.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

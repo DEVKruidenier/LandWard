@@ -34,6 +34,9 @@ commands:
     usage: /claimadmin
     permission: landward.admin
 permissions:
+  landward.pladmin:
+    description: Receives update notifications when joining the server.
+    default: op
   landward.use:
     description: Allows use of the main LandWard command and its aliases.
     default: true

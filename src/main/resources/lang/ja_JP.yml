@@ -244,6 +244,10 @@ startup:
   status-enabled: "有効"
   status-disabled: "無効"
 updates:
+  notice-title: "LandWard のアップデートがあります！"
+  notice-current: "インストール済みのバージョン: {version}"
+  notice-latest: "最新バージョン: {version}"
+  notice-download: "最新バージョンはこちらからダウンロード:"
   checking: "アップデートを確認中"
   stage-info-staging: "更新をダウンロード中"
   stage-info-staged: "更新を準備しました"

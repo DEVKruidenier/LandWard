@@ -6,6 +6,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class UpdateCheckerMetadataTest {
+    @Test
+    void selectsUniversalJarEvenWhenHangarAndOtherReleasesAppearFirst() {
+        String body = "{\"assets\":[" + asset("1.0.1.6", "LandWard-1.0.1.6-hangar.jar") + ","
+                + asset("1.0.1.5", "LandWard-1.0.1.5.jar") + "," + asset("1.0.1.6", "LandWard-1.0.1.6.jar") + "]}";
+        assertEquals("LandWard-1.0.1.6.jar", ReleaseMetadataParser.releaseAsset(body, "1.0.1.6").name());
+    }
+
+    static String asset(String version, String name) {
+        return "{\"name\":\"" + name + "\",\"size\":123,\"digest\":\"sha256:" + DIGEST
+                + "\",\"browser_download_url\":\"https://github.com/DEVKruidenier/LandWard/releases/download/"
+                + version + "/" + name + "\"}";
+    }
     private static final String DIGEST = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
     @Test

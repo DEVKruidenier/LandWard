@@ -4,6 +4,20 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+### Added
+
+- Colored, localized update summaries in the console and on login for operators
+  and players with `landward.pladmin`, controlled by `updates.notify-on-join`.
+
+### Fixed
+
+- Compare all four release-version components and refresh GitHub metadata before
+  showing update information or selecting a download.
+- Restore clickable update status on Paper and Spigot and target LandWard's
+  namespaced command so another plugin's `/claim` cannot intercept the click.
+- Follow GitHub download redirects and select the verified universal release
+  JAR rather than a reduced Hangar artifact or stale release metadata.
+
 ## [1.0.1.6] - 2026-11-11
 
 ### Added

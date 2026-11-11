@@ -244,6 +244,10 @@ startup:
   status-enabled: "включена"
   status-disabled: "выключена"
 updates:
+  notice-title: "Доступно обновление LandWard!"
+  notice-current: "Установленная версия: {version}"
+  notice-latest: "Последняя версия: {version}"
+  notice-download: "Скачайте последнюю версию здесь:"
   checking: "Проверка обновлений"
   stage-info-staging: "Загрузка обновления"
   stage-info-staged: "Обновление подготовлено"

@@ -244,6 +244,10 @@ startup:
   status-enabled: "enabled"
   status-disabled: "disabled"
 updates:
+  notice-title: "A LandWard update is available!"
+  notice-current: "Installed version: {version}"
+  notice-latest: "Latest version: {version}"
+  notice-download: "Download the latest version here:"
   checking: "Checking updates"
   stage-info-staging: "Downloading update"
   stage-info-staged: "Update staged"

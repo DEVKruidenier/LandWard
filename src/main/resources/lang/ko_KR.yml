@@ -244,6 +244,10 @@ startup:
   status-enabled: "활성화됨"
   status-disabled: "비활성화됨"
 updates:
+  notice-title: "LandWard 업데이트가 있습니다!"
+  notice-current: "설치된 버전: {version}"
+  notice-latest: "최신 버전: {version}"
+  notice-download: "여기에서 최신 버전을 다운로드하세요:"
   checking: "업데이트 확인 중"
   stage-info-staging: "업데이트 다운로드 중"
   stage-info-staged: "업데이트 준비됨"

@@ -14,6 +14,9 @@ import io.github.devkruidenier.landward.integration.WorldGuardIntegration;
 import io.github.devkruidenier.landward.integration.VanillaSpawnProtectionIntegration;
 import io.github.devkruidenier.landward.update.UpdateChecker;
 import org.bukkit.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -131,19 +134,24 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(message(sender, "general.no-permission"));
             return;
         }
-        UpdateChecker.UpdateStatus current = plugin.updateChecker().status();
-        if (current.state() != UpdateChecker.State.OUTDATED || current.asset() == null) {
-            sender.sendMessage(message(sender, "updates.stage-unavailable"));
-            return;
-        }
-        sender.sendMessage(message(sender, "updates.stage-started", Map.of("version", current.latestVersion())));
-        plugin.updateChecker().stageLatestRelease().whenComplete((result, error) -> plugin.getServer().getScheduler().runTask(plugin, () -> {
-            if (error != null || result == null || !result.success()) {
-                sender.sendMessage(message(sender, "updates.stage-failed", Map.of("reason", error == null && result != null ? result.detail() : "unexpected error")));
-                return;
-            }
-            sender.sendMessage(message(sender, "updates.stage-complete", Map.of("file", result.stagedFile().getFileName())));
-        }));
+        sender.sendMessage(message(sender, "updates.checking"));
+        plugin.updateChecker().stageLatestRelease(version -> sender.sendMessage(
+                message(sender, "updates.stage-started", Map.of("version", version)))).whenComplete((result, error) -> {
+            if (!plugin.isEnabled()) return;
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                if (sender instanceof Player target && !target.isOnline()) return;
+                if (error != null || result == null || !result.success()) {
+                    var state = plugin.updateChecker().status();
+                    if (state.state() == UpdateChecker.State.LATEST) {
+                        sender.sendMessage(message(sender, "updates.up-to-date", Map.of("version", plugin.getDescription().getVersion())));
+                    } else if (state.state() == UpdateChecker.State.DISABLED || state.state() == UpdateChecker.State.UNAVAILABLE || state.asset() == null) {
+                        sender.sendMessage(message(sender, "updates.stage-unavailable"));
+                    } else sender.sendMessage(message(sender, "updates.stage-failed", Map.of("reason", error == null && result != null ? result.detail() : "unexpected error")));
+                    return;
+                }
+                sender.sendMessage(message(sender, "updates.stage-complete", Map.of("file", result.stagedFile().getFileName())));
+            });
+        });
     }
 
     private boolean create(Player player, String[] arguments) throws StorageException {
@@ -299,16 +307,31 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean info(Player player) {
-        player.sendMessage(message(player, "command.header", Map.of("version", plugin.getDescription().getVersion()))
-                + updateStatus(player));
-        player.sendMessage(ChatColor.GOLD + "LandWard " + ChatColor.DARK_GRAY + "» "
-                + ChatColor.WHITE + "Maker: " + ChatColor.AQUA + "DEVKruidenier "
-                + ChatColor.GRAY + "(github.com/DEVKruidenier)");
+        player.sendMessage(message(player, "updates.checking"));
+        plugin.updateChecker().refresh().thenAccept(status -> {
+            if (!plugin.isEnabled()) return;
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                if (!player.isOnline()) return;
+                TextComponent line = new TextComponent(TextComponent.fromLegacyText(message(player, "command.header",
+                        Map.of("version", plugin.getDescription().getVersion()))));
+                TextComponent badge = new TextComponent(TextComponent.fromLegacyText(updateStatus(player, status)));
+                if (status.state() == UpdateChecker.State.OUTDATED && status.asset() != null && player.hasPermission("landward.admin")) {
+                    badge.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/landward:claim update"));
+                    badge.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(
+                            plugin.localeService().message(plugin.localeService().localeFor(player), "updates.stage-info-click"))));
+                }
+                line.addExtra(badge);
+                player.spigot().sendMessage(line);
+                TextComponent author = new TextComponent(TextComponent.fromLegacyText(ChatColor.GOLD + "LandWard "
+                        + ChatColor.DARK_GRAY + "» " + ChatColor.WHITE + "Maker: " + ChatColor.AQUA + "DEVKruidenier"));
+                author.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/DEVKruidenier"));
+                player.spigot().sendMessage(author);
+            });
+        });
         return true;
     }
 
-    private String updateStatus(Player player) {
-        UpdateChecker.UpdateStatus status = plugin.updateChecker().status();
+    private String updateStatus(Player player, UpdateChecker.UpdateStatus status) {
         String locale = plugin.localeService().localeFor(player);
         return switch (status.state()) {
             case LATEST -> ChatColor.GREEN + " (Latest)";
@@ -321,10 +344,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
     }
 
     private String outdatedStatus(Player player, String locale, UpdateChecker.UpdateStatus status) {
-        String hint = player.hasPermission("landward.admin") && status.asset() != null
-                ? " " + plugin.localeService().message(locale, "updates.stage-info-click")
-                : " https://github.com/DEVKruidenier/LandWard/releases";
-        return ChatColor.RED + " (Outdated: " + status.latestVersion() + ")" + ChatColor.GRAY + hint;
+        return ChatColor.RED + " (Outdated: " + status.latestVersion() + ")";
     }
 
     private boolean list(Player player) {

@@ -139,6 +139,7 @@ public final class LandWardPlugin extends JavaPlugin {
 
         this.updateChecker = new UpdateChecker(this);
         updateChecker.check();
+        getServer().getPluginManager().registerEvents(new io.github.devkruidenier.landward.update.UpdateNotifications(this), this);
     }
 
     @Override
@@ -248,6 +249,7 @@ public final class LandWardPlugin extends JavaPlugin {
         localeService.initialize();
         landManager.memberDefaults(playerMemberDefaults(), administrativeMemberDefaults());
         syncMapIntegrations();
+        updateChecker.check();
     }
 
     private MemberPermissions playerMemberDefaults() {

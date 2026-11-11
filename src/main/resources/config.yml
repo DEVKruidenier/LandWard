@@ -39,8 +39,10 @@ console:
   colored-output: true
 
 updates:
-  # Check GitHub Releases asynchronously during startup. This never blocks the server main thread.
+  # Enable official GitHub release checks at startup, for info/update commands and permitted login notices.
   enabled: true
+  # Notify operators and players with landward.pladmin on login when an official update is available.
+  notify-on-join: true
   # Largest GitHub release JAR that an administrator may stage with /claim update, in MiB.
   maximum-download-megabytes: 32
 

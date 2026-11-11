@@ -244,6 +244,10 @@ startup:
   status-enabled: "etkin"
   status-disabled: "devre dışı"
 updates:
+  notice-title: "LandWard güncellemesi mevcut!"
+  notice-current: "Yüklü sürüm: {version}"
+  notice-latest: "En son sürüm: {version}"
+  notice-download: "En son sürümü buradan indirin:"
   checking: "Güncellemeler kontrol ediliyor"
   stage-info-staging: "Güncelleme indiriliyor"
   stage-info-staged: "Güncelleme hazırlandı"

@@ -244,6 +244,10 @@ startup:
   status-enabled: "włączone"
   status-disabled: "wyłączone"
 updates:
+  notice-title: "Dostępna jest aktualizacja LandWard!"
+  notice-current: "Zainstalowana wersja: {version}"
+  notice-latest: "Najnowsza wersja: {version}"
+  notice-download: "Pobierz najnowszą wersję tutaj:"
   checking: "Sprawdzanie aktualizacji"
   stage-info-staging: "Pobieranie aktualizacji"
   stage-info-staged: "Aktualizacja przygotowana"

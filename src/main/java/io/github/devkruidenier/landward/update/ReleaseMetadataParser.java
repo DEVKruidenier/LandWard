@@ -1,30 +1,35 @@
 package io.github.devkruidenier.landward.update;
 
+import com.google.gson.JsonParser;
 import java.net.URI;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-/** Small dependency-free parser for the limited GitHub release fields LandWard trusts. */
+/** Parses asset boundaries and selects only the universal official release JAR. */
 final class ReleaseMetadataParser {
-    private static final Pattern JAR_ASSET_PATTERN = Pattern.compile(
-            "\\\"name\\\"\\s*:\\s*\\\"([^\\\"]+\\.jar)\\\"[\\s\\S]{0,16384}?\\\"size\\\"\\s*:\\s*(\\d+)[\\s\\S]{0,16384}?\\\"browser_download_url\\\"\\s*:\\s*\\\"([^\\\"]+)\\\""
-    );
-    private static final Pattern DIGEST_PATTERN = Pattern.compile("\\\"digest\\\"\\s*:\\s*\\\"sha256:([a-fA-F0-9]{64})\\\"");
-
-    private ReleaseMetadataParser() { }
+    private ReleaseMetadataParser() {}
 
     static ReleaseAsset releaseAsset(String body, String version) {
-        Matcher asset = JAR_ASSET_PATTERN.matcher(body);
-        while (asset.find()) {
-            try {
-                URI uri = URI.create(asset.group(3));
-                if (!"https".equalsIgnoreCase(uri.getScheme()) || !"github.com".equalsIgnoreCase(uri.getHost())
-                        || !uri.getPath().startsWith("/DEVKruidenier/LandWard/releases/download/")) continue;
-                Matcher digest = DIGEST_PATTERN.matcher(asset.group());
-                if (!digest.find()) continue;
-                return new ReleaseAsset(version, asset.group(1), uri, Long.parseLong(asset.group(2)), digest.group(1));
-            } catch (IllegalArgumentException ignored) { }
-        }
+        try {
+            var root = JsonParser.parseString(body).getAsJsonObject();
+            if (!root.has("assets") || !root.get("assets").isJsonArray()) return null;
+            String numeric = version.replaceFirst("^[vV]", "");
+            String expected = "LandWard-" + numeric + ".jar";
+            for (var entry : root.getAsJsonArray("assets")) {
+                try {
+                    var asset = entry.getAsJsonObject();
+                    if (!expected.equals(asset.get("name").getAsString())) continue;
+                    URI uri = URI.create(asset.get("browser_download_url").getAsString());
+                    String path = "/DEVKruidenier/LandWard/releases/download/";
+                    if (!"https".equalsIgnoreCase(uri.getScheme()) || !"github.com".equalsIgnoreCase(uri.getHost())
+                            || uri.getUserInfo() != null || uri.getPort() != -1 || uri.getQuery() != null || uri.getFragment() != null
+                            || !(uri.getPath().equals(path + numeric + "/" + expected)
+                            || uri.getPath().equals(path + "v" + numeric + "/" + expected))) continue;
+                    String digest = asset.get("digest").getAsString();
+                    long size = asset.get("size").getAsLong();
+                    if (!digest.matches("sha256:[a-fA-F0-9]{64}") || size <= 0) continue;
+                    return new ReleaseAsset(version, expected, uri, size, digest.substring(7));
+                } catch (RuntimeException invalidAsset) { /* Keep checking other assets. */ }
+            }
+        } catch (RuntimeException invalidMetadata) { /* Never download invalid metadata. */ }
         return null;
     }
 }

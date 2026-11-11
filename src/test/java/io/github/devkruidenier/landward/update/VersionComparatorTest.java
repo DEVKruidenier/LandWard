@@ -6,6 +6,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VersionComparatorTest {
+    @Test
+    void comparesTheFourthLandWardComponentAndBetaNumbers() {
+        assertTrue(VersionComparator.isNewer("1.0.1.6", "1.0.1.5"));
+        assertFalse(VersionComparator.isNewer("1.0.1.5", "1.0.1.6"));
+        assertFalse(VersionComparator.isNewer("1.0.1.6", "1.0.1.6"));
+        assertTrue(VersionComparator.isNewer("1.0.1.6", "1.0.1.6-beta12"));
+        assertFalse(VersionComparator.isNewer("1.0.1.6-beta12", "1.0.1.6"));
+        assertTrue(VersionComparator.isNewer("1.0.2.0-beta10", "1.0.2.0-beta2"));
+        assertFalse(VersionComparator.isNewer("1.0.1.6", "1.0.2.0-beta1"));
+    }
 
     @Test
     void detectsNewerSemanticVersion() {
