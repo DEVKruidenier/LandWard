@@ -84,7 +84,8 @@ public final class LandRenameListener implements Listener {
         ItemMeta meta = result.getItemMeta();
         meta.setDisplayName(name);
         meta.setLore(List.of(plugin.localeService().message(
-                plugin.localeService().localeFor(event.getView().getPlayer()), "gui.anvil-confirm")));
+                plugin.localeService().localeFor(event.getView().getPlayer()), "gui.anvil-confirm"),
+                plugin.localeService().message(plugin.localeService().localeFor(event.getView().getPlayer()), "gui.hint-anvil")));
         result.setItemMeta(meta);
         event.setResult(result);
         configureRepairCost(event.getView(), holder.creating() ? 0 : renameCost());

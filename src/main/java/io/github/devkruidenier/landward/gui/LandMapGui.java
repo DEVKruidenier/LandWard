@@ -112,7 +112,7 @@ public final class LandMapGui {
                 holder.chunksBySlot().put(slot, position);
                 inventory.setItem(
                         slot,
-                        chunkItem(locale, player, land, chunkX, chunkZ, current)
+                        chunkItem(locale, player, holder, land, chunkX, chunkZ, current)
                 );
             }
         }
@@ -121,6 +121,7 @@ public final class LandMapGui {
     private ItemStack chunkItem(
             String locale,
             Player player,
+            LandMapHolder holder,
             Optional<Land> land,
             int chunkX,
             int chunkZ,
@@ -162,6 +163,11 @@ public final class LandMapGui {
         } else {
             String owner = Bukkit.getOfflinePlayer(land.get().ownerId()).getName();
             lore.add(plugin.localeService().message(locale, "gui.management-owner", Map.of("name", owner == null ? "-" : owner)));
+            boolean removable = holder.administrator()
+                    ? (landManager.typeOf(land.get()) == LandType.ADMIN) == holder.administrativeClaims()
+                        && (holder.restrictedLandId() == null || holder.restrictedLandId().equals(land.get().id()))
+                    : land.get().ownerId().equals(player.getUniqueId());
+            if (removable) lore.add(plugin.localeService().message(locale, "gui.hint-unclaim"));
         }
         lore.add(plugin.localeService().message(locale, "gui.coordinates", Map.of("x", chunkX, "z", chunkZ)));
         if (current) {

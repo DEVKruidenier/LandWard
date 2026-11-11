@@ -80,7 +80,8 @@ public final class LandManagementGui {
 
             entries.add(() -> item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of(
                     message(player, "gui.management-owner", Map.of("name", name(player, land.ownerId()))),
-                    message(player, "gui.management-claimed-chunks", Map.of("count", landManager.claimCount(land.id())))
+                    message(player, "gui.management-claimed-chunks", Map.of("count", landManager.claimCount(land.id()))),
+                    message(player, "gui.hint-select-land")
             )), key -> holder.playersBySlot().put(key, land.id()));
             slot++;
         }
@@ -109,7 +110,7 @@ public final class LandManagementGui {
         inventory.setItem(24, permissionItem(player, Material.OAK_SIGN, message(player, "gui.admin-interactions"), settings.interactions()));
         // Row 5: membership and land administration.
         inventory.setItem(37, item(Material.LIME_DYE, message(player, "gui.management-add-member"), NamedTextColor.GREEN, List.of(message(player, "gui.management-choose-online"))));
-        inventory.setItem(40, item(Material.PLAYER_HEAD, message(player, "gui.management-members"), NamedTextColor.AQUA, List.of(message(player, "gui.management-remove-hint"))));
+        inventory.setItem(40, item(Material.PLAYER_HEAD, message(player, "gui.management-members"), NamedTextColor.AQUA, List.of(message(player, "gui.management-manage-rights"))));
         inventory.setItem(43, item(Material.NAME_TAG, message(player, "gui.management-rename"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-rename-hint"))));
         inventory.setItem(53, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
@@ -213,7 +214,7 @@ public final class LandManagementGui {
         Inventory inventory = holder.getInventory();
         inventory.setItem(11, permissionItem(player, Material.IRON_PICKAXE, message(player, "gui.management-build"), permissions.build()));
         inventory.setItem(13, permissionItem(player, Material.CHEST, message(player, "gui.management-containers"), permissions.containers()));
-        inventory.setItem(15, permissionItem(player, Material.CREEPER_SPAWN_EGG, message(player, "gui.management-entities"), permissions.entities()));
+        inventory.setItem(15, permissionItem(player, Material.LEAD, message(player, "gui.management-entities"), permissions.entities()));
         inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
     }
@@ -225,9 +226,9 @@ public final class LandManagementGui {
                 .flatMap(land -> landManager.members(land.id()).stream().filter(member -> member.playerId().equals(memberId)).findFirst())
                 .map(LandMember::permissions).orElse(MemberPermissions.NONE);
         inventory.setItem(4, playerHead(memberId, name(player, memberId), message(player, "gui.management-configure-member")));
-        inventory.setItem(10, permissionItem(player, Material.IRON_PICKAXE, message(player, "gui.management-build"), permissions.build()));
-        inventory.setItem(13, permissionItem(player, Material.CHEST, message(player, "gui.management-containers"), permissions.containers()));
-        inventory.setItem(16, permissionItem(player, Material.LEAD, message(player, "gui.management-entities"), permissions.entities()));
+        inventory.setItem(10, permissionItem(player, Material.IRON_PICKAXE, message(player, "gui.management-build"), permissions.build(), "member"));
+        inventory.setItem(13, permissionItem(player, Material.CHEST, message(player, "gui.management-containers"), permissions.containers(), "member"));
+        inventory.setItem(16, permissionItem(player, Material.LEAD, message(player, "gui.management-entities"), permissions.entities(), "member"));
         inventory.setItem(22, item(Material.HOPPER, message(player, "gui.management-remove-member"), NamedTextColor.RED, List.of(message(player, "gui.management-remove-hint"))));
         inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
@@ -241,7 +242,19 @@ public final class LandManagementGui {
         holder.inventory(inventory);
         return holder;
     }
-    private ItemStack permissionItem(Player player, Material material, String label, boolean enabled) { return item(material, label + ": " + message(player, enabled ? "gui.management-allowed" : "gui.management-denied"), enabled ? NamedTextColor.GREEN : NamedTextColor.RED, List.of(message(player, "gui.management-toggle"))); }
+    private ItemStack permissionItem(Player player, Material material, String label, boolean enabled) {
+        return permissionItem(player, material, label, enabled,
+                material == Material.IRON_PICKAXE || material == Material.CHEST || material == Material.LEAD ? "members" : null);
+    }
+    private ItemStack permissionItem(Player player, Material material, String label, boolean enabled, String scope) {
+        if (material == Material.IRON_SWORD && !player.getWorld().getPVP()) {
+            return item(material, label + ": " + message(player, "gui.management-unavailable"), NamedTextColor.GRAY,
+                    GuiHints.pvpUnavailable(key -> message(player, key)));
+        }
+        return item(material, label + ": " + message(player, enabled ? "gui.management-allowed" : "gui.management-denied"),
+                enabled ? NamedTextColor.GREEN : NamedTextColor.RED,
+                GuiHints.setting(material.name(), false, scope, key -> message(player, key)));
+    }
     private ItemStack playerHead(UUID id, String label, String lore) { ItemStack item = item(Material.PLAYER_HEAD, label, NamedTextColor.AQUA, List.of(lore)); SkullMeta meta = (SkullMeta) item.getItemMeta(); meta.setOwningPlayer(Bukkit.getOfflinePlayer(id)); item.setItemMeta(meta); return item; }
     private ItemStack item(Material material, String label, NamedTextColor color, List<String> lore) { return GuiText.item(material, label, color, lore); }
     /** Never expose a raw UUID in a player-facing menu when a profile is unavailable. */

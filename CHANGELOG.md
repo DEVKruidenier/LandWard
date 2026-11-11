@@ -6,6 +6,10 @@ All notable changes to LandWard will be documented here.
 
 ### Changed
 
+- Explain setting effects and member/public scope in localized hover text;
+  add navigation, selection and anvil confirmation hints across menus.
+- Disable player-land and Safe Zone PvP controls when the current world
+  disallows PvP, with a localized explanation instead of a toggle hint.
 - Group Player Claims, Safe Zones and Settings at the top center of ClaimAdmin,
   leaving its middle row empty and keeping Worlds/Delete/Reload in the footer.
 - Keep the land information book centered in the top row and place the delete

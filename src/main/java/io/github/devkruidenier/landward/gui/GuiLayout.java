@@ -93,6 +93,7 @@ final class GuiLayout {
             }
         });
         close(display, actions, player, plugin);
+        describeNavigation(display, player, plugin);
         ACTIONS.put(display, actions);
         bind(template, display);
         player.openInventory(display);
@@ -104,6 +105,23 @@ final class GuiLayout {
         inventory.setItem(slot, GuiText.item(Material.BARRIER,
                 plugin.localeService().message(locale, "gui.close"), NamedTextColor.RED, List.of()));
         actions.put(slot, -4);
+    }
+
+    private static void describeNavigation(Inventory inventory, Player player, LandWardPlugin plugin) {
+        String locale = plugin.localeService().localeFor(player);
+        for (ItemStack item : inventory.getContents()) {
+            if (item == null) continue;
+            String key = switch (item.getType()) {
+                case ARROW -> "gui.hint-back";
+                case BARRIER -> "gui.hint-close";
+                case RED_DYE -> "gui.hint-cancel";
+                default -> null;
+            };
+            if (key == null) continue;
+            var meta = item.getItemMeta();
+            meta.setLore(List.of(org.bukkit.ChatColor.GRAY + plugin.localeService().message(locale, key)));
+            item.setItemMeta(meta);
+        }
     }
 
     // Inventory does not expose its title; constructors register the exact translated title.
@@ -163,15 +181,16 @@ final class GuiLayout {
             actions.put(size - 9, 53);
             String locale = plugin.localeService().localeFor(player);
             if (currentPage > 0) {
-                display.setItem(size - 6, GuiText.item(Material.RED_STAINED_GLASS_PANE, plugin.localeService().message(locale, "gui.previous-page"), NamedTextColor.RED, List.of()));
+                display.setItem(size - 6, GuiText.item(Material.RED_STAINED_GLASS_PANE, plugin.localeService().message(locale, "gui.previous-page"), NamedTextColor.RED, List.of(plugin.localeService().message(locale, "gui.hint-previous"))));
                 actions.put(size - 6, -2);
             }
             if (currentPage + 1 < GuiGrid.pages(visible.size())) {
-                display.setItem(size - 4, GuiText.item(Material.BLUE_STAINED_GLASS_PANE, plugin.localeService().message(locale, "gui.next-page"), NamedTextColor.BLUE, List.of()));
+                display.setItem(size - 4, GuiText.item(Material.BLUE_STAINED_GLASS_PANE, plugin.localeService().message(locale, "gui.next-page"), NamedTextColor.BLUE, List.of(plugin.localeService().message(locale, "gui.hint-next"))));
                 actions.put(size - 4, -3);
             }
             ACTIONS.put(display, actions);
             close(display, actions, player, plugin);
+            describeNavigation(display, player, plugin);
             PAGES.put(display, new Runnable[]{() -> show(player, template, plugin, currentPage - 1), () -> show(player, template, plugin, currentPage + 1)});
             bind(template, display);
             player.openInventory(display);

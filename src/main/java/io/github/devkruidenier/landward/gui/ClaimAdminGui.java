@@ -36,7 +36,8 @@ public final class ClaimAdminGui {
         inventory.setItem(15, item(Material.CLOCK, plugin.localeService().message(locale, "gui.admin-reload"), NamedTextColor.YELLOW, List.of(plugin.localeService().message(locale, "gui.admin-reload-hint"))));
         inventory.setItem(17, item(Material.GRASS_BLOCK, plugin.localeService().message(locale, "gui.admin-worlds"), NamedTextColor.GREEN, List.of(plugin.localeService().message(locale, "gui.admin-worlds-hint"))));
         inventory.setItem(20, item(Material.HOPPER, plugin.localeService().message(locale, "gui.admin-confirm"), NamedTextColor.RED,
-                List.of(plugin.localeService().message(locale, "gui.unclaim-warning"))));
+                List.of(plugin.localeService().message(locale, "gui.hint-delete-safezones"),
+                        plugin.localeService().message(locale, "gui.unclaim-warning"))));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
     }
@@ -78,7 +79,7 @@ public final class ClaimAdminGui {
             entries.add(() -> item(Material.GRASS_BLOCK, land.name(), NamedTextColor.AQUA,
                     List.of(plugin.localeService().message(locale, "gui.admin-player-claim-select", java.util.Map.of(
                             "owner", name(locale, land.ownerId()), "count", lands.claimCount(land.id())
-                    )))), key -> holder.landsBySlot().put(key, land.id()), () -> lands.land(land.id()).isPresent());
+                    )), plugin.localeService().message(locale, "gui.hint-select-land"))), key -> holder.landsBySlot().put(key, land.id()), () -> lands.land(land.id()).isPresent());
             slot++;
         }
         if (slot == 0) inventory.setItem(22, item(Material.GRAY_DYE, plugin.localeService().message(locale, "gui.admin-no-player-claims"), NamedTextColor.GRAY, List.of()));
@@ -97,16 +98,19 @@ public final class ClaimAdminGui {
         inventory.setItem(10, item(Material.ENDER_PEARL, plugin.localeService().message(locale, "gui.admin-teleport"), NamedTextColor.AQUA,
                 List.of(plugin.localeService().message(locale, "gui.admin-teleport-hint"))));
         inventory.setItem(12, playerHead(value.ownerId(), plugin.localeService().message(locale, "gui.admin-change-owner"),
-                plugin.localeService().message(locale, "gui.admin-change-owner-hint", java.util.Map.of("owner", name(locale, value.ownerId())))));
+                plugin.localeService().message(locale, "gui.admin-change-owner-hint", java.util.Map.of("owner", name(locale, value.ownerId())))
+                        + "\n" + plugin.localeService().message(locale, "gui.hint-owner")));
         inventory.setItem(14, item(Material.PAPER, plugin.localeService().message(locale, "gui.admin-claim-statistics"), NamedTextColor.GOLD,
                 List.of(plugin.localeService().message(locale, "gui.management-claimed-chunks", java.util.Map.of("count", lands.claimCount(landId))),
-                        plugin.localeService().message(locale, "gui.management-owner", java.util.Map.of("name", name(locale, value.ownerId()))))));
+                        plugin.localeService().message(locale, "gui.management-owner", java.util.Map.of("name", name(locale, value.ownerId()))),
+                        plugin.localeService().message(locale, "gui.hint-read-only"))));
         inventory.setItem(16, item(Material.PLAYER_HEAD, plugin.localeService().message(locale, "gui.management-members"), NamedTextColor.AQUA,
                 List.of(plugin.localeService().message(locale, "gui.admin-claim-members-hint", java.util.Map.of("count", lands.members(landId).size())))));
         inventory.setItem(18, item(Material.FILLED_MAP, plugin.localeService().message(locale, "gui.management-chunk-map"), NamedTextColor.AQUA,
                 List.of(plugin.localeService().message(locale, "gui.management-open-map"))));
         inventory.setItem(20, item(Material.HOPPER, plugin.localeService().message(locale, "gui.admin-confirm"), NamedTextColor.RED,
-                List.of(plugin.localeService().message(locale, "gui.unclaim-warning"))));
+                List.of(plugin.localeService().message(locale, "gui.hint-delete-player-land"),
+                        plugin.localeService().message(locale, "gui.unclaim-warning"))));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
     }
@@ -122,7 +126,8 @@ public final class ClaimAdminGui {
         inventory.setItem(11, item(Material.FILLED_MAP, plugin.localeService().message(locale, "gui.management-chunk-map"), NamedTextColor.AQUA,
                 List.of(plugin.localeService().message(locale, "gui.management-open-map"))));
         inventory.setItem(15, item(Material.HOPPER, plugin.localeService().message(locale, "gui.admin-confirm"), NamedTextColor.RED,
-                List.of(plugin.localeService().message(locale, "gui.management-claimed-chunks", java.util.Map.of("count", lands.claimCount(landId))),
+                List.of(plugin.localeService().message(locale, "gui.hint-delete-player-land"),
+                        plugin.localeService().message(locale, "gui.management-claimed-chunks", java.util.Map.of("count", lands.claimCount(landId))),
                         plugin.localeService().message(locale, "gui.unclaim-warning"))));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
@@ -137,7 +142,8 @@ public final class ClaimAdminGui {
         holder.selectedLandId(landId);
         Inventory inventory = holder.getInventory();
         inventory.setItem(11, item(Material.HOPPER, plugin.localeService().message(locale, "gui.admin-confirm"), NamedTextColor.RED,
-                List.of(plugin.localeService().message(locale, "gui.management-claimed-chunks", java.util.Map.of("count", lands.claimCount(landId))),
+                List.of(plugin.localeService().message(locale, "gui.hint-delete-player-land"),
+                        plugin.localeService().message(locale, "gui.management-claimed-chunks", java.util.Map.of("count", lands.claimCount(landId))),
                         plugin.localeService().message(locale, "gui.unclaim-warning"))));
         inventory.setItem(15, item(Material.RED_DYE, plugin.localeService().message(locale, "gui.cancel"), NamedTextColor.RED, List.of()));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
@@ -150,7 +156,8 @@ public final class ClaimAdminGui {
         ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.ADMIN_LAND_DELETE_CONFIRM, locale, 27, "gui.admin-confirm-title");
         Inventory inventory = holder.getInventory();
         inventory.setItem(11, item(Material.HOPPER, plugin.localeService().message(locale, "gui.admin-confirm"), NamedTextColor.RED,
-                List.of(plugin.localeService().message(locale, "gui.unclaim-warning"))));
+                List.of(plugin.localeService().message(locale, "gui.hint-delete-safezones"),
+                        plugin.localeService().message(locale, "gui.unclaim-warning"))));
         inventory.setItem(15, item(Material.RED_DYE, plugin.localeService().message(locale, "gui.cancel"), NamedTextColor.RED, List.of()));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
@@ -199,6 +206,12 @@ public final class ClaimAdminGui {
         setting(inventory, 21, Material.OAK_SIGN, locale, "gui.admin-interactions", "protection.allow-interactions");
         setting(inventory, 14, Material.IRON_PICKAXE, locale, "gui.management-build", "protection.allow-build");
         setting(inventory, 15, Material.LEAD, locale, "gui.management-entity-interactions", "protection.allow-entities");
+        if (!player.getWorld().getPVP()) {
+            inventory.setItem(10, item(Material.IRON_SWORD,
+                    plugin.localeService().message(locale, "gui.admin-pvp") + ": "
+                            + plugin.localeService().message(locale, "gui.management-unavailable"), NamedTextColor.GRAY,
+                    GuiHints.pvpUnavailable(key -> plugin.localeService().message(locale, key))));
+        }
         inventory.setItem(37, item(Material.LIME_DYE, plugin.localeService().message(locale, "gui.management-add-member"), NamedTextColor.GREEN, List.of(plugin.localeService().message(locale, "gui.management-choose-online"))));
         inventory.setItem(40, item(Material.PLAYER_HEAD, plugin.localeService().message(locale, "gui.management-members"), NamedTextColor.AQUA, List.of(plugin.localeService().message(locale, "gui.admin-members-hint"))));
         inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
@@ -231,7 +244,7 @@ public final class ClaimAdminGui {
         for (var member : lands.administrativeLand().map(value -> lands.members(value.id())).orElse(List.of())) {
 
 
-            entries.add(() -> playerHead(member.playerId(), name(locale, member.playerId()), plugin.localeService().message(locale, "gui.admin-member-remove-hint")), key -> holder.playersBySlot().put(key, member.playerId()));
+            entries.add(() -> playerHead(member.playerId(), name(locale, member.playerId()), plugin.localeService().message(locale, "gui.management-manage-rights")), key -> holder.playersBySlot().put(key, member.playerId()));
             slot++;
         }
         if (slot == 0) inventory.setItem(22, item(Material.GRAY_DYE, plugin.localeService().message(locale, "gui.management-no-members"), NamedTextColor.GRAY, List.of()));
@@ -277,18 +290,18 @@ public final class ClaimAdminGui {
         inventory.setItem(slot, item(material,
                 plugin.localeService().message(locale, titleKey) + ": " + plugin.localeService().message(locale, enabled ? "gui.management-allowed" : "gui.management-denied"),
                 enabled ? NamedTextColor.GREEN : NamedTextColor.RED,
-                List.of(plugin.localeService().message(locale, "gui.management-toggle"))));
+                GuiHints.setting(material.name(), true, "public", key -> plugin.localeService().message(locale, key))));
     }
 
     private ItemStack permissionItem(String locale, Material material, String titleKey, boolean enabled) {
         return item(material,
                 plugin.localeService().message(locale, titleKey) + ": " + plugin.localeService().message(locale, enabled ? "gui.management-allowed" : "gui.management-denied"),
                 enabled ? NamedTextColor.GREEN : NamedTextColor.RED,
-                List.of(plugin.localeService().message(locale, "gui.management-toggle")));
+                GuiHints.setting(material.name(), true, "member", key -> plugin.localeService().message(locale, key)));
     }
 
     private ItemStack playerHead(UUID id, String label, String lore) {
-        ItemStack item = item(Material.PLAYER_HEAD, label, NamedTextColor.AQUA, List.of(lore));
+        ItemStack item = item(Material.PLAYER_HEAD, label, NamedTextColor.AQUA, lore.lines().toList());
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         meta.setOwningPlayer(Bukkit.getOfflinePlayer(id));
         item.setItemMeta(meta);

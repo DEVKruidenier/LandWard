@@ -67,7 +67,8 @@ public final class AdminOwnerChangeListener implements Listener {
         ItemMeta meta = result.getItemMeta();
         meta.setDisplayName(entered);
         meta.setLore(List.of(plugin.localeService().message(
-                plugin.localeService().localeFor(event.getView().getPlayer()), "gui.anvil-confirm")));
+                plugin.localeService().localeFor(event.getView().getPlayer()), "gui.anvil-confirm"),
+                plugin.localeService().message(plugin.localeService().localeFor(event.getView().getPlayer()), "gui.hint-anvil")));
         result.setItemMeta(meta);
         event.setResult(result);
         event.getView().setRepairCost(0);
