@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.devkruidenier"
-version = "1.0.1.6-beta6"
+version = "1.0.1.6-beta7"
 
 val pluginVersion = version.toString()
 

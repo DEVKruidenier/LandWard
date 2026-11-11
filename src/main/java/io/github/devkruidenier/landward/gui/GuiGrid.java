@@ -16,6 +16,8 @@ final class GuiGrid {
     }
     static int slot(int index, int count) {
         if (index < 0 || index >= count) throw new IllegalArgumentException("Invalid entry index");
-        return count <= 7 ? (9 - count) / 2 + index : index;
+        int row = index / 9;
+        int rowCount = Math.min(9, count - row * 9);
+        return row * 9 + (9 - rowCount) / 2 + index % 9;
     }
 }

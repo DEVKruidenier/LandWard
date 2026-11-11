@@ -6,6 +6,10 @@ All notable changes to LandWard will be documented here.
 
 ### Changed
 
+- Use red glass for the previous page and blue glass for the next page,
+  keeping the arrow exclusively for back navigation.
+- Center functional icons directly next to one another in each content row,
+  including partially filled list rows. Back and close retain their footer positions.
 - Reserve the full bottom row for navigation, including on chunk maps. Use
   hoppers for deletion and barriers for closing; group settings above the footer.
 - Render list icons only for the displayed page and retain the last valid page

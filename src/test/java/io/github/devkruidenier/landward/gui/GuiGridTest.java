@@ -26,6 +26,8 @@ class GuiGridTest {
         assertEquals(4, GuiGrid.slot(0, 1));
         assertEquals(3, GuiGrid.slot(0, 3));
         assertEquals(5, GuiGrid.slot(2, 3));
+        assertEquals(10, GuiGrid.slot(9, 15));
+        assertEquals(15, GuiGrid.slot(14, 15));
     }
     @Test void rejectsEntriesOutsideThePage() {
         assertThrows(IllegalArgumentException.class, () -> GuiGrid.size(46));

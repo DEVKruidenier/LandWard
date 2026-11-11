@@ -80,7 +80,10 @@ final class GuiLayout {
         Inventory display = Bukkit.createInventory(template.getHolder(), size, playerTitle(template));
         Map<Integer, Integer> actions = new HashMap<>();
         fill(display);
-        positions.forEach((source, target) -> {
+        Set<Integer> present = new HashSet<>();
+        positions.keySet().forEach(source -> { if (template.getItem(source) != null) present.add(source); });
+        Map<Integer, Integer> rendered = map ? positions : GuiPositions.center(positions, present, size);
+        rendered.forEach((source, target) -> {
             ItemStack item = template.getItem(source);
             if (item != null) { display.setItem(target, item); actions.put(target, source); }
         });
@@ -155,11 +158,11 @@ final class GuiLayout {
             actions.put(size - 9, 53);
             String locale = plugin.localeService().localeFor(player);
             if (currentPage > 0) {
-                display.setItem(size - 6, GuiText.item(Material.ARROW, plugin.localeService().message(locale, "gui.previous-page"), NamedTextColor.YELLOW, List.of()));
+                display.setItem(size - 6, GuiText.item(Material.RED_STAINED_GLASS_PANE, plugin.localeService().message(locale, "gui.previous-page"), NamedTextColor.RED, List.of()));
                 actions.put(size - 6, -2);
             }
             if (currentPage + 1 < GuiGrid.pages(visible.size())) {
-                display.setItem(size - 4, GuiText.item(Material.ARROW, plugin.localeService().message(locale, "gui.next-page"), NamedTextColor.YELLOW, List.of()));
+                display.setItem(size - 4, GuiText.item(Material.BLUE_STAINED_GLASS_PANE, plugin.localeService().message(locale, "gui.next-page"), NamedTextColor.BLUE, List.of()));
                 actions.put(size - 4, -3);
             }
             ACTIONS.put(display, actions);
