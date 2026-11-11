@@ -15,7 +15,7 @@ final class GuiHintsTest {
     @Test
     void worldDisabledPvpExplainsTheBlockWithoutPromisingAToggle() {
         var lore = GuiHints.pvpUnavailable(Function.identity());
-        assertTrue(lore.contains("gui.hint-pvp-world-disabled"));
+        assertTrue(lore.contains("gui.hint-pvp-blocked"));
         assertFalse(lore.contains("gui.management-toggle"));
     }
 
@@ -58,7 +58,7 @@ final class GuiHintsTest {
                 translate.apply("gui.management-unavailable");
                 for (String material : List.of("IRON_SWORD", "IRON_PICKAXE", "CHEST",
                         "OAK_DOOR", "OAK_SIGN", "LEAD", "BEEF", "ZOMBIE_HEAD", "CREEPER_SPAWN_EGG")) {
-                    GuiHints.setting(material, false, "members", translate);
+                    GuiHints.setting(material, false, null, translate);
                     GuiHints.setting(material, true, "public", translate);
                     GuiHints.setting(material, true, "member", translate);
                 }

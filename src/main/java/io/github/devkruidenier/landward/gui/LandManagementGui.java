@@ -243,11 +243,10 @@ public final class LandManagementGui {
         return holder;
     }
     private ItemStack permissionItem(Player player, Material material, String label, boolean enabled) {
-        return permissionItem(player, material, label, enabled,
-                material == Material.IRON_PICKAXE || material == Material.CHEST || material == Material.LEAD ? "members" : null);
+        return permissionItem(player, material, label, enabled, null);
     }
     private ItemStack permissionItem(Player player, Material material, String label, boolean enabled, String scope) {
-        if (material == Material.IRON_SWORD && !player.getWorld().getPVP()) {
+        if (material == Material.IRON_SWORD && !plugin.pvpAllowed(player.getLocation())) {
             return item(material, label + ": " + message(player, "gui.management-unavailable"), NamedTextColor.GRAY,
                     GuiHints.pvpUnavailable(key -> message(player, key)));
         }

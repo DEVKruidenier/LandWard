@@ -57,6 +57,13 @@ public final class LandWardPlugin extends JavaPlugin {
     private AdminBypassService adminBypasses;
     private UpdateChecker updateChecker;
     private AdminOwnerChangeListener adminOwnerChangeListener;
+    private final io.github.devkruidenier.landward.integration.WorldGuardIntegration pvpWorldGuard =
+            new io.github.devkruidenier.landward.integration.WorldGuardIntegration(this);
+
+    public boolean pvpAllowed(org.bukkit.Location location) {
+        return io.github.devkruidenier.landward.protection.PvpAvailability.allowed(
+                location.getWorld() != null && location.getWorld().getPVP(), () -> pvpWorldGuard.blocksPvp(location));
+    }
 
     @Override
     public void onEnable() {

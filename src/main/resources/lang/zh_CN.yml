@@ -92,6 +92,7 @@ admin:
   migration-live-started: "LandWard 迁移已开始。玩家可以保持在线，但请在完成提示出现前不要修改领地。"
   migration-live-complete: "迁移已完成并生效：{lands} 个领地、{claims} 个区块和 {members} 位成员。备份：{backup}。无需重启服务器。"
 gui:
+  hint-pvp-blocked: "服务器或区域规则禁止在此进行 PvP"
   hint-delete-safezones: "确认后移除所有安全区"
   hint-delete-player-land: "确认后移除此玩家的整个领地"
   management-unavailable: "不可用"
@@ -120,7 +121,6 @@ gui:
   hint-read-only: "仅供查看；点击无操作"
   hint-unclaim: "点击确认移除此区块"
   hint-anvil: "点击提交输入的文字"
-  hint-scope-members: "新添加成员的默认权限"
   hint-scope-member: "仅适用于此成员"
   hint-scope-public: "适用于安全区的公共访问"
   previous-page: "上一页"

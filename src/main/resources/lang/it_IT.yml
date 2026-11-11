@@ -92,6 +92,7 @@ admin:
   migration-live-started: "Migrazione LandWard avviata. I giocatori possono restare online; non modificare claim fino al messaggio finale."
   migration-live-complete: "Migrazione completata e attiva: {lands} terreni, {claims} claim e {members} membri. Backup: {backup}. Non è necessario riavviare il server."
 gui:
+  hint-pvp-blocked: "Le regole del server o della regione vietano il PvP qui"
   hint-delete-safezones: "Elimina tutte le zone sicure dopo la conferma"
   hint-delete-player-land: "Elimina tutto il terreno del giocatore dopo la conferma"
   management-unavailable: "Non disponibile"
@@ -120,7 +121,6 @@ gui:
   hint-read-only: "Solo informazioni; nessuna azione al clic"
   hint-unclaim: "Clicca per confermare la rimozione del chunk"
   hint-anvil: "Clicca per applicare il testo inserito"
-  hint-scope-members: "Permessi predefiniti per i nuovi membri"
   hint-scope-member: "Si applica solo a questo membro"
   hint-scope-public: "Si applica all'accesso pubblico alle zone sicure"
   previous-page: "Pagina precedente"

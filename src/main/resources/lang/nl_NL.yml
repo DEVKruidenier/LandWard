@@ -92,6 +92,7 @@ admin:
   migration-live-started: "LandWard-migratie gestart. Spelers mogen online blijven; wijzig geen claims totdat dit commando een voltooiingsmelding geeft."
   migration-live-complete: "Migratie voltooid en actief: {lands} landen, {claims} chunks en {members} leden. Back-up: {backup}. Geen serverherstart nodig."
 gui:
+  hint-pvp-blocked: "Server- of regioregels staan hier geen PvP toe"
   hint-delete-safezones: "Alle Veilige Zones verwijderen na bevestiging"
   hint-delete-player-land: "Het hele land van deze speler verwijderen na bevestiging"
   management-unavailable: "Niet beschikbaar"
@@ -120,7 +121,6 @@ gui:
   hint-read-only: "Alleen informatie; geen klikactie"
   hint-unclaim: "Klik om het verwijderen te bevestigen"
   hint-anvil: "Klik om de ingevoerde tekst toe te passen"
-  hint-scope-members: "Standaardrechten voor nieuwe leden"
   hint-scope-member: "Geldt alleen voor dit lid"
   hint-scope-public: "Geldt voor openbare toegang tot Veilige Zones"
   previous-page: "Vorige pagina"

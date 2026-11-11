@@ -117,7 +117,7 @@ public final class ClaimAdminListener implements Listener {
             return;
         }
         if (holder.screen() == ClaimAdminHolder.Screen.ADMIN_SETTINGS) {
-            if (slot == 10 && !player.getWorld().getPVP()) { gui.openAdminSettings(player); return; }
+            if (slot == 10 && !plugin.pvpAllowed(player.getLocation())) { gui.openAdminSettings(player); return; }
             if (slot == 53) { gui.openMain(player); return; }
             if (slot == 37) { gui.openAdminMemberChoices(player); return; }
             if (slot == 40) { gui.openAdminMemberList(player); return; }

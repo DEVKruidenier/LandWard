@@ -206,7 +206,7 @@ public final class ClaimAdminGui {
         setting(inventory, 21, Material.OAK_SIGN, locale, "gui.admin-interactions", "protection.allow-interactions");
         setting(inventory, 14, Material.IRON_PICKAXE, locale, "gui.management-build", "protection.allow-build");
         setting(inventory, 15, Material.LEAD, locale, "gui.management-entity-interactions", "protection.allow-entities");
-        if (!player.getWorld().getPVP()) {
+        if (!plugin.pvpAllowed(player.getLocation())) {
             inventory.setItem(10, item(Material.IRON_SWORD,
                     plugin.localeService().message(locale, "gui.admin-pvp") + ": "
                             + plugin.localeService().message(locale, "gui.management-unavailable"), NamedTextColor.GRAY,

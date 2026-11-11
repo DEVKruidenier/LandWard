@@ -35,6 +35,8 @@ All notable changes to LandWard will be documented here.
 
 ### Fixed
 
+- Respect WorldGuard PvP denials, including the global region, when displaying
+  and clicking player-land and Safe Zone PvP controls, even for operators.
 - Bundle the Adventure text API required for standalone Spigot installations.
 - Open actual native anvil menus on Spigot so typed names reach the server,
   and identify input sessions independently of custom inventory holders.

@@ -92,6 +92,7 @@ admin:
   migration-live-started: "LandWard-Migration gestartet. Spieler können online bleiben; ändere keine Claims, bis die Abschlussmeldung erscheint."
   migration-live-complete: "Migration abgeschlossen und aktiv: {lands} Länder, {claims} Claims und {members} Mitglieder. Sicherung: {backup}. Kein Serverneustart erforderlich."
 gui:
+  hint-pvp-blocked: "Server- oder Regionsregeln verbieten hier PvP"
   hint-delete-safezones: "Alle sicheren Zonen nach Bestätigung entfernen"
   hint-delete-player-land: "Das gesamte Spielerland nach Bestätigung entfernen"
   management-unavailable: "Nicht verfügbar"
@@ -120,7 +121,6 @@ gui:
   hint-read-only: "Nur Information; keine Klickaktion"
   hint-unclaim: "Klicken, um das Entfernen zu bestätigen"
   hint-anvil: "Klicken, um den eingegebenen Text anzuwenden"
-  hint-scope-members: "Standardrechte für neu hinzugefügte Mitglieder"
   hint-scope-member: "Gilt nur für dieses Mitglied"
   hint-scope-public: "Gilt für öffentlichen Zugang zu sicheren Zonen"
   previous-page: "Vorherige Seite"

@@ -92,6 +92,7 @@ admin:
   migration-live-started: "LandWard の移行を開始しました。プレイヤーはオンラインのままで構いませんが、完了メッセージまでクレームを変更しないでください。"
   migration-live-complete: "移行が完了し有効になりました: 土地 {lands}、チャンク {claims}、メンバー {members}。バックアップ: {backup}。サーバーの再起動は不要です。"
 gui:
+  hint-pvp-blocked: "サーバーまたは地域のルールで PvP が禁止されています"
   hint-delete-safezones: "確認後にすべての安全地帯を削除"
   hint-delete-player-land: "確認後にこのプレイヤーの領地全体を削除"
   management-unavailable: "利用不可"
@@ -120,7 +121,6 @@ gui:
   hint-read-only: "情報表示のみ。クリック操作はありません"
   hint-unclaim: "クリックしてチャンクの解除を確認"
   hint-anvil: "クリックして入力した文字を確定"
-  hint-scope-members: "新規メンバーの初期権限"
   hint-scope-member: "このメンバーのみに適用"
   hint-scope-public: "安全地帯の一般アクセスに適用"
   previous-page: "前のページ"

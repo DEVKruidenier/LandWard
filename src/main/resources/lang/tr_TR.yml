@@ -92,6 +92,7 @@ admin:
   migration-live-started: "LandWard geçişi başladı. Oyuncular çevrimiçi kalabilir; tamamlanma mesajına kadar claim değiştirmeyin."
   migration-live-complete: "Geçiş tamamlandı ve etkin: {lands} arazi, {claims} claim ve {members} üye. Yedek: {backup}. Sunucuyu yeniden başlatmak gerekmez."
 gui:
+  hint-pvp-blocked: "Sunucu veya bölge kuralları burada PvP'yi engelliyor"
   hint-delete-safezones: "Onaydan sonra tüm Güvenli Bölgeleri kaldır"
   hint-delete-player-land: "Onaydan sonra oyuncunun tüm arazisini kaldır"
   management-unavailable: "Kullanılamıyor"
@@ -120,7 +121,6 @@ gui:
   hint-read-only: "Yalnızca bilgi; tıklama işlemi yok"
   hint-unclaim: "Chunk kaldırmayı onaylamak için tıkla"
   hint-anvil: "Girilen metni uygulamak için tıkla"
-  hint-scope-members: "Yeni üyeler için varsayılan izinler"
   hint-scope-member: "Yalnızca bu üye için geçerlidir"
   hint-scope-public: "Güvenli Bölgelerin herkese açık erişimi içindir"
   previous-page: "Önceki sayfa"

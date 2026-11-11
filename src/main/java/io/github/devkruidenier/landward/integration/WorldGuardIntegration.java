@@ -3,6 +3,7 @@ package io.github.devkruidenier.landward.integration;
 import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import org.bukkit.World;
+import org.bukkit.Location;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -11,8 +12,34 @@ import java.util.Map;
 public final class WorldGuardIntegration {
     private final LandWardPlugin plugin;
     private boolean failureLogged;
+    private boolean pvpFailureLogged;
 
     public WorldGuardIntegration(LandWardPlugin plugin) { this.plugin = plugin; }
+
+    /** Uses effective region priorities/global flags, independently of OP or bypass status. */
+    public boolean blocksPvp(Location location) {
+        if (!plugin.getServer().getPluginManager().isPluginEnabled("WorldGuard")) return false;
+        try {
+            Object worldGuard = Class.forName("com.sk89q.worldguard.WorldGuard").getMethod("getInstance").invoke(null);
+            Object container = invoke(invoke(worldGuard, "getPlatform"), "getRegionContainer");
+            Object query = invoke(container, "createQuery");
+            Object adaptedLocation = invokeStatic("com.sk89q.worldedit.bukkit.BukkitAdapter", "adapt", location);
+            Class<?> stateFlag = Class.forName("com.sk89q.worldguard.protection.flags.StateFlag");
+            Object flags = java.lang.reflect.Array.newInstance(stateFlag, 1);
+            java.lang.reflect.Array.set(flags, 0, Class.forName("com.sk89q.worldguard.protection.flags.Flags").getField("PVP").get(null));
+            Method test = query.getClass().getMethod("testState",
+                    Class.forName("com.sk89q.worldedit.util.Location"),
+                    Class.forName("com.sk89q.worldguard.protection.association.RegionAssociable"), flags.getClass());
+            // No LocalPlayer: administrators see the protection rule, not their WorldGuard bypass.
+            return !(boolean) test.invoke(query, adaptedLocation, null, flags);
+        } catch (ReflectiveOperationException | ClassCastException exception) {
+            if (!pvpFailureLogged) {
+                plugin.getLogger().warning("WorldGuard PvP rules could not be queried; PvP controls are disabled: " + exception.getMessage());
+                pvpFailureLogged = true;
+            }
+            return true;
+        }
+    }
 
     public boolean blocksClaim(World world, ChunkPosition chunk) {
         if (!plugin.getConfig().getBoolean("integrations.worldguard.enabled", true)

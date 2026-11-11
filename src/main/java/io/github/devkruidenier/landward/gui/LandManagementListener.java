@@ -79,7 +79,7 @@ public final class LandManagementListener implements Listener {
             return;
         }
         if (holder.screen() == LandManagementHolder.Screen.SETTINGS) {
-            if (slot == 10 && !player.getWorld().getPVP()) { gui.openSettings(player); return; }
+            if (slot == 10 && !plugin.pvpAllowed(player.getLocation())) { gui.openSettings(player); return; }
             if (slot == 37) { gui.openMembers(player); return; }
             if (slot == 40) { gui.openMemberList(player); return; }
             if (slot == 43) { renameListener.begin(player); return; }
