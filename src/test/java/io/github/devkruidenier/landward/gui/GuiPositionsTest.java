@@ -88,7 +88,9 @@ class GuiPositionsTest {
         assertEquals(14, rendered.get(15));
         assertEquals(22, rendered.get(17));
         assertEquals(22, GuiPositions.overrides("admin:MAIN").get(20));
-        assertEquals(4, GuiPositions.overrides("admin:MAIN").get(9));
+        assertEquals(3, GuiPositions.overrides("admin:MAIN").get(9));
+        assertEquals(4, GuiPositions.overrides("admin:MAIN").get(11));
+        assertEquals(5, GuiPositions.overrides("admin:MAIN").get(13));
         assertEquals(21, GuiPositions.overrides("admin:MAIN").get(17));
         assertEquals(23, GuiPositions.overrides("admin:MAIN").get(15));
     }

@@ -43,7 +43,7 @@ final class GuiPositions {
                     Map.entry(37, 21), Map.entry(40, 22));
             case "player:WELCOME" -> Map.of(13, 11, 22, 13);
             case "player:MEMBER", "admin:ADMIN_MEMBER" -> Map.of(4, 11, 10, 12, 13, 13, 16, 14, 22, 15);
-            case "admin:MAIN" -> Map.of(9, 4, 11, 11, 13, 12, 17, 21, 15, 23, 20, 22);
+            case "admin:MAIN" -> Map.of(9, 3, 11, 4, 13, 5, 17, 21, 15, 23, 20, 22);
             case "admin:PLAYER_CLAIM_DETAILS" -> Map.of(10, 10, 12, 11, 14, 12, 16, 13, 18, 14, 20, 15);
             default -> Map.of();
         };

@@ -6,6 +6,8 @@ All notable changes to LandWard will be documented here.
 
 ### Changed
 
+- Group Player Claims, Safe Zones and Settings at the top center of ClaimAdmin,
+  leaving its middle row empty and keeping Worlds/Delete/Reload in the footer.
 - Keep the land information book centered in the top row and place the delete
   button in the center of the footer in both player and administrator main menus.
 - Compact player and Safe Zone settings to three rows, with member management
