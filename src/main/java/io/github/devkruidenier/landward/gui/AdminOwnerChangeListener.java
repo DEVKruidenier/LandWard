@@ -21,6 +21,7 @@ import org.bukkit.inventory.view.AnvilView;
 
 import java.util.Map;
 import java.util.List;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -29,20 +30,28 @@ public final class AdminOwnerChangeListener implements Listener {
     private static final Pattern PLAYER_NAME = Pattern.compile("^[A-Za-z0-9_]{3,16}$");
     private final LandWardPlugin plugin;
     private final LandManager lands;
+    private final Map<UUID, OwnerChangeAnvilHolder> sessions = new HashMap<>();
     public AdminOwnerChangeListener(LandWardPlugin plugin, LandManager lands) { this.plugin = plugin; this.lands = lands; }
 
     public void begin(Player player, UUID landId) {
+        Bukkit.getScheduler().runTask(plugin, () -> open(player, landId));
+    }
+
+    private void open(Player player, UUID landId) {
         OwnerChangeAnvilHolder holder = new OwnerChangeAnvilHolder(landId);
         String locale = plugin.localeService().localeFor(player);
-        Inventory anvil = Bukkit.createInventory(holder, InventoryType.ANVIL,
+        AnvilView view = NativeAnvilInput.create(player,
                 plugin.localeService().message(locale, "gui.admin-change-owner"));
+        player.closeInventory();
+        Inventory anvil = view.getTopInventory();
         holder.setInventory(anvil);
+        sessions.put(player.getUniqueId(), holder);
         ItemStack input = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = input.getItemMeta();
         meta.setDisplayName(" ");
         input.setItemMeta(meta);
         anvil.setItem(0, input);
-        player.openInventory(anvil);
+        player.openInventory(view);
     }
 
     @EventHandler
@@ -101,12 +110,16 @@ public final class AdminOwnerChangeListener implements Listener {
 
     @EventHandler
     public void onClose(InventoryCloseEvent event) {
-        if (holder(event.getView()) != null) clear(event.getView());
+        if (holder(event.getView()) != null) {
+            clear(event.getView());
+            sessions.remove(event.getPlayer().getUniqueId());
+        }
     }
 
     private OwnerChangeAnvilHolder holder(org.bukkit.inventory.InventoryView view) {
         if (view.getType() != InventoryType.ANVIL) return null;
-        return view.getTopInventory().getHolder() instanceof OwnerChangeAnvilHolder holder ? holder : null;
+        OwnerChangeAnvilHolder session = sessions.get(view.getPlayer().getUniqueId());
+        return session != null && session.getInventory().equals(view.getTopInventory()) ? session : null;
     }
 
     private String enteredName(org.bukkit.inventory.InventoryView view) {

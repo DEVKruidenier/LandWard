@@ -22,29 +22,35 @@ import org.bukkit.inventory.view.AnvilView;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.UUID;
+import org.bukkit.inventory.MenuType;
+import org.bukkit.event.inventory.InventoryDragEvent;
 
 /** Provides native anvil text entry for both creating and renaming a land. */
 public final class LandRenameListener implements Listener {
     private final LandWardPlugin plugin;
     private final LandManager landManager;
     private final LandCommand command;
+    private final Map<UUID, RenameAnvilHolder> sessions = new HashMap<>();
     public LandRenameListener(LandWardPlugin plugin, LandManager landManager, LandCommand command) {
         this.plugin = plugin;
         this.landManager = landManager;
         this.command = command;
     }
 
-    public void begin(Player player) { openAnvil(player, false); }
-    public void beginCreate(Player player) { openAnvil(player, true); }
+    public void begin(Player player) { Bukkit.getScheduler().runTask(plugin, () -> openAnvil(player, false)); }
+    public void beginCreate(Player player) { Bukkit.getScheduler().runTask(plugin, () -> openAnvil(player, true)); }
 
     private void openAnvil(Player player, boolean creating) {
         RenameAnvilHolder holder = new RenameAnvilHolder(creating);
         String locale = plugin.localeService().localeFor(player);
-        // Spigot has no Player#openAnvil API. Opening a Bukkit anvil inventory
-        // works on both Spigot and Paper while retaining the native text field.
-        Inventory anvil = Bukkit.createInventory(holder, InventoryType.ANVIL,
+        AnvilView view = NativeAnvilInput.create(player,
                 plugin.localeService().message(locale, creating ? "gui.create-anvil-title" : "gui.management-rename"));
+        player.closeInventory();
+        Inventory anvil = view.getTopInventory();
         holder.setInventory(anvil);
+        sessions.put(player.getUniqueId(), holder);
         ItemStack input = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = input.getItemMeta();
         // A single whitespace seed gives creation a truly empty text field.
@@ -57,7 +63,7 @@ public final class LandRenameListener implements Listener {
         // Slot 1 is a real anvil input slot. It must remain empty: putting a
         // Confirm item there made its display name look like player input on
         // Spigot. The generated output in slot 2 is the only confirm action.
-        player.openInventory(anvil);
+        player.openInventory(view);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -118,6 +124,12 @@ public final class LandRenameListener implements Listener {
     public void onAnvilClose(InventoryCloseEvent event) {
         if (holder(event.getView()) == null) return;
         clearTemporaryItems(event.getView());
+        sessions.remove(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    public void onDrag(InventoryDragEvent event) {
+        if (holder(event.getView()) != null) event.setCancelled(true);
     }
 
     /** Removes only LandWard's temporary anvil contents before vanilla returns inputs on close. */
@@ -134,7 +146,8 @@ public final class LandRenameListener implements Listener {
 
     private RenameAnvilHolder holder(InventoryView view) {
         if (view.getType() != InventoryType.ANVIL) return null;
-        return view.getTopInventory().getHolder() instanceof RenameAnvilHolder holder ? holder : null;
+        RenameAnvilHolder session = sessions.get(view.getPlayer().getUniqueId());
+        return session != null && session.getInventory().equals(view.getTopInventory()) ? session : null;
     }
 
     private String enteredName(InventoryView view) {

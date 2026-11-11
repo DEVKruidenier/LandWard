@@ -6,6 +6,8 @@ All notable changes to LandWard will be documented here.
 
 ### Fixed
 
+- Open actual native anvil menus on Spigot so typed names reach the server,
+  and identify input sessions independently of custom inventory holders.
 - Made native anvil land creation, renaming and owner transfer use only the
   text entered in the anvil field. Confirmation-item labels can no longer be
   read or saved as player input on Paper or Spigot.
