@@ -4,6 +4,8 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.2.0] - 2026-11-11
+
 ### Added
 
 - Colored, localized update summaries in the console and on login for operators
