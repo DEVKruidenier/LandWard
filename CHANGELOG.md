@@ -4,46 +4,30 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.1.6] - 2026-11-11
+
+### Added
+
+- Separate building and entity-interaction controls for public Safe Zone access.
+- Localized hover explanations for settings and menu actions in all 13 languages.
+
 ### Changed
 
-- Shorten unavailable-PvP hover feedback to one explanation in every language.
-- Explain setting effects and member/public scope in localized hover text;
-  add navigation, selection and anvil confirmation hints across menus.
-- Disable player-land and Safe Zone PvP controls when the current world
-  disallows PvP, with a localized explanation instead of a toggle hint.
-- Group Player Claims, Safe Zones and Settings at the top center of ClaimAdmin,
-  leaving its middle row empty and keeping Worlds/Delete/Reload in the footer.
-- Keep the land information book centered in the top row and place the delete
-  button in the center of the footer in both player and administrator main menus.
-- Compact player and Safe Zone settings to three rows, with member management
-  and player-land renaming centered in the bottom row between back and close.
-- Add building and entity-interaction controls to Safe Zone settings; both
-  public permissions default to disabled and remain separate from mob/PvP rules.
-- Place all nine player-land and Safe Zone setting controls on the top row in the order:
-  sword, pickaxe, chest, door, sign, lead, meat, zombie, creeper. Keep member
-  management and renaming centered in the bottom row, with one empty row between.
-- Use red glass for the previous page and blue glass for the next page,
-  keeping the arrow exclusively for back navigation.
-- Center functional icons directly next to one another in each content row,
-  including partially filled list rows. Back and close retain their footer positions.
-- Reserve the full bottom row for navigation, including on chunk maps. Use
-  hoppers for deletion and barriers for closing; group settings above the footer.
-- Render list icons only for the displayed page and retain the last valid page
-  when returning from management or after removing the final entry.
-- Standardized chest menus with compact settings, hidden gray-glass backgrounds,
-  bottom-left back navigation and bottom-right close buttons. Lists now resize
-  to their content and provide pages for worlds, lands and members beyond 45 entries.
+- Compact, aligned player and administrator menus with consistent back/close
+  navigation and clearly positioned settings, member management and delete controls.
+- Paginated world, land and member lists with red/blue page controls, remembered
+  pages and valid-page recovery after entries are removed.
+- PvP controls show a short unavailable explanation when world or WorldGuard
+  rules prohibit PvP; clicking cannot override those rules or change the stored setting.
 
 ### Fixed
 
-- Respect WorldGuard PvP denials, including the global region, when displaying
-  and clicking player-land and Safe Zone PvP controls, even for operators.
-- Bundle the Adventure text API required for standalone Spigot installations.
-- Open actual native anvil menus on Spigot so typed names reach the server,
-  and identify input sessions independently of custom inventory holders.
-- Made native anvil land creation, renaming and owner transfer use only the
-  text entered in the anvil field. Confirmation-item labels can no longer be
-  read or saved as player input on Paper or Spigot.
+- Native anvil land creation, renaming and owner transfer now use the entered
+  text on Paper and Spigot. Confirmation labels can no longer be saved as names.
+- Bundle the Adventure text API needed by standalone Spigot installations.
+- Honor effective WorldGuard PvP flags, including the global region, when
+  displaying and handling PvP controls, independently of operator bypass.
+- Keep the bundled config version synchronized with the release version.
 
 ## [1.0.1.5] - 2026-11-08
 

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.devkruidenier"
-version = "1.0.1.6-beta12"
+version = "1.0.1.6"
 
 val pluginVersion = version.toString()
 
@@ -87,6 +87,9 @@ tasks {
         // plugin.yml; otherwise Gradle may package a stale plugin version.
         inputs.property("landwardPluginVersion", pluginVersion)
         filesMatching("plugin.yml") {
+            expand("version" to pluginVersion)
+        }
+        filesMatching("config.yml") {
             expand("version" to pluginVersion)
         }
         from("LICENSE") {
