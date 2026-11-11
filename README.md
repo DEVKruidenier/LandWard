@@ -13,9 +13,6 @@ central and current documentation source. It covers installation, commands,
 claim management, configuration, integrations, permissions, storage migration
 and updates.
 
-For the complete feature list and detailed usage instructions, see the
-[LandWard Wiki](https://github.com/DEVKruidenier/LandWard/wiki).
-
 Completed features, fixes and behaviour changes are listed in the
 [Changelog](CHANGELOG.md).
 

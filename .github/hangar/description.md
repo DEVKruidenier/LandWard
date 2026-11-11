@@ -33,8 +33,9 @@ add or remove individual chunks, or remove the complete land after confirmation.
 
 ![Player claim administration](https://raw.githubusercontent.com/DEVKruidenier/LandWard/main/docs/platform-images/admin-playerclaims.gif)
 
-**Safe Zone settings** — configure PvP, mobs, containers, doors, interactions
-and member rights for server-owned areas.
+**Safe Zone settings** — configure building, entities, containers, doors,
+interactions, mobs and PvP for server-owned areas, with individual member rights.
+World and WorldGuard PvP restrictions remain authoritative.
 
 ![Safe Zone settings](https://raw.githubusercontent.com/DEVKruidenier/LandWard/main/docs/platform-images/adminclaimsettings.gif)
 
