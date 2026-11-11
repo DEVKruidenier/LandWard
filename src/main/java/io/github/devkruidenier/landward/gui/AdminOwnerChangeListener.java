@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.view.AnvilView;
 
 import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -51,10 +52,13 @@ public final class AdminOwnerChangeListener implements Listener {
         String entered = enteredName(event.getView());
         holder.setEnteredName(entered);
         if (entered == null || !PLAYER_NAME.matcher(entered).matches()) { event.setResult(null); return; }
-        ItemStack result = new ItemStack(Material.LIME_DYE);
+        // Keep the typed player name in the native anvil result. An unrelated
+        // result label can become Spigot's next rename-text value.
+        ItemStack result = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = result.getItemMeta();
-        meta.setDisplayName(plugin.localeService().message(
-                plugin.localeService().localeFor(event.getView().getPlayer()), "gui.anvil-confirm"));
+        meta.setDisplayName(entered);
+        meta.setLore(List.of(plugin.localeService().message(
+                plugin.localeService().localeFor(event.getView().getPlayer()), "gui.anvil-confirm")));
         result.setItemMeta(meta);
         event.setResult(result);
         event.getView().setRepairCost(0);

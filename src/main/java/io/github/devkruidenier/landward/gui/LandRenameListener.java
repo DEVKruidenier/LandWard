@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.view.AnvilView;
 
+import java.util.List;
 import java.util.Map;
 
 /** Provides native anvil text entry for both creating and renaming a land. */
@@ -69,10 +70,15 @@ public final class LandRenameListener implements Listener {
             event.setResult(null);
             return;
         }
-        ItemStack result = new ItemStack(Material.LIME_DYE);
+        // The anvil result must keep the typed name as its display name. On
+        // Spigot, giving this item an unrelated label (for example "Confirm")
+        // can become the view's subsequent rename text. The action label lives
+        // in lore, which is presentation-only.
+        ItemStack result = new ItemStack(Material.NAME_TAG);
         ItemMeta meta = result.getItemMeta();
-        meta.setDisplayName(plugin.localeService().message(
-                plugin.localeService().localeFor(event.getView().getPlayer()), "gui.anvil-confirm"));
+        meta.setDisplayName(name);
+        meta.setLore(List.of(plugin.localeService().message(
+                plugin.localeService().localeFor(event.getView().getPlayer()), "gui.anvil-confirm")));
         result.setItemMeta(meta);
         event.setResult(result);
         configureRepairCost(event.getView(), holder.creating() ? 0 : renameCost());
