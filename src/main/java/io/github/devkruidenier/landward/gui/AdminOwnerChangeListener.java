@@ -68,7 +68,9 @@ public final class AdminOwnerChangeListener implements Listener {
         if (holder == null) return;
         event.setCancelled(true);
         if (event.getRawSlot() != 2) return;
-        String name = holder.enteredName();
+        // Capture the native Anvil text before any close/clear operation. The
+        // PrepareAnvilEvent cache can be stale when the output is rebuilt.
+        String name = enteredName(event.getView());
         if (name == null || !PLAYER_NAME.matcher(name).matches()) return;
         OfflinePlayer target = Bukkit.getOfflinePlayer(name);
         try {

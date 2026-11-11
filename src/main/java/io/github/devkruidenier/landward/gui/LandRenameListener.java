@@ -85,7 +85,10 @@ public final class LandRenameListener implements Listener {
         if (holder == null) return;
         event.setCancelled(true);
         if (event.getRawSlot() != 2) return;
-        String name = holder.enteredName();
+        // Read the native Anvil text at the moment of submission. The value
+        // cached by PrepareAnvilEvent may be stale after the result item is
+        // rebuilt; it is never an authoritative fallback for a click.
+        String name = enteredName(event.getView());
         if (name == null) return;
         if (holder.creating()) {
             finish(event.getView());
