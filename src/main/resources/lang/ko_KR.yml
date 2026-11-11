@@ -92,6 +92,9 @@ admin:
   migration-live-started: "LandWard 이전이 시작되었습니다. 플레이어는 온라인 상태로 있어도 되지만 완료 메시지 전에는 클레임을 변경하지 마세요."
   migration-live-complete: "이전이 완료되어 활성화되었습니다: 토지 {lands}, 청크 {claims}, 구성원 {members}. 백업: {backup}. 서버를 재시작할 필요가 없습니다."
 gui:
+  previous-page: "이전 페이지"
+  next-page: "다음 페이지"
+  close: "닫기"
   admin-reload: "LandWard 다시 불러오기"
   admin-reload-hint: "설정, 언어 및 지도 레이어를 다시 불러옵니다"
   welcome-title: "LandWard • 땅 만들기"

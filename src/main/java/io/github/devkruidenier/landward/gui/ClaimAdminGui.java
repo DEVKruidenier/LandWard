@@ -38,27 +38,29 @@ public final class ClaimAdminGui {
         inventory.setItem(20, item(Material.TNT, plugin.localeService().message(locale, "gui.admin-confirm"), NamedTextColor.RED,
                 List.of(plugin.localeService().message(locale, "gui.unclaim-warning"))));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        GuiLayout.open(player, inventory, plugin);
     }
 
     public void openWorlds(Player player) {
         String locale = plugin.localeService().localeFor(player);
         ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.WORLDS, locale, 54, "gui.admin-worlds-title");
         Inventory inventory = holder.getInventory();
+        GuiLayout.Entries entries = new GuiLayout.Entries();
         int slot = 0;
         for (World world : Bukkit.getWorlds()) {
-            if (slot >= 45) break;
+
             boolean active = plugin.isLandWorld(world);
-            holder.worldsBySlot().put(slot, world.getName());
-            inventory.setItem(slot++, item(active ? Material.LIME_DYE : Material.GRAY_DYE,
+
+            entries.add(item(active ? Material.LIME_DYE : Material.GRAY_DYE,
                     plugin.localeService().message(locale, active ? "gui.admin-world-enabled" : "gui.admin-world-disabled"),
                     active ? NamedTextColor.GREEN : NamedTextColor.RED, List.of(
                     world.getName(),
                     plugin.localeService().message(locale, active ? "gui.admin-world-disable-hint" : "gui.admin-world-enable-hint")
-            )));
+            )), key -> holder.worldsBySlot().put(key, world.getName()));
+            slot++;
         }
         inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        entries.open(player, inventory, plugin);
     }
 
     /** Lists every player-owned land; server-owned safe zones stay in their separate map. */
@@ -66,20 +68,22 @@ public final class ClaimAdminGui {
         String locale = plugin.localeService().localeFor(player);
         ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.PLAYER_CLAIMS, locale, 54, "gui.admin-player-claims-title");
         Inventory inventory = holder.getInventory();
+        GuiLayout.Entries entries = new GuiLayout.Entries();
         int slot = 0;
         for (var land : lands.playerLands()) {
-            if (slot >= 45) break;
-            holder.landsBySlot().put(slot, land.id());
+
+
             // A player head can expose an unrelated profile name for an old or
             // manually created UUID. A neutral land icon keeps this list clear.
-            inventory.setItem(slot++, item(Material.GRASS_BLOCK, land.name(), NamedTextColor.AQUA,
+            entries.add(item(Material.GRASS_BLOCK, land.name(), NamedTextColor.AQUA,
                     List.of(plugin.localeService().message(locale, "gui.admin-player-claim-select", java.util.Map.of(
                             "owner", name(locale, land.ownerId()), "count", lands.claimCount(land.id())
-                    )))));
+                    )))), key -> holder.landsBySlot().put(key, land.id()));
+            slot++;
         }
         if (slot == 0) inventory.setItem(22, item(Material.GRAY_DYE, plugin.localeService().message(locale, "gui.admin-no-player-claims"), NamedTextColor.GRAY, List.of()));
         inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        entries.open(player, inventory, plugin);
     }
 
     public void openPlayerClaimDetails(Player player, UUID landId) {
@@ -104,7 +108,7 @@ public final class ClaimAdminGui {
         inventory.setItem(20, item(Material.BARRIER, plugin.localeService().message(locale, "gui.admin-confirm"), NamedTextColor.RED,
                 List.of(plugin.localeService().message(locale, "gui.unclaim-warning"))));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        GuiLayout.open(player, inventory, plugin);
     }
 
     /** Presents the two destructive administration choices for one player land. */
@@ -121,7 +125,7 @@ public final class ClaimAdminGui {
                 List.of(plugin.localeService().message(locale, "gui.management-claimed-chunks", java.util.Map.of("count", lands.claimCount(landId))),
                         plugin.localeService().message(locale, "gui.unclaim-warning"))));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        GuiLayout.open(player, inventory, plugin);
     }
 
     /** Asks before deleting every claimed chunk and member record of one player land. */
@@ -137,7 +141,7 @@ public final class ClaimAdminGui {
                         plugin.localeService().message(locale, "gui.unclaim-warning"))));
         inventory.setItem(15, item(Material.BARRIER, plugin.localeService().message(locale, "gui.cancel"), NamedTextColor.RED, List.of()));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        GuiLayout.open(player, inventory, plugin);
     }
 
     /** Asks before deleting the complete server-owned Safe Zone land. */
@@ -149,7 +153,7 @@ public final class ClaimAdminGui {
                 List.of(plugin.localeService().message(locale, "gui.unclaim-warning"))));
         inventory.setItem(15, item(Material.BARRIER, plugin.localeService().message(locale, "gui.cancel"), NamedTextColor.RED, List.of()));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        GuiLayout.open(player, inventory, plugin);
     }
 
     public void openPlayerClaimMembers(Player player, UUID landId) {
@@ -159,14 +163,16 @@ public final class ClaimAdminGui {
         ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.PLAYER_CLAIM_MEMBERS, locale, 54, "gui.management-members");
         holder.selectedLandId(landId);
         Inventory inventory = holder.getInventory();
+        GuiLayout.Entries entries = new GuiLayout.Entries();
         int slot = 0;
         for (var member : lands.members(landId)) {
-            if (slot >= 45) break;
-            inventory.setItem(slot++, playerHead(member.playerId(), name(locale, member.playerId()), plugin.localeService().message(locale, "gui.admin-member-permissions", java.util.Map.of("permissions", member.permissions().toString()))));
+
+            entries.add(playerHead(member.playerId(), name(locale, member.playerId()), plugin.localeService().message(locale, "gui.admin-member-permissions", java.util.Map.of("permissions", member.permissions().toString()))), key -> {});
+            slot++;
         }
         if (slot == 0) inventory.setItem(22, item(Material.GRAY_DYE, plugin.localeService().message(locale, "gui.management-no-members"), NamedTextColor.GRAY, List.of()));
         inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        entries.open(player, inventory, plugin);
     }
 
     public boolean teleportToClaim(Player player, UUID landId) {
@@ -194,7 +200,7 @@ public final class ClaimAdminGui {
         inventory.setItem(37, item(Material.LIME_DYE, plugin.localeService().message(locale, "gui.management-add-member"), NamedTextColor.GREEN, List.of(plugin.localeService().message(locale, "gui.management-choose-online"))));
         inventory.setItem(40, item(Material.PLAYER_HEAD, plugin.localeService().message(locale, "gui.management-members"), NamedTextColor.AQUA, List.of(plugin.localeService().message(locale, "gui.admin-members-hint"))));
         inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        GuiLayout.open(player, inventory, plugin);
     }
 
     public void openAdminMemberChoices(Player player) {
@@ -202,29 +208,33 @@ public final class ClaimAdminGui {
         ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.ADMIN_ADD_MEMBERS, locale, 54, "gui.management-add-title");
         Inventory inventory = holder.getInventory();
         Optional<io.github.devkruidenier.landward.model.Land> land = lands.administrativeLand();
+        GuiLayout.Entries entries = new GuiLayout.Entries();
         int slot = 0;
         for (Player target : Bukkit.getOnlinePlayers()) {
-            if (slot >= 45 || land.isEmpty() || lands.permissions(target.getUniqueId(), land.get().id()).equals(io.github.devkruidenier.landward.model.MemberPermissions.FULL)) continue;
-            holder.playersBySlot().put(slot, target.getUniqueId());
-            inventory.setItem(slot++, playerHead(target.getUniqueId(), target.getName(), plugin.localeService().message(locale, "gui.management-add-player")));
+            if (land.isEmpty() || lands.permissions(target.getUniqueId(), land.get().id()).equals(io.github.devkruidenier.landward.model.MemberPermissions.FULL)) continue;
+
+            entries.add(playerHead(target.getUniqueId(), target.getName(), plugin.localeService().message(locale, "gui.management-add-player")), key -> holder.playersBySlot().put(key, target.getUniqueId()));
+            slot++;
         }
         inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        entries.open(player, inventory, plugin);
     }
 
     public void openAdminMemberList(Player player) {
         String locale = plugin.localeService().localeFor(player);
         ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.ADMIN_MEMBERS, locale, 54, "gui.management-members");
         Inventory inventory = holder.getInventory();
+        GuiLayout.Entries entries = new GuiLayout.Entries();
         int slot = 0;
         for (var member : lands.administrativeLand().map(value -> lands.members(value.id())).orElse(List.of())) {
-            if (slot >= 45) break;
-            holder.playersBySlot().put(slot, member.playerId());
-            inventory.setItem(slot++, playerHead(member.playerId(), name(locale, member.playerId()), plugin.localeService().message(locale, "gui.admin-member-remove-hint")));
+
+
+            entries.add(playerHead(member.playerId(), name(locale, member.playerId()), plugin.localeService().message(locale, "gui.admin-member-remove-hint")), key -> holder.playersBySlot().put(key, member.playerId()));
+            slot++;
         }
         if (slot == 0) inventory.setItem(22, item(Material.GRAY_DYE, plugin.localeService().message(locale, "gui.management-no-members"), NamedTextColor.GRAY, List.of()));
         inventory.setItem(53, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        entries.open(player, inventory, plugin);
     }
 
     /** Lets an administrator change the access of one trusted Safe Zone member. */
@@ -246,7 +256,7 @@ public final class ClaimAdminGui {
         inventory.setItem(22, item(Material.BARRIER, plugin.localeService().message(locale, "gui.management-remove-member"), NamedTextColor.RED,
                 List.of(plugin.localeService().message(locale, "gui.management-remove-hint"))));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        GuiLayout.open(player, inventory, plugin);
     }
 
     private ClaimAdminHolder holder(ClaimAdminHolder.Screen screen, String locale, int size, String titleKey) {

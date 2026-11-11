@@ -92,6 +92,9 @@ admin:
   migration-live-started: "LandWard の移行を開始しました。プレイヤーはオンラインのままで構いませんが、完了メッセージまでクレームを変更しないでください。"
   migration-live-complete: "移行が完了し有効になりました: 土地 {lands}、チャンク {claims}、メンバー {members}。バックアップ: {backup}。サーバーの再起動は不要です。"
 gui:
+  previous-page: "前のページ"
+  next-page: "次のページ"
+  close: "閉じる"
   admin-reload: "LandWard を再読み込み"
   admin-reload-hint: "設定、言語、地図レイヤーを再読み込み"
   welcome-title: "LandWard • 土地を作成"

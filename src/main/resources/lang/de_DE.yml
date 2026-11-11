@@ -92,6 +92,9 @@ admin:
   migration-live-started: "LandWard-Migration gestartet. Spieler können online bleiben; ändere keine Claims, bis die Abschlussmeldung erscheint."
   migration-live-complete: "Migration abgeschlossen und aktiv: {lands} Länder, {claims} Claims und {members} Mitglieder. Sicherung: {backup}. Kein Serverneustart erforderlich."
 gui:
+  previous-page: "Vorherige Seite"
+  next-page: "Nächste Seite"
+  close: "Schließen"
   admin-reload: "LandWard neu laden"
   admin-reload-hint: "Konfiguration, Sprachen und Kartenebenen neu laden"
   welcome-title: "LandWard • Land erstellen"

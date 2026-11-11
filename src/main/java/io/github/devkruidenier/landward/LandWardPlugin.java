@@ -120,6 +120,7 @@ public final class LandWardPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(renameListener, this);
         getServer().getPluginManager().registerEvents(new LandManagementListener(this, landManager, renameListener), this);
         getServer().getPluginManager().registerEvents(new ClaimAdminListener(this, landManager), this);
+        getServer().getPluginManager().registerEvents(new io.github.devkruidenier.landward.gui.GuiCleanupListener(), this);
         this.adminOwnerChangeListener = new AdminOwnerChangeListener(this, landManager);
         getServer().getPluginManager().registerEvents(adminOwnerChangeListener, this);
 

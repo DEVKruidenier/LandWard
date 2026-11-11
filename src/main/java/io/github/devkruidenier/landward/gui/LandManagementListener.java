@@ -25,7 +25,8 @@ public final class LandManagementListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH) public void onClick(InventoryClickEvent event) {
         if (!(event.getView().getTopInventory().getHolder() instanceof LandManagementHolder holder)) return;
         event.setCancelled(true); if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
-        try { handle(player, holder, event.getRawSlot()); } catch (StorageException exception) { plugin.getLogger().warning("Could not save land GUI change: " + exception.getMessage()); player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error")); }
+        if (GuiLayout.navigation(event)) return;
+        try { handle(player, holder, GuiLayout.action(event.getView().getTopInventory(), event.getRawSlot())); } catch (StorageException exception) { plugin.getLogger().warning("Could not save land GUI change: " + exception.getMessage()); player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error")); }
     }
     @EventHandler(priority = EventPriority.HIGH) public void onDrag(InventoryDragEvent event) { if (event.getView().getTopInventory().getHolder() instanceof LandManagementHolder) event.setCancelled(true); }
     private void handle(Player player, LandManagementHolder holder, int slot) throws StorageException {

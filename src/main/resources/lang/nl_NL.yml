@@ -92,6 +92,9 @@ admin:
   migration-live-started: "LandWard-migratie gestart. Spelers mogen online blijven; wijzig geen claims totdat dit commando een voltooiingsmelding geeft."
   migration-live-complete: "Migratie voltooid en actief: {lands} landen, {claims} chunks en {members} leden. Back-up: {backup}. Geen serverherstart nodig."
 gui:
+  previous-page: "Vorige pagina"
+  next-page: "Volgende pagina"
+  close: "Sluiten"
   admin-reload: "LandWard herladen"
   admin-reload-hint: "Herlaad config, talen en kaartlagen"
   welcome-title: "LandWard • Maak een land"

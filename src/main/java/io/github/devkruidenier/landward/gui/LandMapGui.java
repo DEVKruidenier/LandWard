@@ -76,7 +76,7 @@ public final class LandMapGui {
                 NamedTextColor.YELLOW,
                 List.of()
         ));
-        player.openInventory(inventory);
+        GuiLayout.open(player, inventory, plugin);
     }
 
     public void openUnclaimConfirmation(Player player, ChunkPosition position, boolean administrator, boolean administrativeClaims) {
@@ -88,15 +88,13 @@ public final class LandMapGui {
         UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position, administrator, administrativeClaims, restrictedLandId);
         Inventory inventory = GuiText.inventory(holder, 27, plugin.localeService().message(locale, administrator ? "gui.admin-confirm-title" : "gui.unclaim-confirm-title"));
         holder.setInventory(inventory);
-        ItemStack frame = item(Material.BLACK_STAINED_GLASS_PANE, " ", NamedTextColor.DARK_GRAY, List.of());
-        for (int slot = 0; slot < inventory.getSize(); slot++) inventory.setItem(slot, frame);
         inventory.setItem(11, item(Material.LIME_DYE, plugin.localeService().message(locale, administrator ? "gui.admin-confirm" : "gui.unclaim-confirm"), NamedTextColor.GREEN, List.of(
                 plugin.localeService().message(locale, "gui.coordinates", Map.of("x", position.x(), "z", position.z())),
                 plugin.localeService().message(locale, "gui.unclaim-warning")
         )));
         inventory.setItem(15, item(Material.BARRIER, plugin.localeService().message(locale, "gui.cancel"), NamedTextColor.RED, List.of()));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        player.openInventory(inventory);
+        GuiLayout.open(player, inventory, plugin);
     }
 
     private void fillMap(Inventory inventory, LandMapHolder holder, Player player, String locale) {

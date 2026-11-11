@@ -26,15 +26,17 @@ public final class LandMapListener implements Listener {
         }
         if (!(event.getView().getTopInventory().getHolder() instanceof LandMapHolder holder)) return;
         event.setCancelled(true);
-        if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
-        if (event.getRawSlot() == 53) {
+        if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() < 0 || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
+        if (GuiLayout.navigation(event)) return;
+        int slot = GuiLayout.action(event.getView().getTopInventory(), event.getRawSlot());
+        if (slot == 53) {
             if (holder.administrator() && holder.restrictedLandId() != null) {
                 new ClaimAdminGui(plugin, landManager).openPlayerClaimDetails(player, holder.restrictedLandId());
             } else if (holder.administrator()) new ClaimAdminGui(plugin, landManager).openMain(player);
             else new LandManagementGui(plugin, landManager).openMain(player);
             return;
         }
-        ChunkPosition position = holder.chunksBySlot().get(event.getRawSlot());
+        ChunkPosition position = holder.chunksBySlot().get(slot);
         if (position == null || plugin.storage() == null) return;
         var existingLand = landManager.landAt(position);
         if (existingLand.isPresent()) {
@@ -90,8 +92,10 @@ public final class LandMapListener implements Listener {
 
     private void handleUnclaimConfirmation(InventoryClickEvent event, UnclaimConfirmationHolder confirmation) {
         event.setCancelled(true);
-        if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
-        if (event.getRawSlot() == 11) {
+        if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() < 0 || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
+        if (GuiLayout.navigation(event)) return;
+        int slot = GuiLayout.action(event.getView().getTopInventory(), event.getRawSlot());
+        if (slot == 11) {
             try {
                 if (confirmation.administrator()) {
                     landManager.adminUnclaim(confirmation.position());
@@ -103,7 +107,7 @@ public final class LandMapListener implements Listener {
                 player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
             }
         }
-        if (event.getRawSlot() == 11 || event.getRawSlot() == 15 || event.getRawSlot() == 26) {
+        if (slot == 11 || slot == 15 || slot == 26) {
             if (confirmation.administrator() && confirmation.administrativeClaims()) new LandMapGui(plugin, landManager).openAdminClaims(player);
             else if (confirmation.administrator() && confirmation.restrictedLandId() != null) {
                 if (landManager.land(confirmation.restrictedLandId()).isPresent()) {

@@ -4,6 +4,12 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+### Changed
+
+- Standardized chest menus with compact settings, hidden gray-glass backgrounds,
+  bottom-left back navigation and bottom-right close buttons. Lists now resize
+  to their content and provide pages for worlds, lands and members beyond 45 entries.
+
 ### Fixed
 
 - Open actual native anvil menus on Spigot so typed names reach the server,

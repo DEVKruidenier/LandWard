@@ -20,7 +20,9 @@ final class GuiText {
     }
 
     static Inventory inventory(InventoryHolder holder, int size, String title) {
-        return Bukkit.createInventory(holder, size, ChatColor.DARK_AQUA + title);
+        Inventory inventory = Bukkit.createInventory(holder, size, ChatColor.DARK_AQUA + title);
+        GuiLayout.title(inventory, ChatColor.DARK_AQUA + title);
+        return inventory;
     }
 
     static ItemStack item(Material material, String label, NamedTextColor color, List<String> lore) {

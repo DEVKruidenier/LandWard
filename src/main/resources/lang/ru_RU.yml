@@ -92,6 +92,9 @@ admin:
   migration-live-started: "Миграция LandWard началась. Игроки могут оставаться онлайн; не изменяйте приваты до сообщения о завершении."
   migration-live-complete: "Миграция завершена и активна: {lands} территорий, {claims} приватов и {members} участников. Резервная копия: {backup}. Перезапуск сервера не требуется."
 gui:
+  previous-page: "Предыдущая страница"
+  next-page: "Следующая страница"
+  close: "Закрыть"
   admin-reload: "Перезагрузить LandWard"
   admin-reload-hint: "Перезагрузить конфигурацию, языки и слои карты"
   welcome-title: "LandWard • Создать территорию"

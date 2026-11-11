@@ -92,6 +92,9 @@ admin:
   migration-live-started: "Migración de LandWard iniciada. Los jugadores pueden seguir conectados; no modifiques claims hasta el mensaje final."
   migration-live-complete: "Migración completada y activa: {lands} terrenos, {claims} claims y {members} miembros. Copia: {backup}. No se necesita reiniciar el servidor."
 gui:
+  previous-page: "Página anterior"
+  next-page: "Página siguiente"
+  close: "Cerrar"
   admin-reload: "Recargar LandWard"
   admin-reload-hint: "Recargar configuración, idiomas y capas del mapa"
   welcome-title: "LandWard • Crear un terreno"

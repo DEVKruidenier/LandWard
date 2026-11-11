@@ -92,6 +92,9 @@ admin:
   migration-live-started: "LandWard geçişi başladı. Oyuncular çevrimiçi kalabilir; tamamlanma mesajına kadar claim değiştirmeyin."
   migration-live-complete: "Geçiş tamamlandı ve etkin: {lands} arazi, {claims} claim ve {members} üye. Yedek: {backup}. Sunucuyu yeniden başlatmak gerekmez."
 gui:
+  previous-page: "Önceki sayfa"
+  next-page: "Sonraki sayfa"
+  close: "Kapat"
   admin-reload: "LandWard'ı yeniden yükle"
   admin-reload-hint: "Yapılandırmayı, dilleri ve harita katmanlarını yeniden yükle"
   welcome-title: "LandWard • Arazi oluştur"

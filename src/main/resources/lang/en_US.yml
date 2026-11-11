@@ -92,6 +92,9 @@ admin:
   migration-live-started: "LandWard migration started. Players may stay online; do not make claim changes until this command reports completion."
   migration-live-complete: "Migration complete and active: {lands} lands, {claims} claims and {members} members. Backup: {backup}. No server restart is needed."
 gui:
+  previous-page: "Previous page"
+  next-page: "Next page"
+  close: "Close"
   admin-reload: "Reload LandWard"
   admin-reload-hint: "Reload config, languages and map layers"
   welcome-title: "LandWard • Create a land"
