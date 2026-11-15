@@ -4,6 +4,8 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.2.1] - 2026-11-15
+
 ### Changed
 
 - Reuse the SQLite and MySQL JDBC drivers already supplied by supported Paper

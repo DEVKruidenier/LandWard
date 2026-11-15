@@ -34,7 +34,7 @@ disabled in LandWard's configuration or in the server-wide bStats configuration.
 The distributable plugin JAR is written to `build/libs/LandWard-<version>.jar`.
 The `-unshaded` JAR is a development artifact and omits bundled runtime libraries.
 
-For builds after 1.0.2.0, the same distributable is used for every publication
+Since 1.0.2.1, the same distributable is used for every publication
 platform. SQLite and MySQL drivers come from the supported Paper/Spigot server;
 no extra installation or LandWard library download is required. The plugin still
 includes its own connection pool, metrics client and Adventure support for Spigot.
