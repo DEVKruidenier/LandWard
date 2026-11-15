@@ -4,6 +4,23 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.2.1] - 2026-11-15
+
+### Changed
+
+- Reuse the SQLite and MySQL JDBC drivers already supplied by supported Paper
+  and Spigot servers instead of bundling duplicate drivers and SQLite natives.
+  No extra plugin, manual library installation or LandWard runtime download is required.
+
+### Fixed
+
+- Open the full administrator player-land menu on selection. View the selected
+  claim map remotely without teleporting; teleportation has its own button.
+- Keep player-land owners able to use their own doors, trapdoors, signs, buttons
+  and levers when the corresponding member interaction settings are disabled.
+- Make legacy schema upgrades work on MySQL as well as MariaDB by checking
+  columns before adding them instead of using MariaDB-only ALTER TABLE syntax.
+
 ## [1.0.2.0] - 2026-11-11
 
 ### Added

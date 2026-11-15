@@ -1,5 +1,24 @@
 # Third-party notices
 
+## SQLite JDBC
+
+- Source: https://github.com/xerial/sqlite-jdbc
+- Provided by the supported Paper/Spigot server, including its platform's native library.
+- Not bundled, modified or downloaded by LandWard.
+
+## MySQL Connector/J
+
+- Source: https://github.com/mysql/mysql-connector-j
+- Provided by the supported Paper/Spigot server; not bundled, modified or downloaded by LandWard.
+- LandWard uses the server's classic JDBC driver, including its authentication,
+  TLS, character encodings and connection handling.
+
+## HikariCP
+
+- Source: https://github.com/brettwooldridge/HikariCP
+- Bundled version: 6.3.0, relocated under LandWard's private library namespace.
+- License: Apache-2.0. See https://github.com/brettwooldridge/HikariCP/blob/dev/LICENSE.
+
 ## Adventure
 
 - Source: https://github.com/KyoriPowered/adventure
