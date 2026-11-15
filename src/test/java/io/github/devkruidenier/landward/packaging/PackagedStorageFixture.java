@@ -12,18 +12,23 @@ import java.time.Instant;
 import java.util.*;
 import java.util.jar.JarFile;
 
-/** Runs with ONLY test output, the distributable and the server's SLF4J API. */
+/** Runs with the distributable and explicitly modelled server JDBC/SLF4J libraries. */
 public final class PackagedStorageFixture {
     public static void main(String[] args) throws Exception {
         Path artifact = Path.of(args[0]);
         Path directory = Files.createTempDirectory(Files.createDirectories(Path.of(args[2])), "probe-");
         verifyArchive(artifact, Path.of(args[1]));
-        for (String name : List.of("org.sqlite.JDBC", "com.mysql.cj.jdbc.Driver",
-                "io.github.devkruidenier.landward.libs.hikari.HikariDataSource",
+        for (String name : List.of("io.github.devkruidenier.landward.libs.hikari.HikariDataSource",
                 "net.kyori.adventure.text.Component")) {
             Class<?> type = Class.forName(name);
             check(Path.of(type.getProtectionDomain().getCodeSource().getLocation().toURI()).equals(artifact),
                     "Dependency escaped packaged JAR: " + name);
+        }
+        for (String name : List.of("org.sqlite.JDBC", "com.mysql.cj.jdbc.Driver")) {
+            Class<?> type = Class.forName(name);
+            check(!Path.of(type.getProtectionDomain().getCodeSource().getLocation().toURI()).equals(artifact),
+                    "Driver must come from the server: " + name);
+            System.out.println("Server driver: " + name + " " + type.getPackage().getImplementationVersion());
         }
         Set<String> drivers = new HashSet<>();
         ServiceLoader.load(Driver.class).forEach(driver -> drivers.add(driver.getClass().getName()));
@@ -62,24 +67,18 @@ public final class PackagedStorageFixture {
     }
 
     private static void verifyArchive(Path artifact, Path sqliteDependency) throws Exception {
-        try (JarFile jar = new JarFile(artifact.toFile()); JarFile sqlite = new JarFile(sqliteDependency.toFile())) {
+        try (JarFile jar = new JarFile(artifact.toFile())) {
             Set<String> names = new HashSet<>();
             for (var entry : jar.stream().toList()) {
                 check(names.add(entry.getName()), "Duplicate ZIP entry: " + entry.getName());
                 check(!entry.getName().contains("PackagedStorageFixture"), "Test fixture shipped in release");
             }
-            int natives = 0;
-            for (var entry : sqlite.stream().filter(e -> e.getName().startsWith("org/sqlite/native/") && !e.isDirectory()).toList()) {
-                var packaged = jar.getJarEntry(entry.getName());
-                check(packaged != null, "Missing SQLite platform: " + entry.getName());
-                try (var original = sqlite.getInputStream(entry); var retained = jar.getInputStream(packaged)) {
-                    check(Arrays.equals(original.readAllBytes(), retained.readAllBytes()), "Changed native: " + entry.getName());
-                }
-                natives++;
-            }
-            check(natives > 0, "No native resources checked");
+            check(Path.of(Class.forName("org.sqlite.JDBC").getProtectionDomain().getCodeSource().getLocation().toURI())
+                    .equals(sqliteDependency), "Wrong simulated server SQLite dependency");
+            check(names.stream().noneMatch(n -> n.startsWith("org/sqlite/") || n.startsWith("com/mysql/")),
+                    "Server JDBC libraries must not be duplicated in the plugin");
             for (String resource : List.of("plugin.yml", "config.yml", "META-INF/LICENSE-LandWard.txt",
-                    "META-INF/THIRD_PARTY_NOTICES.md", "LICENSE", "META-INF/maven/org.xerial/sqlite-jdbc/LICENSE")) {
+                    "META-INF/THIRD_PARTY_NOTICES.md")) {
                 check(names.contains(resource), "Missing metadata/license: " + resource);
             }
             check(names.stream().filter(n -> n.startsWith("lang/") && n.endsWith(".yml")).count() == 13,
@@ -90,16 +89,34 @@ public final class PackagedStorageFixture {
             for (String type : List.of("com/mysql/cj/protocol/ExportControlled.class",
                     "com/mysql/cj/CharsetMapping.class", "com/mysql/cj/protocol/a/authentication/CachingSha2PasswordPlugin.class",
                     "com/mysql/cj/protocol/a/authentication/MysqlNativePasswordPlugin.class")) {
-                check(names.contains(type), "Required JDBC TLS/authentication/encoding class missing: " + type);
+                Class.forName(type.replace('/', '.').replace(".class", ""));
             }
-            System.out.println("PASS archive: " + natives + " byte-identical SQLite natives, languages, JDBC security classes and licenses");
+            System.out.println("PASS archive: no duplicate server drivers; languages, JDBC security classes and notices available");
         }
     }
 
     private static void verifyMySql(Path directory, Path database, StorageSnapshot expected) throws Exception {
+        String url = "jdbc:mysql://" + env("LANDWARD_MYSQL_HOST", "127.0.0.1") + ":"
+                + env("LANDWARD_MYSQL_PORT", "3306") + "/" + required("LANDWARD_MYSQL_DATABASE")
+                + "?useSSL=" + env("LANDWARD_MYSQL_SSL", "false");
+        UUID legacyLand = null;
+        try (Connection connection = DriverManager.getConnection(url, required("LANDWARD_MYSQL_USER"), required("LANDWARD_MYSQL_PASSWORD"));
+             ResultSet tables = connection.getMetaData().getTables(connection.getCatalog(), null, "lands", null)) {
+            if (!tables.next()) {
+                // A fresh dedicated test database exercises the actual old-schema
+                // upgrade and verifies that its existing data survives the DDL.
+                try (Statement statement = connection.createStatement()) {
+                    statement.execute("CREATE TABLE lands (id CHAR(36) PRIMARY KEY, owner_uuid CHAR(36) NOT NULL UNIQUE, "
+                            + "name VARCHAR(64) NOT NULL UNIQUE, created_at BIGINT NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                }
+                legacyLand = UUID.randomUUID();
+                try (var insert = connection.prepareStatement("INSERT INTO lands VALUES (?, ?, ?, ?)")) {
+                    insert.setString(1, legacyLand.toString()); insert.setString(2, UUID.randomUUID().toString());
+                    insert.setString(3, "Legacy land"); insert.setLong(4, 1700000000000L); insert.executeUpdate();
+                }
+            }
+        }
         if (Boolean.parseBoolean(env("LANDWARD_MYSQL_SSL", "false"))) {
-            String url = "jdbc:mysql://" + env("LANDWARD_MYSQL_HOST", "127.0.0.1") + ":"
-                    + env("LANDWARD_MYSQL_PORT", "3306") + "/" + required("LANDWARD_MYSQL_DATABASE") + "?useSSL=true";
             try (Connection connection = DriverManager.getConnection(url, required("LANDWARD_MYSQL_USER"), required("LANDWARD_MYSQL_PASSWORD"));
                  Statement statement = connection.createStatement();
                  ResultSet result = statement.executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'")) {
@@ -114,6 +131,14 @@ public final class PackagedStorageFixture {
              SqliteLandStorage source = new SqliteLandStorage(database);
              SqliteLandStorage returned = new SqliteLandStorage(directory.resolve("returned.db"))) {
             mysql.initialize();
+            if (legacyLand != null) {
+                UUID id = legacyLand;
+                Land upgraded = mysql.load().lands().stream().filter(land -> land.id().equals(id)).findFirst().orElseThrow();
+                check(upgraded.name().equals("Legacy land") && upgraded.memberPermissions().equals(MemberPermissions.FULL)
+                        && upgraded.protectionSettings().equals(LandProtectionSettings.DEFAULT), "Legacy schema upgrade lost data/defaults");
+                mysql.deleteLand(legacyLand);
+                System.out.println("PASS legacy SQL schema upgrade with existing land retained");
+            }
             var before = mysql.load();
             check(before.lands().isEmpty() && before.claims().isEmpty() && before.members().isEmpty(),
                     "Use a dedicated EMPTY integration database; existing data will never be cleared");

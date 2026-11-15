@@ -85,15 +85,11 @@ public final class MySqlLandStorage implements LandStorage {
                             allow_interactions BOOLEAN NOT NULL DEFAULT TRUE
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                         """);
-                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS member_build BOOLEAN NOT NULL DEFAULT TRUE");
-                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS member_containers BOOLEAN NOT NULL DEFAULT TRUE");
-                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS member_entities BOOLEAN NOT NULL DEFAULT TRUE");
-                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS member_pvp BOOLEAN NOT NULL DEFAULT FALSE");
-                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS allow_hostile_mob_kills BOOLEAN NOT NULL DEFAULT TRUE");
-                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS allow_passive_mob_kills BOOLEAN NOT NULL DEFAULT TRUE");
-                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS allow_hostile_mob_spawns BOOLEAN NOT NULL DEFAULT TRUE");
-                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS allow_doors BOOLEAN NOT NULL DEFAULT TRUE");
-                statement.execute("ALTER TABLE lands ADD COLUMN IF NOT EXISTS allow_interactions BOOLEAN NOT NULL DEFAULT TRUE");
+                for (String column : List.of("member_build", "member_containers", "member_entities",
+                        "member_pvp", "allow_hostile_mob_kills", "allow_passive_mob_kills",
+                        "allow_hostile_mob_spawns", "allow_doors", "allow_interactions")) {
+                    ensureBooleanColumn(connection, column, !column.equals("member_pvp"));
+                }
                 statement.execute("""
                         CREATE TABLE IF NOT EXISTS claims (
                             world_uuid CHAR(36) NOT NULL,
@@ -367,6 +363,29 @@ public final class MySqlLandStorage implements LandStorage {
             statement.executeUpdate();
         } catch (SQLException exception) { throw new StorageException(update ? "Could not update land member" : "Could not save land member", exception); }
     }
+    /** MySQL has no MariaDB-style ADD COLUMN IF NOT EXISTS syntax. */
+    private static void ensureBooleanColumn(Connection connection, String column, boolean defaultValue) throws SQLException {
+        if (hasLandColumn(connection, column)) return;
+        // Identifiers come exclusively from the fixed migration list above.
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("ALTER TABLE lands ADD COLUMN " + column + " BOOLEAN NOT NULL DEFAULT "
+                    + (defaultValue ? "TRUE" : "FALSE"));
+        } catch (SQLException exception) {
+            // Another server sharing this database can win the same migration.
+            // Suppress only a verified duplicate-column race, never another error.
+            if (exception.getErrorCode() != 1060 || !hasLandColumn(connection, column)) throw exception;
+        }
+    }
+
+    private static boolean hasLandColumn(Connection connection, String column) throws SQLException {
+        try (ResultSet columns = connection.getMetaData().getColumns(connection.getCatalog(), null, "lands", null)) {
+            while (columns.next()) {
+                if (column.equalsIgnoreCase(columns.getString("COLUMN_NAME"))) return true;
+            }
+        }
+        return false;
+    }
+
     private void closeQuietly() { if (dataSource != null) { dataSource.close(); dataSource = null; } }
     private static String requireText(String value, String field) { if (value == null || value.isBlank()) throw new IllegalArgumentException("MySQL " + field + " must not be empty"); return value; }
     private static int validatePort(int value) { if (value < 1 || value > 65535) throw new IllegalArgumentException("MySQL port must be between 1 and 65535"); return value; }

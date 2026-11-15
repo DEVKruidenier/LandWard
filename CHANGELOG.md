@@ -6,12 +6,14 @@ All notable changes to LandWard will be documented here.
 
 ### Changed
 
-- Reduce the universal JAR by omitting the unused MySQL X DevAPI, while retaining
-  classic JDBC, TLS/authentication and every bundled SQLite native platform.
+- Reuse the SQLite and MySQL JDBC drivers already supplied by supported Paper
+  and Spigot servers instead of bundling duplicate drivers and SQLite natives.
+  No extra plugin, manual library installation or LandWard runtime download is required.
 
 ### Fixed
 
-- Merge JDBC service descriptors so automatic discovery includes both SQLite and MySQL.
+- Make legacy schema upgrades work on MySQL as well as MariaDB by checking
+  columns before adding them instead of using MariaDB-only ALTER TABLE syntax.
 
 ## [1.0.2.0] - 2026-11-11
 
