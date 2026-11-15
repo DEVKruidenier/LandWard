@@ -180,27 +180,9 @@ tasks {
         }
     }
 
-    // Hangar enforces a 15 MiB upload limit. Keep the normal release JAR
-    // universal, but omit SQLite native binaries for platforms that are not
-    // supported by the tested Paper release targets in the Hangar artifact.
-    register<Jar>("hangarJar") {
+    // Compatibility task name for existing build callers; no second artifact.
+    register("hangarJar") {
         dependsOn(shadowJar)
-        archiveBaseName.set("LandWard")
-        archiveClassifier.set("hangar")
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        from(zipTree(shadowJar.flatMap { it.archiveFile })) {
-            exclude(
-                "org/sqlite/native/FreeBSD/**",
-                "org/sqlite/native/Mac/**",
-                "org/sqlite/native/Linux-Musl/**",
-                "org/sqlite/native/Linux/arm/**",
-                "org/sqlite/native/Linux/armv6/**",
-                "org/sqlite/native/Linux/armv7/**",
-                "org/sqlite/native/Linux/ppc64/**",
-                "org/sqlite/native/Linux/riscv64/**",
-                "org/sqlite/native/Windows/armv7/**",
-            )
-        }
     }
 
     build {
@@ -221,7 +203,7 @@ hangarPublish {
 
         platforms {
             register(Platforms.PAPER) {
-                jar.set(tasks.named<Jar>("hangarJar").flatMap { it.archiveFile })
+                jar.set(tasks.shadowJar.flatMap { it.archiveFile })
                 platformVersions.set(
                     providers.gradleProperty("hangarPaperVersions")
                         .map { it.split(",").map(String::trim) },

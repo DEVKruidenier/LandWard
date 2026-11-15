@@ -16,6 +16,7 @@ import java.util.jar.JarFile;
 public final class PackagedStorageFixture {
     public static void main(String[] args) throws Exception {
         Path artifact = Path.of(args[0]);
+        check(Files.size(artifact) < 15_000_000L, "Universal JAR exceeds the conservative Hangar upload budget");
         Path directory = Files.createTempDirectory(Files.createDirectories(Path.of(args[2])), "probe-");
         verifyArchive(artifact, Path.of(args[1]));
         for (String name : List.of("io.github.devkruidenier.landward.libs.hikari.HikariDataSource",
