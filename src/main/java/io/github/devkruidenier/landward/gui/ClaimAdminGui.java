@@ -115,24 +115,6 @@ public final class ClaimAdminGui {
         GuiLayout.open(player, inventory, plugin);
     }
 
-    /** Presents the two destructive administration choices for one player land. */
-    public void openPlayerClaimRemoval(Player player, UUID landId) {
-        var land = lands.land(landId).filter(value -> !lands.isAdministrative(value));
-        if (land.isEmpty()) { openPlayerClaims(player); return; }
-        String locale = plugin.localeService().localeFor(player);
-        ClaimAdminHolder holder = holder(ClaimAdminHolder.Screen.PLAYER_CLAIM_REMOVE, locale, 27, "gui.admin-player-claim-details-title");
-        holder.selectedLandId(landId);
-        Inventory inventory = holder.getInventory();
-        inventory.setItem(11, item(Material.FILLED_MAP, plugin.localeService().message(locale, "gui.management-chunk-map"), NamedTextColor.AQUA,
-                List.of(plugin.localeService().message(locale, "gui.management-open-map"))));
-        inventory.setItem(15, item(Material.HOPPER, plugin.localeService().message(locale, "gui.admin-confirm"), NamedTextColor.RED,
-                List.of(plugin.localeService().message(locale, "gui.hint-delete-player-land"),
-                        plugin.localeService().message(locale, "gui.management-claimed-chunks", java.util.Map.of("count", lands.claimCount(landId))),
-                        plugin.localeService().message(locale, "gui.unclaim-warning"))));
-        inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
-        GuiLayout.open(player, inventory, plugin);
-    }
-
     /** Asks before deleting every claimed chunk and member record of one player land. */
     public void openPlayerLandDeleteConfirmation(Player player, UUID landId) {
         var land = lands.land(landId).filter(value -> !lands.isAdministrative(value));
@@ -188,8 +170,7 @@ public final class ClaimAdminGui {
             if (world == null) return false;
             int x = claim.position().x() * 16 + 8;
             int z = claim.position().z() * 16 + 8;
-            player.teleport(new Location(world, x + 0.5D, world.getHighestBlockYAt(x, z) + 1, z + 0.5D));
-            return true;
+            return player.teleport(new Location(world, x + 0.5D, world.getHighestBlockYAt(x, z) + 1, z + 0.5D));
         }).orElse(false);
     }
 

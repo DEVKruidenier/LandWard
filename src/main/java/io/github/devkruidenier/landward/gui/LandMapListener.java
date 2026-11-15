@@ -28,6 +28,7 @@ public final class LandMapListener implements Listener {
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() < 0 || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
         if (GuiLayout.navigation(event)) return;
+        if (holder.administrator() && !player.hasPermission("landward.admin")) { player.closeInventory(); return; }
         int slot = GuiLayout.action(event.getView().getTopInventory(), event.getRawSlot());
         if (slot == 53) {
             if (holder.administrator() && holder.restrictedLandId() != null) {
@@ -38,6 +39,7 @@ public final class LandMapListener implements Listener {
         }
         ChunkPosition position = holder.chunksBySlot().get(slot);
         if (position == null || plugin.storage() == null) return;
+        if (holder.administrator() && !canEditWorld(player, position)) return;
         var existingLand = landManager.landAt(position);
         if (existingLand.isPresent()) {
             if (holder.administrator()) {
@@ -54,10 +56,6 @@ public final class LandMapListener implements Listener {
             return;
         }
         if (holder.administrativeClaims()) {
-            if (!plugin.isLandWorld(player.getWorld())) {
-                player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "claim.world-disabled"));
-                return;
-            }
             try {
                 String configuredName = plugin.getConfig().getString("admin-claims.default-name", "").strip();
                 String name = configuredName.isEmpty()
@@ -73,10 +71,6 @@ public final class LandMapListener implements Listener {
         }
         if (holder.administrator()) {
             if (holder.restrictedLandId() == null) return;
-            if (!plugin.isLandWorld(player.getWorld())) {
-                player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "claim.world-disabled"));
-                return;
-            }
             try {
                 landManager.adminClaimPlayerLand(holder.restrictedLandId(), position);
                 plugin.syncMapIntegrations();
@@ -96,6 +90,7 @@ public final class LandMapListener implements Listener {
         if (GuiLayout.navigation(event)) return;
         int slot = GuiLayout.action(event.getView().getTopInventory(), event.getRawSlot());
         if (slot == 11) {
+            if (confirmation.administrator() && !canEditWorld(player, confirmation.position())) return;
             try {
                 if (confirmation.administrator()) {
                     landManager.adminUnclaim(confirmation.position());
@@ -118,6 +113,20 @@ public final class LandMapListener implements Listener {
             } else if (confirmation.administrator()) new LandMapGui(plugin, landManager).openAdmin(player);
             else new LandMapGui(plugin, landManager).open(player);
         }
+    }
+
+    private boolean canEditWorld(Player player, ChunkPosition position) {
+        if (!player.hasPermission("landward.admin")) { player.closeInventory(); return false; }
+        org.bukkit.World target = org.bukkit.Bukkit.getWorld(position.worldId());
+        if (target == null) {
+            player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "admin.claim-no-teleport"));
+            return false;
+        }
+        if (!plugin.isLandWorld(player.getWorld()) || !plugin.isLandWorld(target)) {
+            player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "claim.world-disabled"));
+            return false;
+        }
+        return true;
     }
 
     @EventHandler(priority = EventPriority.HIGH)

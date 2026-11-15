@@ -44,6 +44,10 @@ public final class LandMapGui {
 
     /** Opens an administrator chunk map limited to one selected player land. */
     public void openAdmin(Player player, UUID landId) {
+        if (landManager.land(landId).filter(land -> !landManager.isAdministrative(land)).isEmpty()) {
+            new ClaimAdminGui(plugin, landManager).openPlayerClaims(player);
+            return;
+        }
         open(player, LandMapHolder.Mode.ADMIN_PLAYER_CLAIMS, landId);
     }
 
@@ -98,14 +102,17 @@ public final class LandMapGui {
     }
 
     private void fillMap(Inventory inventory, LandMapHolder holder, Player player, String locale) {
-        int centerX = player.getLocation().getBlockX() >> 4;
-        int centerZ = player.getLocation().getBlockZ() >> 4;
+        ChunkPosition currentPosition = new ChunkPosition(player.getWorld().getUID(),
+                player.getLocation().getBlockX() >> 4, player.getLocation().getBlockZ() >> 4);
+        ChunkPosition center = AdminClaimMapCenter.select(currentPosition, holder.restrictedLandId(), landManager.claims());
         for (int mapZ = 0; mapZ < MAP_HEIGHT; mapZ++) {
             for (int mapX = 0; mapX < MAP_WIDTH; mapX++) {
-                int chunkX = centerX + mapX - 4;
-                int chunkZ = centerZ + mapZ - 2;
-                boolean current = mapX == 4 && mapZ == 2; // Slot 22: always the player's current chunk.
-                ChunkPosition position = new ChunkPosition(player.getWorld().getUID(), chunkX, chunkZ);
+                int chunkX = center.x() + mapX - 4;
+                int chunkZ = center.z() + mapZ - 2;
+                ChunkPosition position = new ChunkPosition(center.worldId(), chunkX, chunkZ);
+                // Ordinary maps still put the player at slot 22. A remotely
+                // viewed land must never label its center as the player's location.
+                boolean current = position.equals(currentPosition);
                 Optional<Land> land = landManager.landAt(position);
                 int slot = mapZ * 9 + mapX;
                 if (slot == 53) continue; // Reserved for the only navigation control.
