@@ -12,6 +12,8 @@ All notable changes to LandWard will be documented here.
 
 ### Fixed
 
+- Keep player-land owners able to use their own doors, trapdoors, signs, buttons
+  and levers when the corresponding member interaction settings are disabled.
 - Make legacy schema upgrades work on MySQL as well as MariaDB by checking
   columns before adding them instead of using MariaDB-only ALTER TABLE syntax.
 

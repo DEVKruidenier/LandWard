@@ -354,12 +354,19 @@ public final class ClaimProtectionListener implements Listener {
     private boolean playerAllowedToInteract(Player player, Land land, Block block) {
         if (adminBypasses.isEnabled(player.getUniqueId())) return true;
         MemberPermissions permissions = landManager.permissions(player.getUniqueId(), land.id());
-        if (permissions.equals(MemberPermissions.NONE)) return false;
         org.bukkit.Material type = block.getType();
-        if (block.getState() instanceof InventoryHolder || type == org.bukkit.Material.ENDER_CHEST) return permissions.containers();
-        if (type.name().endsWith("_DOOR") || type.name().endsWith("_TRAPDOOR")) return land.protectionSettings().doors();
-        if (Tag.SIGNS.isTagged(type) || type.name().endsWith("_BUTTON") || type.name().endsWith("_PRESSURE_PLATE") || type == org.bukkit.Material.LEVER) return land.protectionSettings().interactions();
-        return permissions.build();
+        PlayerClaimInteractionAccess.Target target;
+        if (block.getState() instanceof InventoryHolder || type == org.bukkit.Material.ENDER_CHEST) {
+            target = PlayerClaimInteractionAccess.Target.CONTAINER;
+        } else if (type.name().endsWith("_DOOR") || type.name().endsWith("_TRAPDOOR")) {
+            target = PlayerClaimInteractionAccess.Target.DOOR;
+        } else if (Tag.SIGNS.isTagged(type) || type.name().endsWith("_BUTTON")
+                || type.name().endsWith("_PRESSURE_PLATE") || type == org.bukkit.Material.LEVER) {
+            target = PlayerClaimInteractionAccess.Target.CONTROL;
+        } else {
+            target = PlayerClaimInteractionAccess.Target.BUILD;
+        }
+        return PlayerClaimInteractionAccess.allowed(player.getUniqueId(), land, permissions, target);
     }
 
     private boolean pistonMovementAllowed(java.util.List<Block> blocks, int deltaX, int deltaY, int deltaZ) {
