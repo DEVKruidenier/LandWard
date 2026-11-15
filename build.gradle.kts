@@ -11,6 +11,27 @@ version = "1.0.2.0"
 
 val pluginVersion = version.toString()
 
+// A server supplies SLF4J. Everything else needed by the packaged storage probe
+// must come from the distributable JAR, not Gradle's loose runtime classpath.
+val packagingLogging = configurations.create("packagingLogging")
+dependencies { add(packagingLogging.name, "org.slf4j:slf4j-api:2.0.17") }
+
+tasks.register<JavaExec>("packagingTest") {
+    group = "verification"
+    description = "Verify the shaded artifact and exercise its isolated JDBC storage."
+    dependsOn(tasks.testClasses, tasks.shadowJar)
+    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(25)) })
+    classpath = files(sourceSets.test.get().output, tasks.shadowJar.flatMap { it.archiveFile }, packagingLogging)
+    mainClass.set("io.github.devkruidenier.landward.packaging.PackagedStorageFixture")
+    jvmArgs("--enable-native-access=ALL-UNNAMED")
+    doFirst {
+        val sqlite = configurations.runtimeClasspath.get().resolvedConfiguration.resolvedArtifacts
+            .single { it.moduleVersion.id.group == "org.xerial" && it.name == "sqlite-jdbc" }.file
+        args(tasks.shadowJar.get().archiveFile.get().asFile.absolutePath,
+            sqlite.absolutePath, layout.buildDirectory.dir("fixtures/packaging").get().asFile.absolutePath)
+    }
+}
+
 tasks.register<JavaExec>("updateFixture") {
     dependsOn(tasks.testClasses)
     classpath = sourceSets.test.get().runtimeClasspath
@@ -60,7 +81,10 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.2.1")
     implementation("org.xerial:sqlite-jdbc:3.54.1.0")
     implementation("com.zaxxer:HikariCP:6.3.0")
-    implementation("com.mysql:mysql-connector-j:9.3.0")
+    implementation("com.mysql:mysql-connector-j:9.3.0") {
+        // Only required by X DevAPI, not the JDBC protocol used by LandWard.
+        exclude(group = "com.google.protobuf", module = "protobuf-java")
+    }
     // Spigot has no built-in Adventure API. Bundle the API used by GUI/console
     // code so other installed plugins are never required to supply it.
     implementation("net.kyori:adventure-api:5.2.0")
@@ -84,6 +108,10 @@ java {
 }
 
 tasks {
+    withType<AbstractArchiveTask>().configureEach {
+        isPreserveFileTimestamps = false
+        isReproducibleFileOrder = true
+    }
     compileJava {
         options.encoding = "UTF-8"
         options.release.set(25)
@@ -125,6 +153,23 @@ tasks {
         archiveBaseName.set("LandWard")
         archiveClassifier.set("")
         configurations = project.configurations.runtimeClasspath.map { setOf(it) }
+        // Keep the complete JDBC implementation, TLS/authentication, encodings,
+        // pooling and ALL SQLite natives. Only the unused, separate X Protocol
+        // API is omitted. Do not replace this allowlisted exclusion with minimize().
+        exclude(
+            "com/mysql/cj/xdevapi/**",
+            "com/mysql/cj/x/protobuf/**",
+            "com/mysql/cj/protocol/x/**",
+            "com/mysql/cj/MysqlxSession*.class",
+            "com/mysql/cj/DataStoreMetadataImpl*.class",
+        )
+        // Both JDBC providers must survive shading. EXCLUDE alone silently kept
+        // only the first java.sql.Driver descriptor in the previous artifact.
+        filesMatching("META-INF/services/**") {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        }
+        mergeServiceFiles()
+        failOnDuplicateEntries = true
         dependencies {
             exclude { it.moduleGroup !in setOf("org.bstats", "org.xerial", "com.zaxxer", "com.mysql", "net.kyori") }
         }

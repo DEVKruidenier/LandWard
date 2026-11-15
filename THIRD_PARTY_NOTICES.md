@@ -1,5 +1,28 @@
 # Third-party notices
 
+## SQLite JDBC
+
+- Source: https://github.com/xerial/sqlite-jdbc
+- Bundled version: 3.54.1.0, with the full native platform resource set.
+- License: Apache-2.0 and the upstream SQLite notices; bundled at
+  `META-INF/maven/org.xerial/sqlite-jdbc/LICENSE` and `LICENSE.zentus`.
+
+## MySQL Connector/J
+
+- Source: https://github.com/mysql/mysql-connector-j
+- Bundled version: 9.3.0.
+- License: GPL-2.0 with the Universal FOSS Exception; upstream terms are in
+  the bundled root `LICENSE` file.
+- LandWard uses the classic JDBC protocol. The separate, unused X DevAPI and
+  its Protocol Buffers implementation are not part of the distribution.
+- JDBC authentication, TLS, character encodings and connection handling are retained.
+
+## HikariCP
+
+- Source: https://github.com/brettwooldridge/HikariCP
+- Bundled version: 6.3.0, relocated under LandWard's private library namespace.
+- License: Apache-2.0. See https://github.com/brettwooldridge/HikariCP/blob/dev/LICENSE.
+
 ## Adventure
 
 - Source: https://github.com/KyoriPowered/adventure
