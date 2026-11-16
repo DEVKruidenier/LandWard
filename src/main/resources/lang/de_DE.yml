@@ -243,6 +243,11 @@ startup:
   update-check: "Updateprüfung: {status}"
   status-enabled: "aktiviert"
   status-disabled: "deaktiviert"
+placeholders:
+  unclaimed: "Unbeansprucht"
+  no-land: "Kein Land"
+  server-owner: "Server"
+
 updates:
   failure-metadata: "Ungültiger Dateiname oder Downloadumfang."
   failure-download: "Download unterbrochen oder nicht verfügbar; Verbindung und Ordnerrechte prüfen."

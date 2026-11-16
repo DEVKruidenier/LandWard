@@ -11,6 +11,18 @@ language:
   # Safe fallback used when a requested translation key or locale is unavailable.
   fallback: en_US
 
+placeholders:
+  # Values are language keys, not literal text. Keep the double quotes.
+  # Use "" to show nothing; put a key inside the quotes to enable translated text.
+  # Example: unclaimed-land-name: "placeholders.unclaimed"
+  # Edit the text in lang/<locale>.yml. Normal land/player names stay unchanged.
+  # Uses the requested player's language; offline owner requests use language.default.
+  unclaimed-land-name: ""
+  no-land-name: ""
+  unclaimed-owner-name: ""
+  # Safe Zones have no player owner. Use "" to hide this translated label.
+  server-owner-name: "placeholders.server-owner"
+
 storage:
   # Storage backend: sqlite stores locally; mysql stores claims in a shared MySQL/MariaDB database.
   type: sqlite

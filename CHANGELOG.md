@@ -4,9 +4,11 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.2.2] - 2026-11-16
+
 ### Fixed
 
-- Return an empty current-claim PlaceholderAPI value in wilderness, while preserving owned-land and owner placeholders.
+- Make missing claim, owned-land and owner PlaceholderAPI text configurable through language keys, empty by default. Translate Safe Zone owner labels instead of showing an internal UUID.
 - Explain /landward update, its required permission and download directory in all 13 languages.
 - Preserve verified GitHub asset filenames, isolate temporary downloads and never overwrite a different existing update.
 

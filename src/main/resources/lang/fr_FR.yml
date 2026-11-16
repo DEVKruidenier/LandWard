@@ -243,6 +243,11 @@ startup:
   update-check: "Recherche de mise à jour : {status}"
   status-enabled: "activée"
   status-disabled: "désactivée"
+placeholders:
+  unclaimed: "Non revendiqué"
+  no-land: "Aucun terrain"
+  server-owner: "Serveur"
+
 updates:
   failure-metadata: "Nom ou taille du fichier invalide."
   failure-download: "Téléchargement interrompu ou indisponible ; vérifiez la connexion et les droits du dossier."

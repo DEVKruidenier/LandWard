@@ -243,6 +243,11 @@ startup:
   update-check: "Sprawdzanie aktualizacji: {status}"
   status-enabled: "włączone"
   status-disabled: "wyłączone"
+placeholders:
+  unclaimed: "Niezajęte"
+  no-land: "Brak ziemi"
+  server-owner: "Serwer"
+
 updates:
   failure-metadata: "Nieprawidłowa nazwa lub rozmiar pliku."
   failure-download: "Pobieranie przerwane lub niedostępne; sprawdź połączenie i uprawnienia folderu."

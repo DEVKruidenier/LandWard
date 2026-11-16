@@ -243,6 +243,11 @@ startup:
   update-check: "Güncelleme kontrolü: {status}"
   status-enabled: "etkin"
   status-disabled: "devre dışı"
+placeholders:
+  unclaimed: "Sahipsiz"
+  no-land: "Arazi yok"
+  server-owner: "Sunucu"
+
 updates:
   failure-metadata: "Geçersiz dosya adı veya boyutu."
   failure-download: "İndirme kesildi veya kullanılamıyor; bağlantıyı ve klasör izinlerini denetleyin."

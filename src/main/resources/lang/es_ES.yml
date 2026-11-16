@@ -243,6 +243,11 @@ startup:
   update-check: "Comprobación de actualizaciones: {status}"
   status-enabled: "activada"
   status-disabled: "desactivada"
+placeholders:
+  unclaimed: "Sin reclamar"
+  no-land: "Sin terreno"
+  server-owner: "Servidor"
+
 updates:
   failure-metadata: "Nombre o tamaño de archivo no válido."
   failure-download: "Descarga interrumpida o no disponible; comprueba la conexión y los permisos."

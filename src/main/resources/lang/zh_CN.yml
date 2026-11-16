@@ -243,6 +243,11 @@ startup:
   update-check: "更新检查：{status}"
   status-enabled: "已启用"
   status-disabled: "已禁用"
+placeholders:
+  unclaimed: "未认领"
+  no-land: "无领地"
+  server-owner: "服务器"
+
 updates:
   failure-metadata: "文件名或下载大小无效。"
   failure-download: "下载中断或不可用，请检查网络和文件夹权限。"

@@ -243,6 +243,11 @@ startup:
   update-check: "Updatecontrole: {status}"
   status-enabled: "ingeschakeld"
   status-disabled: "uitgeschakeld"
+placeholders:
+  unclaimed: "Ongeclaimd"
+  no-land: "Geen land"
+  server-owner: "Server"
+
 updates:
   failure-metadata: "Ongeldige releasebestandsnaam of downloadgrootte."
   failure-download: "Download onderbroken of niet beschikbaar; controleer de verbinding en maprechten."

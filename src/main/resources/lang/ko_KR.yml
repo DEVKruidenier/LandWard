@@ -243,6 +243,11 @@ startup:
   update-check: "업데이트 확인: {status}"
   status-enabled: "활성화됨"
   status-disabled: "비활성화됨"
+placeholders:
+  unclaimed: "미점유"
+  no-land: "토지 없음"
+  server-owner: "서버"
+
 updates:
   failure-metadata: "파일 이름 또는 크기가 잘못되었습니다."
   failure-download: "다운로드가 중단되었거나 불가능합니다. 연결과 폴더 권한을 확인하세요."

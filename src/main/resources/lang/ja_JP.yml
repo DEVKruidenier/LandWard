@@ -243,6 +243,11 @@ startup:
   update-check: "更新確認: {status}"
   status-enabled: "有効"
   status-disabled: "無効"
+placeholders:
+  unclaimed: "未保護"
+  no-land: "土地なし"
+  server-owner: "サーバー"
+
 updates:
   failure-metadata: "ファイル名またはサイズが無効です。"
   failure-download: "ダウンロードできません。接続とフォルダーの権限を確認してください。"

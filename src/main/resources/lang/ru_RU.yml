@@ -243,6 +243,11 @@ startup:
   update-check: "Проверка обновлений: {status}"
   status-enabled: "включена"
   status-disabled: "выключена"
+placeholders:
+  unclaimed: "Не занято"
+  no-land: "Нет земли"
+  server-owner: "Сервер"
+
 updates:
   failure-metadata: "Недопустимое имя или размер файла."
   failure-download: "Загрузка прервана или недоступна; проверьте подключение и права на папку."

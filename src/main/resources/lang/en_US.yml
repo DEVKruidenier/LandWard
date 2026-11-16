@@ -243,6 +243,11 @@ startup:
   update-check: "Update check: {status}"
   status-enabled: "enabled"
   status-disabled: "disabled"
+placeholders:
+  unclaimed: "Unclaimed"
+  no-land: "No land"
+  server-owner: "Server"
+
 updates:
   failure-metadata: "Invalid release filename or download size."
   failure-download: "Download interrupted or unavailable; check connectivity and folder access."
