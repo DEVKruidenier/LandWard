@@ -5,10 +5,8 @@ import java.io.InputStream;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
@@ -27,29 +25,32 @@ public final class ReleaseArtifactStager {
     }
 
     public StageResult stage(ReleaseAsset asset) {
-        if (asset.size() <= 0 || asset.size() > maximumBytes) return StageResult.failure("Release asset exceeds the configured download limit");
-        String safeName = asset.name().replaceAll("[^A-Za-z0-9._-]", "_");
-        if (!safeName.endsWith(".jar")) return StageResult.failure("Release asset is not a JAR file");
-        Path temporary = directory.resolve(safeName + ".part");
-        Path staged = directory.resolve("staged-" + safeName);
+        if (asset.size() <= 0 || asset.size() > maximumBytes) return StageResult.failure("updates.failure-metadata");
+        String safeName = asset.name();
+        if (safeName == null || !safeName.matches("LandWard-[A-Za-z0-9][A-Za-z0-9._-]*\\.jar")
+                || safeName.contains("..")) return StageResult.failure("updates.failure-metadata");
+        Path temporary = null;
+        Path staged = directory.resolve(safeName);
         try {
             Files.createDirectories(directory);
-            Files.deleteIfExists(temporary);
+            temporary = Files.createTempFile(directory, ".landward-", ".part");
             HttpRequest request = HttpRequest.newBuilder(asset.downloadUri()).header("User-Agent", userAgent).GET().build();
             HttpResponse<Path> response = client.send(request, HttpResponse.BodyHandlers.ofFile(temporary));
-            if (response.statusCode() != 200) return fail(temporary, "Download returned HTTP " + response.statusCode());
+            if (response.statusCode() != 200) return fail(temporary, "updates.failure-download");
             long declaredLength = response.headers().firstValueAsLong("Content-Length").orElse(-1L);
             long actualLength = Files.size(temporary);
             if ((declaredLength > maximumBytes) || actualLength > maximumBytes || actualLength != asset.size()) {
-                return fail(temporary, "Downloaded asset size did not match the verified release metadata");
+                return fail(temporary, "updates.failure-verification");
             }
-            verifyPluginJar(temporary, asset.sha256());
-            moveAtomically(temporary, staged);
+            try { verifyPluginJar(temporary, asset.sha256()); }
+            catch (IOException exception) { return fail(temporary, "updates.failure-verification"); }
+            publishVerified(temporary, staged, asset.sha256());
             return StageResult.success(staged);
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            return fail(temporary, "Download interrupted");
-        } catch (Exception exception) { return fail(temporary, exception.getMessage() == null ? exception.getClass().getSimpleName() : exception.getMessage()); }
+            return fail(temporary, "updates.failure-download");
+        } catch (java.nio.file.FileAlreadyExistsException exception) { return fail(temporary, "updates.failure-existing"); }
+        catch (Exception exception) { return fail(temporary, "updates.failure-download"); }
     }
 
     static void verifyPluginJar(Path jar, String expectedSha256) throws IOException {
@@ -68,12 +69,22 @@ public final class ReleaseArtifactStager {
     }
 
     private StageResult fail(Path temporary, String message) {
-        try { Files.deleteIfExists(temporary); } catch (IOException ignored) { }
+        try { if (temporary != null) Files.deleteIfExists(temporary); } catch (IOException ignored) { }
         return StageResult.failure(message);
     }
-    private void moveAtomically(Path source, Path target) throws IOException {
-        try { Files.move(source, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING); }
-        catch (AtomicMoveNotSupportedException exception) { Files.move(source, target, StandardCopyOption.REPLACE_EXISTING); }
+    private static synchronized void publishVerified(Path source, Path target, String digest) throws IOException {
+        if (Files.exists(target, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+            if (Files.isSymbolicLink(target) || !Files.isRegularFile(target)) throw new java.nio.file.FileAlreadyExistsException(target.toString());
+            try { verifyPluginJar(target, digest); }
+            catch (IOException exception) { throw new java.nio.file.FileAlreadyExistsException(target.toString()); }
+            if (!sha256(source).equals(sha256(target))) throw new java.nio.file.FileAlreadyExistsException(target.toString());
+            Files.delete(source);
+            return;
+        }
+        // An atomic no-clobber publication: a competing target can never be replaced.
+        // Both names are on the same filesystem; the source has already been closed and verified.
+        try { Files.createLink(target, source); Files.delete(source); }
+        catch (UnsupportedOperationException exception) { Files.move(source, target); }
     }
     private static String sha256(Path file) throws IOException {
         try {

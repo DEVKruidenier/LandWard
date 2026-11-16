@@ -34,11 +34,12 @@ public final class LandWardExpansion extends PlaceholderExpansion {
     }
 
     private String current(Player player, String parameter) {
-        if (player == null) return "none";
+        if (player == null) return parameter.equalsIgnoreCase("current_claim") ? "" : "none";
         ChunkPosition position = new ChunkPosition(player.getWorld().getUID(), player.getLocation().getBlockX() >> 4, player.getLocation().getBlockZ() >> 4);
         Land land = lands.landAt(position).orElse(null);
+        if (parameter.equalsIgnoreCase("current_claim")) return CurrentClaimName.resolve(lands, position);
         if (parameter.equalsIgnoreCase("current_chunk_claimed")) return String.valueOf(land != null);
-        if (land == null) return "none";
+        if (land == null) return parameter.equalsIgnoreCase("current_claim") ? "" : "none";
         return parameter.equalsIgnoreCase("current_owner")
                 ? plugin.getServer().getOfflinePlayer(land.ownerId()).getName() == null ? land.ownerId().toString() : plugin.getServer().getOfflinePlayer(land.ownerId()).getName()
                 : land.name();

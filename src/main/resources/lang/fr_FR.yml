@@ -244,6 +244,11 @@ startup:
   status-enabled: "activée"
   status-disabled: "désactivée"
 updates:
+  failure-metadata: "Nom ou taille du fichier invalide."
+  failure-download: "Téléchargement interrompu ou indisponible ; vérifiez la connexion et les droits du dossier."
+  failure-verification: "Échec du contrôle de taille, de somme de contrôle ou du JAR."
+  failure-existing: "Un fichier différent existe déjà ; il a été conservé."
+  notice-command: "Utilisez /landward update (nécessite landward.admin) pour télécharger dans plugins/LandWard/updates/. Le plugin actif reste en place."
   notice-title: "Une mise à jour de LandWard est disponible !"
   notice-current: "Version installée : {version}"
   notice-latest: "Dernière version : {version}"

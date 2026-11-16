@@ -244,6 +244,11 @@ startup:
   status-enabled: "etkin"
   status-disabled: "devre dışı"
 updates:
+  failure-metadata: "Geçersiz dosya adı veya boyutu."
+  failure-download: "İndirme kesildi veya kullanılamıyor; bağlantıyı ve klasör izinlerini denetleyin."
+  failure-verification: "Boyut, sağlama toplamı veya JAR doğrulaması başarısız."
+  failure-existing: "Farklı bir dosya zaten mevcut; korundu."
+  notice-command: "plugins/LandWard/updates/ içine indirmek için /landward update kullanın (landward.admin gerekir). Çalışan eklenti değiştirilmez."
   notice-title: "LandWard güncellemesi mevcut!"
   notice-current: "Yüklü sürüm: {version}"
   notice-latest: "En son sürüm: {version}"

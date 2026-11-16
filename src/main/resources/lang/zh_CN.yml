@@ -244,6 +244,11 @@ startup:
   status-enabled: "已启用"
   status-disabled: "已禁用"
 updates:
+  failure-metadata: "文件名或下载大小无效。"
+  failure-download: "下载中断或不可用，请检查网络和文件夹权限。"
+  failure-verification: "文件大小、校验和或 JAR 验证失败。"
+  failure-existing: "已存在不同的文件，已保留该文件。"
+  notice-command: "使用 /landward update（需要 landward.admin 权限）下载到 plugins/LandWard/updates/。不会替换正在运行的插件。"
   notice-title: "LandWard 有可用更新！"
   notice-current: "已安装版本：{version}"
   notice-latest: "最新版本：{version}"

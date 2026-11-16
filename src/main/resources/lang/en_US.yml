@@ -244,6 +244,11 @@ startup:
   status-enabled: "enabled"
   status-disabled: "disabled"
 updates:
+  failure-metadata: "Invalid release filename or download size."
+  failure-download: "Download interrupted or unavailable; check connectivity and folder access."
+  failure-verification: "Downloaded file failed size, checksum or JAR verification."
+  failure-existing: "A different file already exists; it was preserved."
+  notice-command: "Use /landward update (requires landward.admin) to download to plugins/LandWard/updates/. The active plugin is not replaced."
   notice-title: "A LandWard update is available!"
   notice-current: "Installed version: {version}"
   notice-latest: "Latest version: {version}"

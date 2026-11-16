@@ -244,6 +244,11 @@ startup:
   status-enabled: "включена"
   status-disabled: "выключена"
 updates:
+  failure-metadata: "Недопустимое имя или размер файла."
+  failure-download: "Загрузка прервана или недоступна; проверьте подключение и права на папку."
+  failure-verification: "Проверка размера, контрольной суммы или JAR не пройдена."
+  failure-existing: "Другой файл уже существует и был сохранён."
+  notice-command: "Используйте /landward update (требуется landward.admin) для загрузки в plugins/LandWard/updates/. Работающий плагин не заменяется."
   notice-title: "Доступно обновление LandWard!"
   notice-current: "Установленная версия: {version}"
   notice-latest: "Последняя версия: {version}"

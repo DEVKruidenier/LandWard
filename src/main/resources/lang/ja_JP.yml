@@ -244,6 +244,11 @@ startup:
   status-enabled: "有効"
   status-disabled: "無効"
 updates:
+  failure-metadata: "ファイル名またはサイズが無効です。"
+  failure-download: "ダウンロードできません。接続とフォルダーの権限を確認してください。"
+  failure-verification: "サイズ、チェックサム、またはJARの検証に失敗しました。"
+  failure-existing: "異なるファイルが既に存在するため、そのまま保持しました。"
+  notice-command: "/landward update（landward.admin 権限が必要）で plugins/LandWard/updates/ にダウンロードします。稼働中のプラグインは置き換えません。"
   notice-title: "LandWard のアップデートがあります！"
   notice-current: "インストール済みのバージョン: {version}"
   notice-latest: "最新バージョン: {version}"
