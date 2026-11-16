@@ -43,6 +43,7 @@ public final class UpdateNotifications implements Listener {
         plugin.console().info(plugin.localeService().console("updates.notice-latest"), Map.of("version", status.latestVersion()), Tone.SUCCESS);
         plugin.console().info(plugin.localeService().console("updates.notice-download"), Tone.WARNING);
         plugin.console().info(UpdateChecker.RELEASES_PAGE, Tone.BRAND);
+        plugin.console().info(plugin.localeService().console("updates.notice-command"), Tone.WARNING);
         plugin.console().info(BORDER, Tone.WARNING);
     }
 
@@ -59,6 +60,7 @@ public final class UpdateNotifications implements Listener {
         link.setColor(net.md_5.bungee.api.ChatColor.AQUA);
         link.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, UpdateChecker.RELEASES_PAGE));
         player.spigot().sendMessage(link);
+        player.sendMessage(ChatColor.YELLOW + plugin.localeService().message(locale, "updates.notice-command"));
         player.sendMessage(ChatColor.GOLD + BORDER);
     }
 }

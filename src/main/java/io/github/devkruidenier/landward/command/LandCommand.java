@@ -146,10 +146,12 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
                         sender.sendMessage(message(sender, "updates.up-to-date", Map.of("version", plugin.getDescription().getVersion())));
                     } else if (state.state() == UpdateChecker.State.DISABLED || state.state() == UpdateChecker.State.UNAVAILABLE || state.asset() == null) {
                         sender.sendMessage(message(sender, "updates.stage-unavailable"));
-                    } else sender.sendMessage(message(sender, "updates.stage-failed", Map.of("reason", error == null && result != null ? result.detail() : "unexpected error")));
+                    } else sender.sendMessage(message(sender, "updates.stage-failed", Map.of("reason",
+                            message(sender, error == null && result != null && result.detail().startsWith("updates.failure-")
+                                    ? result.detail() : "updates.failure-download"))));
                     return;
                 }
-                sender.sendMessage(message(sender, "updates.stage-complete", Map.of("file", result.stagedFile().getFileName())));
+                sender.sendMessage(message(sender, "updates.stage-complete", Map.of("file", result.stagedFile().toString())));
             });
         });
     }

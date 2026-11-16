@@ -243,7 +243,17 @@ startup:
   update-check: "Sprawdzanie aktualizacji: {status}"
   status-enabled: "włączone"
   status-disabled: "wyłączone"
+placeholders:
+  unclaimed: "Niezajęte"
+  no-land: "Brak ziemi"
+  server-owner: "Serwer"
+
 updates:
+  failure-metadata: "Nieprawidłowa nazwa lub rozmiar pliku."
+  failure-download: "Pobieranie przerwane lub niedostępne; sprawdź połączenie i uprawnienia folderu."
+  failure-verification: "Weryfikacja rozmiaru, sumy kontrolnej lub JAR nie powiodła się."
+  failure-existing: "Inny plik już istnieje; został zachowany."
+  notice-command: "Użyj /landward update (wymaga landward.admin), aby pobrać do plugins/LandWard/updates/. Aktywna wtyczka nie zostanie zastąpiona."
   notice-title: "Dostępna jest aktualizacja LandWard!"
   notice-current: "Zainstalowana wersja: {version}"
   notice-latest: "Najnowsza wersja: {version}"

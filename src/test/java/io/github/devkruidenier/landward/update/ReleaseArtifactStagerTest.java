@@ -29,6 +29,15 @@ class ReleaseArtifactStagerTest {
             exchange.sendResponseHeaders(200, bytes.length);
             try (var output = exchange.getResponseBody()) { output.write(bytes); }
         });
+        server.createContext("/invalid", exchange -> {
+            exchange.sendResponseHeaders(200, bytes.length);
+            try (var output = exchange.getResponseBody()) { output.write(new byte[bytes.length]); }
+        });
+        server.createContext("/failed", exchange -> { exchange.sendResponseHeaders(503, -1); exchange.close(); });
+        server.createContext("/interrupted", exchange -> {
+            exchange.sendResponseHeaders(200, bytes.length);
+            try (var output = exchange.getResponseBody()) { output.write(new byte[5]); }
+        });
         server.start();
         try {
             var client = java.net.http.HttpClient.newBuilder().followRedirects(java.net.http.HttpClient.Redirect.NORMAL).build();
@@ -38,6 +47,31 @@ class ReleaseArtifactStagerTest {
             var result = stager.stage(asset);
             org.junit.jupiter.api.Assertions.assertTrue(result.success(), result.detail());
             org.junit.jupiter.api.Assertions.assertArrayEquals(bytes, java.nio.file.Files.readAllBytes(result.stagedFile()));
+            org.junit.jupiter.api.Assertions.assertEquals(asset.name(), result.stagedFile().getFileName().toString());
+            org.junit.jupiter.api.Assertions.assertTrue(stager.stage(asset).success(), "Identical verified download is reusable");
+            java.nio.file.Files.delete(result.stagedFile());
+            try (var tasks = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+                var concurrent = new java.util.ArrayList<java.util.concurrent.Future<ReleaseArtifactStager.StageResult>>();
+                for (int i = 0; i < 4; i++) concurrent.add(tasks.submit(() -> stager.stage(asset)));
+                for (var task : concurrent) org.junit.jupiter.api.Assertions.assertTrue(task.get().success());
+            }
+            java.nio.file.Files.writeString(result.stagedFile(), "existing file must survive");
+            org.junit.jupiter.api.Assertions.assertFalse(stager.stage(asset).success());
+            org.junit.jupiter.api.Assertions.assertEquals("existing file must survive", java.nio.file.Files.readString(result.stagedFile()));
+            java.nio.file.Files.delete(result.stagedFile());
+            for (String name : new String[]{"../LandWard-test.jar", "C:LandWard-test.jar", "LandWard-../bad.jar", "staged-LandWard-test.jar"}) {
+                org.junit.jupiter.api.Assertions.assertFalse(stager.stage(new ReleaseAsset(asset.version(), name, asset.downloadUri(), bytes.length, digest)).success());
+            }
+            org.junit.jupiter.api.Assertions.assertFalse(stager.stage(new ReleaseAsset(asset.version(), asset.name(), asset.downloadUri(), bytes.length, "0".repeat(64))).success());
+            org.junit.jupiter.api.Assertions.assertFalse(java.nio.file.Files.exists(result.stagedFile()));
+            for (String path : new String[]{"/invalid", "/failed", "/interrupted"}) {
+                var failure = new ReleaseAsset(asset.version(), asset.name(), asset.downloadUri().resolve(path), bytes.length, digest);
+                org.junit.jupiter.api.Assertions.assertFalse(stager.stage(failure).success(), path);
+                org.junit.jupiter.api.Assertions.assertFalse(java.nio.file.Files.exists(result.stagedFile()));
+            }
+            try (var files = java.nio.file.Files.list(directory.resolve("updates"))) {
+                org.junit.jupiter.api.Assertions.assertEquals(0, files.count(), "No partial files remain after failures");
+            }
         } finally { server.stop(0); }
     }
 

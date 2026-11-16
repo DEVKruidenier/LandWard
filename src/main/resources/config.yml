@@ -11,6 +11,18 @@ language:
   # Safe fallback used when a requested translation key or locale is unavailable.
   fallback: en_US
 
+placeholders:
+  # Values are language keys, not literal text. Keep the double quotes.
+  # Use "" to show nothing; put a key inside the quotes to enable translated text.
+  # Example: unclaimed-land-name: "placeholders.unclaimed"
+  # Edit the text in lang/<locale>.yml. Normal land/player names stay unchanged.
+  # Uses the requested player's language; offline owner requests use language.default.
+  unclaimed-land-name: ""
+  no-land-name: ""
+  unclaimed-owner-name: ""
+  # Safe Zones have no player owner. Use "" to hide this translated label.
+  server-owner-name: "placeholders.server-owner"
+
 storage:
   # Storage backend: sqlite stores locally; mysql stores claims in a shared MySQL/MariaDB database.
   type: sqlite
@@ -42,8 +54,10 @@ updates:
   # Enable official GitHub release checks at startup, for info/update commands and permitted login notices.
   enabled: true
   # Notify operators and players with landward.pladmin on login when an official update is available.
+  # Notifications explain /landward update; downloading still requires landward.admin.
   notify-on-join: true
-  # Largest GitHub release JAR that an administrator may stage with /claim update, in MiB.
+  # Verified downloads retain their release filename in plugins/LandWard/updates/.
+  # The active plugin is never replaced automatically. Largest download size in MiB:
   maximum-download-megabytes: 32
 
 claims:

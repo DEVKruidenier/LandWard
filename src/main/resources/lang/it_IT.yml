@@ -243,7 +243,17 @@ startup:
   update-check: "Controllo aggiornamenti: {status}"
   status-enabled: "attivato"
   status-disabled: "disattivato"
+placeholders:
+  unclaimed: "Non rivendicato"
+  no-land: "Nessun terreno"
+  server-owner: "Server"
+
 updates:
+  failure-metadata: "Nome o dimensione del file non validi."
+  failure-download: "Download interrotto o non disponibile; controlla connessione e permessi."
+  failure-verification: "Verifica di dimensione, checksum o JAR non riuscita."
+  failure-existing: "Esiste già un file diverso; è stato conservato."
+  notice-command: "Usa /landward update (richiede landward.admin) per scaricare in plugins/LandWard/updates/. Il plugin attivo non viene sostituito."
   notice-title: "È disponibile un aggiornamento di LandWard!"
   notice-current: "Versione installata: {version}"
   notice-latest: "Ultima versione: {version}"

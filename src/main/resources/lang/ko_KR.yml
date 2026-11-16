@@ -243,7 +243,17 @@ startup:
   update-check: "업데이트 확인: {status}"
   status-enabled: "활성화됨"
   status-disabled: "비활성화됨"
+placeholders:
+  unclaimed: "미점유"
+  no-land: "토지 없음"
+  server-owner: "서버"
+
 updates:
+  failure-metadata: "파일 이름 또는 크기가 잘못되었습니다."
+  failure-download: "다운로드가 중단되었거나 불가능합니다. 연결과 폴더 권한을 확인하세요."
+  failure-verification: "크기, 체크섬 또는 JAR 검증에 실패했습니다."
+  failure-existing: "다른 파일이 이미 존재하여 보존했습니다."
+  notice-command: "/landward update (landward.admin 권한 필요)로 plugins/LandWard/updates/에 다운로드합니다. 실행 중인 플러그인은 교체되지 않습니다."
   notice-title: "LandWard 업데이트가 있습니다!"
   notice-current: "설치된 버전: {version}"
   notice-latest: "최신 버전: {version}"

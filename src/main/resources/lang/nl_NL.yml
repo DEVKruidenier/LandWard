@@ -243,7 +243,17 @@ startup:
   update-check: "Updatecontrole: {status}"
   status-enabled: "ingeschakeld"
   status-disabled: "uitgeschakeld"
+placeholders:
+  unclaimed: "Ongeclaimd"
+  no-land: "Geen land"
+  server-owner: "Server"
+
 updates:
+  failure-metadata: "Ongeldige releasebestandsnaam of downloadgrootte."
+  failure-download: "Download onderbroken of niet beschikbaar; controleer de verbinding en maprechten."
+  failure-verification: "Bestand afgekeurd op grootte, checksum of JAR-inhoud."
+  failure-existing: "Er bestaat al een ander bestand; dit is behouden."
+  notice-command: "Gebruik /landward update (vereist landward.admin) om te downloaden naar plugins/LandWard/updates/. De actieve plugin wordt niet vervangen."
   notice-title: "Er is een LandWard-update beschikbaar!"
   notice-current: "Geïnstalleerde versie: {version}"
   notice-latest: "Nieuwste versie: {version}"

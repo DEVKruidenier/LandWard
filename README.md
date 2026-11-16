@@ -1,5 +1,8 @@
 # LandWard
 
+Update staging and PlaceholderAPI behavior are documented in the
+[Wiki](https://github.com/DEVKruidenier/LandWard/wiki).
+
 **Simple land claims. Reliable protection.**
 
 LandWard is an open-source chunk-claiming plugin for Paper and Spigot survival servers. It
