@@ -111,7 +111,7 @@ public final class LandFeaturesGui implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST) public void click(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         Input input = inputs.get(player.getUniqueId());
-        if (input != null && event.getView().getTopInventory() == input.view().getTopInventory()) {
+        if (input != null && event.getView().getTopInventory().equals(input.view().getTopInventory())) {
             event.setCancelled(true);
             if (event.getRawSlot() == 2) submit(player, input);
             return;
@@ -184,7 +184,7 @@ public final class LandFeaturesGui implements Listener {
     }
     @EventHandler(priority = EventPriority.HIGHEST) public void prepare(PrepareAnvilEvent event) {
         Input input = inputs.get(event.getView().getPlayer().getUniqueId());
-        if (input == null || input.view().getTopInventory() != event.getView().getTopInventory()) return;
+        if (input == null || !input.view().getTopInventory().equals(event.getView().getTopInventory())) return;
         String name = AnvilTextInput.capture(input.view().getRenameText());
         event.setResult(name == null ? null : item((Player)event.getView().getPlayer(), Material.NAME_TAG, name, List.of(text((Player)event.getView().getPlayer(), "gui.anvil-confirm"))));
         input.view().setRepairCost(0); input.view().setMaximumRepairCost(Integer.MAX_VALUE);
@@ -210,7 +210,7 @@ public final class LandFeaturesGui implements Listener {
     }
     @EventHandler public void close(InventoryCloseEvent event) {
         Input input = inputs.get(event.getPlayer().getUniqueId());
-        if (input != null && input.view().getTopInventory() == event.getView().getTopInventory()) { input.view().getTopInventory().clear(); inputs.remove(event.getPlayer().getUniqueId()); }
+        if (input != null && input.view().getTopInventory().equals(event.getView().getTopInventory())) { input.view().getTopInventory().clear(); inputs.remove(event.getPlayer().getUniqueId()); }
     }
     @EventHandler public void drag(InventoryDragEvent event) {
         if (event.getView().getTopInventory().getHolder() instanceof Holder || inputs.containsKey(event.getWhoClicked().getUniqueId())) event.setCancelled(true);
