@@ -184,11 +184,13 @@ public final class ClaimProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onFluidFlow(BlockFromToEvent event) {
-        var rule = event.getBlock().getType() == org.bukkit.Material.LAVA
-                ? io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.LAVA_FLOW
-                : io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.WATER_FLOW;
+        var rule = switch (event.getBlock().getType()) {
+            case LAVA -> io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.LAVA_FLOW;
+            case WATER -> io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.WATER_FLOW;
+            default -> null; // For example, dragon-egg movement is not water flow.
+        };
         if (!sameProtectionDomain(event.getBlock().getLocation(), event.getToBlock().getLocation())
-                || deniedEnvironment(event.getToBlock().getLocation(), rule)) {
+                || rule != null && deniedEnvironment(event.getToBlock().getLocation(), rule)) {
             event.setCancelled(true);
         }
     }
@@ -243,8 +245,10 @@ public final class ClaimProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-        if (event.getEntity() instanceof org.bukkit.entity.Mob
-                && deniedEnvironment(event.getBlock().getLocation(), io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.MOB_BLOCK_CHANGES)) {
+        boolean denied = event.getEntity() instanceof org.bukkit.entity.Mob
+                ? deniedEnvironment(event.getBlock().getLocation(), io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.MOB_BLOCK_CHANGES)
+                : landAt(event.getBlock().getLocation()).isPresent(); // Preserve existing non-mob placement protection.
+        if (denied) {
             event.setCancelled(true);
         }
     }

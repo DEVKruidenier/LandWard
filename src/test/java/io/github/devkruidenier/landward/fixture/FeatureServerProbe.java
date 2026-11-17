@@ -77,6 +77,9 @@ public final class FeatureServerProbe extends JavaPlugin {
                 var mob = proxy(Mob.class, UUID.randomUUID(), target.getLocation(), EntityType.ENDERMAN);
                 var change = new EntityChangeBlockEvent(mob, target, Material.AIR.createBlockData());
                 listener.onEntityChangeBlock(change); check(change.isCancelled() == !allowed, "Mob block changes");
+                var falling = new EntityChangeBlockEvent(proxy(Entity.class, UUID.randomUUID(), target.getLocation(), EntityType.FALLING_BLOCK),
+                        target, Material.SAND.createBlockData());
+                listener.onEntityChangeBlock(falling); check(falling.isCancelled(), "Non-mob block placement retains its existing protection");
                 for (EntityType type : new EntityType[]{EntityType.TNT, EntityType.TNT_MINECART, EntityType.CREEPER, EntityType.GHAST, EntityType.WITHER}) {
                     Entity entity = proxy(Entity.class, UUID.randomUUID(), target.getLocation(), type);
                     var event = new EntityExplodeEvent(entity, target.getLocation(), new ArrayList<>(List.of(target)), 1, ExplosionResult.DESTROY);
@@ -100,6 +103,8 @@ public final class FeatureServerProbe extends JavaPlugin {
             flow = new BlockFromToEvent(source, target); listener.onFluidFlow(flow); check(flow.isCancelled(), "Internal water denied");
             source.setType(Material.LAVA, false);
             flow = new BlockFromToEvent(source, target); listener.onFluidFlow(flow); check(flow.isCancelled(), "Internal lava denied");
+            source.setType(Material.DRAGON_EGG, false);
+            flow = new BlockFromToEvent(source, target); listener.onFluidFlow(flow); check(!flow.isCancelled(), "Water/lava switches do not control dragon eggs");
             lands.environment(selected.id(), new EnvironmentSettings(EnumSet.allOf(EnvironmentSettings.Rule.class)));
             Block outside = world.getBlockAt((chunk.x() + 1) * 16, 80, chunk.z() * 16 + 2);
             flow = new BlockFromToEvent(source, outside); listener.onFluidFlow(flow); check(flow.isCancelled(), "Outward flow always denied");
