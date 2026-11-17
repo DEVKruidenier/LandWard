@@ -13,10 +13,11 @@ LandWard is an open-source chunk-claiming plugin for Paper and Spigot survival s
 uses a visual in-game map instead of claim tools, selection wands, or mandatory
 economies.
 
-## Try LandWard
+## Servers using LandWard
 
-Want to try LandWard in-game? Join **play.martialcraft.nl** and visit the
-**Survival world** to test the plugin.
+- **play.martialcraft.nl**
+- Want your server listed here? Join **play.martialcraft.nl** and use
+  `/mail send Kruidenier <yourServerIP>`.
 
 ## Documentation
 
