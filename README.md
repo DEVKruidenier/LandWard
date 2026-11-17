@@ -1,7 +1,7 @@
 # LandWard
 
-Upcoming 1.0.3.0 adds per-land environmental protection settings and named land
-warps. See the [preview documentation](https://github.com/DEVKruidenier/LandWard/wiki/Protection-and-Warps)
+LandWard 1.0.3.0 adds per-land environmental protection settings and named land
+warps. See the [documentation](https://github.com/DEVKruidenier/LandWard/wiki/Protection-and-Warps)
 for defaults, permissions, migration behavior and safe teleport rules.
 
 Update staging and PlaceholderAPI behavior are documented in the

@@ -1,8 +1,8 @@
 # LandWard
 
-Upcoming 1.0.3.0: expanded environmental protection and named player-land warps.
-See the [preview guide](https://github.com/DEVKruidenier/LandWard/wiki/Protection-and-Warps)
-for settings, permissions and migration behavior. These are not in release 1.0.2.2.
+LandWard 1.0.3.0 adds expanded environmental protection and named player-land warps.
+See the [guide](https://github.com/DEVKruidenier/LandWard/wiki/Protection-and-Warps)
+for settings, permissions and migration behavior. Requires LandWard 1.0.3.0 or newer.
 
 **Simple land claims. Reliable survival protection.**
 
