@@ -165,7 +165,13 @@ public final class PackagedStorageFixture {
                 List.of(new ClaimedChunk(new ChunkPosition(world, -32, -9), playerLand),
                         new ClaimedChunk(new ChunkPosition(world, -31, -9), playerLand),
                         new ClaimedChunk(new ChunkPosition(world, 0, 0), adminLand)),
-                List.of(new LandMember(playerLand, UUID.randomUUID(), new MemberPermissions(true, false, true))), List.of(adminLand));
+                List.of(new LandMember(playerLand, UUID.randomUUID(), new MemberPermissions(true, false, true))), List.of(adminLand),
+                List.of(new io.github.devkruidenier.landward.model.LandFeatures(playerLand,
+                        io.github.devkruidenier.landward.model.EnvironmentSettings.defaults(false),
+                        List.of(new io.github.devkruidenier.landward.model.LandWarp(UUID.randomUUID(), "Thuis Één", world,
+                                -500.25, 81.5, -130.75, 137.5F, -22.5F))),
+                        new io.github.devkruidenier.landward.model.LandFeatures(adminLand,
+                                io.github.devkruidenier.landward.model.EnvironmentSettings.defaults(true), List.of())));
     }
 
     private static void equal(StorageSnapshot expected, StorageSnapshot actual) {
@@ -173,6 +179,7 @@ public final class PackagedStorageFixture {
         check(Set.copyOf(expected.claims()).equals(Set.copyOf(actual.claims())), "Chunk persistence mismatch");
         check(Set.copyOf(expected.members()).equals(Set.copyOf(actual.members())), "Member persistence mismatch");
         check(Set.copyOf(expected.adminLandIds()).equals(Set.copyOf(actual.adminLandIds())), "Safe Zone persistence mismatch");
+        check(Set.copyOf(expected.features()).equals(Set.copyOf(actual.features())), "Environment/warp persistence mismatch");
     }
     private static String env(String key, String fallback) { return System.getenv().getOrDefault(key, fallback); }
     private static String required(String key) { String value = System.getenv(key); check(value != null && !value.isBlank(), "Missing " + key); return value; }

@@ -48,6 +48,7 @@ public final class LandManagementGui {
                 message(player, "gui.management-owner", Map.of("name", player.getName()))
         )));
         inventory.setItem(11, item(Material.FILLED_MAP, message(player, "gui.management-chunk-map"), NamedTextColor.AQUA, List.of(message(player, "gui.management-open-map"))));
+        inventory.setItem(16, item(Material.ENDER_EYE, message(player, "warps.title"), NamedTextColor.AQUA, List.of(message(player, "warps.open-hint"))));
         inventory.setItem(13, item(Material.ENDER_PEARL, message(player, "gui.management-teleport"), NamedTextColor.AQUA, List.of(message(player, "gui.management-teleport-hint"))));
         inventory.setItem(15, item(Material.COMPARATOR, message(player, "gui.management-settings"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-settings-hint"))));
         inventory.setItem(17, item(Material.HOPPER, message(player, "gui.management-delete-land"), NamedTextColor.RED, List.of(message(player, "gui.management-delete-land-hint"))));
@@ -61,6 +62,7 @@ public final class LandManagementGui {
                 message(player, "gui.management-title", Map.of("name", land.name())), COMPACT_SIZE);
         holder.selectedLandId(land.id());
         Inventory inventory = holder.getInventory();
+        inventory.setItem(13, item(Material.ENDER_EYE, message(player, "warps.title"), NamedTextColor.AQUA, List.of(message(player, "warps.open-hint"))));
         inventory.setItem(4, item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of(
                 message(player, "gui.status-member"),
                 message(player, "gui.management-claimed-chunks", Map.of("count", landManager.claimCount(land.id()))),

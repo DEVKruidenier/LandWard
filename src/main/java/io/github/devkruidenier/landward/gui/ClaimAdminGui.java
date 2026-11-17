@@ -104,10 +104,13 @@ public final class ClaimAdminGui {
                 List.of(plugin.localeService().message(locale, "gui.management-claimed-chunks", java.util.Map.of("count", lands.claimCount(landId))),
                         plugin.localeService().message(locale, "gui.management-owner", java.util.Map.of("name", name(locale, value.ownerId()))),
                         plugin.localeService().message(locale, "gui.hint-read-only"))));
-        inventory.setItem(16, item(Material.PLAYER_HEAD, plugin.localeService().message(locale, "gui.management-members"), NamedTextColor.AQUA,
-                List.of(plugin.localeService().message(locale, "gui.admin-claim-members-hint", java.util.Map.of("count", lands.members(landId).size())))));
+        inventory.setItem(16, item(Material.COMPARATOR, plugin.localeService().message(locale, "features.categories"), NamedTextColor.AQUA,
+                List.of(plugin.localeService().message(locale, "features.environment-hint"),
+                        plugin.localeService().message(locale, "warps.open-hint"))));
         inventory.setItem(18, item(Material.FILLED_MAP, plugin.localeService().message(locale, "gui.management-chunk-map"), NamedTextColor.AQUA,
                 List.of(plugin.localeService().message(locale, "gui.management-open-map"))));
+        inventory.setItem(22, item(Material.ENDER_EYE, plugin.localeService().message(locale, "warps.title"), NamedTextColor.AQUA,
+                List.of(plugin.localeService().message(locale, "warps.open-hint"))));
         inventory.setItem(20, item(Material.HOPPER, plugin.localeService().message(locale, "gui.admin-confirm"), NamedTextColor.RED,
                 List.of(plugin.localeService().message(locale, "gui.hint-delete-player-land"),
                         plugin.localeService().message(locale, "gui.unclaim-warning"))));

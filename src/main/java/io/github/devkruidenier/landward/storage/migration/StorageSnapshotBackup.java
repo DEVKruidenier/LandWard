@@ -25,7 +25,7 @@ import java.util.UUID;
 /** Versioned, lossless backup format used before every storage migration. */
 public final class StorageSnapshotBackup {
     private static final String MAGIC = "LANDWARD-BACKUP";
-    private static final int VERSION = 3;
+    private static final int VERSION = 4;
 
     public void write(Path file, StorageSnapshot snapshot) throws StorageException {
         try {
@@ -38,6 +38,17 @@ public final class StorageSnapshotBackup {
                 writeMembers(output, snapshot.members());
                 output.writeInt(snapshot.adminLandIds().size());
                 for (UUID id : snapshot.adminLandIds()) writeUuid(output, id);
+                output.writeInt(snapshot.features().size());
+                for (var features : snapshot.features()) {
+                    writeUuid(output, features.landId());
+                    for (var rule : io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.values()) output.writeBoolean(features.environment().allows(rule));
+                    output.writeInt(features.warps().size());
+                    for (var warp : features.warps()) {
+                        writeUuid(output, warp.id()); output.writeUTF(warp.name()); writeUuid(output, warp.worldId());
+                        output.writeDouble(warp.x()); output.writeDouble(warp.y()); output.writeDouble(warp.z());
+                        output.writeFloat(warp.yaw()); output.writeFloat(warp.pitch());
+                    }
+                }
             }
         } catch (IOException exception) { throw new StorageException("Could not write migration backup", exception); }
     }
@@ -53,8 +64,21 @@ public final class StorageSnapshotBackup {
             int adminCount = count(input);
             List<UUID> adminIds = new ArrayList<>(adminCount);
             for (int index = 0; index < adminCount; index++) adminIds.add(readUuid(input));
+            var features = new ArrayList<io.github.devkruidenier.landward.model.LandFeatures>();
+            if (version >= 4) {
+                int featureCount = count(input);
+                for (int i = 0; i < featureCount; i++) {
+                    UUID land = readUuid(input);
+                    var rules = java.util.EnumSet.noneOf(io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.class);
+                    for (var rule : io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.values()) if (input.readBoolean()) rules.add(rule);
+                    int warpCount = count(input); var warps = new ArrayList<io.github.devkruidenier.landward.model.LandWarp>();
+                    for (int w = 0; w < warpCount; w++) warps.add(new io.github.devkruidenier.landward.model.LandWarp(readUuid(input), input.readUTF(), readUuid(input),
+                            input.readDouble(), input.readDouble(), input.readDouble(), input.readFloat(), input.readFloat()));
+                    features.add(new io.github.devkruidenier.landward.model.LandFeatures(land, new io.github.devkruidenier.landward.model.EnvironmentSettings(rules), warps));
+                }
+            }
             if (input.read() != -1) throw new StorageException("Migration backup has trailing data", null);
-            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members), List.copyOf(adminIds));
+            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members), List.copyOf(adminIds), List.copyOf(features));
         } catch (EOFException exception) { throw new StorageException("Migration backup is incomplete", exception); }
         catch (IOException exception) { throw new StorageException("Could not read migration backup", exception); }
     }

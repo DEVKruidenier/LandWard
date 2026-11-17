@@ -30,6 +30,14 @@ public final class LandManager {
     private MemberPermissions playerMemberDefaults;
     private MemberPermissions administrativeMemberDefaults;
     private final Map<UUID, Land> landsById = new HashMap<>();
+    private final Map<UUID, io.github.devkruidenier.landward.model.LandFeatures> featuresByLand = new HashMap<>();
+    private io.github.devkruidenier.landward.model.EnvironmentSettings playerEnvironmentDefaults = io.github.devkruidenier.landward.model.EnvironmentSettings.defaults(false);
+    private io.github.devkruidenier.landward.model.EnvironmentSettings adminEnvironmentDefaults = io.github.devkruidenier.landward.model.EnvironmentSettings.defaults(true);
+
+    public synchronized void environmentDefaults(io.github.devkruidenier.landward.model.EnvironmentSettings player,
+                                                 io.github.devkruidenier.landward.model.EnvironmentSettings admin) {
+        playerEnvironmentDefaults = player; adminEnvironmentDefaults = admin;
+    }
     private final Map<UUID, Land> landsByOwner = new HashMap<>();
     private final Map<String, Land> landsByName = new HashMap<>();
     private final Map<ChunkPosition, UUID> claims = new HashMap<>();
@@ -61,6 +69,8 @@ public final class LandManager {
     public synchronized void load() throws StorageException {
         StorageSnapshot snapshot = storage.load();
         landsById.clear();
+        featuresByLand.clear();
+        for (var features : snapshot.features()) featuresByLand.put(features.landId(), features);
         landsByOwner.clear();
         landsByName.clear();
         claims.clear();
@@ -116,12 +126,14 @@ public final class LandManager {
         }
 
         Land land = new Land(UUID.randomUUID(), ownerId, name, Instant.now(), playerMemberDefaults, LandProtectionSettings.DEFAULT);
-        storage.insertLandWithClaim(land, new ClaimedChunk(initialPosition, land.id()));
+        var features = new io.github.devkruidenier.landward.model.LandFeatures(land.id(), playerEnvironmentDefaults, List.of());
+        storage.insertLandWithFeatures(land, new ClaimedChunk(initialPosition, land.id()), features, false);
         landsById.put(land.id(), land);
         landsByOwner.put(ownerId, land);
         landsByName.put(normalizedName(name), land);
         claims.put(initialPosition, land.id());
         claimCounts.put(land.id(), 1);
+        featuresByLand.put(land.id(), features);
         return new CreateResult(CreateStatus.CREATED, land);
     }
 
@@ -192,10 +204,12 @@ public final class LandManager {
         if (administrativeLand == null) {
             String name = nextAdministrativeName(requestedName);
             administrativeLand = new Land(UUID.randomUUID(), UUID.randomUUID(), name, Instant.now(), administrativeMemberDefaults, LandProtectionSettings.DEFAULT);
-            storage.insertAdminLandWithClaim(administrativeLand, new ClaimedChunk(position, administrativeLand.id()));
+            var features = new io.github.devkruidenier.landward.model.LandFeatures(administrativeLand.id(), adminEnvironmentDefaults, List.of());
+            storage.insertLandWithFeatures(administrativeLand, new ClaimedChunk(position, administrativeLand.id()), features, true);
             landsById.put(administrativeLand.id(), administrativeLand);
             landsByName.put(normalizedName(administrativeLand.name()), administrativeLand);
             administrativeLandIds.add(administrativeLand.id());
+            featuresByLand.put(administrativeLand.id(), features);
             claims.put(position, administrativeLand.id());
             claimCounts.put(administrativeLand.id(), 1);
             return new AdminClaimResult(AdminClaimStatus.CREATED, administrativeLand);
@@ -223,6 +237,7 @@ public final class LandManager {
             return new UnclaimResult(UnclaimStatus.LAST_CHUNK, land, count);
         }
         storage.deleteClaim(new ClaimedChunk(position, land.id()));
+        forgetChunkWarps(land.id(), position);
         claims.remove(position);
         claimCounts.put(land.id(), count - 1);
         return new UnclaimResult(UnclaimStatus.UNCLAIMED_SUCCESS, land, count - 1);
@@ -246,6 +261,7 @@ public final class LandManager {
 
     private void deleteLand(Land land) throws StorageException {
         storage.deleteLand(land.id());
+        featuresByLand.remove(land.id());
         claims.entrySet().removeIf(entry -> entry.getValue().equals(land.id()));
         claimCounts.remove(land.id());
         landsById.remove(land.id());
@@ -266,6 +282,7 @@ public final class LandManager {
             return new AdminUnclaimResult(AdminUnclaimStatus.LAND_DELETED, land, 0);
         }
         storage.deleteClaim(new ClaimedChunk(position, landId));
+        forgetChunkWarps(landId, position);
         claims.remove(position);
         claimCounts.put(landId, count - 1);
         return new AdminUnclaimResult(AdminUnclaimStatus.CLAIM_REMOVED, land, count - 1);
@@ -273,6 +290,60 @@ public final class LandManager {
 
     public synchronized Optional<Land> landAt(ChunkPosition position) {
         return Optional.ofNullable(claims.get(position)).map(landsById::get);
+    }
+
+    public synchronized io.github.devkruidenier.landward.model.LandFeatures features(UUID landId) {
+        if (!landsById.containsKey(landId)) throw new IllegalArgumentException("Unknown land");
+        return featuresByLand.getOrDefault(landId, new io.github.devkruidenier.landward.model.LandFeatures(landId,
+                io.github.devkruidenier.landward.model.EnvironmentSettings.legacy(), List.of()));
+    }
+
+    public synchronized void environment(UUID landId, io.github.devkruidenier.landward.model.EnvironmentSettings settings) throws StorageException {
+        var current = features(landId);
+        saveFeatures(new io.github.devkruidenier.landward.model.LandFeatures(landId, settings, current.warps()));
+    }
+
+    public synchronized void addWarp(UUID owner, UUID landId, io.github.devkruidenier.landward.model.LandWarp warp, int limit) throws StorageException {
+        var land = landsById.get(landId);
+        if (land == null || isAdministrative(land) || !land.ownerId().equals(owner)
+                || !landId.equals(claims.get(warp.chunk()))) throw new IllegalArgumentException("Warp destination is outside owned land");
+        var current = features(landId);
+        if (limit >= 0 && current.warps().size() >= limit) throw new IllegalArgumentException("Warp limit reached");
+        var warps = new java.util.ArrayList<>(current.warps()); warps.add(warp);
+        saveFeatures(new io.github.devkruidenier.landward.model.LandFeatures(landId, current.environment(), warps));
+    }
+
+    public synchronized void renameWarp(UUID owner, UUID landId, UUID warpId, String name) throws StorageException {
+        var land = landsById.get(landId);
+        if (land == null || !land.ownerId().equals(owner) || isAdministrative(land)) throw new IllegalArgumentException("Not the owner");
+        var current = features(landId);
+        if (current.warps().stream().noneMatch(warp -> warp.id().equals(warpId))) throw new IllegalArgumentException("Warp removed");
+        saveFeatures(new io.github.devkruidenier.landward.model.LandFeatures(landId, current.environment(),
+                current.warps().stream().map(warp -> warp.id().equals(warpId) ? warp.renamed(name) : warp).toList()));
+    }
+
+    public synchronized void deleteWarp(UUID owner, UUID landId, UUID warpId) throws StorageException {
+        var land = landsById.get(landId);
+        if (land == null || !land.ownerId().equals(owner) || isAdministrative(land)) throw new IllegalArgumentException("Not the owner");
+        var current = features(landId);
+        saveFeatures(new io.github.devkruidenier.landward.model.LandFeatures(landId, current.environment(),
+                current.warps().stream().filter(warp -> !warp.id().equals(warpId)).toList()));
+    }
+
+    public synchronized boolean canUseWarps(UUID player, UUID landId) {
+        var land = landsById.get(landId);
+        return land != null && !isAdministrative(land) && (land.ownerId().equals(player)
+                || membersByLand.getOrDefault(landId, Map.of()).containsKey(player));
+    }
+
+    private void saveFeatures(io.github.devkruidenier.landward.model.LandFeatures features) throws StorageException {
+        storage.updateFeatures(features);
+        featuresByLand.put(features.landId(), features);
+    }
+    private void forgetChunkWarps(UUID landId, ChunkPosition position) {
+        var current = featuresByLand.get(landId);
+        if (current != null) featuresByLand.put(landId, new io.github.devkruidenier.landward.model.LandFeatures(landId,
+                current.environment(), current.warps().stream().filter(warp -> !warp.chunk().equals(position)).toList()));
     }
 
     public synchronized Optional<Land> ownedBy(UUID ownerId) {

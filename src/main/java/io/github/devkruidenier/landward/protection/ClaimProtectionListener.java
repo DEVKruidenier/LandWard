@@ -76,6 +76,10 @@ public final class ClaimProtectionListener implements Listener {
     /** Flint & steel and fire charges ignite an air block, not a normal BlockPlaceEvent block. */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onBlockIgnite(BlockIgniteEvent event) {
+        if (deniedEnvironment(event.getBlock().getLocation(), io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.FIRE_SPREAD)
+                || event.getIgnitingBlock() != null && !sameProtectionDomain(event.getIgnitingBlock().getLocation(), event.getBlock().getLocation())) {
+            event.setCancelled(true); return;
+        }
         Player player = event.getPlayer();
         if (player != null) {
             denyIfNeeded(player, event.getBlock().getLocation(), MemberPermissions.Permission.BUILD, event::setCancelled);
@@ -180,7 +184,13 @@ public final class ClaimProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onFluidFlow(BlockFromToEvent event) {
-        if (!sameProtectionDomain(event.getBlock().getLocation(), event.getToBlock().getLocation())) {
+        var rule = switch (event.getBlock().getType()) {
+            case LAVA -> io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.LAVA_FLOW;
+            case WATER -> io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.WATER_FLOW;
+            default -> null; // For example, dragon-egg movement is not water flow.
+        };
+        if (!sameProtectionDomain(event.getBlock().getLocation(), event.getToBlock().getLocation())
+                || rule != null && deniedEnvironment(event.getToBlock().getLocation(), rule)) {
             event.setCancelled(true);
         }
     }
@@ -188,7 +198,9 @@ public final class ClaimProtectionListener implements Listener {
     /** Stops fire (and similar spreading blocks) crossing a claim boundary in either direction. */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onBlockSpread(BlockSpreadEvent event) {
-        if (!sameProtectionDomain(event.getSource().getLocation(), event.getBlock().getLocation())) {
+        boolean fire = event.getSource().getType() == org.bukkit.Material.FIRE || event.getSource().getType() == org.bukkit.Material.SOUL_FIRE;
+        if (!sameProtectionDomain(event.getSource().getLocation(), event.getBlock().getLocation())
+                || fire && deniedEnvironment(event.getBlock().getLocation(), io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.FIRE_SPREAD)) {
             event.setCancelled(true);
         }
     }
@@ -197,7 +209,8 @@ public final class ClaimProtectionListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onBlockBurn(BlockBurnEvent event) {
         Block source = event.getIgnitingBlock();
-        if (source != null && !sameProtectionDomain(source.getLocation(), event.getBlock().getLocation())) {
+        if (deniedEnvironment(event.getBlock().getLocation(), io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.FIRE_SPREAD)
+                || source != null && !sameProtectionDomain(source.getLocation(), event.getBlock().getLocation())) {
             event.setCancelled(true);
         }
     }
@@ -218,19 +231,43 @@ public final class ClaimProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onEntityExplode(EntityExplodeEvent event) {
-        event.blockList().removeIf(block -> landAt(block.getLocation()).isPresent());
+        var type = event.getEntityType();
+        var rule = type == org.bukkit.entity.EntityType.TNT || type == org.bukkit.entity.EntityType.TNT_MINECART
+                ? io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.TNT_BLOCK_DAMAGE
+                : io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.OTHER_EXPLOSION_BLOCK_DAMAGE;
+        event.blockList().removeIf(block -> deniedEnvironment(block.getLocation(), rule));
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onBlockExplode(BlockExplodeEvent event) {
-        event.blockList().removeIf(block -> landAt(block.getLocation()).isPresent());
+        event.blockList().removeIf(block -> deniedEnvironment(block.getLocation(), io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.OTHER_EXPLOSION_BLOCK_DAMAGE));
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-        if (landAt(event.getBlock().getLocation()).isPresent()) {
+        boolean denied = event.getEntity() instanceof org.bukkit.entity.Mob
+                ? deniedEnvironment(event.getBlock().getLocation(), io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.MOB_BLOCK_CHANGES)
+                : landAt(event.getBlock().getLocation()).isPresent(); // Preserve existing non-mob placement protection.
+        if (denied) {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onEnvironmentalDamage(org.bukkit.event.entity.EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        var rule = switch (event.getCause()) {
+            case FALL -> io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.FALL_DAMAGE;
+            case FIRE, FIRE_TICK -> io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.FIRE_PLAYER_DAMAGE;
+            case LAVA -> io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.LAVA_PLAYER_DAMAGE;
+            case BLOCK_EXPLOSION, ENTITY_EXPLOSION -> io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.EXPLOSION_PLAYER_DAMAGE;
+            default -> null;
+        };
+        if (rule != null && deniedEnvironment(player.getLocation(), rule)) event.setCancelled(true);
+    }
+
+    private boolean deniedEnvironment(Location location, io.github.devkruidenier.landward.model.EnvironmentSettings.Rule rule) {
+        return landAt(location).map(land -> !landManager.features(land.id()).environment().allows(rule)).orElse(false);
     }
 
     private void denyIfNeeded(

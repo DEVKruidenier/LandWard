@@ -23,6 +23,10 @@ public interface LandStorage extends AutoCloseable {
 
     void insertLandWithClaim(Land land, ClaimedChunk claim) throws StorageException;
 
+    default void insertLandWithFeatures(Land land, ClaimedChunk claim, io.github.devkruidenier.landward.model.LandFeatures features, boolean admin) throws StorageException {
+        throw new StorageException("Atomic land features are unsupported by this storage", null);
+    }
+
     /** Saves a server-owned administrative land and its first protected chunk atomically. */
     void insertAdminLandWithClaim(Land land, ClaimedChunk claim) throws StorageException;
 
@@ -54,6 +58,10 @@ public interface LandStorage extends AutoCloseable {
     void deleteMember(java.util.UUID landId, java.util.UUID playerId) throws StorageException;
 
     String type();
+
+    default void updateFeatures(io.github.devkruidenier.landward.model.LandFeatures features) throws StorageException {
+        throw new StorageException("Feature persistence is unsupported by this storage", null);
+    }
 
     @Override
     default void close() throws StorageException {
