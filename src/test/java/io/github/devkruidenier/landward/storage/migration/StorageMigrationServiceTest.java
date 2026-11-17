@@ -40,6 +40,8 @@ class StorageMigrationServiceTest {
         var land = manager.create(owner, "Migration Home", new ChunkPosition(world, 1, 2)).land();
         manager.claim(owner, new ChunkPosition(world, 2, 2), -1, true);
         manager.addMember(owner, member);
+        manager.addWarp(owner, land.id(), new io.github.devkruidenier.landward.model.LandWarp(UUID.randomUUID(),
+                "Home", world, 18.25, 80.5, 33.75, 137.5F, -22.5F), 3);
         manager.claimAdministration("Safe Zone", new ChunkPosition(world, 9, 9));
 
         SqliteLandStorage targetSqlite = new SqliteLandStorage(directory.resolve("target.db"));

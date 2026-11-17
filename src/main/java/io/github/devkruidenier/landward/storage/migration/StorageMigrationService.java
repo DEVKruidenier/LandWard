@@ -77,6 +77,16 @@ public final class StorageMigrationService {
             if (!admins.contains(land.id()) && !owners.add(land.ownerId())) throw new StorageException("Source has duplicate player land owners", null);
         }
         if (!landIds.containsAll(admins)) throw new StorageException("Source references an unknown administrative land", null);
+        Set<UUID> featureLands = new HashSet<>();
+        Set<UUID> warpIds = new HashSet<>();
+        for (var features : snapshot.features()) {
+            if (!landIds.contains(features.landId()) || !featureLands.add(features.landId())) throw new StorageException("Invalid feature land reference", null);
+            for (var warp : features.warps()) {
+                if (admins.contains(features.landId()) || !warpIds.add(warp.id()) || snapshot.claims().stream().noneMatch(
+                        claim -> claim.landId().equals(features.landId()) && claim.position().equals(warp.chunk())))
+                    throw new StorageException("Invalid warp destination or identity", null);
+            }
+        }
         Set<ChunkPosition> positions = new HashSet<>();
         for (ClaimedChunk claim : snapshot.claims()) {
             if (!landIds.contains(claim.landId())) throw new StorageException("Source claim references an unknown land", null);
@@ -89,12 +99,13 @@ public final class StorageMigrationService {
         }
     }
 
-    private boolean isEmpty(StorageSnapshot snapshot) { return snapshot.lands().isEmpty() && snapshot.claims().isEmpty() && snapshot.members().isEmpty() && snapshot.adminLandIds().isEmpty(); }
+    private boolean isEmpty(StorageSnapshot snapshot) { return snapshot.lands().isEmpty() && snapshot.claims().isEmpty() && snapshot.members().isEmpty() && snapshot.adminLandIds().isEmpty() && snapshot.features().isEmpty(); }
     private boolean sameSnapshot(StorageSnapshot first, StorageSnapshot second) {
         return Set.copyOf(first.lands()).equals(Set.copyOf(second.lands()))
                 && Set.copyOf(first.claims()).equals(Set.copyOf(second.claims()))
                 && Set.copyOf(first.members()).equals(Set.copyOf(second.members()))
-                && Set.copyOf(first.adminLandIds()).equals(Set.copyOf(second.adminLandIds()));
+                && Set.copyOf(first.adminLandIds()).equals(Set.copyOf(second.adminLandIds()))
+                && Set.copyOf(first.features()).equals(Set.copyOf(second.features()));
     }
 
     public record MigrationResult(Path backup, int lands, int claims, int members) { }

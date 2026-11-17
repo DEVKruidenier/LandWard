@@ -54,6 +54,7 @@ public final class SqliteLandStorage implements LandStorage {
                         )
                         """);
                 ensureLandColumns(connection);
+                io.github.devkruidenier.landward.storage.FeatureStorage.initialize(connection);
                 statement.execute("""
                         CREATE TABLE IF NOT EXISTS claims (
                             world_uuid TEXT NOT NULL,
@@ -143,7 +144,7 @@ public final class SqliteLandStorage implements LandStorage {
                     ));
                 }
             }
-            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members), List.copyOf(adminLandIds));
+            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members), List.copyOf(adminLandIds), io.github.devkruidenier.landward.storage.FeatureStorage.load(connection));
         } catch (SQLException | IllegalArgumentException exception) {
             throw new StorageException("Could not load SQLite data", exception);
         }
@@ -176,6 +177,7 @@ public final class SqliteLandStorage implements LandStorage {
                 }
                 for (ClaimedChunk claim : snapshot.claims()) insertClaim(connection, claim);
                 for (LandMember member : snapshot.members()) insertMember(connection, member);
+                for (var features : snapshot.features()) io.github.devkruidenier.landward.storage.FeatureStorage.insert(connection, features);
                 connection.commit();
             } catch (SQLException exception) {
                 connection.rollback();
@@ -188,6 +190,8 @@ public final class SqliteLandStorage implements LandStorage {
 
     private void clearSnapshot(Connection connection) throws SQLException {
         try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("DELETE FROM land_warps");
+            statement.executeUpdate("DELETE FROM land_environment");
             statement.executeUpdate("DELETE FROM land_members");
             statement.executeUpdate("DELETE FROM claims");
             statement.executeUpdate("DELETE FROM admin_lands");
@@ -310,16 +314,17 @@ public final class SqliteLandStorage implements LandStorage {
 
     @Override
     public void deleteClaim(ClaimedChunk claim) throws StorageException {
-        String sql = "DELETE FROM claims WHERE world_uuid = ? AND chunk_x = ? AND chunk_z = ? AND land_id = ?";
-        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, claim.position().worldId().toString());
-            statement.setInt(2, claim.position().x());
-            statement.setInt(3, claim.position().z());
-            statement.setString(4, claim.landId().toString());
-            statement.executeUpdate();
-        } catch (SQLException exception) {
-            throw new StorageException("Could not delete claim", exception);
-        }
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                io.github.devkruidenier.landward.storage.FeatureStorage.deleteChunkWarps(connection, claim);
+                try (var statement = connection.prepareStatement("DELETE FROM claims WHERE world_uuid = ? AND chunk_x = ? AND chunk_z = ? AND land_id = ?")) {
+                    statement.setString(1, claim.position().worldId().toString()); statement.setInt(2, claim.position().x());
+                    statement.setInt(3, claim.position().z()); statement.setString(4, claim.landId().toString()); statement.executeUpdate();
+                }
+                connection.commit();
+            } catch (SQLException exception) { connection.rollback(); throw exception; }
+        } catch (SQLException exception) { throw new StorageException("Could not remove claim and its warps", exception); }
     }
 
     @Override
@@ -422,7 +427,7 @@ public final class SqliteLandStorage implements LandStorage {
 
     private static void deleteLandRecords(Connection connection, UUID landId) throws SQLException {
         String id = landId.toString();
-        for (String table : List.of("land_members", "claims", "admin_lands", "lands")) {
+        for (String table : List.of("land_warps", "land_environment", "land_members", "claims", "admin_lands", "lands")) {
             String column = table.equals("lands") ? "id" : "land_id";
             try (PreparedStatement statement = connection.prepareStatement("DELETE FROM " + table + " WHERE " + column + " = ?")) {
                 statement.setString(1, id);
@@ -490,5 +495,33 @@ public final class SqliteLandStorage implements LandStorage {
         statement.setBoolean(6, land.memberPermissions().containers());
         statement.setBoolean(7, land.memberPermissions().entities());
         bindProtectionSettings(statement, land.protectionSettings(), 8);
+    }
+
+    @Override
+    public void updateFeatures(io.github.devkruidenier.landward.model.LandFeatures features) throws StorageException {
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                io.github.devkruidenier.landward.storage.FeatureStorage.delete(connection, features.landId());
+                io.github.devkruidenier.landward.storage.FeatureStorage.insert(connection, features);
+                connection.commit();
+            } catch (SQLException exception) { connection.rollback(); throw exception; }
+        } catch (SQLException exception) { throw new StorageException("Could not save land features", exception); }
+    }
+
+
+    @Override
+    public void insertLandWithFeatures(Land land, ClaimedChunk claim, io.github.devkruidenier.landward.model.LandFeatures features, boolean admin) throws StorageException {
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                insertLand(connection, land); insertClaim(connection, claim);
+                if (admin) try (var statement = connection.prepareStatement("INSERT INTO admin_lands(land_id) VALUES (?)")) {
+                    statement.setString(1, land.id().toString()); statement.executeUpdate();
+                }
+                io.github.devkruidenier.landward.storage.FeatureStorage.insert(connection, features);
+                connection.commit();
+            } catch (SQLException exception) { connection.rollback(); throw exception; }
+        } catch (SQLException exception) { throw new StorageException("Could not atomically create land with features", exception); }
     }
 }

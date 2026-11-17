@@ -85,6 +85,7 @@ public final class MySqlLandStorage implements LandStorage {
                             allow_interactions BOOLEAN NOT NULL DEFAULT TRUE
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                         """);
+                io.github.devkruidenier.landward.storage.FeatureStorage.initialize(connection);
                 for (String column : List.of("member_build", "member_containers", "member_entities",
                         "member_pvp", "allow_hostile_mob_kills", "allow_passive_mob_kills",
                         "allow_hostile_mob_spawns", "allow_doors", "allow_interactions")) {
@@ -153,7 +154,7 @@ public final class MySqlLandStorage implements LandStorage {
                             new MemberPermissions(result.getBoolean("can_build"), result.getBoolean("can_containers"), result.getBoolean("can_entities"))));
                 }
             }
-            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members), List.copyOf(adminLandIds));
+            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members), List.copyOf(adminLandIds), io.github.devkruidenier.landward.storage.FeatureStorage.load(connection));
         } catch (SQLException | IllegalArgumentException exception) {
             throw new StorageException("Could not load MySQL data", exception);
         }
@@ -185,6 +186,7 @@ public final class MySqlLandStorage implements LandStorage {
                 }
                 for (ClaimedChunk claim : snapshot.claims()) insertClaim(connection, claim);
                 for (LandMember member : snapshot.members()) insertMember(connection, member);
+                for (var features : snapshot.features()) io.github.devkruidenier.landward.storage.FeatureStorage.insert(connection, features);
                 connection.commit();
             } catch (SQLException exception) {
                 connection.rollback();
@@ -195,6 +197,8 @@ public final class MySqlLandStorage implements LandStorage {
 
     private void clearSnapshot(Connection connection) throws SQLException {
         try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("DELETE FROM land_warps");
+            statement.executeUpdate("DELETE FROM land_environment");
             statement.executeUpdate("DELETE FROM land_members");
             statement.executeUpdate("DELETE FROM claims");
             statement.executeUpdate("DELETE FROM admin_lands");
@@ -274,9 +278,17 @@ public final class MySqlLandStorage implements LandStorage {
 
     @Override
     public void deleteClaim(ClaimedChunk claim) throws StorageException {
-        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("DELETE FROM claims WHERE world_uuid = ? AND chunk_x = ? AND chunk_z = ? AND land_id = ?")) {
-            bindClaim(statement, claim); statement.executeUpdate();
-        } catch (SQLException exception) { throw new StorageException("Could not delete claim", exception); }
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                io.github.devkruidenier.landward.storage.FeatureStorage.deleteChunkWarps(connection, claim);
+                try (var statement = connection.prepareStatement("DELETE FROM claims WHERE world_uuid = ? AND chunk_x = ? AND chunk_z = ? AND land_id = ?")) {
+                    statement.setString(1, claim.position().worldId().toString()); statement.setInt(2, claim.position().x());
+                    statement.setInt(3, claim.position().z()); statement.setString(4, claim.landId().toString()); statement.executeUpdate();
+                }
+                connection.commit();
+            } catch (SQLException exception) { connection.rollback(); throw exception; }
+        } catch (SQLException exception) { throw new StorageException("Could not remove claim and its warps", exception); }
     }
 
     @Override
@@ -339,7 +351,7 @@ public final class MySqlLandStorage implements LandStorage {
     }
     private static void deleteLandRecords(Connection connection, UUID landId) throws SQLException {
         String id = landId.toString();
-        for (String table : List.of("land_members", "claims", "admin_lands", "lands")) {
+        for (String table : List.of("land_warps", "land_environment", "land_members", "claims", "admin_lands", "lands")) {
             String column = table.equals("lands") ? "id" : "land_id";
             try (PreparedStatement statement = connection.prepareStatement("DELETE FROM " + table + " WHERE " + column + " = ?")) {
                 statement.setString(1, id);
@@ -389,4 +401,32 @@ public final class MySqlLandStorage implements LandStorage {
     private void closeQuietly() { if (dataSource != null) { dataSource.close(); dataSource = null; } }
     private static String requireText(String value, String field) { if (value == null || value.isBlank()) throw new IllegalArgumentException("MySQL " + field + " must not be empty"); return value; }
     private static int validatePort(int value) { if (value < 1 || value > 65535) throw new IllegalArgumentException("MySQL port must be between 1 and 65535"); return value; }
+
+    @Override
+    public void updateFeatures(io.github.devkruidenier.landward.model.LandFeatures features) throws StorageException {
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                io.github.devkruidenier.landward.storage.FeatureStorage.delete(connection, features.landId());
+                io.github.devkruidenier.landward.storage.FeatureStorage.insert(connection, features);
+                connection.commit();
+            } catch (SQLException exception) { connection.rollback(); throw exception; }
+        } catch (SQLException exception) { throw new StorageException("Could not save land features", exception); }
+    }
+
+
+    @Override
+    public void insertLandWithFeatures(Land land, ClaimedChunk claim, io.github.devkruidenier.landward.model.LandFeatures features, boolean admin) throws StorageException {
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                insertLand(connection, land); insertClaim(connection, claim);
+                if (admin) try (var statement = connection.prepareStatement("INSERT INTO admin_lands(land_id) VALUES (?)")) {
+                    statement.setString(1, land.id().toString()); statement.executeUpdate();
+                }
+                io.github.devkruidenier.landward.storage.FeatureStorage.insert(connection, features);
+                connection.commit();
+            } catch (SQLException exception) { connection.rollback(); throw exception; }
+        } catch (SQLException exception) { throw new StorageException("Could not atomically create land with features", exception); }
+    }
 }

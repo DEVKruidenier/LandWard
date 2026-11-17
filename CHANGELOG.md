@@ -4,6 +4,23 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+### Added
+
+- Upcoming 1.0.3.0: per-land environment controls for fire spread/burning, fall,
+  fire/lava/explosion player damage, separate TNT/other explosion block damage,
+  mob block changes and internal water/lava flow, for player lands and Safe Zones.
+- Upcoming 1.0.3.0: named player-land warps with owner management, member/admin
+  travel, explicit rank limits, cancellable warmups and checked destinations.
+- Persist the new settings and warps in SQLite/MySQL and version-4 migration
+  backups, including automatic warp cleanup when chunks or lands are removed.
+
+### Changed
+
+- Fire spread and block burning are intentionally denied in upgraded claims.
+  Existing survival damage behavior is retained until changed per land.
+- Add adjacent categories for access/members, environment/damage and warps;
+  retain the existing nine access controls and their ordering in their submenu.
+
 ## [1.0.2.2] - 2026-11-16
 
 ### Fixed

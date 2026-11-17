@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.devkruidenier"
-version = "1.0.2.2"
+version = "1.0.3.0-beta1"
 
 val pluginVersion = version.toString()
 
@@ -100,6 +100,7 @@ dependencies {
 
     testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testCompileOnly("io.papermc.paper:paper-api:26.2.build.112-stable")
     testImplementation("org.yaml:snakeyaml:2.5")
     testImplementation("com.google.code.gson:gson:2.13.2")
     testImplementation("com.djrapitops:plan-api:5.7-R0.2")
@@ -110,6 +111,17 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(25))
     withSourcesJar()
 }
+
+// Explicit development-only server probe; never included in the universal plugin.
+tasks.register<Jar>("featureProbeJar") {
+    dependsOn(tasks.testClasses)
+    archiveFileName.set("LandWardFeatureProbe.jar")
+    destinationDirectory.set(layout.buildDirectory.dir("fixtures/feature-probe"))
+    from(sourceSets.test.get().output) { include("io/github/devkruidenier/landward/fixture/FeatureServerProbe*.class") }
+    from("src/test/featureprobe") { include("plugin.yml") }
+}
+
+tasks.test { exclude("**/fixture/**") }
 
 tasks {
     withType<AbstractArchiveTask>().configureEach {

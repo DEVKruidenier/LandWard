@@ -57,6 +57,8 @@ public final class LandWardPlugin extends JavaPlugin {
     private AdminBypassService adminBypasses;
     private UpdateChecker updateChecker;
     private AdminOwnerChangeListener adminOwnerChangeListener;
+    private io.github.devkruidenier.landward.gui.LandFeaturesGui landFeaturesGui;
+    public io.github.devkruidenier.landward.gui.LandFeaturesGui landFeaturesGui() { return landFeaturesGui; }
     private final io.github.devkruidenier.landward.integration.WorldGuardIntegration pvpWorldGuard =
             new io.github.devkruidenier.landward.integration.WorldGuardIntegration(this);
 
@@ -79,6 +81,7 @@ public final class LandWardPlugin extends JavaPlugin {
             storage.initialize();
             this.landManager = new LandManager(storage, playerMemberDefaults(), administrativeMemberDefaults());
             landManager.load();
+            applyEnvironmentDefaults();
         } catch (StorageException exception) {
             throw new IllegalStateException("LandWard storage could not be initialized", exception);
         }
@@ -107,6 +110,8 @@ public final class LandWardPlugin extends JavaPlugin {
         }
 
         LandCommand landCommand = new LandCommand(this, landManager);
+        this.landFeaturesGui = new io.github.devkruidenier.landward.gui.LandFeaturesGui(this, landManager);
+        getServer().getPluginManager().registerEvents(landFeaturesGui, this);
         PluginCommand command = getCommand("claim");
         if (command == null) {
             throw new IllegalStateException("The claim command is missing from plugin.yml");
@@ -248,12 +253,25 @@ public final class LandWardPlugin extends JavaPlugin {
         mergeNewConfigDefaults();
         localeService.initialize();
         landManager.memberDefaults(playerMemberDefaults(), administrativeMemberDefaults());
+        applyEnvironmentDefaults();
         syncMapIntegrations();
         updateChecker.check();
     }
 
     private MemberPermissions playerMemberDefaults() {
         return memberDefaults("player-claims.member-rights");
+    }
+    private void applyEnvironmentDefaults() {
+        var settings = new java.util.ArrayList<io.github.devkruidenier.landward.model.EnvironmentSettings>();
+        for (boolean admin : new boolean[]{false, true}) {
+            var defaults = io.github.devkruidenier.landward.model.EnvironmentSettings.defaults(admin);
+            for (var rule : io.github.devkruidenier.landward.model.EnvironmentSettings.Rule.values()) {
+                String key = (admin ? "admin-claims" : "player-claims") + ".environment." + rule.name().toLowerCase(java.util.Locale.ROOT).replace('_', '-');
+                defaults = defaults.with(rule, getConfig().getBoolean(key, defaults.allows(rule)));
+            }
+            settings.add(defaults);
+        }
+        landManager.environmentDefaults(settings.get(0), settings.get(1));
     }
 
     private MemberPermissions administrativeMemberDefaults() {

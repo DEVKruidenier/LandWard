@@ -1,0 +1,8 @@
+name: LandWardFeatureProbe
+version: 1
+main: io.github.devkruidenier.landward.fixture.FeatureServerProbe
+api-version: '26.2'
+depend: [LandWard]
+commands:
+  featureprobe:
+    permission: landward.admin

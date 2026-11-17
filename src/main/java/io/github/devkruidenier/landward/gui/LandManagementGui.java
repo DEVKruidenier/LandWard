@@ -61,6 +61,7 @@ public final class LandManagementGui {
                 message(player, "gui.management-title", Map.of("name", land.name())), COMPACT_SIZE);
         holder.selectedLandId(land.id());
         Inventory inventory = holder.getInventory();
+        inventory.setItem(13, item(Material.ENDER_EYE, message(player, "warps.title"), NamedTextColor.AQUA, List.of(message(player, "warps.open-hint"))));
         inventory.setItem(4, item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of(
                 message(player, "gui.status-member"),
                 message(player, "gui.management-claimed-chunks", Map.of("count", landManager.claimCount(land.id()))),

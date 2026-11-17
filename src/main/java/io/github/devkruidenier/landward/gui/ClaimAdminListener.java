@@ -34,7 +34,11 @@ public final class ClaimAdminListener implements Listener {
         if (holder.screen() == ClaimAdminHolder.Screen.MAIN) {
             if (slot == 9) gui.openPlayerClaims(player);
             else if (slot == 11) new LandMapGui(plugin, lands).openAdminClaims(player);
-            else if (slot == 13) gui.openAdminSettings(player);
+            else if (slot == 13) {
+                var safeZone = lands.administrativeLand();
+                if (safeZone.isPresent()) plugin.landFeaturesGui().open(player, safeZone.get().id(), true);
+                else gui.openAdminSettings(player);
+            }
             else if (slot == 15) {
                 plugin.reloadLandWard();
                 player.sendMessage(ChatColor.GOLD + "LandWard " + ChatColor.DARK_GRAY + "» " + ChatColor.GREEN
@@ -61,7 +65,7 @@ public final class ClaimAdminListener implements Listener {
                 return;
             }
             if (slot == 12) { player.closeInventory(); plugin.adminOwnerChangeListener().begin(player, landId); return; }
-            if (slot == 16) gui.openPlayerClaimMembers(player, landId);
+            if (slot == 16) plugin.landFeaturesGui().open(player, landId, true);
             if (slot == 18) {
                 new LandMapGui(plugin, lands).openAdmin(player, landId);
                 return;

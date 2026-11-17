@@ -1,5 +1,9 @@
 # LandWard
 
+Upcoming 1.0.3.0: expanded environmental protection and named player-land warps.
+See the [preview guide](https://github.com/DEVKruidenier/LandWard/wiki/Protection-and-Warps)
+for settings, permissions and migration behavior. These are not in release 1.0.2.2.
+
 **Simple land claims. Reliable survival protection.**
 
 LandWard is a GUI-first chunk-claim plugin for Paper and Spigot survival servers.
