@@ -63,20 +63,29 @@ public final class WarpTeleportService implements Listener {
         if (world == null || warp.y() < world.getMinHeight() + 1 || warp.y() + 1 >= world.getMaxHeight()
                 || !loadExistingChunk(world, warp.chunk().x(), warp.chunk().z())) return false;
         if (!world.getWorldBorder().isInside(new Location(world, warp.x(), warp.y(), warp.z()))) return false;
-        // Check the whole player-width footprint, including destinations close to block edges.
-        int floorY = (int)Math.floor(warp.y());
+        // Test actual block collision shapes, not whole occupied blocks. Indoor
+        // ceilings, carpets, slabs and stair landings need sub-block precision.
+        var body = new org.bukkit.util.BoundingBox(warp.x() - .299999, warp.y() + 1E-7, warp.z() - .299999,
+                warp.x() + .299999, warp.y() + 1.8 - 1E-7, warp.z() + .299999);
+        var feet = new org.bukkit.util.BoundingBox(body.getMinX(), warp.y() - .06, body.getMinZ(),
+                body.getMaxX(), warp.y() + 1E-7, body.getMaxZ());
+        boolean supported = false;
         for (int x = (int)Math.floor(warp.x() - .3); x <= (int)Math.floor(warp.x() + .3); x++) {
             for (int z = (int)Math.floor(warp.z() - .3); z <= (int)Math.floor(warp.z() + .3); z++) {
                 if (!loadExistingChunk(world, x >> 4, z >> 4)) return false;
-                var support = world.getBlockAt(x, floorY - 1, z);
-                if (!support.getType().isSolid() || dangerous(support.getType())) return false;
-                for (int y = floorY; y <= (int)Math.floor(warp.y() + 1.8); y++) {
+                for (int y = Math.max(world.getMinHeight(), (int)Math.floor(warp.y()) - 2); y <= (int)Math.floor(body.getMaxY()); y++) {
                     var block = world.getBlockAt(x, y, z);
-                    if (!block.isPassable() || block.isLiquid() || dangerous(block.getType())) return false;
+                    var cube = new org.bukkit.util.BoundingBox(x, y, z, x + 1, y + 1, z + 1);
+                    if ((body.overlaps(cube) || feet.overlaps(cube)) && (block.isLiquid() || dangerous(block.getType()))) return false;
+                    for (var shape : block.getCollisionShape().getBoundingBoxes()) {
+                        shape.shift(x, y, z);
+                        if (shape.overlaps(body)) return false;
+                        if (shape.overlaps(feet)) supported = true;
+                    }
                 }
             }
         }
-        return true;
+        return supported;
     }
     private boolean loadExistingChunk(World world, int x, int z) {
         return world.isChunkLoaded(x, z) || world.isChunkGenerated(x, z) && world.loadChunk(x, z, false);

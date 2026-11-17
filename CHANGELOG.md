@@ -18,8 +18,15 @@ All notable changes to LandWard will be documented here.
 
 - Fire spread and block burning are intentionally denied in upgraded claims.
   Existing survival damage behavior is retained until changed per land.
-- Add adjacent categories for access/members, environment/damage and warps;
+- Add adjacent categories for access/members and environment/damage;
   retain the existing nine access controls and their ordering in their submenu.
+
+### Beta refinements
+
+- Put Warps directly in the land main menu, with dedicated warp rename/teleport
+  labels and concise localized travel hints.
+- Check precise block collision shapes for indoor, carpet and slab destinations
+  while retaining support, obstruction, liquid and hazard checks.
 
 ## [1.0.2.2] - 2026-11-16
 

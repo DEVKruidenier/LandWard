@@ -284,12 +284,14 @@ features:
   lava-flow-hint: "Tylko wewnątrz terenu; przepływ przez granice nadal zablokowany"
 
 warps:
+  rename: "Zmień nazwę warpa"
+  teleport: "Teleportuj do warpa"
   title: "Warpy terenu"
   open-hint: "Zobacz nazwane miejsca tego terenu"
   create: "Utwórz warp"
   create-hint: "Zapisz swoją dokładną pozycję na tym terenie"
   select-hint: "Wybierz to miejsce"
-  teleport-hint: "Teleportuj po odliczaniu; niedostępne w walce"
+  teleport-hint: "Kliknij, aby się teleportować"
   rename-hint: "Zmień nazwę warpa"
   delete: "Usuń warp"
   delete-hint: "Usuń to miejsce po potwierdzeniu"

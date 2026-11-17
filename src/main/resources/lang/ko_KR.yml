@@ -284,12 +284,14 @@ features:
   lava-flow-hint: "영토 내부만 적용; 경계 너머 흐름은 계속 차단"
 
 warps:
+  rename: "워프 이름 변경"
+  teleport: "워프로 이동"
   title: "영토 워프"
   open-hint: "이 영토의 이름 있는 목적지 보기"
   create: "워프 생성"
   create-hint: "영토 내 정확한 현재 위치 저장"
   select-hint: "이 목적지 선택"
-  teleport-hint: "대기 후 이동; 전투 중 사용 불가"
+  teleport-hint: "클릭하여 이동"
   rename-hint: "워프 이름 변경"
   delete: "워프 삭제"
   delete-hint: "확인 후 이 목적지 삭제"

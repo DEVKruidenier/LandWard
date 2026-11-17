@@ -66,6 +66,7 @@ public final class ClaimAdminListener implements Listener {
             }
             if (slot == 12) { player.closeInventory(); plugin.adminOwnerChangeListener().begin(player, landId); return; }
             if (slot == 16) plugin.landFeaturesGui().open(player, landId, true);
+            if (slot == 22) plugin.landFeaturesGui().openWarps(player, landId, true);
             if (slot == 18) {
                 new LandMapGui(plugin, lands).openAdmin(player, landId);
                 return;

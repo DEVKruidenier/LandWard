@@ -9,7 +9,7 @@ class GuiPositionsTest {
         Map<String, List<Integer>> screens = Map.ofEntries(
                 Map.entry("player:SETTINGS", List.of(10,11,12,13,19,20,21,23,24,37,40,43)),
                 Map.entry("admin:ADMIN_SETTINGS", List.of(10,11,12,13,14,15,19,20,21,37,40)),
-                Map.entry("player:MAIN", List.of(4,11,13,15,17)),
+                Map.entry("player:MAIN", List.of(4,11,13,15,16,17)),
                 Map.entry("player:WELCOME", List.of(13,15,22)),
                 Map.entry("player:MEMBER", List.of(4,10,13,16,22)),
                 Map.entry("admin:ADMIN_MEMBER", List.of(4,10,13,16,22)),
@@ -83,9 +83,10 @@ class GuiPositionsTest {
         var positions = GuiPositions.overrides("player:MAIN");
         var rendered = GuiPositions.center(positions, positions.keySet(), 27);
         assertEquals(4, rendered.get(4));
-        assertEquals(12, rendered.get(11));
-        assertEquals(13, rendered.get(13));
-        assertEquals(14, rendered.get(15));
+        assertEquals(11, rendered.get(11));
+        assertEquals(12, rendered.get(13));
+        assertEquals(13, rendered.get(15));
+        assertEquals(14, rendered.get(16));
         assertEquals(22, rendered.get(17));
         assertEquals(22, GuiPositions.overrides("admin:MAIN").get(20));
         assertEquals(3, GuiPositions.overrides("admin:MAIN").get(9));

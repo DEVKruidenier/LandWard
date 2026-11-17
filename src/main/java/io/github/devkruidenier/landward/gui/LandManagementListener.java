@@ -59,6 +59,7 @@ public final class LandManagementListener implements Listener {
                 if (!gui.teleportToOwnedLand(player)) player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "admin.claim-no-teleport"));
             } else if (slot == 15) landManager.ownedBy(player.getUniqueId()).ifPresent(land -> plugin.landFeaturesGui().open(player, land.id(), false));
             else if (slot == 17) gui.openLandDeleteConfirmation(player);
+            else if (slot == 16) landManager.ownedBy(player.getUniqueId()).ifPresent(land -> plugin.landFeaturesGui().openWarps(player, land.id(), false));
             else if (slot == 26) player.closeInventory();
             return;
         }

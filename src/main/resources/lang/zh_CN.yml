@@ -284,12 +284,14 @@ features:
   lava-flow-hint: "仅限领地内部；跨领地边界的流动始终禁止"
 
 warps:
+  rename: "重命名传送点"
+  teleport: "传送到目的地"
   title: "领地传送点"
   open-hint: "查看领地内的命名目的地"
   create: "创建传送点"
   create-hint: "保存领地内精确的当前位置"
   select-hint: "选择此目的地"
-  teleport-hint: "等待后传送；战斗中不可用"
+  teleport-hint: "点击传送"
   rename-hint: "重命名此传送点"
   delete: "删除传送点"
   delete-hint: "确认后移除此目的地"

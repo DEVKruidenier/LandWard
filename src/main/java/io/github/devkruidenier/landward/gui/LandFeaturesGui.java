@@ -33,6 +33,9 @@ public final class LandFeaturesGui implements Listener {
         boolean owner = lands.land(land).map(value -> value.ownerId().equals(player.getUniqueId())).orElse(false);
         open(player, new Holder(land, admin, !admin && !owner ? Screen.WARPS : Screen.CATEGORIES, 0, null));
     }
+    public void openWarps(Player player, UUID land, boolean admin) {
+        open(player, new Holder(land, admin, Screen.WARPS, 0, null));
+    }
     private boolean authorized(Player player, UUID land, boolean admin) {
         return plugin.isLandWorld(player.getWorld()) && lands.land(land).isPresent()
                 && (admin ? player.hasPermission("landward.admin") : lands.canUseWarps(player.getUniqueId(), land));
@@ -46,14 +49,13 @@ public final class LandFeaturesGui implements Listener {
         boolean owner = !holder.admin && manages(player, holder);
         int size = holder.screen == Screen.ENVIRONMENT ? 36 : holder.screen == Screen.WARPS ? 54 : 27;
         holder.inventory = Bukkit.createInventory(holder, size, text(player, holder.screen == Screen.ENVIRONMENT ? "features.environment" : holder.screen == Screen.CATEGORIES ? "features.categories" : "warps.title"));
-        for (int slot = 0; slot < size; slot++) holder.inventory.setItem(slot, item(player, Material.GRAY_STAINED_GLASS_PANE, "", List.of()));
+        for (int slot = 0; slot < size; slot++) holder.inventory.setItem(slot, item(player, Material.GRAY_STAINED_GLASS_PANE, " ", List.of()));
         holder.inventory.setItem(size - 9, button(player, Material.ARROW, "gui.management-back", "features.back-hint"));
         holder.inventory.setItem(size - 1, button(player, Material.BARRIER, "gui.close", "features.close-hint"));
         switch (holder.screen) {
             case CATEGORIES -> {
                 holder.inventory.setItem(12, button(player, Material.PLAYER_HEAD, "features.access", "features.access-hint"));
                 if (manages(player, holder)) holder.inventory.setItem(13, button(player, Material.FLINT_AND_STEEL, "features.environment", "features.environment-hint"));
-                if (!lands.isAdministrative(lands.land(holder.land).orElseThrow())) holder.inventory.setItem(14, button(player, Material.ENDER_EYE, "warps.title", "warps.open-hint"));
             }
             case ENVIRONMENT -> {
                 if (!manages(player, holder)) return;
@@ -91,9 +93,9 @@ public final class LandFeaturesGui implements Listener {
                 var warp = lands.features(holder.land).warps().stream().filter(value -> value.id().equals(holder.warp)).findFirst().orElse(null);
                 if (warp == null) { open(player, new Holder(holder.land, holder.admin, Screen.WARPS, holder.page, null)); return; }
                 holder.inventory.setItem(4, item(player, Material.NAME_TAG, warp.name(), List.of(destination(warp))));
-                holder.inventory.setItem(owner ? 12 : 13, button(player, Material.ENDER_PEARL, "gui.management-teleport", "warps.teleport-hint"));
+                holder.inventory.setItem(owner ? 12 : 13, button(player, Material.ENDER_PEARL, "warps.teleport", "warps.teleport-hint"));
                 if (owner) {
-                    holder.inventory.setItem(13, button(player, Material.NAME_TAG, "gui.management-rename", "warps.rename-hint"));
+                    holder.inventory.setItem(13, button(player, Material.NAME_TAG, "warps.rename", "warps.rename-hint"));
                     holder.inventory.setItem(14, button(player, Material.HOPPER, "warps.delete", "warps.delete-hint"));
                 }
             }
@@ -130,8 +132,11 @@ public final class LandFeaturesGui implements Listener {
         if (!authorized(player, holder.land, holder.admin)) return;
         if (slot == holder.inventory.getSize() - 1) { player.closeInventory(); return; }
         if (slot == holder.inventory.getSize() - 9) {
-            if (holder.screen == Screen.WARPS && !holder.admin && !manages(player, holder)) {
-                new LandManagementGui(plugin, lands).openMemberMain(player, lands.land(holder.land).orElseThrow()); return;
+            if (holder.screen == Screen.WARPS) {
+                if (holder.admin) new ClaimAdminGui(plugin, lands).openPlayerClaimDetails(player, holder.land);
+                else if (manages(player, holder)) new LandManagementGui(plugin, lands).openMain(player);
+                else new LandManagementGui(plugin, lands).openMemberMain(player, lands.land(holder.land).orElseThrow());
+                return;
             }
             if (holder.screen == Screen.CATEGORIES) {
                 if (holder.admin) new ClaimAdminGui(plugin, lands).openMain(player); else new LandManagementGui(plugin, lands).openMain(player);
@@ -145,7 +150,6 @@ public final class LandFeaturesGui implements Listener {
                     else if (holder.admin) new ClaimAdminGui(plugin, lands).openPlayerClaimMembers(player, holder.land);
                     else if (manages(player, holder)) new LandManagementGui(plugin, lands).openSettings(player);
                 } else if (slot == 13 && manages(player, holder)) open(player, new Holder(holder.land, holder.admin, Screen.ENVIRONMENT, 0, null));
-                else if (slot == 14 && !lands.isAdministrative(lands.land(holder.land).orElseThrow())) open(player, new Holder(holder.land, holder.admin, Screen.WARPS, 0, null));
             }
             case ENVIRONMENT -> {
                 if (!manages(player, holder)) return;
@@ -177,7 +181,7 @@ public final class LandFeaturesGui implements Listener {
         }
     }
     private void input(Player player, UUID land, UUID warp) {
-        player.closeInventory(); var view = NativeAnvilInput.create(player, text(player, warp == null ? "warps.create" : "gui.management-rename"));
+        player.closeInventory(); var view = NativeAnvilInput.create(player, text(player, warp == null ? "warps.create" : "warps.rename"));
         String seed = warp == null ? " " : lands.features(land).warps().stream().filter(value -> value.id().equals(warp)).findFirst().orElseThrow().name();
         view.getTopInventory().setItem(0, item(player, Material.NAME_TAG, seed, List.of()));
         inputs.put(player.getUniqueId(), new Input(land, warp, view)); player.openInventory(view);

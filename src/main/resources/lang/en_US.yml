@@ -284,12 +284,14 @@ features:
   lava-flow-hint: "Only within this land; flow across claim boundaries stays blocked"
 
 warps:
+  rename: "Rename warp"
+  teleport: "Teleport to warp"
   title: "Land warps"
   open-hint: "View named destinations in this land"
   create: "Create warp"
   create-hint: "Save your precise current position inside this land"
   select-hint: "Select this destination"
-  teleport-hint: "Teleport after the configured warmup; combat blocks travel"
+  teleport-hint: "Click to teleport"
   rename-hint: "Change this warp name"
   delete: "Delete warp"
   delete-hint: "Remove this destination after confirmation"

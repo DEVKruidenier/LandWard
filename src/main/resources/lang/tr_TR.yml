@@ -284,12 +284,14 @@ features:
   lava-flow-hint: "Yalnızca arazi içinde; sınırlar arası akış engellenir"
 
 warps:
+  rename: "Hedefi yeniden adlandır"
+  teleport: "Hedefe ışınlan"
   title: "Arazi ışınlanmaları"
   open-hint: "Bu arazinin adlandırılmış hedeflerini gör"
   create: "Hedef oluştur"
   create-hint: "Arazi içindeki tam konumunu kaydet"
   select-hint: "Bu hedefi seç"
-  teleport-hint: "Bekleme sonrası ışınlan; çatışmada kullanılamaz"
+  teleport-hint: "Işınlanmak için tıkla"
   rename-hint: "Bu hedefi yeniden adlandır"
   delete: "Hedefi sil"
   delete-hint: "Onaydan sonra bu hedefi kaldır"

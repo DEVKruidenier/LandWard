@@ -284,12 +284,14 @@ features:
   lava-flow-hint: "Solo dentro del terreno; el flujo entre límites sigue bloqueado"
 
 warps:
+  rename: "Renombrar destino"
+  teleport: "Teletransportar al destino"
   title: "Destinos del terreno"
   open-hint: "Ver destinos con nombre de este terreno"
   create: "Crear destino"
   create-hint: "Guardar tu posición exacta dentro del terreno"
   select-hint: "Seleccionar este destino"
-  teleport-hint: "Teletransportar tras la espera; no durante combate"
+  teleport-hint: "Haz clic para teletransportarte"
   rename-hint: "Cambiar el nombre de este destino"
   delete: "Eliminar destino"
   delete-hint: "Eliminar este destino tras confirmar"

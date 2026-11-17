@@ -284,12 +284,14 @@ features:
   lava-flow-hint: "Alleen binnen dit land; stroming over claimgrenzen blijft geblokkeerd"
 
 warps:
+  rename: "Warp hernoemen"
+  teleport: "Naar warp teleporteren"
   title: "Landwarps"
   open-hint: "Benoemde bestemmingen in dit land bekijken"
   create: "Warp maken"
   create-hint: "Je precieze huidige positie binnen dit land opslaan"
   select-hint: "Deze bestemming selecteren"
-  teleport-hint: "Teleporteren na de wachttijd; niet tijdens een gevecht"
+  teleport-hint: "Klik om te teleporteren"
   rename-hint: "De naam van deze warp wijzigen"
   delete: "Warp verwijderen"
   delete-hint: "Deze bestemming verwijderen na bevestiging"

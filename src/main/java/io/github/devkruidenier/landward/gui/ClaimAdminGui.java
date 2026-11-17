@@ -109,6 +109,8 @@ public final class ClaimAdminGui {
                         plugin.localeService().message(locale, "warps.open-hint"))));
         inventory.setItem(18, item(Material.FILLED_MAP, plugin.localeService().message(locale, "gui.management-chunk-map"), NamedTextColor.AQUA,
                 List.of(plugin.localeService().message(locale, "gui.management-open-map"))));
+        inventory.setItem(22, item(Material.ENDER_EYE, plugin.localeService().message(locale, "warps.title"), NamedTextColor.AQUA,
+                List.of(plugin.localeService().message(locale, "warps.open-hint"))));
         inventory.setItem(20, item(Material.HOPPER, plugin.localeService().message(locale, "gui.admin-confirm"), NamedTextColor.RED,
                 List.of(plugin.localeService().message(locale, "gui.hint-delete-player-land"),
                         plugin.localeService().message(locale, "gui.unclaim-warning"))));

@@ -284,12 +284,14 @@ features:
   lava-flow-hint: "Dans ce terrain seulement ; les frontières restent protégées"
 
 warps:
+  rename: "Renommer la destination"
+  teleport: "Téléporter à la destination"
   title: "Téléportations du terrain"
   open-hint: "Voir les destinations nommées de ce terrain"
   create: "Créer une destination"
   create-hint: "Enregistrer votre position exacte dans ce terrain"
   select-hint: "Choisir cette destination"
-  teleport-hint: "Téléporter après le délai ; impossible en combat"
+  teleport-hint: "Cliquer pour se téléporter"
   rename-hint: "Renommer cette destination"
   delete: "Supprimer la destination"
   delete-hint: "Supprimer cette destination après confirmation"

@@ -284,12 +284,14 @@ features:
   lava-flow-hint: "Solo nel terreno; il flusso oltre i confini resta bloccato"
 
 warps:
+  rename: "Rinomina warp"
+  teleport: "Teletrasportati al warp"
   title: "Warp del terreno"
   open-hint: "Visualizza destinazioni nominate del terreno"
   create: "Crea warp"
   create-hint: "Salva la tua posizione esatta nel terreno"
   select-hint: "Seleziona questa destinazione"
-  teleport-hint: "Teletrasporta dopo l’attesa; vietato in combattimento"
+  teleport-hint: "Clicca per teletrasportarti"
   rename-hint: "Rinomina questo warp"
   delete: "Elimina warp"
   delete-hint: "Rimuovi questa destinazione dopo conferma"

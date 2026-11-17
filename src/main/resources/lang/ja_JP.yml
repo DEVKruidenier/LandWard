@@ -284,12 +284,14 @@ features:
   lava-flow-hint: "領地内のみ；境界を越える流れは常に禁止"
 
 warps:
+  rename: "ワープ名を変更"
+  teleport: "ワープへ移動"
   title: "領地ワープ"
   open-hint: "領地内の名前付き地点を表示"
   create: "ワープを作成"
   create-hint: "領地内の正確な現在位置を保存"
   select-hint: "この地点を選択"
-  teleport-hint: "待機後に移動；戦闘中は使用不可"
+  teleport-hint: "クリックで移動"
   rename-hint: "このワープの名前を変更"
   delete: "ワープを削除"
   delete-hint: "確認後にこの地点を削除"
