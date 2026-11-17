@@ -10,6 +10,11 @@ LandWard is a GUI-first chunk-claim plugin for Paper and Spigot survival servers
 For the complete feature list, commands and configuration guidance, visit the
 [LandWard Wiki](https://github.com/DEVKruidenier/LandWard/wiki).
 
+## Try LandWard
+
+Want to try LandWard in-game? Join **play.martialcraft.nl** and visit the
+**Survival world** to test the plugin.
+
 ## See it in action
 
 **Create a land** — open `/claim`, choose **Create land**, and enter the land name

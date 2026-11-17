@@ -10,6 +10,11 @@ LandWard is a GUI-first chunk-claim plugin for Paper and Spigot survival servers
 create a named land, open a visual chunk map and click the chunks they want to
 protect—no golden shovel, selection wand or claim shop required.
 
+## Try LandWard
+
+Want to try LandWard in-game? Join **play.martialcraft.nl** and visit the
+**Survival world** to test the plugin.
+
 ## Highlights
 
 - Visual chunk map centred on the player's current chunk.
