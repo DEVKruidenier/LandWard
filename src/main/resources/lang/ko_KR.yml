@@ -291,7 +291,7 @@ warps:
   create: "워프 생성"
   create-hint: "영토 내 정확한 현재 위치 저장"
   select-hint: "이 목적지 선택"
-  teleport-hint: "클릭하여 이동"
+  teleport-click: "클릭하여 이동"
   rename-hint: "워프 이름 변경"
   delete: "워프 삭제"
   delete-hint: "확인 후 이 목적지 삭제"

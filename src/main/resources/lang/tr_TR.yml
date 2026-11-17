@@ -291,7 +291,7 @@ warps:
   create: "Hedef oluştur"
   create-hint: "Arazi içindeki tam konumunu kaydet"
   select-hint: "Bu hedefi seç"
-  teleport-hint: "Işınlanmak için tıkla"
+  teleport-click: "Işınlanmak için tıkla"
   rename-hint: "Bu hedefi yeniden adlandır"
   delete: "Hedefi sil"
   delete-hint: "Onaydan sonra bu hedefi kaldır"

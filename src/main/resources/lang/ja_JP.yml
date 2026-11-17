@@ -291,7 +291,7 @@ warps:
   create: "ワープを作成"
   create-hint: "領地内の正確な現在位置を保存"
   select-hint: "この地点を選択"
-  teleport-hint: "クリックで移動"
+  teleport-click: "クリックで移動"
   rename-hint: "このワープの名前を変更"
   delete: "ワープを削除"
   delete-hint: "確認後にこの地点を削除"

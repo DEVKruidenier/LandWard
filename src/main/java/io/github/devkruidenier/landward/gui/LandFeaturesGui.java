@@ -93,7 +93,7 @@ public final class LandFeaturesGui implements Listener {
                 var warp = lands.features(holder.land).warps().stream().filter(value -> value.id().equals(holder.warp)).findFirst().orElse(null);
                 if (warp == null) { open(player, new Holder(holder.land, holder.admin, Screen.WARPS, holder.page, null)); return; }
                 holder.inventory.setItem(4, item(player, Material.NAME_TAG, warp.name(), List.of(destination(warp))));
-                holder.inventory.setItem(owner ? 12 : 13, button(player, Material.ENDER_PEARL, "warps.teleport", "warps.teleport-hint"));
+                holder.inventory.setItem(owner ? 12 : 13, button(player, Material.ENDER_PEARL, "warps.teleport", "warps.teleport-click"));
                 if (owner) {
                     holder.inventory.setItem(13, button(player, Material.NAME_TAG, "warps.rename", "warps.rename-hint"));
                     holder.inventory.setItem(14, button(player, Material.HOPPER, "warps.delete", "warps.delete-hint"));

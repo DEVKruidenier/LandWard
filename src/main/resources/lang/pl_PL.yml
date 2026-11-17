@@ -291,7 +291,7 @@ warps:
   create: "Utwórz warp"
   create-hint: "Zapisz swoją dokładną pozycję na tym terenie"
   select-hint: "Wybierz to miejsce"
-  teleport-hint: "Kliknij, aby się teleportować"
+  teleport-click: "Kliknij, aby się teleportować"
   rename-hint: "Zmień nazwę warpa"
   delete: "Usuń warp"
   delete-hint: "Usuń to miejsce po potwierdzeniu"

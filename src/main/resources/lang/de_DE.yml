@@ -291,7 +291,7 @@ warps:
   create: "Warp erstellen"
   create-hint: "Deine genaue Position innerhalb dieses Lands speichern"
   select-hint: "Dieses Ziel auswählen"
-  teleport-hint: "Zum Teleportieren klicken"
+  teleport-click: "Zum Teleportieren klicken"
   rename-hint: "Diesen Warp umbenennen"
   delete: "Warp löschen"
   delete-hint: "Dieses Ziel nach Bestätigung entfernen"

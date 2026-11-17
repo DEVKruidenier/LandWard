@@ -291,7 +291,7 @@ warps:
   create: "Crear destino"
   create-hint: "Guardar tu posición exacta dentro del terreno"
   select-hint: "Seleccionar este destino"
-  teleport-hint: "Haz clic para teletransportarte"
+  teleport-click: "Haz clic para teletransportarte"
   rename-hint: "Cambiar el nombre de este destino"
   delete: "Eliminar destino"
   delete-hint: "Eliminar este destino tras confirmar"

@@ -291,7 +291,7 @@ warps:
   create: "创建传送点"
   create-hint: "保存领地内精确的当前位置"
   select-hint: "选择此目的地"
-  teleport-hint: "点击传送"
+  teleport-click: "点击传送"
   rename-hint: "重命名此传送点"
   delete: "删除传送点"
   delete-hint: "确认后移除此目的地"

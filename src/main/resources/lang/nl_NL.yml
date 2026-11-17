@@ -291,7 +291,7 @@ warps:
   create: "Warp maken"
   create-hint: "Je precieze huidige positie binnen dit land opslaan"
   select-hint: "Deze bestemming selecteren"
-  teleport-hint: "Klik om te teleporteren"
+  teleport-click: "Klik om te teleporteren"
   rename-hint: "De naam van deze warp wijzigen"
   delete: "Warp verwijderen"
   delete-hint: "Deze bestemming verwijderen na bevestiging"
