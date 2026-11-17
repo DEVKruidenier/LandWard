@@ -44,7 +44,7 @@ public final class LandFeaturesGui implements Listener {
     private void open(Player player, Holder holder) {
         if (!authorized(player, holder.land, holder.admin)) { player.closeInventory(); return; }
         boolean owner = !holder.admin && manages(player, holder);
-        int size = holder.screen == Screen.ENVIRONMENT || holder.screen == Screen.WARPS ? 54 : 27;
+        int size = holder.screen == Screen.ENVIRONMENT ? 36 : holder.screen == Screen.WARPS ? 54 : 27;
         holder.inventory = Bukkit.createInventory(holder, size, text(player, holder.screen == Screen.ENVIRONMENT ? "features.environment" : holder.screen == Screen.CATEGORIES ? "features.categories" : "warps.title"));
         for (int slot = 0; slot < size; slot++) holder.inventory.setItem(slot, item(player, Material.GRAY_STAINED_GLASS_PANE, "", List.of()));
         holder.inventory.setItem(size - 9, button(player, Material.ARROW, "gui.management-back", "features.back-hint"));
@@ -62,7 +62,7 @@ public final class LandFeaturesGui implements Listener {
                 Material[] icons = {Material.FLINT_AND_STEEL, Material.FEATHER, Material.TNT, Material.FIRE_CHARGE,
                         Material.SHIELD, Material.CAMPFIRE, Material.LAVA_BUCKET, Material.GRASS_BLOCK, Material.WATER_BUCKET, Material.BUCKET};
                 for (int i = 0; i < rules.length; i++) {
-                    int slot = (i / 5 + 1) * 9 + 2 + i % 5;
+                    int slot = FeatureMenuLayout.environmentSlot(i);
                     String key = "features." + rules[i].name().toLowerCase(Locale.ROOT).replace('_', '-');
                     holder.inventory.setItem(slot, item(player, icons[i], text(player, key), List.of(
                             text(player, settings.allows(rules[i]) ? "features.allowed" : "features.denied"),
@@ -75,8 +75,7 @@ public final class LandFeaturesGui implements Listener {
                 if (page != holder.page) { open(player, new Holder(holder.land, holder.admin, Screen.WARPS, page, null)); return; }
                 int count = Math.min(45, list.size() - page * 45);
                 for (int i = 0; i < count; i++) {
-                    int rowSize = Math.min(9, count - (i / 9) * 9);
-                    int slot = (i / 9) * 9 + (9 - rowSize) / 2 + i % 9;
+                    int slot = FeatureMenuLayout.listSlot(i, count);
                     var warp = list.get(page * 45 + i); holder.entries.put(slot, warp.id());
                     holder.inventory.setItem(slot, item(player, Material.ENDER_PEARL, warp.name(), List.of(destination(warp), text(player, "warps.select-hint"))));
                 }
@@ -150,7 +149,7 @@ public final class LandFeaturesGui implements Listener {
             }
             case ENVIRONMENT -> {
                 if (!manages(player, holder)) return;
-                for (int i = 0; i < EnvironmentSettings.Rule.values().length; i++) if (slot == (i / 5 + 1) * 9 + 2 + i % 5) {
+                for (int i = 0; i < EnvironmentSettings.Rule.values().length; i++) if (slot == FeatureMenuLayout.environmentSlot(i)) {
                     var rule = EnvironmentSettings.Rule.values()[i]; var settings = lands.features(holder.land).environment();
                     lands.environment(holder.land, settings.with(rule, !settings.allows(rule))); open(player, holder); return;
                 }
