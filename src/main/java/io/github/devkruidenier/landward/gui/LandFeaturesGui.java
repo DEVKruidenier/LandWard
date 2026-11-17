@@ -162,11 +162,13 @@ public final class LandFeaturesGui implements Listener {
             }
             case WARP -> {
                 boolean owner = !holder.admin && manages(player, holder);
+                if (!destinationWorldEnabled(holder.land, holder.warp)) { tell(player, "warps.unavailable"); return; }
                 if (slot == (owner ? 12 : 13)) { player.closeInventory(); teleports.begin(player, holder.land, holder.warp, holder.admin); }
                 else if (slot == 13 && !holder.admin && manages(player, holder)) input(player, holder.land, holder.warp);
                 else if (slot == 14 && !holder.admin && manages(player, holder)) open(player, new Holder(holder.land, false, Screen.DELETE, holder.page, holder.warp));
             }
             case DELETE -> {
+                if (!destinationWorldEnabled(holder.land, holder.warp)) { tell(player, "warps.unavailable"); return; }
                 if (slot == 13 && !holder.admin && manages(player, holder)) {
                     lands.deleteWarp(player.getUniqueId(), holder.land, holder.warp);
                     open(player, new Holder(holder.land, false, Screen.WARPS, holder.page, null));
@@ -193,6 +195,7 @@ public final class LandFeaturesGui implements Listener {
         Bukkit.getScheduler().runTask(plugin, () -> {
             player.closeInventory();
             if (!authorized(player, input.land(), false)) return;
+            if (input.warp() != null && !destinationWorldEnabled(input.land(), input.warp())) { tell(player, "warps.unavailable"); return; }
             try {
                 if (input.warp() == null) {
                     Location location = player.getLocation();
@@ -213,6 +216,10 @@ public final class LandFeaturesGui implements Listener {
         if (event.getView().getTopInventory().getHolder() instanceof Holder || inputs.containsKey(event.getWhoClicked().getUniqueId())) event.setCancelled(true);
     }
     private ItemStack button(Player player, Material material, String key, String hint) { return item(player, material, text(player, key), List.of(text(player, hint))); }
+    private boolean destinationWorldEnabled(UUID land, UUID warp) {
+        return lands.features(land).warps().stream().filter(value -> value.id().equals(warp)).findFirst()
+                .map(value -> Bukkit.getWorld(value.worldId())).filter(Objects::nonNull).map(plugin::isLandWorld).orElse(false);
+    }
     private ItemStack item(Player player, Material material, String label, List<String> lore) {
         var item = new ItemStack(material); var meta = item.getItemMeta(); meta.setDisplayName(label); meta.setLore(lore);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES); item.setItemMeta(meta); return item;

@@ -46,7 +46,9 @@ public final class WarpTeleportService implements Listener {
                     || !permitted(player, request.land(), request.warp(), request.admin())) { cancel(player); continue; }
             if (tick < request.due()) continue;
             pending.remove(entry.getKey());
-            if (!safe(request.warp())) { tell(player, "warps.unavailable"); continue; }
+            if (!safe(request.warp()) || !permitted(player, request.land(), request.warp(), request.admin())) {
+                tell(player, "warps.unavailable"); continue;
+            }
             LandWarp warp = request.warp();
             boolean teleported = player.teleport(new Location(Bukkit.getWorld(warp.worldId()), warp.x(), warp.y(), warp.z(), warp.yaw(), warp.pitch()));
             tell(player, teleported ? "warps.complete" : "warps.unavailable");
