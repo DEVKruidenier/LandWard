@@ -68,6 +68,12 @@ public final class FeatureServerProbe extends JavaPlugin {
                 var lightning = new BlockIgniteEvent(target, BlockIgniteEvent.IgniteCause.LIGHTNING, (Entity)null, null);
                 listener.onBlockIgnite(lightning); check(lightning.isCancelled() == !allowed, "Lightning ignition");
                 var burn = new BlockBurnEvent(target); listener.onBlockBurn(burn); check(burn.isCancelled() == !allowed, "Unknown fire source");
+                Block internalFire = target.getRelative(1, 0, 0); var previousFireBlock = internalFire.getBlockData();
+                try {
+                    internalFire.setType(Material.FIRE, false);
+                    var internalSpread = new BlockSpreadEvent(target, internalFire, target.getState());
+                    listener.onBlockSpread(internalSpread); check(internalSpread.isCancelled() == !allowed, "Fire spread within the same claim");
+                } finally { internalFire.setBlockData(previousFireBlock, false); }
                 var mob = proxy(Mob.class, UUID.randomUUID(), target.getLocation(), EntityType.ENDERMAN);
                 var change = new EntityChangeBlockEvent(mob, target, Material.AIR.createBlockData());
                 listener.onEntityChangeBlock(change); check(change.isCancelled() == !allowed, "Mob block changes");

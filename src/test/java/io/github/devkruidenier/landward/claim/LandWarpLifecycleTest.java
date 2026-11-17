@@ -55,4 +55,27 @@ class LandWarpLifecycleTest {
         lands.environment(safe.id(), lands.features(safe.id()).environment().with(EnvironmentSettings.Rule.FALL_DAMAGE, true));
         lands.load(); assertTrue(lands.features(safe.id()).environment().allows(EnvironmentSettings.Rule.FALL_DAMAGE));
     }
+    @Test void concurrentWarpCreationAndUnclaimCannotLeaveAnOrphan() throws Exception {
+        var storage = new SqliteLandStorage(directory.resolve("race.db")); storage.initialize();
+        var lands = new LandManager(storage); lands.load();
+        try (var tasks = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+            for (int i = 0; i < 20; i++) {
+                UUID owner = UUID.randomUUID(), world = UUID.randomUUID();
+                var home = new ChunkPosition(world, 0, 0); var extra = new ChunkPosition(world, 1, 0);
+                var land = lands.create(owner, "Race " + i, home).land(); lands.claim(owner, extra, 10, true);
+                var start = new java.util.concurrent.CountDownLatch(1);
+                var created = tasks.submit(() -> {
+                    start.await();
+                    try { lands.addWarp(owner, land.id(), new LandWarp(UUID.randomUUID(), "Home", world, 17, 80, 1, 0, 0), 3); }
+                    catch (IllegalArgumentException removedBeforeCreation) { }
+                    return null;
+                });
+                var removed = tasks.submit(() -> { start.await(); lands.unclaim(owner, extra); return null; });
+                start.countDown(); created.get(); removed.get();
+                assertTrue(lands.features(land.id()).warps().isEmpty());
+                assertTrue(storage.load().features().stream().filter(value -> value.landId().equals(land.id())).findFirst().orElseThrow().warps().isEmpty());
+                lands.deleteOwnedLand(owner);
+            }
+        }
+    }
 }
