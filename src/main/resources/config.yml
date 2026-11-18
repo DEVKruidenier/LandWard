@@ -2,6 +2,8 @@
 plugin-version: '${version}'
 
 language:
+  # English is the default. All supported codes are documented in the Wiki Languages page.
+  # Example: fi_FI for Finnish, nb_NO for Bokmal (Java client no_no is recognized too).
   # Default language used for console senders and players without a matching client locale.
   default: en_US
   # Language used only for startup, storage and update messages in the server console.

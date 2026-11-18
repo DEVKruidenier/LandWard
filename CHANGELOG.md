@@ -4,7 +4,13 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.4.0] - 2026-11-18
+
 ### Added
+
+- Nineteen complete language catalogs (32 total), including Nordic, European
+  and Asian languages, Arabic and Traditional Chinese. Recognize Java Bokmål
+  `no_no` as `nb_NO`; unsupported clients use the configured default language.
 
 - Bounded chunk-map navigation for player lands, Safe Zones and remote admin
   player-land maps. Four footer controls pan one chunk per click without travel;

@@ -82,8 +82,11 @@ public final class PackagedStorageFixture {
                     "META-INF/THIRD_PARTY_NOTICES.md")) {
                 check(names.contains(resource), "Missing metadata/license: " + resource);
             }
-            check(names.stream().filter(n -> n.startsWith("lang/") && n.endsWith(".yml")).count() == 13,
+            check(names.stream().filter(n -> n.startsWith("lang/") && n.endsWith(".yml")).count()
+                            == io.github.devkruidenier.landward.locale.LocaleCatalog.LOCALES.size(),
                     "A language catalog is missing");
+            for (String locale : io.github.devkruidenier.landward.locale.LocaleCatalog.LOCALES)
+                check(names.contains("lang/" + locale + ".yml"), "Missing language: " + locale);
             for (String prefix : List.of("com/mysql/cj/xdevapi/", "com/mysql/cj/protocol/x/", "com/mysql/cj/x/protobuf/")) {
                 check(names.stream().noneMatch(n -> n.startsWith(prefix)), "Unused X API retained: " + prefix);
             }

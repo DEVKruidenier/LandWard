@@ -43,8 +43,7 @@ final class GuiHintsTest {
 
     @Test
     void everySettingDescriptionResolvesFromEveryLanguageCatalog() throws Exception {
-        for (String locale : List.of("en_US", "nl_NL", "de_DE", "fr_FR", "es_ES", "it_IT", "pt_BR",
-                "pl_PL", "tr_TR", "ru_RU", "zh_CN", "ja_JP", "ko_KR")) {
+        for (String locale : io.github.devkruidenier.landward.locale.LocaleCatalog.LOCALES) {
             try (var input = getClass().getResourceAsStream("/lang/" + locale + ".yml")) {
                 assertNotNull(input);
                 Map<?, ?> catalog = new Yaml().load(new InputStreamReader(input, StandardCharsets.UTF_8));

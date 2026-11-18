@@ -5,7 +5,6 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bstats.charts.DrilldownPie;
 import io.github.devkruidenier.landward.claim.LandManager;
-import io.github.devkruidenier.landward.locale.LocaleService;
 import io.github.devkruidenier.landward.storage.mysql.MySqlLandStorage;
 import io.github.devkruidenier.landward.storage.sqlite.SqliteLandStorage;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -61,7 +60,7 @@ public final class MetricsService {
         var values = new java.util.HashMap<String, String>();
         values.put("storage_backend", plugin.storage() instanceof SqliteLandStorage ? "SQLite"
                 : plugin.storage() instanceof MySqlLandStorage ? "MySQL/MariaDB" : "Unknown");
-        values.put("configured_language", UsageSnapshot.language(plugin.getConfig().getString("language.default"), LocaleService.supportedLocales()));
+        values.put("configured_language", io.github.devkruidenier.landward.locale.LocaleCatalog.configured(plugin.getConfig().getString("language.default")));
         values.put("player_lands", UsageSnapshot.bucket(counts[0]));
         values.put("claimed_chunks", UsageSnapshot.bucket(counts[1]));
         values.put("safe_zones", UsageSnapshot.bucket(counts[2]));

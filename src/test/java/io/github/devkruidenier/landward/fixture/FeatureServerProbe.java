@@ -19,6 +19,22 @@ public final class FeatureServerProbe extends JavaPlugin {
     private int assertions;
     @Override public void onEnable() {
         getCommand("featureprobe").setExecutor((sender, command, label, args) -> {
+            if (args.length == 1 && args[0].equals("languages")) {
+                try {
+                    var target=(LandWardPlugin)Bukkit.getPluginManager().getPlugin("LandWard");
+                    var locales=io.github.devkruidenier.landward.locale.LocaleCatalog.LOCALES;
+                    check(locales.size()==32,"32 registered languages");
+                    for(String locale:locales){
+                        check(new java.io.File(target.getDataFolder(),"lang/"+locale+".yml").isFile(),"Catalog installed: "+locale);
+                        check(!target.localeService().message(locale,"gui.map-west").equals("gui.map-west"),"Localized GUI key: "+locale);
+                        String offset=target.localeService().message(locale,"gui.map-offset",Map.of("x",7,"z",-3));
+                        check(offset.contains("7")&&offset.contains("-3")&&!offset.contains("{x}"),"Arguments substituted: "+locale);
+                    }
+                    check(target.localeService().message("no_no","plugin.enabled").equals(target.localeService().message("nb_NO","plugin.enabled")),"Bokmal client alias");
+                    getLogger().info("LANGUAGES-PROBE-PASS assertions="+assertions);
+                } catch(Throwable error){getLogger().log(java.util.logging.Level.SEVERE,"LANGUAGES-PROBE-FAIL",error);}
+                return true;
+            }
             if (args.length == 1 && args[0].equals("map")) {
                 try {
                     // Define this test-only helper in LandWard's loader so it can inspect

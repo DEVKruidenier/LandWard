@@ -1,14 +1,26 @@
 # LandWard
 
-LandWard 1.0.3.0 adds expanded environmental protection and named player-land warps.
-See the [guide](https://github.com/DEVKruidenier/LandWard/wiki/Protection-and-Warps)
-for settings, permissions and migration behavior. Requires LandWard 1.0.3.0 or newer.
+LandWard 1.0.4.0 adds bounded chunk-map navigation, 32 languages and anonymous
+feature-usage charts. See the [Wiki](https://github.com/DEVKruidenier/LandWard/wiki)
+for protections, named land warps, settings and permissions.
 
 **Simple land claims. Reliable survival protection.**
 
 LandWard is a GUI-first chunk-claim plugin for Paper and Spigot survival servers. Players
 create a named land, open a visual chunk map and click the chunks they want to
 protect—no golden shovel, selection wand or claim shop required.
+
+## Languages
+
+**English is the default language.** LandWard automatically uses a supported
+Minecraft client language when enabled. Server owners can change the default
+and console language in `config.yml` and customize all text in `lang/<locale>.yml`.
+
+**32 languages in LandWard 1.0.4.0:** English, Dutch, German, French, Spanish, Brazilian Portuguese, Italian, Polish, Turkish, Russian, Simplified Chinese, Japanese and Korean.
+
+**Also included:** Finnish, Danish, Swedish, Norwegian Bokmål, Norwegian Nynorsk, Icelandic, Faroese, Indonesian, Vietnamese, Czech, Romanian, Ukrainian, Hungarian, Thai, Filipino, Malay, Hindi, Arabic and Traditional Chinese.
+
+See [Languages and locale codes](https://github.com/DEVKruidenier/LandWard/wiki/Languages) for setup and automatic fallback behavior.
 
 ## Servers using LandWard
 
