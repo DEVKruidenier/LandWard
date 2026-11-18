@@ -11,6 +11,8 @@ LandWard is a GUI-first chunk-claim plugin for Paper and Spigot survival servers
 create a named land, open a visual chunk map and click the chunks they want to
 protect—no golden shovel, selection wand or claim shop required.
 
+**Supported servers:** Paper 26.2/26.3 and Spigot 26.2/26.3. Java 25 required.
+
 **Compatible with Velocity proxy networks** — tested with Velocity 4.3.1 and a Paper 26.2 backend. Install LandWard on the backend server.
 
 ## Languages
@@ -79,7 +81,7 @@ server's other worlds.
 
 ## Requirements
 
-- Paper or Spigot 26.2 or newer
+- Paper 26.2/26.3 or Spigot 26.2/26.3
 - Java 25 or newer
 
 For the complete feature list and detailed usage instructions, see the

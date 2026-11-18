@@ -20,6 +20,8 @@ economies.
 - Want your server listed here? Join **play.martialcraft.nl** and use
   `/mail send Kruidenier <yourServerIP>`.
 
+**Supported servers:** Paper 26.2/26.3 and Spigot 26.2/26.3. Java 25 required.
+
 **Compatible with Velocity proxy networks** — tested with Velocity 4.3.1 and a Paper 26.2 backend. Install LandWard on the backend server.
 
 ## Languages
