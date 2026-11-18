@@ -21,10 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** Ensures every bundled language has every player-visible LandWard message. */
 final class LocaleCatalogParityTest {
 
-    private static final List<String> LOCALES = List.of(
-            "en_US", "nl_NL", "de_DE", "fr_FR", "es_ES", "pt_BR", "it_IT",
-            "pl_PL", "tr_TR", "ru_RU", "zh_CN", "ja_JP", "ko_KR"
-    );
+    private static final List<String> LOCALES = LocaleCatalog.LOCALES;
     private static final Pattern KEY = Pattern.compile("^(\\s*)([A-Za-z0-9_-]+):(?:\\s+.+)?$");
 
     @Test

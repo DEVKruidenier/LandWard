@@ -4,6 +4,24 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.4.0] - 2026-11-18
+
+### Added
+
+- Nineteen complete language catalogs (32 total), including Nordic, European
+  and Asian languages, Arabic and Traditional Chinese. Recognize Java Bokmål
+  `no_no` as `nb_NO`; unsupported clients use the configured default language.
+
+- Bounded chunk-map navigation for player lands, Safe Zones and remote admin
+  player-land maps. Four footer controls pan one chunk per click without travel;
+  keep the viewport after claiming, unclaiming or cancelling confirmations.
+  Configure the maximum center offset with `claims.map-navigation-limit` (30).
+
+- Anonymous bStats feature-usage charts for storage backend, configured default
+  language, payment mode, integration availability and grouped counts of player
+  lands, claimed chunks, Safe Zones and named warps. Both opt-outs are respected;
+  reloading LandWard applies its metrics switch without restarting the server.
+
 ## [1.0.3.0] - 2026-11-17
 
 ### Added

@@ -37,6 +37,13 @@ public final class LandMapListener implements Listener {
             else new LandManagementGui(plugin, landManager).openMain(player);
             return;
         }
+        if (!canUseMap(player, holder)) return;
+        if (slot == 47 || slot == 48 || slot == 50 || slot == 51) {
+            new LandMapGui(plugin, landManager).move(player, holder,
+                    slot == 47 ? -1 : slot == 51 ? 1 : 0,
+                    slot == 48 ? -1 : slot == 50 ? 1 : 0);
+            return;
+        }
         ChunkPosition position = holder.chunksBySlot().get(slot);
         if (position == null || plugin.storage() == null) return;
         if (holder.administrator() && !canEditWorld(player, position)) return;
@@ -48,10 +55,10 @@ public final class LandMapListener implements Listener {
                         || existingLand.get().id().equals(holder.restrictedLandId());
                 if (administrative == holder.administrativeClaims() && matchesRestriction) {
                     new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position, true,
-                            holder.administrativeClaims(), holder.restrictedLandId());
+                            holder.administrativeClaims(), holder.restrictedLandId(), holder);
                 }
             } else if (existingLand.get().ownerId().equals(player.getUniqueId())) {
-                new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position, false, false);
+                new LandMapGui(plugin, landManager).openUnclaimConfirmation(player, position, false, false, null, holder);
             }
             return;
         }
@@ -63,7 +70,7 @@ public final class LandMapListener implements Listener {
                         : configuredName;
                 landManager.claimAdministration(name, position);
                 plugin.syncMapIntegrations();
-                new LandMapGui(plugin, landManager).openAdminClaims(player);
+                new LandMapGui(plugin, landManager).reopen(player, holder);
             } catch (StorageException exception) {
                 player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
             }
@@ -74,13 +81,13 @@ public final class LandMapListener implements Listener {
             try {
                 landManager.adminClaimPlayerLand(holder.restrictedLandId(), position);
                 plugin.syncMapIntegrations();
-                new LandMapGui(plugin, landManager).openAdmin(player, holder.restrictedLandId());
+                new LandMapGui(plugin, landManager).reopen(player, holder);
             } catch (StorageException exception) {
                 player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
             }
             return;
         }
-        try { command.claimFromMenu(player, position); new LandMapGui(plugin, landManager).open(player); }
+        try { command.claimFromMenu(player, position); new LandMapGui(plugin, landManager).reopen(player, holder); }
         catch (StorageException exception) { player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error")); }
     }
 
@@ -88,13 +95,20 @@ public final class LandMapListener implements Listener {
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot() < 0 || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
         if (GuiLayout.navigation(event)) return;
+        if (confirmation.administrator() && !player.hasPermission("landward.admin")) { player.closeInventory(); return; }
+        if (confirmation.returnMap() != null && !canUseMap(player, confirmation.returnMap())) return;
         int slot = GuiLayout.action(event.getView().getTopInventory(), event.getRawSlot());
         if (slot == 11) {
             if (confirmation.administrator() && !canEditWorld(player, confirmation.position())) return;
             try {
                 if (confirmation.administrator()) {
-                    landManager.adminUnclaim(confirmation.position());
-                    plugin.syncMapIntegrations();
+                    var current = landManager.landAt(confirmation.position());
+                    if (current.isPresent()
+                            && landManager.isAdministrative(current.get()) == confirmation.administrativeClaims()
+                            && (confirmation.restrictedLandId() == null || confirmation.restrictedLandId().equals(current.get().id()))) {
+                        landManager.adminUnclaim(confirmation.position());
+                        plugin.syncMapIntegrations();
+                    }
                 } else {
                     command.unclaimFromMenu(player, confirmation.position());
                 }
@@ -103,6 +117,9 @@ public final class LandMapListener implements Listener {
             }
         }
         if (slot == 11 || slot == 15 || slot == 26) {
+            if (confirmation.returnMap() != null) {
+                new LandMapGui(plugin, landManager).reopen(player, confirmation.returnMap()); return;
+            }
             if (confirmation.administrator() && confirmation.administrativeClaims()) new LandMapGui(plugin, landManager).openAdminClaims(player);
             else if (confirmation.administrator() && confirmation.restrictedLandId() != null) {
                 if (landManager.land(confirmation.restrictedLandId()).isPresent()) {
@@ -113,6 +130,21 @@ public final class LandMapListener implements Listener {
             } else if (confirmation.administrator()) new LandMapGui(plugin, landManager).openAdmin(player);
             else new LandMapGui(plugin, landManager).open(player);
         }
+    }
+
+    private boolean canUseMap(Player player, LandMapHolder holder) {
+        if (holder.viewport() == null) { player.closeInventory(); return false; }
+        var position = holder.viewport().center();
+        if (holder.administrator() && !canEditWorld(player, position)) return false;
+        if (!holder.administrator() && (!position.worldId().equals(player.getWorld().getUID()) || !plugin.isLandWorld(player.getWorld()))) {
+            player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "claim.world-disabled"));
+            player.closeInventory(); return false;
+        }
+        int limit = plugin.getConfig().getInt("claims.map-navigation-limit", 30);
+        if (!holder.viewport().equals(holder.viewport().move(0, 0, limit))) {
+            new LandMapGui(plugin, landManager).reopen(player, holder); return false;
+        }
+        return true;
     }
 
     private boolean canEditWorld(Player player, ChunkPosition position) {

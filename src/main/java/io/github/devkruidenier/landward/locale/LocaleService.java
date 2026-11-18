@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,12 +23,10 @@ public final class LocaleService {
             "command.info-latest", "command.info-outdated", "command.info-checking"
     );
 
-    private static final List<String> BUNDLED_LOCALES = List.of(
-            "en_US", "nl_NL", "de_DE", "fr_FR", "es_ES", "pt_BR", "it_IT",
-            "pl_PL", "tr_TR", "ru_RU", "zh_CN", "ja_JP", "ko_KR"
-    );
+    private static final List<String> BUNDLED_LOCALES = LocaleCatalog.LOCALES;
 
     private final LandWardPlugin plugin;
+    public static Set<String> supportedLocales() { return LocaleCatalog.supported(); }
     private final Map<String, YamlConfiguration> translations = new ConcurrentHashMap<>();
 
     public LocaleService(LandWardPlugin plugin) {
@@ -106,20 +103,12 @@ public final class LocaleService {
                 && plugin.getConfig().getBoolean("language.use-client-locale", true)) {
             // Spigot exposes the client locale as a legacy String, while Paper
             // also offers an Adventure Locale. The String API works on both.
-            return normalize(player.getLocale());
+            return LocaleCatalog.forClient(player.getLocale(), plugin.getConfig().getString("language.default", FALLBACK_LOCALE));
         }
-        return normalize(plugin.getConfig().getString("language.default", FALLBACK_LOCALE));
+        return LocaleCatalog.configured(plugin.getConfig().getString("language.default", FALLBACK_LOCALE));
     }
 
     private String normalize(String locale) {
-        if (locale == null || locale.isBlank()) {
-            return FALLBACK_LOCALE;
-        }
-
-        String[] parts = locale.replace('-', '_').split("_", 2);
-        if (parts.length == 1) {
-            return parts[0].toLowerCase(Locale.ROOT);
-        }
-        return parts[0].toLowerCase(Locale.ROOT) + "_" + parts[1].toUpperCase(Locale.ROOT);
+        return LocaleCatalog.normalize(locale);
     }
 }

@@ -2,6 +2,8 @@
 plugin-version: '${version}'
 
 language:
+  # English is the default. All supported codes are documented in the Wiki Languages page.
+  # Example: fi_FI for Finnish, nb_NO for Bokmal (Java client no_no is recognized too).
   # Default language used for console senders and players without a matching client locale.
   default: en_US
   # Language used only for startup, storage and update messages in the server console.
@@ -43,7 +45,11 @@ storage:
     pool-size: 10
 
 metrics:
-  # Send anonymous aggregate server statistics through bStats. No player names or world data are sent.
+  # Send anonymous aggregate statistics through bStats; its global opt-out is also respected.
+  # Includes storage type, configured default language, payment mode, integration availability,
+  # and grouped counts of player lands, all claimed chunks, Safe Zones and named warps.
+  # Count groups: 0, 1-10, 11-50, 51-100, 101-500, 501+. No names, addresses or locations.
+  # Changes to this switch take effect after /claimadmin reload or a restart.
   enabled: true
 
 console:
@@ -61,6 +67,11 @@ updates:
   maximum-download-megabytes: 32
 
 claims:
+  # Maximum map-center offset in chunks along X and Z from where the map was opened.
+  # Navigation moves one chunk per click without teleporting. Applies to player/admin maps.
+  # 0 disables movement; values are clamped to 0..1024. Default: 30 each direction.
+  # Visible edge chunks extend another 4 chunks along X and 2 along Z.
+  map-navigation-limit: 30
   # Require every new chunk claim to share a horizontal edge with an existing chunk of the same land.
   require-adjacent-chunks: true
   # Maximum lands a player can own. LandWard is designed around one owned land per player.

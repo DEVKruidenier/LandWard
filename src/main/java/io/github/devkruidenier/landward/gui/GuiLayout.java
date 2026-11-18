@@ -64,6 +64,7 @@ final class GuiLayout {
         boolean map = holder instanceof LandMapHolder;
         if (map) {
             for (int i = 0; i < size - 9; i++) positions.put(i, i);
+            for (int i = 47; i <= 51; i++) positions.put(i, i);
             positions.put(53, 45);
         } else {
             for (int i = 0; i < size; i++) {
@@ -80,6 +81,14 @@ final class GuiLayout {
         Inventory display = Bukkit.createInventory(template.getHolder(), size, playerTitle(template));
         Map<Integer, Integer> actions = new HashMap<>();
         fill(display);
+        if (map) {
+            ItemStack footer = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+            var meta = footer.getItemMeta();
+            meta.setDisplayName(" ");
+            meta.setHideTooltip(true);
+            footer.setItemMeta(meta);
+            for (int slot = size - 9; slot < size; slot++) display.setItem(slot, footer.clone());
+        }
         Set<Integer> present = new HashSet<>();
         positions.keySet().forEach(source -> { if (template.getItem(source) != null) present.add(source); });
         Map<Integer, Integer> rendered = map ? positions : GuiPositions.center(positions, present, size);
@@ -88,7 +97,8 @@ final class GuiLayout {
             if (item != null) {
                 display.setItem(target, item);
                 // Land-management slot 4 is descriptive information, never an action.
-                if (!(source == 4 && template.getHolder() instanceof LandManagementHolder))
+                if (!(source == 4 && template.getHolder() instanceof LandManagementHolder)
+                        && !(map && source == 49))
                     actions.put(target, source);
             }
         });

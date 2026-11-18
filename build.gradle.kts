@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.devkruidenier"
-version = "1.0.3.0"
+version = "1.0.4.0"
 
 val pluginVersion = version.toString()
 
@@ -117,11 +117,14 @@ tasks.register<Jar>("featureProbeJar") {
     dependsOn(tasks.testClasses)
     archiveFileName.set("LandWardFeatureProbe.jar")
     destinationDirectory.set(layout.buildDirectory.dir("fixtures/feature-probe"))
-    from(sourceSets.test.get().output) { include("io/github/devkruidenier/landward/fixture/FeatureServerProbe*.class") }
+    from(sourceSets.test.get().output) {
+        include("io/github/devkruidenier/landward/fixture/FeatureServerProbe*.class")
+        include("io/github/devkruidenier/landward/gui/ChunkMapServerProbe*.class")
+    }
     from("src/test/featureprobe") { include("plugin.yml") }
 }
 
-tasks.test { exclude("**/fixture/**") }
+tasks.test { exclude("**/fixture/**", "**/*ServerProbe*") }
 
 tasks {
     withType<AbstractArchiveTask>().configureEach {

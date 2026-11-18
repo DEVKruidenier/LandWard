@@ -13,6 +13,7 @@ public final class UnclaimConfirmationHolder implements InventoryHolder {
     private final boolean administrator;
     private final boolean administrativeClaims;
     private final UUID restrictedLandId;
+    private final LandMapHolder returnMap;
     private Inventory inventory;
 
     public UnclaimConfirmationHolder(ChunkPosition position, boolean administrator, boolean administrativeClaims) {
@@ -20,10 +21,15 @@ public final class UnclaimConfirmationHolder implements InventoryHolder {
     }
 
     public UnclaimConfirmationHolder(ChunkPosition position, boolean administrator, boolean administrativeClaims, UUID restrictedLandId) {
+        this(position, administrator, administrativeClaims, restrictedLandId, null);
+    }
+
+    UnclaimConfirmationHolder(ChunkPosition position, boolean administrator, boolean administrativeClaims, UUID restrictedLandId, LandMapHolder returnMap) {
         this.position = position;
         this.administrator = administrator;
         this.administrativeClaims = administrativeClaims;
         this.restrictedLandId = restrictedLandId;
+        this.returnMap = returnMap;
     }
 
     public ChunkPosition position() {
@@ -33,6 +39,7 @@ public final class UnclaimConfirmationHolder implements InventoryHolder {
     boolean administrator() { return administrator; }
     boolean administrativeClaims() { return administrativeClaims; }
     UUID restrictedLandId() { return restrictedLandId; }
+    LandMapHolder returnMap() { return returnMap; }
 
     void setInventory(Inventory inventory) {
         this.inventory = inventory;
