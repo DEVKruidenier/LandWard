@@ -11,6 +11,14 @@ LandWard is a GUI-first chunk-claim plugin for Paper and Spigot survival servers
 For the complete feature list, commands and configuration guidance, visit the
 [LandWard Wiki](https://github.com/DEVKruidenier/LandWard/wiki).
 
+## Tested proxy compatibility
+
+LandWard has been tested with **Velocity 4.3.1 (build 45)** in front of a
+**Paper 26.2 backend**, using modern player-information forwarding. Install
+LandWard in the backend server's `plugins/` folder. LandWard runs on Paper;
+it is not a Velocity proxy plugin. This test does not establish compatibility
+with every proxy/backend version combination.
+
 ## Languages
 
 **English is the default language.** LandWard automatically uses a supported
