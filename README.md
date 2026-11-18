@@ -62,11 +62,12 @@ claimed chunks, Safe Zones and named warps. Counts use categories (0, 1–10,
 
 [View LandWard on bStats](https://bstats.org/plugin/bukkit/LandWard/35128)
 
-## Folia development builds
+## Folia and CraftBukkit development builds
 
 Development builds from **1.0.5.0-beta1** add Folia 26.3 support in the same JAR.
-The stable 1.0.4.1 release does not support Folia. Optional integrations require
-Folia-compatible builds for the selected Minecraft version.
+Development builds from **1.0.5.0-beta2** also add CraftBukkit 26.3 support.
+The stable 1.0.4.1 release does not support these platforms. Optional integrations
+require compatible builds for the selected server and Minecraft version.
 
 ## Build
 

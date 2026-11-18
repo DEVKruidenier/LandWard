@@ -22,7 +22,7 @@ public final class FoliaRuntimeProbe {
         var work=new ArrayList<CompletableFuture<Void>>();
         // Two far-apart loaded regions execute storage operations concurrently.
         for(int cx:new int[]{0,256}) {
-            work.add(world.getChunkAtAsync(cx,0,true).thenCompose(chunk -> scheduler.atChunk(world,cx,0,()->{
+            work.add(prepare(plugin,world,cx,0).thenCompose(chunk -> scheduler.atChunk(world,cx,0,()->{
                 check(!scheduler.folia() || Bukkit.isOwnedByCurrentRegion(world,cx,0),"Chunk owner",assertions);
                 threads.add(Thread.currentThread().getName());
                 try {manager.create(UUID.randomUUID(),"Region "+cx,contested);}
@@ -31,7 +31,7 @@ public final class FoliaRuntimeProbe {
             })));
         }
         // Prepare both chunks that the player's collision box will overlap.
-        for(int cx:new int[]{256,257}) work.add(world.getChunkAtAsync(cx,0,true).thenCompose(chunk -> scheduler.atChunk(world,cx,0,()->{
+        for(int cx:new int[]{256,257}) work.add(prepare(plugin,world,cx,0).thenCompose(chunk -> scheduler.atChunk(world,cx,0,()->{
             for(int x=cx*16;x<cx*16+16;x++)for(int z=7;z<=9;z++){
                 world.getBlockAt(x,100,z).setType(Material.STONE,false);
                 for(int y=101;y<=103;y++)world.getBlockAt(x,y,z).setType(y==103?Material.STONE:Material.AIR,false);
@@ -65,6 +65,10 @@ public final class FoliaRuntimeProbe {
             plugin.getLogger().info("REGION-PROBE-THREADS "+threads);
             return assertions.get();
         }).whenComplete((value,error)->{try{storage.close();}catch(Exception ignored){}});
+    }
+    private static CompletableFuture<org.bukkit.Chunk> prepare(LandWardPlugin plugin,World world,int x,int z) {
+        return plugin.scheduler().folia() ? world.getChunkAtAsync(x,z,true)
+                : CompletableFuture.completedFuture(world.getChunkAt(x,z));
     }
     private static void check(boolean value,String detail,AtomicInteger assertions) {
         if(!value)throw new AssertionError(detail);assertions.incrementAndGet();

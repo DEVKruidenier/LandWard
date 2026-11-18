@@ -4,8 +4,6 @@ import io.github.devkruidenier.landward.LandWardPlugin;
 import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.model.ChunkPosition;
 import io.github.devkruidenier.landward.model.Land;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -59,6 +57,6 @@ public final class ClaimBoundaryListener implements Listener {
     }
 
     private void actionbar(Player player, String message, ChatColor color) {
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(color + message));
+        plugin.messages().actionbar(player, color + message);
     }
 }

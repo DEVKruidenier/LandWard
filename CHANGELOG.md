@@ -6,6 +6,9 @@ All notable changes to LandWard will be documented here.
 
 ### Added
 
+- CraftBukkit 26.3 support in development builds from 1.0.5.0-beta2, preserving
+  clickable update/author links, hover hints and actionbar notifications without
+  requiring Spigot chat classes or a separate chat plugin.
 - Folia support in development builds from 1.0.5.0-beta1, using player, region and
   global schedulers while retaining the same universal Paper/Spigot JAR.
 - Region-owned destination checks and asynchronous Folia teleports, including

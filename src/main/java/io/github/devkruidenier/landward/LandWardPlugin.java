@@ -71,6 +71,8 @@ public final class LandWardPlugin extends JavaPlugin {
     public void toggleConfigValue(String path) {
         synchronized (configLock) { setConfigValue(path, !getConfig().getBoolean(path, false)); }
     }
+    private io.github.devkruidenier.landward.platform.PlayerMessages messages;
+    public io.github.devkruidenier.landward.platform.PlayerMessages messages() { return messages; }
     private LocaleService localeService;
     private MetricsService metricsService;
     private LandWardConsole console;
@@ -103,6 +105,7 @@ public final class LandWardPlugin extends JavaPlugin {
         this.console = new LandWardConsole(this);
         this.localeService = new LocaleService(this);
         this.localeService.initialize();
+        this.messages = new io.github.devkruidenier.landward.platform.PlayerMessages(this);
         getServer().getPluginManager().registerEvents(playerSnapshots, this);
         getServer().getOnlinePlayers().forEach(player -> scheduler.player(player, () -> playerSnapshots.capture(player)));
 

@@ -73,6 +73,10 @@ public final class PackagedStorageFixture {
             for (var entry : jar.stream().toList()) {
                 check(names.add(entry.getName()), "Duplicate ZIP entry: " + entry.getName());
                 check(!entry.getName().contains("PackagedStorageFixture"), "Test fixture shipped in release");
+                if(entry.getName().startsWith("io/github/devkruidenier/landward/") && !entry.getName().contains("/libs/") && entry.getName().endsWith(".class")) {
+                    String constants=new String(jar.getInputStream(entry).readAllBytes(),java.nio.charset.StandardCharsets.ISO_8859_1);
+                    check(!constants.contains("net/md_5/"),"Hard Spigot chat dependency: "+entry.getName());
+                }
             }
             check(Path.of(Class.forName("org.sqlite.JDBC").getProtectionDomain().getCodeSource().getLocation().toURI())
                     .equals(sqliteDependency), "Wrong simulated server SQLite dependency");

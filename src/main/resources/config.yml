@@ -3,6 +3,7 @@ plugin-version: '${version}'
 
 # Folia: player/region scheduling is selected automatically; no scheduler setting is needed.
 # Optional integrations must independently support your server and Minecraft version.
+# CraftBukkit chat delivery is included; no separate chat plugin or library is required.
 language:
   # English is the default. All supported codes are documented in the Wiki Languages page.
   # Example: fi_FI for Finnish, nb_NO for Bokmal (Java client no_no is recognized too).

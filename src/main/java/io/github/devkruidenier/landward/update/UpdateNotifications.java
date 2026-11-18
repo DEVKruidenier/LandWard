@@ -7,8 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import java.util.Map;
 
 /** Localized update summaries without bypassing world protection or installing a running JAR. */
@@ -56,10 +54,7 @@ public final class UpdateNotifications implements Listener {
         player.sendMessage(ChatColor.YELLOW + plugin.localeService().message(locale, "updates.notice-latest",
                 Map.of("version", ChatColor.GREEN + status.latestVersion())));
         player.sendMessage(ChatColor.YELLOW + plugin.localeService().message(locale, "updates.notice-download"));
-        TextComponent link = new TextComponent(UpdateChecker.RELEASES_PAGE);
-        link.setColor(net.md_5.bungee.api.ChatColor.AQUA);
-        link.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, UpdateChecker.RELEASES_PAGE));
-        player.spigot().sendMessage(link);
+        plugin.messages().chat(player, io.github.devkruidenier.landward.platform.MessageText.download(UpdateChecker.RELEASES_PAGE));
         player.sendMessage(ChatColor.YELLOW + plugin.localeService().message(locale, "updates.notice-command"));
         player.sendMessage(ChatColor.GOLD + BORDER);
     }

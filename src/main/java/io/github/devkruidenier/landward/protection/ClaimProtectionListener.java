@@ -9,8 +9,6 @@ import io.github.devkruidenier.landward.model.Land;
 import io.github.devkruidenier.landward.model.LandType;
 import io.github.devkruidenier.landward.model.MemberPermissions;
 import io.github.devkruidenier.landward.model.LandProtectionSettings;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -293,7 +291,7 @@ public final class ClaimProtectionListener implements Listener {
                 ? "protection.denied-bypass"
                 : "protection.denied";
         String message = plugin.localeService().message(locale, key, Map.of("name", land.name()));
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + message));
+        plugin.messages().actionbar(player, ChatColor.RED + message);
         });
     }
 
