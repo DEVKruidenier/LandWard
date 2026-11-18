@@ -59,6 +59,74 @@ class StorageMigrationServiceTest {
     }
 
     @Test
+    void resumesAnExactlyMatchingImportedTargetWithoutWritingItAgain() throws Exception {
+        try (var source=new SqliteLandStorage(directory.resolve("resume-source.db"));
+             var target=new SqliteLandStorage(directory.resolve("resume-target.db"))) {
+            source.initialize(); target.initialize();
+            var manager=new LandManager(source); manager.load();
+            var owner=UUID.randomUUID(); var world=UUID.randomUUID();
+            var land=manager.create(owner,"Resume",new ChunkPosition(world,0,0)).land();
+            manager.addWarp(owner,land.id(),new io.github.devkruidenier.landward.model.LandWarp(UUID.randomUUID(),
+                    "Home",world,.125,80,.875,137.54298F,-22.513847F),3);
+            var expected=source.load(); target.importSnapshotAtomically(expected);
+            var readOnlyTarget=new TypedStorage(target,"MYSQL") {
+                @Override public void importSnapshotAtomically(StorageSnapshot snapshot) { throw new AssertionError("Matching target must not be reimported"); }
+            };
+            var result=new StorageMigrationService(directory.resolve("resume-backups")).migrate(source,readOnlyTarget);
+            assertEquals(expected,target.load()); assertEquals(expected,source.load());
+            assertEquals(expected,new StorageSnapshotBackup().read(result.backup()));
+            target.updateLandName(land.id(),"Changed target");
+            var different=target.load();
+            assertThrows(StorageException.class,()->new StorageMigrationService(directory.resolve("reject-backups")).migrate(source,readOnlyTarget));
+            assertEquals(different,target.load()); assertEquals(expected,source.load());
+        }
+    }
+
+    @Test
+    void verificationFailureIdentifiesWarpFieldValuesAndVerifiedBackup() throws Exception {
+        try(var source=new SqliteLandStorage(directory.resolve("diagnostic-source.db"));
+            var sqlTarget=new SqliteLandStorage(directory.resolve("diagnostic-target.db"))) {
+            source.initialize(); var manager=new LandManager(source); manager.load();
+            UUID owner=UUID.randomUUID(),world=UUID.randomUUID(),warpId=UUID.randomUUID();
+            var land=manager.create(owner,"Diagnostic",new ChunkPosition(world,0,0)).land();
+            manager.addWarp(owner,land.id(),new io.github.devkruidenier.landward.model.LandWarp(warpId,
+                    "Home",world,.5,80,.5,137.54298F,-22.513847F),3);
+            var expected=source.load();
+            var broken=new TypedStorage(sqlTarget,"MYSQL") {
+                @Override public void importSnapshotAtomically(StorageSnapshot snapshot) throws StorageException {
+                    sqlTarget.importSnapshotAtomically(snapshot);
+                    var features=snapshot.features().getFirst();var warp=features.warps().getFirst();
+                    sqlTarget.updateFeatures(new io.github.devkruidenier.landward.model.LandFeatures(features.landId(),features.environment(),
+                            java.util.List.of(new io.github.devkruidenier.landward.model.LandWarp(warp.id(),warp.name(),warp.worldId(),warp.x(),warp.y(),warp.z(),137.543F,warp.pitch()))));
+                }
+            };
+            String message=assertThrows(StorageException.class,()->new StorageMigrationService(directory.resolve("diagnostic-backups")).migrate(source,broken)).getMessage();
+            org.junit.jupiter.api.Assertions.assertTrue(message.contains("phase=VERIFY_TARGET"),message);
+            org.junit.jupiter.api.Assertions.assertTrue(message.contains("warp="+warpId)&&message.contains("field=yaw"),message);
+            org.junit.jupiter.api.Assertions.assertTrue(message.contains("source=137.54298")&&message.contains("target=137.543"),message);
+            org.junit.jupiter.api.Assertions.assertTrue(message.contains("(verified)")&&message.contains("source not modified"),message);
+            assertEquals(expected,source.load());
+        }
+    }
+
+    @Test
+    void connectionFailureNamesThePhaseAndSqlStateWithoutLoggingDriverSecrets() throws Exception {
+        try(var source=new SqliteLandStorage(directory.resolve("connect-source.db"));
+            var sqlTarget=new SqliteLandStorage(directory.resolve("connect-target.db"))) {
+            source.initialize();
+            var failing=new TypedStorage(sqlTarget,"MYSQL") {
+                @Override public void initialize() throws StorageException {
+                    throw new StorageException("Connection failed",new java.sql.SQLException("password=hidden-driver-secret jdbc:mysql://private", "28000",1045));
+                }
+            };
+            String message=assertThrows(StorageException.class,()->new StorageMigrationService(directory.resolve("connect-backups")).migrate(source,failing)).getMessage();
+            org.junit.jupiter.api.Assertions.assertTrue(message.contains("phase=CONNECT_TARGET")&&message.contains("SQLState=28000")&&message.contains("vendorCode=1045"),message);
+            assertFalse(message.contains("hidden-driver-secret"));assertFalse(message.contains("jdbc:mysql"));
+            org.junit.jupiter.api.Assertions.assertTrue(message.contains("backup=not created"),message);
+        }
+    }
+
+    @Test
     void refusesToOverwriteANonEmptyTarget() throws Exception {
         SqliteLandStorage source = new SqliteLandStorage(directory.resolve("source.db")); source.initialize();
         SqliteLandStorage target = new SqliteLandStorage(directory.resolve("target.db")); target.initialize();
@@ -73,7 +141,11 @@ class StorageMigrationServiceTest {
         assertEquals(1, target.load().lands().size());
     }
 
-    private record TypedStorage(LandStorage delegate, String type) implements LandStorage {
+    private static class TypedStorage implements LandStorage {
+        private final LandStorage delegate;
+        private final String type;
+        TypedStorage(LandStorage delegate,String type){this.delegate=delegate;this.type=type;}
+        @Override public String type(){return type;}
         @Override public void initialize() throws StorageException { delegate.initialize(); }
         @Override public StorageSnapshot load() throws StorageException { return delegate.load(); }
         @Override public void importSnapshotAtomically(StorageSnapshot snapshot) throws StorageException { delegate.importSnapshotAtomically(snapshot); }

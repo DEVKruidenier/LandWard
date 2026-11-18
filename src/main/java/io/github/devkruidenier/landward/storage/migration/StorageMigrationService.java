@@ -17,7 +17,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-/** Moves a validated complete snapshot to an empty target without touching the active source. */
+/** Verifies a complete snapshot against an empty or identical target without modifying the source. */
 public final class StorageMigrationService {
     private static final DateTimeFormatter BACKUP_TIME = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
     private final Path backupDirectory;
@@ -30,20 +30,58 @@ public final class StorageMigrationService {
     }
 
     public MigrationResult migrate(LandStorage source, LandStorage target) throws StorageException {
+        var context=new MigrationContext();
+        try { return migrateVerified(source,target,context); }
+        catch(StorageException | RuntimeException failure) {
+            String reason=String.valueOf(failure.getMessage()).replaceAll("[\\r\\n\\t]"," ")
+                    .replaceAll("(?i)jdbc:[^\\s;]+","<JDBC URL omitted>")
+                    .replaceAll("(?i)(password|passwd|pwd|token|secret)\\s*[:=]\\s*[^\\s;]+","$1=<redacted>");
+            for(Throwable cause=failure;cause!=null;cause=cause.getCause()) if(cause instanceof java.sql.SQLException sql){
+                reason+="; SQLState="+sql.getSQLState()+" vendorCode="+sql.getErrorCode()+" cause="+sql.getClass().getSimpleName();break;
+            }
+            throw new StorageException("phase="+context.phase+" direction="+source.type()+"->"+target.type()+"; "+reason
+                    +"; backup="+(context.backup==null?"not created":context.backup.getFileName()+" ("+(context.backupVerified?"verified":"not verified")+")")
+                    +"; source not modified; target="+(context.imported?"contains imported copy, not activated":"not activated"),failure);
+        }
+    }
+    private static final class MigrationContext {
+        String phase="CHECK_TYPES"; Path backup; boolean backupVerified; boolean imported;
+    }
+    private MigrationResult migrateVerified(LandStorage source, LandStorage target, MigrationContext context) throws StorageException {
         if (source.type().equalsIgnoreCase(target.type())) throw new StorageException("Source and target storage types must differ", null);
+        context.phase="READ_SOURCE";
         StorageSnapshot sourceSnapshot = source.load();
+        context.phase="VALIDATE_SOURCE";
         validate(sourceSnapshot);
+        context.phase="CONNECT_TARGET";
         target.initialize();
+        context.phase="INSPECT_TARGET";
         StorageSnapshot targetBefore = target.load();
         Path backup = backupDirectory.resolve("landward-" + source.type().toLowerCase(Locale.ROOT) + "-to-"
                 + target.type().toLowerCase(Locale.ROOT) + "-" + BACKUP_TIME.format(LocalDateTime.now(clock)) + ".lwbak");
+        context.backup=backup;
+        context.phase="WRITE_BACKUP";
         backups.write(backup, sourceSnapshot);
+        context.phase="VERIFY_BACKUP";
         StorageSnapshot backupSnapshot = backups.read(backup);
-        if (!sameSnapshot(sourceSnapshot, backupSnapshot)) throw new StorageException("The migration backup could not be verified", null);
-        if (!isEmpty(targetBefore)) throw new StorageException("The target storage contains LandWard data; clear it explicitly before migration", null);
+        if (!sameSnapshot(sourceSnapshot, backupSnapshot)) throw new StorageException("Backup verification failed: "+SnapshotDifference.describe(sourceSnapshot,backupSnapshot), null);
+        context.backupVerified=true;
+        context.phase="CHECK_TARGET_CONTENTS";
+        if (!isEmpty(targetBefore)) {
+            // A previous import may have completed but failed read-back verification.
+            // Reuse it only after the same strict full comparison; never overwrite it.
+            if (sameSnapshot(sourceSnapshot, targetBefore)) {
+                return new MigrationResult(backup, sourceSnapshot.lands().size(), sourceSnapshot.claims().size(), sourceSnapshot.members().size());
+            }
+            throw new StorageException("Target contains different LandWard data; no data overwritten. "+SnapshotDifference.describe(sourceSnapshot,targetBefore), null);
+        }
+        context.phase="IMPORT_TARGET";
         target.importSnapshotAtomically(sourceSnapshot);
+        context.imported=true;
+        context.phase="READ_TARGET";
         StorageSnapshot targetAfter = target.load();
-        if (!sameSnapshot(sourceSnapshot, targetAfter)) throw new StorageException("Target verification failed after migration", null);
+        context.phase="VERIFY_TARGET";
+        if (!sameSnapshot(sourceSnapshot, targetAfter)) throw new StorageException("Target verification failed: "+SnapshotDifference.describe(sourceSnapshot,targetAfter), null);
         return new MigrationResult(backup, sourceSnapshot.lands().size(), sourceSnapshot.claims().size(), sourceSnapshot.members().size());
     }
 

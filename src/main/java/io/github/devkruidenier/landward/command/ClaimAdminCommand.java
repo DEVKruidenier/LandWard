@@ -123,18 +123,24 @@ public final class ClaimAdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
         LandStorage target = null;
+        String phase="CREATE_TARGET";
+        LandStorage source=plugin.storage();
         try {
             sender.sendMessage(plugin.localeService().message(locale, "admin.migration-live-started"));
             target = plugin.createStorage(targetType);
+            phase="MIGRATE_AND_VERIFY";
             StorageMigrationService.MigrationResult result = new StorageMigrationService(plugin.getDataFolder().toPath().resolve("migration-backups"))
                     .migrate(plugin.storage(), target);
+            phase="ACTIVATE_TARGET";
             plugin.activateMigratedStorage(target, targetType);
             target = null;
             sender.sendMessage(plugin.localeService().message(locale, "admin.migration-live-complete", java.util.Map.of(
                     "backup", result.backup().getFileName(), "lands", result.lands(), "claims", result.claims(), "members", result.members()
             )));
         } catch (StorageException | IllegalArgumentException exception) {
-            plugin.getLogger().warning("Storage migration failed: " + exception.getMessage());
+            plugin.getLogger().warning("Storage migration failed at "+phase+" ("+source.type()+" -> "+targetType+").");
+            for(String detail:String.valueOf(exception.getMessage()).split("; ")) plugin.getLogger().warning("  "+detail);
+            plugin.getLogger().warning("  Active storage="+plugin.storage().type()+"; previous source="+(plugin.storage()==source?"still active":"switched"));
             sender.sendMessage(plugin.localeService().message(locale, "admin.migration-failed"));
         } finally {
             if (target != null) {

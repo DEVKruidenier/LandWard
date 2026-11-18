@@ -149,6 +149,9 @@ public final class PackagedStorageFixture {
             StorageMigrationService migration = new StorageMigrationService(directory.resolve("backups"));
             migration.migrate(source, mysql);
             equal(expected, mysql.load());
+            // Retry a completed import without clearing or rewriting the target.
+            migration.migrate(source, mysql);
+            equal(expected, mysql.load());
             mysql.updateLandName(expected.lands().getFirst().id(), "Utrecht");
             check(mysql.load().lands().stream().anyMatch(land -> land.name().equals("Utrecht")), "Pooled JDBC rename failed");
             migration.migrate(mysql, returned);
@@ -172,7 +175,9 @@ public final class PackagedStorageFixture {
                 List.of(new io.github.devkruidenier.landward.model.LandFeatures(playerLand,
                         io.github.devkruidenier.landward.model.EnvironmentSettings.defaults(false),
                         List.of(new io.github.devkruidenier.landward.model.LandWarp(UUID.randomUUID(), "Thuis Één", world,
-                                -500.25, 81.5, -130.75, 137.5F, -22.5F))),
+                                -500.123456789, 81.5, -130.987654321, 137.54298F, -22.513847F),
+                                new io.github.devkruidenier.landward.model.LandWarp(UUID.randomUUID(), "Buiten", world,
+                                        -490.46875, 83.8125, -130.25, -179.99998F, 0.10000001F))),
                         new io.github.devkruidenier.landward.model.LandFeatures(adminLand,
                                 io.github.devkruidenier.landward.model.EnvironmentSettings.defaults(true), List.of())));
     }

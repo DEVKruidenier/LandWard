@@ -26,7 +26,11 @@ public final class FeatureStorage {
                 environments.put(UUID.fromString(rows.getString(1)), new EnvironmentSettings(rules));
             }
         }
-        try (var statement = connection.createStatement(); var rows = statement.executeQuery("SELECT id, land_id, name, world_uuid, x, y, z, yaw, pitch FROM land_warps")) {
+        // MySQL/MariaDB text results round FLOAT columns to fewer digits than
+        // Java needs to recover the original float. Promote the stored binary
+        // value to DOUBLE in the result, then getFloat restores its exact bits.
+        // This also reads existing tables correctly without rewriting their data.
+        try (var statement = connection.createStatement(); var rows = statement.executeQuery("SELECT id, land_id, name, world_uuid, x, y, z, yaw + 0e0 AS yaw, pitch + 0e0 AS pitch FROM land_warps")) {
             while (rows.next()) {
                 UUID land = UUID.fromString(rows.getString(2));
                 if (!environments.containsKey(land)) throw new SQLException("Warp has no environmental land record");
