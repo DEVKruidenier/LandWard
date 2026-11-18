@@ -26,6 +26,8 @@ placeholders:
   server-owner-name: "placeholders.server-owner"
 
 storage:
+  # Migration failures report the failed phase, differing record/field and backup status.
+  # A matching imported target can be reused; a different target is never overwritten.
   # Storage backend: sqlite stores locally; mysql stores claims in a shared MySQL/MariaDB database.
   type: sqlite
   mysql:

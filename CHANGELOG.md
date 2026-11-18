@@ -4,6 +4,18 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.4.1] - 2026-11-18
+
+### Fixed
+
+- Preserve exact warp yaw/pitch when reading existing MySQL/MariaDB FLOAT
+  columns, preventing false migration verification failures for normal angles.
+- Resume a previously imported target only when every snapshot field matches
+  the active source exactly; never overwrite a nonmatching target.
+- Migration errors identify the failed phase, record counts and the first
+  differing field, plus backup and active-storage state. SQL errors include
+  SQLState/vendor codes without dumping connection credentials.
+
 ## [1.0.4.0] - 2026-11-18
 
 ### Added
