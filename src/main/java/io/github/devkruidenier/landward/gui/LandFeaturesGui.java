@@ -14,12 +14,12 @@ import java.util.*;
 /** Separate land-wide environment controls from member access and warp management. */
 public final class LandFeaturesGui implements Listener {
     private final LandWardPlugin plugin; private final LandManager lands; private final WarpTeleportService teleports;
-    private final Map<UUID, Input> inputs = new HashMap<>();
+    private final Map<UUID, Input> inputs = new java.util.concurrent.ConcurrentHashMap<>();
     private record Input(UUID land, UUID warp, AnvilView view) {}
     private enum Screen { CATEGORIES, ENVIRONMENT, WARPS, WARP, DELETE }
     private static final class Holder implements InventoryHolder {
         final UUID land; final boolean admin; final Screen screen; final int page; final UUID warp;
-        final Map<Integer, UUID> entries = new HashMap<>(); Inventory inventory;
+        final Map<Integer, UUID> entries = new java.util.concurrent.ConcurrentHashMap<>(); Inventory inventory;
         Holder(UUID land, boolean admin, Screen screen, int page, UUID warp) {
             this.land = land; this.admin = admin; this.screen = screen; this.page = page; this.warp = warp;
         }
@@ -29,6 +29,7 @@ public final class LandFeaturesGui implements Listener {
         this.plugin = plugin; this.lands = lands; this.teleports = new WarpTeleportService(plugin, lands);
         plugin.getServer().getPluginManager().registerEvents(teleports, plugin);
     }
+    public void shutdown() { inputs.clear(); teleports.shutdown(); }
     public void open(Player player, UUID land, boolean admin) {
         boolean owner = lands.land(land).map(value -> value.ownerId().equals(player.getUniqueId())).orElse(false);
         open(player, new Holder(land, admin, !admin && !owner ? Screen.WARPS : Screen.CATEGORIES, 0, null));
@@ -122,7 +123,7 @@ public final class LandFeaturesGui implements Listener {
         event.setCancelled(true); int slot = event.getRawSlot();
         if (slot < 0 || slot >= holder.inventory.getSize()) return;
         if (!authorized(player, holder.land, holder.admin)) { player.closeInventory(); return; }
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        plugin.scheduler().player(player, () -> {
             try { handle(player, holder, slot); }
             catch (io.github.devkruidenier.landward.storage.StorageException exception) { tell(player, "general.storage-error"); }
             catch (IllegalArgumentException | NoSuchElementException exception) { tell(player, "warps.invalid"); }
@@ -154,8 +155,8 @@ public final class LandFeaturesGui implements Listener {
             case ENVIRONMENT -> {
                 if (!manages(player, holder)) return;
                 for (int i = 0; i < EnvironmentSettings.Rule.values().length; i++) if (slot == FeatureMenuLayout.environmentSlot(i)) {
-                    var rule = EnvironmentSettings.Rule.values()[i]; var settings = lands.features(holder.land).environment();
-                    lands.environment(holder.land, settings.with(rule, !settings.allows(rule))); open(player, holder); return;
+                    var rule = EnvironmentSettings.Rule.values()[i];
+                    lands.toggleEnvironment(holder.land, player.getUniqueId(), holder.admin, rule); open(player, holder); return;
                 }
             }
             case WARPS -> {
@@ -196,7 +197,7 @@ public final class LandFeaturesGui implements Listener {
     private void submit(Player player, Input input) {
         String name = AnvilTextInput.capture(input.view().getRenameText()); if (name == null) return;
         inputs.remove(player.getUniqueId()); input.view().getTopInventory().clear();
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        plugin.scheduler().player(player, () -> {
             player.closeInventory();
             if (!authorized(player, input.land(), false)) return;
             if (input.warp() != null && !destinationWorldEnabled(input.land(), input.warp())) { tell(player, "warps.unavailable"); return; }

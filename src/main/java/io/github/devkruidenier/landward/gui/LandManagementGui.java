@@ -141,17 +141,17 @@ public final class LandManagementGui {
             int z = claim.position().z() * 16 + 8;
             int delaySeconds = Math.max(0, plugin.getConfig().getInt("teleportation.player-land-delay-seconds", 2));
             String locale = plugin.localeService().localeFor(player);
-            if (delaySeconds == 0) {
-                player.teleport(new Location(world, x + 0.5D, world.getHighestBlockYAt(x, z) + 1, z + 0.5D));
-                player.sendMessage(message(player, "gui.management-teleport-complete"));
-                return true;
+            Runnable teleport = () -> plugin.scheduler().surfaceTeleport(player, world, x, z,
+                    () -> landManager.ownedBy(player.getUniqueId()).map(value -> value.id().equals(claim.landId())).orElse(false)
+                            && landManager.landAt(claim.position()).map(value -> value.id().equals(claim.landId())).orElse(false)
+                            && plugin.isLandWorld(player.getWorld()) && plugin.isLandWorld(world),
+                    ok -> player.sendMessage(plugin.localeService().message(locale,
+                            ok ? "gui.management-teleport-complete" : "admin.claim-no-teleport")));
+            if (delaySeconds == 0) teleport.run();
+            else {
+                player.sendMessage(message(player, "gui.management-teleport-started", Map.of("seconds", delaySeconds)));
+                plugin.scheduler().playerLater(player, teleport, delaySeconds * 20L);
             }
-            player.sendMessage(message(player, "gui.management-teleport-started", Map.of("seconds", delaySeconds)));
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (!player.isOnline()) return;
-                player.teleport(new Location(world, x + 0.5D, world.getHighestBlockYAt(x, z) + 1, z + 0.5D));
-                player.sendMessage(plugin.localeService().message(locale, "gui.management-teleport-complete"));
-            }, delaySeconds * 20L);
             return true;
         }).orElse(false);
     }

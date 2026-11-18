@@ -96,6 +96,6 @@ public final class UpdateChecker {
     }
 
     private void onMain(Runnable action) {
-        if (plugin.isEnabled()) plugin.getServer().getScheduler().runTask(plugin, action);
+        if (plugin.isEnabled()) plugin.scheduler().global(action);
     }
 }

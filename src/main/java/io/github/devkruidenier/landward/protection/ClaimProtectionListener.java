@@ -286,6 +286,7 @@ public final class ClaimProtectionListener implements Listener {
 
     private void deny(Player player, Land land, java.util.function.Consumer<Boolean> cancellation) {
         cancellation.accept(true);
+        plugin.scheduler().player(player, () -> {
         String locale = plugin.localeService().localeFor(player);
         String key = player.hasPermission("landward.bypass")
                 && !adminBypasses.isEnabled(player.getUniqueId())
@@ -293,6 +294,7 @@ public final class ClaimProtectionListener implements Listener {
                 : "protection.denied";
         String message = plugin.localeService().message(locale, key, Map.of("name", land.name()));
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + message));
+        });
     }
 
     private boolean allowed(Player player, Land land, MemberPermissions.Permission permission) {
@@ -356,7 +358,7 @@ public final class ClaimProtectionListener implements Listener {
     private boolean playerLandPvpAllowed(Player attacker, Player victim, Land land) {
         // A land may narrow PvP rules, but it must never override the world's own
         // PvP setting (server.properties / the world's configured PvP state).
-        if (!attacker.getWorld().getPVP() || !victim.getWorld().getPVP()) return false;
+        if (!victim.getWorld().getPVP()) return false;
         if (adminBypasses.isEnabled(attacker.getUniqueId())) return true;
         if (!land.protectionSettings().memberPvp()) return false;
         return !landManager.permissions(attacker.getUniqueId(), land.id()).equals(MemberPermissions.NONE)

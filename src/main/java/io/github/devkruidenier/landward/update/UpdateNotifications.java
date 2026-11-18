@@ -21,11 +21,11 @@ public final class UpdateNotifications implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         if (!player.hasPermission("landward.pladmin") || !plugin.getConfig().getBoolean("updates.notify-on-join", true)) return;
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+        plugin.scheduler().playerLater(player, () -> {
             if (!player.isOnline() || !player.hasPermission("landward.pladmin")) return;
             plugin.updateChecker().refresh().thenAccept(status -> {
                 if (!plugin.isEnabled()) return;
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                plugin.scheduler().player(player, () -> {
                     if (player.isOnline() && player.hasPermission("landward.pladmin")
                             && plugin.getConfig().getBoolean("updates.enabled", true)
                             && plugin.getConfig().getBoolean("updates.notify-on-join", true)

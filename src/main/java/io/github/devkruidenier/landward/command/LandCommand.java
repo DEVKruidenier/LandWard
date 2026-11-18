@@ -135,10 +135,10 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             return;
         }
         sender.sendMessage(message(sender, "updates.checking"));
-        plugin.updateChecker().stageLatestRelease(version -> sender.sendMessage(
-                message(sender, "updates.stage-started", Map.of("version", version)))).whenComplete((result, error) -> {
+        plugin.updateChecker().stageLatestRelease(version -> plugin.scheduler().sender(sender, () -> sender.sendMessage(
+                message(sender, "updates.stage-started", Map.of("version", version))))).whenComplete((result, error) -> {
             if (!plugin.isEnabled()) return;
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
+            plugin.scheduler().sender(sender, () -> {
                 if (sender instanceof Player target && !target.isOnline()) return;
                 if (error != null || result == null || !result.success()) {
                     var state = plugin.updateChecker().status();
@@ -312,7 +312,7 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(message(player, "updates.checking"));
         plugin.updateChecker().refresh().thenAccept(status -> {
             if (!plugin.isEnabled()) return;
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
+            plugin.scheduler().player(player, () -> {
                 if (!player.isOnline()) return;
                 TextComponent line = new TextComponent(TextComponent.fromLegacyText(message(player, "command.header",
                         Map.of("version", plugin.getDescription().getVersion()))));

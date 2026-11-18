@@ -35,7 +35,7 @@ public final class BlueMapIntegration {
                 || blueMap == null || !blueMap.isEnabled() || readinessListener != null) return;
         try {
             Class<?> apiClass = Class.forName("de.bluecolored.bluemap.api.BlueMapAPI");
-            readinessListener = ignored -> plugin.getServer().getScheduler().runTask(plugin, this::sync);
+            readinessListener = ignored -> plugin.scheduler().global(this::sync);
             apiClass.getMethod("onEnable", Consumer.class).invoke(null, readinessListener);
         } catch (ReflectiveOperationException exception) {
             logFailure("BlueMap was detected but its readiness callback could not be registered", exception);

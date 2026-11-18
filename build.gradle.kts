@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.devkruidenier"
-version = "1.0.4.1"
+version = "1.0.5.0-beta1"
 
 val pluginVersion = version.toString()
 
@@ -124,7 +124,18 @@ tasks.register<Jar>("featureProbeJar") {
     from("src/test/featureprobe") { include("plugin.yml") }
 }
 
-tasks.test { exclude("**/fixture/**", "**/*ServerProbe*") }
+tasks.test { exclude("**/fixture/**", "**/*ServerProbe*", "**/*RuntimeProbe*") }
+
+tasks.register<Jar>("foliaProbeJar") {
+    dependsOn(tasks.testClasses)
+    archiveFileName.set("LandWardFoliaProbe.jar")
+    destinationDirectory.set(layout.buildDirectory.dir("fixtures/folia-probe"))
+    from(sourceSets.test.get().output) {
+        include("io/github/devkruidenier/landward/fixture/FoliaServerProbe*.class")
+        include("io/github/devkruidenier/landward/gui/FoliaRuntimeProbe*.class")
+    }
+    from("src/test/foliaprobe") { include("plugin.yml") }
+}
 
 tasks {
     withType<AbstractArchiveTask>().configureEach {

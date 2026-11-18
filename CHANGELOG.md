@@ -4,6 +4,21 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+### Added
+
+- Folia support in development builds from 1.0.5.0-beta1, using player, region and
+  global schedulers while retaining the same universal Paper/Spigot JAR.
+- Region-owned destination checks and asynchronous Folia teleports, including
+  collision checks spanning chunk borders and indoor warp landings.
+
+### Changed
+
+- Warp warmups follow the player and discard stale or cancelled requests before
+  teleporting; callbacks stop when the player disconnects or the plugin shuts down.
+- Shared menu state, configuration/locale publication and environment toggles
+  support concurrent regions. Migration verification and activation serialize
+  with claim mutations. Asynchronous placeholders use immutable player snapshots.
+
 ## [1.0.4.1] - 2026-11-18
 
 ### Fixed

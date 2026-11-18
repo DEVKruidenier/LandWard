@@ -27,14 +27,14 @@ public final class LocaleService {
 
     private final LandWardPlugin plugin;
     public static Set<String> supportedLocales() { return LocaleCatalog.supported(); }
-    private final Map<String, YamlConfiguration> translations = new ConcurrentHashMap<>();
+    private volatile Map<String, YamlConfiguration> translations = Map.of();
 
     public LocaleService(LandWardPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void initialize() {
-        translations.clear();
+    public synchronized void initialize() {
+        Map<String, YamlConfiguration> loaded = new java.util.HashMap<>();
         File directory = new File(plugin.getDataFolder(), "lang");
         if (!directory.exists() && !directory.mkdirs()) {
             throw new IllegalStateException("Could not create language directory: " + directory);
@@ -62,8 +62,9 @@ public final class LocaleService {
             } catch (Exception exception) {
                 throw new IllegalStateException("Could not load bundled language: " + resource, exception);
             }
-            translations.put(locale, configured);
+            loaded.put(locale, configured);
         }
+        translations = Map.copyOf(loaded);
     }
 
     public String console(String key) {
@@ -99,6 +100,11 @@ public final class LocaleService {
     }
 
     public String localeFor(CommandSender sender) {
+        if (sender instanceof Player remote && plugin.scheduler().folia() && !plugin.scheduler().owns(remote)) {
+            var snapshot=plugin.playerSnapshots().get(remote.getUniqueId());
+            if (snapshot!=null && plugin.getConfig().getBoolean("language.use-client-locale",true)) return LocaleCatalog.forClient(snapshot.locale(),plugin.getConfig().getString("language.default",FALLBACK_LOCALE));
+            return normalize(plugin.getConfig().getString("language.default",FALLBACK_LOCALE));
+        }
         if (sender instanceof Player player
                 && plugin.getConfig().getBoolean("language.use-client-locale", true)) {
             // Spigot exposes the client locale as a legacy String, while Paper

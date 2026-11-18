@@ -1,0 +1,9 @@
+name: LandWardFoliaProbe
+version: 1
+main: io.github.devkruidenier.landward.fixture.FoliaServerProbe
+api-version: '26.2'
+folia-supported: true
+depend: [LandWard]
+commands:
+  foliaprobe:
+    permission: landward.admin

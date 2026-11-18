@@ -74,13 +74,13 @@ public final class FeatureServerProbe extends JavaPlugin {
             check(!plugin.metricsService().isInitialized() && field.get(plugin.metricsService()) == null, "Local opt-out creates no session/task");
             plugin.getConfig().set("metrics.enabled", true); plugin.saveConfig(); plugin.reloadLandWard();
             check(plugin.metricsService().isInitialized(), "Metrics enabled");
-            var previous = (org.bukkit.scheduler.BukkitTask) field.get(plugin.metricsService());
+            var previous = (io.github.devkruidenier.landward.platform.TaskRegistration) field.get(plugin.metricsService());
             var snapshotField = plugin.metricsService().getClass().getDeclaredField("snapshot"); snapshotField.setAccessible(true);
             var snapshot = (io.github.devkruidenier.landward.metrics.UsageSnapshot)snapshotField.get(plugin.metricsService());
             check(snapshot.charts().size() == 7 && snapshot.integrationChart().size() == 7, "All fixed chart providers present");
             check(snapshot.charts().get("storage_backend").equals("SQLite"), "Active storage type");
             plugin.reloadLandWard();
-            check(previous.isCancelled(), "Reload cancels previous snapshot task");
+            check(previous.cancelled(), "Reload cancels previous snapshot task");
             global.set("enabled", false); global.save(globalFile); plugin.reloadLandWard();
             check(!plugin.metricsService().isInitialized() && field.get(plugin.metricsService()) == null, "Global opt-out prevents session/task");
         } finally {
