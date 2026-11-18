@@ -173,7 +173,12 @@ public final class ClaimAdminGui {
             if (world == null) return false;
             int x = claim.position().x() * 16 + 8;
             int z = claim.position().z() * 16 + 8;
-            return player.teleport(new Location(world, x + 0.5D, world.getHighestBlockYAt(x, z) + 1, z + 0.5D));
+            plugin.scheduler().surfaceTeleport(player, world, x, z,
+                    () -> player.hasPermission("landward.admin") && lands.land(landId).isPresent()
+                            && lands.landAt(claim.position()).map(value -> value.id().equals(landId)).orElse(false)
+                            && plugin.isLandWorld(player.getWorld()) && plugin.isLandWorld(world),
+                    ok -> { if (!ok) player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "admin.claim-no-teleport")); });
+            return true;
         }).orElse(false);
     }
 

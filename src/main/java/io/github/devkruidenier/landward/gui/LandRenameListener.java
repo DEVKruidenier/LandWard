@@ -32,15 +32,15 @@ public final class LandRenameListener implements Listener {
     private final LandWardPlugin plugin;
     private final LandManager landManager;
     private final LandCommand command;
-    private final Map<UUID, RenameAnvilHolder> sessions = new HashMap<>();
+    private final Map<UUID, RenameAnvilHolder> sessions = new java.util.concurrent.ConcurrentHashMap<>();
     public LandRenameListener(LandWardPlugin plugin, LandManager landManager, LandCommand command) {
         this.plugin = plugin;
         this.landManager = landManager;
         this.command = command;
     }
 
-    public void begin(Player player) { Bukkit.getScheduler().runTask(plugin, () -> openAnvil(player, false)); }
-    public void beginCreate(Player player) { Bukkit.getScheduler().runTask(plugin, () -> openAnvil(player, true)); }
+    public void begin(Player player) { plugin.scheduler().player(player, () -> openAnvil(player, false)); }
+    public void beginCreate(Player player) { plugin.scheduler().player(player, () -> openAnvil(player, true)); }
 
     private void openAnvil(Player player, boolean creating) {
         RenameAnvilHolder holder = new RenameAnvilHolder(creating);

@@ -30,11 +30,11 @@ public final class AdminOwnerChangeListener implements Listener {
     private static final Pattern PLAYER_NAME = Pattern.compile("^[A-Za-z0-9_]{3,16}$");
     private final LandWardPlugin plugin;
     private final LandManager lands;
-    private final Map<UUID, OwnerChangeAnvilHolder> sessions = new HashMap<>();
+    private final Map<UUID, OwnerChangeAnvilHolder> sessions = new java.util.concurrent.ConcurrentHashMap<>();
     public AdminOwnerChangeListener(LandWardPlugin plugin, LandManager lands) { this.plugin = plugin; this.lands = lands; }
 
     public void begin(Player player, UUID landId) {
-        Bukkit.getScheduler().runTask(plugin, () -> open(player, landId));
+        plugin.scheduler().player(player, () -> open(player, landId));
     }
 
     private void open(Player player, UUID landId) {

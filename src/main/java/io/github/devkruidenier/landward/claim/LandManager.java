@@ -303,6 +303,15 @@ public final class LandManager {
         saveFeatures(new io.github.devkruidenier.landward.model.LandFeatures(landId, settings, current.warps()));
     }
 
+    /** Read/modify/persist under the same lock: different regions cannot lose each other's toggles. */
+    public synchronized void toggleEnvironment(UUID landId, UUID actor, boolean admin,
+            io.github.devkruidenier.landward.model.EnvironmentSettings.Rule rule) throws StorageException {
+        Land land = landsById.get(landId);
+        if (land == null || !admin && !land.ownerId().equals(actor)) return;
+        var settings = features(landId).environment();
+        environment(landId, settings.with(rule, !settings.allows(rule)));
+    }
+
     public synchronized void addWarp(UUID owner, UUID landId, io.github.devkruidenier.landward.model.LandWarp warp, int limit) throws StorageException {
         var land = landsById.get(landId);
         if (land == null || isAdministrative(land) || !land.ownerId().equals(owner)

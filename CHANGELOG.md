@@ -4,6 +4,33 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.5.0] - 2026-11-18
+
+### Added
+
+- CraftBukkit 26.3 support, preserving
+  clickable update/author links, hover hints and actionbar notifications without
+  requiring Spigot chat classes or a separate chat plugin.
+- Folia 26.3 support using player, region and
+  global schedulers while retaining the same universal Paper/Spigot JAR.
+- Region-owned destination checks and asynchronous Folia teleports, including
+  collision checks spanning chunk borders and indoor warp landings.
+
+### Changed
+
+- Warp warmups follow the player and discard stale or cancelled requests before
+  teleporting; callbacks stop when the player disconnects or the plugin shuts down.
+- Shared menu state, configuration/locale publication and environment toggles
+  support concurrent regions. Migration verification and activation serialize
+  with claim mutations. Asynchronous placeholders use immutable player snapshots.
+
+### Compatibility
+
+- Tested with Velocity 4.3.1 in front of a Paper 26.2 backend. Install LandWard
+  on the backend server.
+- Modrinth loader metadata now includes Bukkit and Folia alongside Paper and
+  Spigot; the same universal JAR is used on each supported backend.
+
 ## [1.0.4.1] - 2026-11-18
 
 ### Fixed

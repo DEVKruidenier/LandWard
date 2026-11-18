@@ -8,7 +8,7 @@ import io.github.devkruidenier.landward.claim.LandManager;
 import io.github.devkruidenier.landward.storage.mysql.MySqlLandStorage;
 import io.github.devkruidenier.landward.storage.sqlite.SqliteLandStorage;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.scheduler.BukkitTask;
+import io.github.devkruidenier.landward.platform.TaskRegistration;
 
 import java.util.Objects;
 
@@ -19,7 +19,7 @@ public final class MetricsService {
     private final LandWardPlugin plugin;
     private Metrics metrics;
     private final LandManager lands;
-    private BukkitTask refreshTask;
+    private TaskRegistration refreshTask;
     private volatile UsageSnapshot snapshot;
 
     public MetricsService(LandWardPlugin plugin, LandManager lands) {
@@ -27,7 +27,7 @@ public final class MetricsService {
         this.lands = Objects.requireNonNull(lands, "lands");
     }
 
-    public void initialize() {
+    public synchronized void initialize() {
         shutdown();
         if (!plugin.getConfig().getBoolean("metrics.enabled", true)) {
             return;
@@ -51,11 +51,11 @@ public final class MetricsService {
             UsageSnapshot current = snapshot;
             return current == null ? null : current.integrationChart();
         }));
-        // Bukkit/config access stays on the server thread; submitters read immutable categories only.
-        refreshTask = plugin.getServer().getScheduler().runTaskTimer(plugin, this::refresh, 1200L, 1200L);
+        // Bukkit/config access stays on the global scheduler; submitters read immutable categories only.
+        refreshTask = plugin.scheduler().globalRepeat(this::refresh, 1200L, 1200L);
     }
 
-    private void refresh() {
+    private synchronized void refresh() {
         long[] counts = lands.usageCounts();
         var values = new java.util.HashMap<String, String>();
         values.put("storage_backend", plugin.storage() instanceof SqliteLandStorage ? "SQLite"
@@ -75,13 +75,13 @@ public final class MetricsService {
         snapshot = new UsageSnapshot(values, integrations);
     }
 
-    public void shutdown() {
+    public synchronized void shutdown() {
         snapshot = null;
         if (refreshTask != null) { refreshTask.cancel(); refreshTask = null; }
         if (metrics != null) { metrics.shutdown(); metrics = null; }
     }
 
-    public boolean isInitialized() {
+    public synchronized boolean isInitialized() {
         return metrics != null;
     }
 }

@@ -28,21 +28,27 @@ public final class ClaimAdminCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (sender instanceof Player player && !plugin.scheduler().owns(player)) {
+            plugin.scheduler().player(player, () -> onCommand(sender, command, label, args));
+            return true;
+        }
         if (!sender.hasPermission("landward.admin")) {
             sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "general.no-permission"));
             return true;
         }
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
-            plugin.reloadLandWard();
-            sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "general.reloaded"));
+            plugin.scheduler().global(() -> {
+                plugin.reloadLandWard();
+                plugin.scheduler().sender(sender, () -> sender.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(sender), "general.reloaded")));
+            });
             return true;
         }
         if (args.length >= 1 && args[0].equalsIgnoreCase("migrate")) {
-            migrate(sender, args);
+            synchronized (landManager) { migrate(sender, args); }
             return true;
         }
         if (args.length >= 1 && args[0].equalsIgnoreCase("storage")) {
-            storage(sender, args);
+            synchronized (landManager) { storage(sender, args); }
             return true;
         }
         if (!(sender instanceof Player player)) {

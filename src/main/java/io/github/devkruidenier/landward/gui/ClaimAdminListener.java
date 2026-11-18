@@ -40,10 +40,14 @@ public final class ClaimAdminListener implements Listener {
                 else gui.openAdminSettings(player);
             }
             else if (slot == 15) {
-                plugin.reloadLandWard();
-                player.sendMessage(ChatColor.GOLD + "LandWard " + ChatColor.DARK_GRAY + "» " + ChatColor.GREEN
-                        + plugin.localeService().message(plugin.localeService().localeFor(player), "general.reloaded"));
-                gui.openMain(player);
+                plugin.scheduler().global(() -> {
+                    plugin.reloadLandWard();
+                    plugin.scheduler().player(player, () -> {
+                        player.sendMessage(ChatColor.GOLD + "LandWard " + ChatColor.DARK_GRAY + "» " + ChatColor.GREEN
+                                + plugin.localeService().message(plugin.localeService().localeFor(player), "general.reloaded"));
+                        gui.openMain(player);
+                    });
+                });
             }
             else if (slot == 17) gui.openWorlds(player);
             else if (slot == 20) gui.openAdminLandDeleteConfirmation(player);
@@ -127,8 +131,7 @@ public final class ClaimAdminListener implements Listener {
             };
             if (key != null) {
                 String path = "admin-claims." + key;
-                plugin.getConfig().set(path, !plugin.getConfig().getBoolean(path, false));
-                plugin.saveConfig();
+                plugin.toggleConfigValue(path);
                 gui.openAdminSettings(player);
             }
             return;

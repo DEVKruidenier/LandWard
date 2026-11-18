@@ -22,10 +22,10 @@
 ## Adventure
 
 - Source: https://github.com/KyoriPowered/adventure
-- Modules: Adventure API, Adventure Key, Adventure Plain Text Serializer and their Kyori runtime dependencies.
+- Modules: Adventure API, Adventure Key, Adventure Plain Text/Legacy/JSON/Gson Serializers and their Kyori runtime dependencies.
 - Bundled API and serializer version: 5.2.0.
 - License: MIT. See https://github.com/KyoriPowered/adventure/blob/main/license.txt.
-- Required for LandWard's text and GUI code on Spigot, which does not provide Adventure itself.
+- Required for LandWard's text and GUI code on Spigot and CraftBukkit, which do not provide Adventure themselves.
 
 LandWard bundles and relocates the bStats Bukkit metrics client so server owners do
 not need to install a separate metrics plugin.

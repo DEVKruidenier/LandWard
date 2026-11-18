@@ -62,7 +62,7 @@ jobs:
               version_type: $version_type,
               project_id: $project_id,
               changelog: $changelog,
-              loaders: ["paper", "spigot"],
+              loaders: ["bukkit", "folia", "paper", "spigot"],
               game_versions: ["26.2", "26.3"],
               featured: true,
               status: "listed",

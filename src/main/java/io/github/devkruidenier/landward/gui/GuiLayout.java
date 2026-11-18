@@ -15,9 +15,9 @@ import java.util.function.BooleanSupplier;
 
 /** Presentation mapping keeps domain actions independent of displayed slot positions. */
 final class GuiLayout {
-    private static final Map<Inventory, Map<Integer, Integer>> ACTIONS = new WeakHashMap<>();
-    private static final Map<Inventory, Runnable[]> PAGES = new WeakHashMap<>();
-    private static final Map<UUID, Map<String, Integer>> LAST_PAGES = new HashMap<>();
+    private static final Map<Inventory, Map<Integer, Integer>> ACTIONS = Collections.synchronizedMap(new WeakHashMap<>());
+    private static final Map<Inventory, Runnable[]> PAGES = Collections.synchronizedMap(new WeakHashMap<>());
+    private static final Map<UUID, Map<String, Integer>> LAST_PAGES = new java.util.concurrent.ConcurrentHashMap<>();
     private GuiLayout() {}
 
     static void forgetPlayer(UUID player) { LAST_PAGES.remove(player); }
@@ -135,7 +135,7 @@ final class GuiLayout {
     }
 
     // Inventory does not expose its title; constructors register the exact translated title.
-    private static final Map<Inventory, String> TITLES = new WeakHashMap<>();
+    private static final Map<Inventory, String> TITLES = Collections.synchronizedMap(new WeakHashMap<>());
     static void title(Inventory inventory, String title) { TITLES.put(inventory, title); }
     private static String playerTitle(Inventory inventory) { return Objects.requireNonNull(TITLES.get(inventory)); }
 
@@ -171,7 +171,7 @@ final class GuiLayout {
             List<Integer> visible = java.util.stream.IntStream.range(0, items.size())
                     .filter(index -> valid.get(index).getAsBoolean()).boxed().toList();
             int currentPage = GuiGrid.page(page, visible.size());
-            LAST_PAGES.computeIfAbsent(player.getUniqueId(), ignored -> new HashMap<>())
+            LAST_PAGES.computeIfAbsent(player.getUniqueId(), ignored -> new java.util.concurrent.ConcurrentHashMap<>())
                     .put(pageKey(template), currentPage);
             int count = GuiGrid.count(currentPage, visible.size());
             int size = GuiGrid.size(count);

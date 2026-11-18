@@ -1,16 +1,16 @@
 # LandWard
 
-LandWard 1.0.4.1 fixes SQL migrations involving precise warp rotations and adds
-clear migration-failure diagnostics. Includes bounded chunk-map navigation,
-32 languages and anonymous feature-usage charts. See the
-[Wiki](https://github.com/DEVKruidenier/LandWard/wiki) for configuration and guidance.
+LandWard 1.0.5.0 adds Folia and CraftBukkit support in one universal JAR,
+with region-safe warps and preserved clickable chat. Compatible with Velocity
+proxy networks. See the [Wiki](https://github.com/DEVKruidenier/LandWard/wiki)
+for configuration and guidance.
 
 Update staging and PlaceholderAPI behavior are documented in the
 [Wiki](https://github.com/DEVKruidenier/LandWard/wiki).
 
 **Simple land claims. Reliable protection.**
 
-LandWard is an open-source chunk-claiming plugin for Paper and Spigot survival servers. It
+LandWard is an open-source chunk-claiming plugin for Paper, Spigot, CraftBukkit and Folia survival servers. It
 uses a visual in-game map instead of claim tools, selection wands, or mandatory
 economies.
 
@@ -20,7 +20,7 @@ economies.
 - Want your server listed here? Join **play.martialcraft.nl** and use
   `/mail send Kruidenier <yourServerIP>`.
 
-**Supported servers:** Paper 26.2/26.3 and Spigot 26.2/26.3. Java 25 required.
+**Supported servers:** Paper 26.2/26.3, Spigot 26.2/26.3, CraftBukkit 26.3 and Folia 26.3. Java 25 required.
 
 **Compatible with Velocity proxy networks** — tested with Velocity 4.3.1 and a Paper 26.2 backend. Install LandWard on the backend server.
 
@@ -62,6 +62,12 @@ claimed chunks, Safe Zones and named warps. Counts use categories (0, 1–10,
 
 [View LandWard on bStats](https://bstats.org/plugin/bukkit/LandWard/35128)
 
+## Folia and CraftBukkit
+
+Since **1.0.5.0**, the universal JAR supports Folia 26.3 and CraftBukkit 26.3.
+Scheduling and chat delivery are selected automatically. Optional integrations
+require compatible builds for the selected server and Minecraft version.
+
 ## Build
 
 ```bash
@@ -72,9 +78,9 @@ The distributable plugin JAR is written to `build/libs/LandWard-<version>.jar`.
 The `-unshaded` JAR is a development artifact and omits bundled runtime libraries.
 
 Since 1.0.2.1, the same distributable is used for every publication
-platform. SQLite and MySQL drivers come from the supported Paper/Spigot server;
+platform. SQLite and MySQL drivers come from the supported server;
 no extra installation or LandWard library download is required. The plugin still
-includes its own connection pool, metrics client and Adventure support for Spigot.
+includes its own connection pool, metrics client and Adventure support for Spigot and CraftBukkit.
 
 ## License
 

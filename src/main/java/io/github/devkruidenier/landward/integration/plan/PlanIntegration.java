@@ -17,7 +17,7 @@ public final class PlanIntegration {
 
     private final LandWardPlugin plugin;
     private final LandWardPlanExtension extension;
-    private Caller caller;
+    private volatile Caller caller;
 
     public PlanIntegration(LandWardPlugin plugin, LandManager landManager) {
         this.plugin = plugin;
@@ -33,7 +33,7 @@ public final class PlanIntegration {
             }
             registerExtensionSafely();
             capabilities.registerEnableListener(enabled -> {
-                if (enabled) plugin.getServer().getScheduler().runTask(plugin, this::registerExtensionSafely);
+                if (enabled) plugin.scheduler().global(this::registerExtensionSafely);
             });
         } catch (NoClassDefFoundError ignored) {
             // Plan is intentionally optional: never prevent LandWard from enabling.
@@ -44,14 +44,14 @@ public final class PlanIntegration {
 
     public void refresh() {
         if (caller == null) return;
-        if (!plugin.getServer().isPrimaryThread()) {
-            plugin.getServer().getScheduler().runTask(plugin, this::refresh);
-            return;
-        }
-        caller.updateServerData();
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
-            caller.updatePlayerData(player.getUniqueId(), player.getName());
-        }
+        plugin.scheduler().global(() -> {
+            Caller current = caller;
+            if (current == null) return;
+            current.updateServerData();
+            for (Player player : plugin.getServer().getOnlinePlayers()) {
+                plugin.scheduler().player(player, () -> current.updatePlayerData(player.getUniqueId(), player.getName()));
+            }
+        });
     }
 
     public void unregister() {

@@ -44,10 +44,39 @@ import java.nio.file.Files;
 
 public final class LandWardPlugin extends JavaPlugin {
 
+    private io.github.devkruidenier.landward.platform.PlatformScheduler scheduler;
+    public io.github.devkruidenier.landward.platform.PlatformScheduler scheduler() { return scheduler; }
+    private final io.github.devkruidenier.landward.platform.PlayerSnapshots playerSnapshots = new io.github.devkruidenier.landward.platform.PlayerSnapshots();
+    public io.github.devkruidenier.landward.platform.PlayerSnapshots playerSnapshots() { return playerSnapshots; }
+    private final Object configLock = new Object();
+    private volatile org.bukkit.configuration.file.FileConfiguration runtimeConfig;
+    @Override public org.bukkit.configuration.file.FileConfiguration getConfig() {
+        var current = runtimeConfig; return current == null ? super.getConfig() : current;
+    }
+    @Override public void reloadConfig() {
+        synchronized (configLock) { super.reloadConfig(); runtimeConfig = super.getConfig(); }
+    }
+    /** Publish a fresh configuration: region readers never observe an in-place YAML mutation. */
+    public void setConfigValue(String path, Object value) {
+        synchronized (configLock) {
+            var copy = new YamlConfiguration();
+            try {
+                copy.loadFromString(getConfig().saveToString());
+                copy.set(path, value);
+                copy.save(new File(getDataFolder(), "config.yml"));
+                runtimeConfig = copy;
+            } catch (Exception error) { throw new IllegalStateException("Could not persist LandWard configuration", error); }
+        }
+    }
+    public void toggleConfigValue(String path) {
+        synchronized (configLock) { setConfigValue(path, !getConfig().getBoolean(path, false)); }
+    }
+    private io.github.devkruidenier.landward.platform.PlayerMessages messages;
+    public io.github.devkruidenier.landward.platform.PlayerMessages messages() { return messages; }
     private LocaleService localeService;
     private MetricsService metricsService;
     private LandWardConsole console;
-    private LandStorage storage;
+    private volatile LandStorage storage;
     private LandManager landManager;
     private BlueMapIntegration blueMapIntegration;
     private PlanIntegration planIntegration;
@@ -69,12 +98,16 @@ public final class LandWardPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        scheduler = new io.github.devkruidenier.landward.platform.PlatformScheduler(this);
         saveDefaultConfig();
         mergeNewConfigDefaults();
 
         this.console = new LandWardConsole(this);
         this.localeService = new LocaleService(this);
         this.localeService.initialize();
+        this.messages = new io.github.devkruidenier.landward.platform.PlayerMessages(this);
+        getServer().getPluginManager().registerEvents(playerSnapshots, this);
+        getServer().getOnlinePlayers().forEach(player -> scheduler.player(player, () -> playerSnapshots.capture(player)));
 
         this.storage = createStorage(getConfig().getString("storage.type", "sqlite"));
         try {
@@ -97,7 +130,7 @@ public final class LandWardPlugin extends JavaPlugin {
         // Map plugins can finish their own asynchronous API initialization after
         // Bukkit has enabled LandWard. A second, delayed pass makes the optional
         // marker layers reliable without delaying server startup.
-        getServer().getScheduler().runTaskLater(this, this::syncMapIntegrations, 20L * 5L);
+        scheduler.globalLater(this::syncMapIntegrations, 20L * 5L);
         if (getConfig().getBoolean("integrations.plan.enabled", true)
                 && getServer().getPluginManager().getPlugin("Plan") != null) {
             this.planIntegration = new PlanIntegration(this, landManager);
@@ -149,6 +182,9 @@ public final class LandWardPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (landFeaturesGui != null) landFeaturesGui.shutdown();
+        if (scheduler != null) scheduler.close();
+        playerSnapshots.clear();
         if (metricsService != null) metricsService.shutdown();
         if (localeService != null) {
             console.info(localeService.console("plugin.disabled"), Tone.WARNING);
@@ -161,7 +197,7 @@ public final class LandWardPlugin extends JavaPlugin {
         }
         if (storage != null) {
             try {
-                storage.close();
+                synchronized (landManager == null ? this : landManager) { storage.close(); }
             } catch (StorageException exception) {
                 getLogger().log(java.util.logging.Level.SEVERE, "Could not close LandWard storage", exception);
             }
@@ -189,8 +225,7 @@ public final class LandWardPlugin extends JavaPlugin {
         LandStorage previous = storage;
         landManager.replaceStorage(replacement);
         storage = replacement;
-        getConfig().set("storage.type", type);
-        saveConfig();
+        setConfigValue("storage.type", type);
         syncMapIntegrations();
         if (previous != replacement) {
             try {
@@ -218,6 +253,10 @@ public final class LandWardPlugin extends JavaPlugin {
     }
 
     public void syncMapIntegrations() {
+        scheduler.global(this::syncMapIntegrationsNow);
+    }
+
+    private void syncMapIntegrationsNow() {
         if (blueMapIntegration != null) blueMapIntegration.sync();
         if (squaremapIntegration != null) squaremapIntegration.sync();
         if (pl3xMapIntegration != null) pl3xMapIntegration.sync();
@@ -232,15 +271,17 @@ public final class LandWardPlugin extends JavaPlugin {
 
     /** Persists an administrator's per-world LandWard activation choice. */
     public void setLandWorldEnabled(World world, boolean active) {
+        synchronized (configLock) { setLandWorldEnabledLocked(world, active); }
+    }
+
+    private void setLandWorldEnabledLocked(World world, boolean active) {
         java.util.List<String> disabled = new java.util.ArrayList<>(getConfig().getStringList("claims.disabled-worlds"));
         if (active) {
             disabled.remove(world.getName());
         } else if (!disabled.contains(world.getName())) {
             disabled.add(world.getName());
         }
-        getConfig().set("claims.disabled-worlds", disabled);
-        applyWorldConfigComments();
-        saveConfig();
+        setConfigValue("claims.disabled-worlds", disabled);
         syncMapIntegrations();
     }
 
@@ -313,6 +354,10 @@ public final class LandWardPlugin extends JavaPlugin {
      * values that a server owner has already chosen.
      */
     private void mergeNewConfigDefaults() {
+        synchronized (configLock) { mergeNewConfigDefaultsLocked(); }
+    }
+
+    private void mergeNewConfigDefaultsLocked() {
         try (InputStream resource = getResource("config.yml")) {
             if (resource == null) return;
             File configFile = new File(getDataFolder(), "config.yml");
@@ -350,10 +395,4 @@ public final class LandWardPlugin extends JavaPlugin {
         }
     }
 
-    private void applyWorldConfigComments() {
-        getConfig().setComments("claims.disabled-worlds", java.util.List.of(
-                "World names where LandWard is fully inactive. Every other world is active.",
-                "Example world: LandWard is disabled in this world until you remove it from this list."
-        ));
-    }
 }

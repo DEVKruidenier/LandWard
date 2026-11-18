@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.devkruidenier"
-version = "1.0.4.1"
+version = "1.0.5.0"
 
 val pluginVersion = version.toString()
 
@@ -89,10 +89,12 @@ dependencies {
     // never downloads libraries at runtime or requires another plugin for SQL.
     testRuntimeOnly("org.xerial:sqlite-jdbc:3.49.1.0")
     testRuntimeOnly("com.mysql:mysql-connector-j:9.2.0")
-    // Spigot has no built-in Adventure API. Bundle the API used by GUI/console
+    // Spigot/CraftBukkit have no built-in Adventure API. Bundle the API used by GUI/console
     // code so other installed plugins are never required to supply it.
     implementation("net.kyori:adventure-api:5.2.0")
     implementation("net.kyori:adventure-text-serializer-plain:5.2.0")
+    implementation("net.kyori:adventure-text-serializer-legacy:5.2.0")
+    implementation("net.kyori:adventure-text-serializer-gson:5.2.0")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("com.djrapitops:plan-api:5.7-R0.2")
     compileOnly("xyz.jpenilla:squaremap-api:1.4.3")
@@ -120,11 +122,23 @@ tasks.register<Jar>("featureProbeJar") {
     from(sourceSets.test.get().output) {
         include("io/github/devkruidenier/landward/fixture/FeatureServerProbe*.class")
         include("io/github/devkruidenier/landward/gui/ChunkMapServerProbe*.class")
+        include("io/github/devkruidenier/landward/platform/MessageRuntimeProbe*.class")
     }
     from("src/test/featureprobe") { include("plugin.yml") }
 }
 
-tasks.test { exclude("**/fixture/**", "**/*ServerProbe*") }
+tasks.test { exclude("**/fixture/**", "**/*ServerProbe*", "**/*RuntimeProbe*") }
+
+tasks.register<Jar>("foliaProbeJar") {
+    dependsOn(tasks.testClasses)
+    archiveFileName.set("LandWardFoliaProbe.jar")
+    destinationDirectory.set(layout.buildDirectory.dir("fixtures/folia-probe"))
+    from(sourceSets.test.get().output) {
+        include("io/github/devkruidenier/landward/fixture/FoliaServerProbe*.class")
+        include("io/github/devkruidenier/landward/gui/FoliaRuntimeProbe*.class")
+    }
+    from("src/test/foliaprobe") { include("plugin.yml") }
+}
 
 tasks {
     withType<AbstractArchiveTask>().configureEach {

@@ -14,9 +14,6 @@ import io.github.devkruidenier.landward.integration.WorldGuardIntegration;
 import io.github.devkruidenier.landward.integration.VanillaSpawnProtectionIntegration;
 import io.github.devkruidenier.landward.update.UpdateChecker;
 import org.bukkit.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -135,10 +132,10 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
             return;
         }
         sender.sendMessage(message(sender, "updates.checking"));
-        plugin.updateChecker().stageLatestRelease(version -> sender.sendMessage(
-                message(sender, "updates.stage-started", Map.of("version", version)))).whenComplete((result, error) -> {
+        plugin.updateChecker().stageLatestRelease(version -> plugin.scheduler().sender(sender, () -> sender.sendMessage(
+                message(sender, "updates.stage-started", Map.of("version", version))))).whenComplete((result, error) -> {
             if (!plugin.isEnabled()) return;
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
+            plugin.scheduler().sender(sender, () -> {
                 if (sender instanceof Player target && !target.isOnline()) return;
                 if (error != null || result == null || !result.success()) {
                     var state = plugin.updateChecker().status();
@@ -312,22 +309,16 @@ public final class LandCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(message(player, "updates.checking"));
         plugin.updateChecker().refresh().thenAccept(status -> {
             if (!plugin.isEnabled()) return;
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
+            plugin.scheduler().player(player, () -> {
                 if (!player.isOnline()) return;
-                TextComponent line = new TextComponent(TextComponent.fromLegacyText(message(player, "command.header",
-                        Map.of("version", plugin.getDescription().getVersion()))));
-                TextComponent badge = new TextComponent(TextComponent.fromLegacyText(updateStatus(player, status)));
-                if (status.state() == UpdateChecker.State.OUTDATED && status.asset() != null && player.hasPermission("landward.admin")) {
-                    badge.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/landward:claim update"));
-                    badge.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(
-                            plugin.localeService().message(plugin.localeService().localeFor(player), "updates.stage-info-click"))));
-                }
-                line.addExtra(badge);
-                player.spigot().sendMessage(line);
-                TextComponent author = new TextComponent(TextComponent.fromLegacyText(ChatColor.GOLD + "LandWard "
-                        + ChatColor.DARK_GRAY + "» " + ChatColor.WHITE + "Maker: " + ChatColor.AQUA + "DEVKruidenier"));
-                author.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/DEVKruidenier"));
-                player.spigot().sendMessage(author);
+                plugin.messages().chat(player, io.github.devkruidenier.landward.platform.MessageText.info(
+                        message(player, "command.header", Map.of("version", plugin.getDescription().getVersion())),
+                        updateStatus(player, status), status.state() == UpdateChecker.State.OUTDATED && status.asset() != null
+                                && player.hasPermission("landward.admin"),
+                        plugin.localeService().message(plugin.localeService().localeFor(player), "updates.stage-info-click")));
+                plugin.messages().chat(player, io.github.devkruidenier.landward.platform.MessageText.link(
+                        ChatColor.GOLD + "LandWard " + ChatColor.DARK_GRAY + "» " + ChatColor.WHITE + "Maker: " + ChatColor.AQUA + "DEVKruidenier",
+                        "https://github.com/DEVKruidenier"));
             });
         });
         return true;

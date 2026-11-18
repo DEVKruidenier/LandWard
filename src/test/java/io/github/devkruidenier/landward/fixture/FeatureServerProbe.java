@@ -19,6 +19,20 @@ public final class FeatureServerProbe extends JavaPlugin {
     private int assertions;
     @Override public void onEnable() {
         getCommand("featureprobe").setExecutor((sender, command, label, args) -> {
+            if (args.length == 1 && args[0].equals("messages")) {
+                try {
+                    var target=(LandWardPlugin)Bukkit.getPluginManager().getPlugin("LandWard");
+                    String name="io.github.devkruidenier.landward.platform.MessageRuntimeProbe";
+                    Class<?> anchor=Class.forName("io.github.devkruidenier.landward.platform.PlayerMessages",true,target.getClass().getClassLoader());
+                    Class<?> probe;
+                    try(var input=getResource(name.replace('.','/')+".class")) {
+                        probe=java.lang.invoke.MethodHandles.privateLookupIn(anchor,java.lang.invoke.MethodHandles.lookup()).defineClass(input.readAllBytes());
+                    }
+                    int checks=(Integer)probe.getMethod("run",LandWardPlugin.class).invoke(null,target);
+                    getLogger().info("MESSAGES-PROBE-PASS assertions="+checks);
+                }catch(Throwable error){getLogger().log(java.util.logging.Level.SEVERE,"MESSAGES-PROBE-FAIL",error);}
+                return true;
+            }
             if (args.length == 1 && args[0].equals("languages")) {
                 try {
                     var target=(LandWardPlugin)Bukkit.getPluginManager().getPlugin("LandWard");
@@ -74,13 +88,13 @@ public final class FeatureServerProbe extends JavaPlugin {
             check(!plugin.metricsService().isInitialized() && field.get(plugin.metricsService()) == null, "Local opt-out creates no session/task");
             plugin.getConfig().set("metrics.enabled", true); plugin.saveConfig(); plugin.reloadLandWard();
             check(plugin.metricsService().isInitialized(), "Metrics enabled");
-            var previous = (org.bukkit.scheduler.BukkitTask) field.get(plugin.metricsService());
+            var previous = (io.github.devkruidenier.landward.platform.TaskRegistration) field.get(plugin.metricsService());
             var snapshotField = plugin.metricsService().getClass().getDeclaredField("snapshot"); snapshotField.setAccessible(true);
             var snapshot = (io.github.devkruidenier.landward.metrics.UsageSnapshot)snapshotField.get(plugin.metricsService());
             check(snapshot.charts().size() == 7 && snapshot.integrationChart().size() == 7, "All fixed chart providers present");
             check(snapshot.charts().get("storage_backend").equals("SQLite"), "Active storage type");
             plugin.reloadLandWard();
-            check(previous.isCancelled(), "Reload cancels previous snapshot task");
+            check(previous.cancelled(), "Reload cancels previous snapshot task");
             global.set("enabled", false); global.save(globalFile); plugin.reloadLandWard();
             check(!plugin.metricsService().isInitialized() && field.get(plugin.metricsService()) == null, "Global opt-out prevents session/task");
         } finally {
@@ -199,8 +213,8 @@ public final class FeatureServerProbe extends JavaPlugin {
         verifyIndoorDestinations(plugin, lands, world);
     }
     private void verifyIndoorDestinations(LandWardPlugin plugin, LandManager lands, World world) throws Exception {
-        var service = new io.github.devkruidenier.landward.gui.WarpTeleportService(plugin, lands);
-        var safe = service.getClass().getDeclaredMethod("safe", LandWarp.class); safe.setAccessible(true);
+        var type=Class.forName("io.github.devkruidenier.landward.gui.WarpSafety",true,plugin.getClass().getClassLoader());
+        var safe=type.getDeclaredMethod("inspect",World.class,LandWarp.class,int.class,int.class,int.class,int.class);safe.setAccessible(true);
         int x = 16004, y = 100, z = 16004;
         var previous = new LinkedHashMap<Block, org.bukkit.block.data.BlockData>();
         for (int dx = -1; dx <= 1; dx++) for (int dy = -2; dy <= 3; dy++) for (int dz = -1; dz <= 1; dz++) {
@@ -210,20 +224,26 @@ public final class FeatureServerProbe extends JavaPlugin {
             Block floor = world.getBlockAt(x, y - 1, z), feet = world.getBlockAt(x, y, z), ceiling = world.getBlockAt(x, y + 2, z);
             floor.setType(Material.STONE, false); ceiling.setType(Material.STONE, false);
             var full = new LandWarp(UUID.randomUUID(), "Room", world.getUID(), x + .5, y, z + .5, 0, 0);
-            check((boolean)safe.invoke(service, full), "Two-block-high indoor room is safe");
+            check(inspect(safe, world, full, x, z), "Two-block-high indoor room is safe");
             feet.setType(Material.WHITE_CARPET, false);
             var carpet = new LandWarp(UUID.randomUUID(), "Carpet", world.getUID(), x + .5, y + .0625, z + .5, 0, 0);
-            check((boolean)safe.invoke(service, carpet), "Carpet inside a two-block-high room is safe");
+            check(inspect(safe, world, carpet, x, z), "Carpet inside a two-block-high room is safe");
             feet.setType(Material.AIR, false); floor.setType(Material.STONE_SLAB, false);
             var slab = new LandWarp(UUID.randomUUID(), "Slab", world.getUID(), x + .5, y - .5, z + .5, 0, 0);
-            check((boolean)safe.invoke(service, slab), "Bottom slab floor is safe");
+            check(inspect(safe, world, slab, x, z), "Bottom slab floor is safe");
             floor.setType(Material.STONE, false); feet.setType(Material.STONE, false);
-            check(!(boolean)safe.invoke(service, full), "Solid block intersecting the player is unsafe");
+            check(!inspect(safe, world, full, x, z), "Solid block intersecting the player is unsafe");
             feet.setType(Material.LAVA, false);
-            check(!(boolean)safe.invoke(service, full), "Lava remains unsafe");
+            check(!inspect(safe, world, full, x, z), "Lava remains unsafe");
             feet.setType(Material.AIR, false); floor.setType(Material.AIR, false);
-            check(!(boolean)safe.invoke(service, full), "Unsupported destination remains unsafe");
+            check(!inspect(safe, world, full, x, z), "Unsupported destination remains unsafe");
         } finally { previous.forEach((block, data) -> block.setBlockData(data, false)); }
+    }
+    private boolean inspect(java.lang.reflect.Method method,World world,LandWarp warp,int x,int z) throws Exception {
+        Object part=method.invoke(null,world,warp,x,x,z,z);
+        var clear=part.getClass().getDeclaredMethod("clear");clear.setAccessible(true);
+        var supported=part.getClass().getDeclaredMethod("supported");supported.setAccessible(true);
+        return (boolean)clear.invoke(part) && (boolean)supported.invoke(part);
     }
     private void check(boolean condition, String message) { assertions++; if (!condition) throw new AssertionError(message); }
     @SuppressWarnings("unchecked") private static <T> T proxy(Class<T> type, UUID id, Location location, EntityType entityType) {

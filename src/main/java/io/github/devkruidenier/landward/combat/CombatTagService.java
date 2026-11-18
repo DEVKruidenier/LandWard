@@ -39,7 +39,7 @@ public final class CombatTagService {
             if (expiresAt > System.currentTimeMillis()) return true;
             localTags.remove(player.getUniqueId(), expiresAt);
         }
-        return externalTag(player);
+        return (!plugin.scheduler().folia() || plugin.scheduler().owns(player)) && externalTag(player);
     }
 
     /** PvP protection is relaxed only when both combatants are actively tagged. */

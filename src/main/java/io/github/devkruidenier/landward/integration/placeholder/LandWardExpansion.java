@@ -36,7 +36,16 @@ public final class LandWardExpansion extends PlaceholderExpansion {
 
     private String current(Player player, String parameter) {
         if (player == null) return parameter.equalsIgnoreCase("current_claim") ? "" : "none";
-        ChunkPosition position = new ChunkPosition(player.getWorld().getUID(), player.getLocation().getBlockX() >> 4, player.getLocation().getBlockZ() >> 4);
+        ChunkPosition position;
+        if (plugin.scheduler().folia() && !plugin.scheduler().owns(player)) {
+            var snapshot = plugin.playerSnapshots().get(player.getUniqueId());
+            if (snapshot == null) return parameter.equalsIgnoreCase("current_chunk_claimed") ? "false"
+                    : configured(player, parameter.equalsIgnoreCase("current_claim") ? "unclaimed-land-name" : "unclaimed-owner-name");
+            position = snapshot.chunk();
+        } else {
+            var location = player.getLocation();
+            position = new ChunkPosition(location.getWorld().getUID(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
+        }
         Land land = lands.landAt(position).orElse(null);
         if (parameter.equalsIgnoreCase("current_claim")) return land == null
                 ? configured(player, "unclaimed-land-name") : land.name();
