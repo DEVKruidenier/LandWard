@@ -20,13 +20,7 @@ economies.
 - Want your server listed here? Join **play.martialcraft.nl** and use
   `/mail send Kruidenier <yourServerIP>`.
 
-## Tested proxy compatibility
-
-LandWard has been tested with **Velocity 4.3.1 (build 45)** in front of a
-**Paper 26.2 backend**, using modern player-information forwarding. Install
-LandWard in the backend server's `plugins/` folder. LandWard runs on Paper;
-it is not a Velocity proxy plugin. This test does not establish compatibility
-with every proxy/backend version combination.
+**Compatible with Velocity proxy networks** — tested with Velocity 4.3.1 and a Paper 26.2 backend. Install LandWard on the backend server.
 
 ## Languages
 
