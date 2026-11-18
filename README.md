@@ -21,6 +21,10 @@ economies.
 
 ## Documentation
 
+**Upcoming 1.0.4.0-beta2:** player and admin chunk maps can be moved with four
+footer controls without teleporting. The configurable center limit defaults to
+30 chunks per direction. See the [map guide](https://github.com/DEVKruidenier/LandWard/wiki/Claim-Management).
+
 The [LandWard Wiki](https://github.com/DEVKruidenier/LandWard/wiki) is the
 central and current documentation source. It covers installation, commands,
 claim management, configuration, integrations, permissions, storage migration

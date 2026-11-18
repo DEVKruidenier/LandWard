@@ -19,6 +19,22 @@ public final class FeatureServerProbe extends JavaPlugin {
     private int assertions;
     @Override public void onEnable() {
         getCommand("featureprobe").setExecutor((sender, command, label, args) -> {
+            if (args.length == 1 && args[0].equals("map")) {
+                try {
+                    // Define this test-only helper in LandWard's loader so it can inspect
+                    // package-private GUI state without exposing production test APIs.
+                    var target = (LandWardPlugin)Bukkit.getPluginManager().getPlugin("LandWard");
+                    String name = "io.github.devkruidenier.landward.gui.ChunkMapServerProbe";
+                    Class<?> probe;
+                    try (var bytes = getResource(name.replace('.', '/') + ".class")) {
+                        probe = java.lang.invoke.MethodHandles.privateLookupIn(io.github.devkruidenier.landward.gui.LandMapGui.class,
+                                java.lang.invoke.MethodHandles.lookup()).defineClass(bytes.readAllBytes());
+                    }
+                    getLogger().info("MAP-PROBE-PASS assertions=" + probe.getMethod("run", LandWardPlugin.class).invoke(null, target));
+                }
+                catch (Throwable error) { getLogger().log(java.util.logging.Level.SEVERE, "MAP-PROBE-FAIL", error); }
+                return true;
+            }
             if (args.length == 1 && args[0].equals("metrics")) {
                 try { metrics(); getLogger().info("METRICS-PROBE-PASS"); }
                 catch (Throwable error) { getLogger().log(java.util.logging.Level.SEVERE, "METRICS-PROBE-FAIL", error); }

@@ -6,6 +6,11 @@ All notable changes to LandWard will be documented here.
 
 ### Added
 
+- Bounded chunk-map navigation for player lands, Safe Zones and remote admin
+  player-land maps. Four footer controls pan one chunk per click without travel;
+  keep the viewport after claiming, unclaiming or cancelling confirmations.
+  Configure the maximum center offset with `claims.map-navigation-limit` (30).
+
 - Anonymous bStats feature-usage charts for storage backend, configured default
   language, payment mode, integration availability and grouped counts of player
   lands, claimed chunks, Safe Zones and named warps. Both opt-outs are respected;

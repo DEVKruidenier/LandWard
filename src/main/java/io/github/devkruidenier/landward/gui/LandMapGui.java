@@ -60,8 +60,29 @@ public final class LandMapGui {
     }
 
     private void open(Player player, LandMapHolder.Mode mode, UUID restrictedLandId) {
+        ChunkPosition current = new ChunkPosition(player.getWorld().getUID(),
+                player.getLocation().getBlockX() >> 4, player.getLocation().getBlockZ() >> 4);
+        open(player, mode, restrictedLandId, new ChunkMapViewport(
+                AdminClaimMapCenter.select(current, restrictedLandId, landManager.claims()), 0, 0));
+    }
+
+    void reopen(Player player, LandMapHolder previous) {
+        open(player, previous.mode(), previous.restrictedLandId(), previous.viewport());
+    }
+
+    void move(Player player, LandMapHolder previous, int dx, int dz) {
+        open(player, previous.mode(), previous.restrictedLandId(), previous.viewport().move(dx, dz, navigationLimit()));
+    }
+
+    private int navigationLimit() { return ChunkMapViewport.limit(plugin.getConfig().getInt("claims.map-navigation-limit", 30)); }
+
+    private void open(Player player, LandMapHolder.Mode mode, UUID restrictedLandId, ChunkMapViewport viewport) {
+        if (mode != LandMapHolder.Mode.PLAYER && !player.hasPermission("landward.admin")) { player.closeInventory(); return; }
+        if (restrictedLandId != null && landManager.land(restrictedLandId).filter(land -> !landManager.isAdministrative(land)).isEmpty()) {
+            new ClaimAdminGui(plugin, landManager).openPlayerClaims(player); return;
+        }
         String locale = plugin.localeService().localeFor(player);
-        LandMapHolder holder = new LandMapHolder(mode, restrictedLandId);
+        LandMapHolder holder = new LandMapHolder(mode, restrictedLandId, viewport.move(0, 0, navigationLimit()));
         Inventory inventory = GuiText.inventory(
                 holder,
                 SIZE,
@@ -74,6 +95,7 @@ public final class LandMapGui {
         holder.setInventory(inventory);
 
         fillMap(inventory, holder, player, locale);
+        navigation(inventory, holder, locale);
         inventory.setItem(53, item(
                 Material.ARROW,
                 plugin.localeService().message(locale, "gui.management-back"),
@@ -83,13 +105,34 @@ public final class LandMapGui {
         GuiLayout.open(player, inventory, plugin);
     }
 
+    private void navigation(Inventory inventory, LandMapHolder holder, String locale) {
+        var viewport = holder.viewport();
+        int[][] controls = {{47,-1,0},{48,0,-1},{50,0,1},{51,1,0}};
+        String[] directions = {"west", "north", "south", "east"};
+        for (int i = 0; i < controls.length; i++) {
+            var control = controls[i];
+            boolean available = !viewport.equals(viewport.move(control[1], control[2], navigationLimit()));
+            inventory.setItem(control[0], item(available ? Material.CYAN_STAINED_GLASS_PANE : Material.BLACK_STAINED_GLASS_PANE,
+                    plugin.localeService().message(locale, "gui.map-" + directions[i]),
+                    available ? NamedTextColor.GREEN : NamedTextColor.DARK_GRAY,
+                    List.of(plugin.localeService().message(locale, available ? "gui.map-move-hint" : "gui.map-limit-hint"))));
+        }
+        inventory.setItem(49, item(Material.PAPER, plugin.localeService().message(locale, "gui.map-offset",
+                Map.of("x", viewport.offsetX(), "z", viewport.offsetZ())), NamedTextColor.AQUA,
+                List.of(plugin.localeService().message(locale, "gui.map-range", Map.of("limit", navigationLimit())))));
+    }
+
     public void openUnclaimConfirmation(Player player, ChunkPosition position, boolean administrator, boolean administrativeClaims) {
         openUnclaimConfirmation(player, position, administrator, administrativeClaims, null);
     }
 
     public void openUnclaimConfirmation(Player player, ChunkPosition position, boolean administrator, boolean administrativeClaims, UUID restrictedLandId) {
+        openUnclaimConfirmation(player, position, administrator, administrativeClaims, restrictedLandId, null);
+    }
+
+    void openUnclaimConfirmation(Player player, ChunkPosition position, boolean administrator, boolean administrativeClaims, UUID restrictedLandId, LandMapHolder returnMap) {
         String locale = plugin.localeService().localeFor(player);
-        UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position, administrator, administrativeClaims, restrictedLandId);
+        UnclaimConfirmationHolder holder = new UnclaimConfirmationHolder(position, administrator, administrativeClaims, restrictedLandId, returnMap);
         Inventory inventory = GuiText.inventory(holder, 27, plugin.localeService().message(locale, administrator ? "gui.admin-confirm-title" : "gui.unclaim-confirm-title"));
         holder.setInventory(inventory);
         inventory.setItem(11, item(Material.HOPPER, plugin.localeService().message(locale, administrator ? "gui.admin-confirm" : "gui.unclaim-confirm"), NamedTextColor.GREEN, List.of(
@@ -104,18 +147,16 @@ public final class LandMapGui {
     private void fillMap(Inventory inventory, LandMapHolder holder, Player player, String locale) {
         ChunkPosition currentPosition = new ChunkPosition(player.getWorld().getUID(),
                 player.getLocation().getBlockX() >> 4, player.getLocation().getBlockZ() >> 4);
-        ChunkPosition center = AdminClaimMapCenter.select(currentPosition, holder.restrictedLandId(), landManager.claims());
         for (int mapZ = 0; mapZ < MAP_HEIGHT; mapZ++) {
             for (int mapX = 0; mapX < MAP_WIDTH; mapX++) {
-                int chunkX = center.x() + mapX - 4;
-                int chunkZ = center.z() + mapZ - 2;
-                ChunkPosition position = new ChunkPosition(center.worldId(), chunkX, chunkZ);
+                int slot = mapZ * 9 + mapX;
+                ChunkPosition position = holder.viewport().chunk(slot);
+                int chunkX = position.x();
+                int chunkZ = position.z();
                 // Ordinary maps still put the player at slot 22. A remotely
                 // viewed land must never label its center as the player's location.
                 boolean current = position.equals(currentPosition);
                 Optional<Land> land = landManager.landAt(position);
-                int slot = mapZ * 9 + mapX;
-                if (slot == 53) continue; // Reserved for the only navigation control.
                 holder.chunksBySlot().put(slot, position);
                 inventory.setItem(
                         slot,

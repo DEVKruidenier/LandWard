@@ -65,6 +65,11 @@ updates:
   maximum-download-megabytes: 32
 
 claims:
+  # Maximum map-center offset in chunks along X and Z from where the map was opened.
+  # Navigation moves one chunk per click without teleporting. Applies to player/admin maps.
+  # 0 disables movement; values are clamped to 0..1024. Default: 30 each direction.
+  # Visible edge chunks extend another 4 chunks along X and 2 along Z.
+  map-navigation-limit: 30
   # Require every new chunk claim to share a horizontal edge with an existing chunk of the same land.
   require-adjacent-chunks: true
   # Maximum lands a player can own. LandWard is designed around one owned land per player.

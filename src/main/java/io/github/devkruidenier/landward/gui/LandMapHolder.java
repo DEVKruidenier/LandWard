@@ -14,6 +14,7 @@ public final class LandMapHolder implements InventoryHolder {
 
     private final Mode mode;
     private final UUID restrictedLandId;
+    private final ChunkMapViewport viewport;
     private Inventory inventory;
     private final Map<Integer, ChunkPosition> chunksBySlot = new HashMap<>();
 
@@ -22,9 +23,17 @@ public final class LandMapHolder implements InventoryHolder {
     public LandMapHolder(Mode mode) { this(mode, null); }
 
     public LandMapHolder(Mode mode, UUID restrictedLandId) {
+        this(mode, restrictedLandId, null);
+    }
+
+    LandMapHolder(Mode mode, UUID restrictedLandId, ChunkMapViewport viewport) {
         this.mode = mode;
         this.restrictedLandId = restrictedLandId;
+        this.viewport = viewport;
     }
+
+    Mode mode() { return mode; }
+    ChunkMapViewport viewport() { return viewport; }
 
     boolean administrator() { return mode != Mode.PLAYER; }
     boolean administrativeClaims() { return mode == Mode.ADMIN_CLAIMS; }
