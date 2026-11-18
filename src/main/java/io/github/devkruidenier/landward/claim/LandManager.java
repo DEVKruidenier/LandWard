@@ -428,6 +428,16 @@ public final class LandManager {
         return landsById.size() - administrativeLandIds.size();
     }
 
+    /** Aggregate in-memory counts; warp traversal stops as soon as the highest bucket is reached. */
+    public synchronized long[] usageCounts() {
+        long warps = 0;
+        for (var features : featuresByLand.values()) {
+            warps += features.warps().size();
+            if (warps > 500) break;
+        }
+        return new long[]{landsById.size() - administrativeLandIds.size(), claims.size(), administrativeLandIds.size(), warps};
+    }
+
     /** Returns the number of server-owned Safe Zones. */
     public synchronized int administrativeLandCount() {
         return administrativeLandIds.size();

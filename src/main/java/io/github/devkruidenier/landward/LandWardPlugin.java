@@ -136,7 +136,7 @@ public final class LandWardPlugin extends JavaPlugin {
         this.adminOwnerChangeListener = new AdminOwnerChangeListener(this, landManager);
         getServer().getPluginManager().registerEvents(adminOwnerChangeListener, this);
 
-        this.metricsService = new MetricsService(this);
+        this.metricsService = new MetricsService(this, landManager);
         this.metricsService.initialize();
 
         new StartupReporter(this).log(landManager.totalClaimCount());
@@ -149,6 +149,7 @@ public final class LandWardPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (metricsService != null) metricsService.shutdown();
         if (localeService != null) {
             console.info(localeService.console("plugin.disabled"), Tone.WARNING);
         }
@@ -256,6 +257,7 @@ public final class LandWardPlugin extends JavaPlugin {
         applyEnvironmentDefaults();
         syncMapIntegrations();
         updateChecker.check();
+        metricsService.initialize();
     }
 
     private MemberPermissions playerMemberDefaults() {

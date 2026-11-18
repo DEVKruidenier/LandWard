@@ -4,6 +4,13 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+### Added
+
+- Anonymous bStats feature-usage charts for storage backend, configured default
+  language, payment mode, integration availability and grouped counts of player
+  lands, claimed chunks, Safe Zones and named warps. Both opt-outs are respected;
+  reloading LandWard applies its metrics switch without restarting the server.
+
 ## [1.0.3.0] - 2026-11-17
 
 ### Added

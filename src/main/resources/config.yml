@@ -43,7 +43,11 @@ storage:
     pool-size: 10
 
 metrics:
-  # Send anonymous aggregate server statistics through bStats. No player names or world data are sent.
+  # Send anonymous aggregate statistics through bStats; its global opt-out is also respected.
+  # Includes storage type, configured default language, payment mode, integration availability,
+  # and grouped counts of player lands, all claimed chunks, Safe Zones and named warps.
+  # Count groups: 0, 1-10, 11-50, 51-100, 101-500, 501+. No names, addresses or locations.
+  # Changes to this switch take effect after /claimadmin reload or a restart.
   enabled: true
 
 console:

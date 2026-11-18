@@ -19,10 +19,42 @@ public final class FeatureServerProbe extends JavaPlugin {
     private int assertions;
     @Override public void onEnable() {
         getCommand("featureprobe").setExecutor((sender, command, label, args) -> {
+            if (args.length == 1 && args[0].equals("metrics")) {
+                try { metrics(); getLogger().info("METRICS-PROBE-PASS"); }
+                catch (Throwable error) { getLogger().log(java.util.logging.Level.SEVERE, "METRICS-PROBE-FAIL", error); }
+                return true;
+            }
             try { run(); getLogger().info("FEATURE-PROBE-PASS assertions=" + assertions); }
             catch (Throwable error) { getLogger().log(java.util.logging.Level.SEVERE, "FEATURE-PROBE-FAIL", error); }
             return true;
         });
+    }
+    private void metrics() throws Exception {
+        var plugin = (LandWardPlugin)Bukkit.getPluginManager().getPlugin("LandWard");
+        var globalFile = new java.io.File(plugin.getDataFolder().getParentFile(), "bStats/config.yml");
+        var global = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(globalFile);
+        boolean original = global.getBoolean("enabled", true);
+        boolean local = plugin.getConfig().getBoolean("metrics.enabled", true);
+        var field = plugin.metricsService().getClass().getDeclaredField("refreshTask"); field.setAccessible(true);
+        try {
+            global.set("enabled", true); global.save(globalFile);
+            plugin.getConfig().set("metrics.enabled", false); plugin.saveConfig(); plugin.reloadLandWard();
+            check(!plugin.metricsService().isInitialized() && field.get(plugin.metricsService()) == null, "Local opt-out creates no session/task");
+            plugin.getConfig().set("metrics.enabled", true); plugin.saveConfig(); plugin.reloadLandWard();
+            check(plugin.metricsService().isInitialized(), "Metrics enabled");
+            var previous = (org.bukkit.scheduler.BukkitTask) field.get(plugin.metricsService());
+            var snapshotField = plugin.metricsService().getClass().getDeclaredField("snapshot"); snapshotField.setAccessible(true);
+            var snapshot = (io.github.devkruidenier.landward.metrics.UsageSnapshot)snapshotField.get(plugin.metricsService());
+            check(snapshot.charts().size() == 7 && snapshot.integrationChart().size() == 7, "All fixed chart providers present");
+            check(snapshot.charts().get("storage_backend").equals("SQLite"), "Active storage type");
+            plugin.reloadLandWard();
+            check(previous.isCancelled(), "Reload cancels previous snapshot task");
+            global.set("enabled", false); global.save(globalFile); plugin.reloadLandWard();
+            check(!plugin.metricsService().isInitialized() && field.get(plugin.metricsService()) == null, "Global opt-out prevents session/task");
+        } finally {
+            global.set("enabled", original); global.save(globalFile);
+            plugin.getConfig().set("metrics.enabled", local); plugin.saveConfig(); plugin.reloadLandWard();
+        }
     }
     private void run() throws Exception {
         assertions = 0;

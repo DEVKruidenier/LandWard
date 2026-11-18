@@ -33,8 +33,14 @@ Completed features, fixes and behaviour changes are listed in the
 
 LandWard includes bStats for anonymous, aggregated usage statistics such as server
 counts, software versions, and country-level adoption. It never collects player
-names, chat, world data, server addresses, or exact locations. Metrics can be
+names, chat, world names or coordinates, server addresses, or exact locations. Metrics can be
 disabled in LandWard's configuration or in the server-wide bStats configuration.
+
+**Upcoming 1.0.4.0 (beta1):** custom charts add storage type, configured default language,
+payment mode, integration availability and grouped counts of player lands,
+claimed chunks, Safe Zones and named warps. Counts use categories (0, 1–10,
+11–50, 51–100, 101–500, 501+), never names or individual land records.
+These charts are not included in release 1.0.3.0.
 
 [View LandWard on bStats](https://bstats.org/plugin/bukkit/LandWard/35128)
 

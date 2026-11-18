@@ -30,6 +30,7 @@ public final class LocaleService {
     );
 
     private final LandWardPlugin plugin;
+    public static Set<String> supportedLocales() { return Set.copyOf(BUNDLED_LOCALES); }
     private final Map<String, YamlConfiguration> translations = new ConcurrentHashMap<>();
 
     public LocaleService(LandWardPlugin plugin) {
