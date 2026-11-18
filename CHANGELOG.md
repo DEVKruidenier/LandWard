@@ -4,6 +4,8 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+## [1.0.4.1] - 2026-11-18
+
 ### Fixed
 
 - Preserve exact warp yaw/pitch when reading existing MySQL/MariaDB FLOAT

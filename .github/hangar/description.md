@@ -1,8 +1,9 @@
 # LandWard
 
-LandWard 1.0.4.0 adds bounded chunk-map navigation, 32 languages and anonymous
-feature-usage charts. See the [Wiki](https://github.com/DEVKruidenier/LandWard/wiki)
-for protections, named land warps, settings and permissions.
+LandWard 1.0.4.1 fixes SQL migrations involving precise warp rotations and adds
+clear migration-failure diagnostics. Includes bounded chunk-map navigation,
+32 languages and anonymous feature-usage charts. See the
+[Wiki](https://github.com/DEVKruidenier/LandWard/wiki) for configuration and guidance.
 
 **Simple land claims. Reliable survival protection.**
 
@@ -16,7 +17,7 @@ For the complete feature list, commands and configuration guidance, visit the
 Minecraft client language when enabled. Server owners can change the default
 and console language in `config.yml` and customize all text in `lang/<locale>.yml`.
 
-**32 languages in LandWard 1.0.4.0:** Arabic, Brazilian Portuguese, Czech, Danish, Dutch, English, Faroese, Filipino, Finnish, French, German, Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese, Korean, Malay, Norwegian Bokmål, Norwegian Nynorsk, Polish, Romanian, Russian, Simplified Chinese, Spanish, Swedish, Thai, Traditional Chinese, Turkish, Ukrainian and Vietnamese.
+**32 supported languages:** Arabic, Brazilian Portuguese, Czech, Danish, Dutch, English, Faroese, Filipino, Finnish, French, German, Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese, Korean, Malay, Norwegian Bokmål, Norwegian Nynorsk, Polish, Romanian, Russian, Simplified Chinese, Spanish, Swedish, Thai, Traditional Chinese, Turkish, Ukrainian and Vietnamese.
 
 See [Languages and locale codes](https://github.com/DEVKruidenier/LandWard/wiki/Languages) for setup and automatic fallback behavior.
 
