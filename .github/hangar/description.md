@@ -16,9 +16,7 @@ For the complete feature list, commands and configuration guidance, visit the
 Minecraft client language when enabled. Server owners can change the default
 and console language in `config.yml` and customize all text in `lang/<locale>.yml`.
 
-**32 languages in LandWard 1.0.4.0:** English, Dutch, German, French, Spanish, Brazilian Portuguese, Italian, Polish, Turkish, Russian, Simplified Chinese, Japanese and Korean.
-
-**Also included:** Finnish, Danish, Swedish, Norwegian Bokmål, Norwegian Nynorsk, Icelandic, Faroese, Indonesian, Vietnamese, Czech, Romanian, Ukrainian, Hungarian, Thai, Filipino, Malay, Hindi, Arabic and Traditional Chinese.
+**32 languages in LandWard 1.0.4.0:** Arabic, Brazilian Portuguese, Czech, Danish, Dutch, English, Faroese, Filipino, Finnish, French, German, Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese, Korean, Malay, Norwegian Bokmål, Norwegian Nynorsk, Polish, Romanian, Russian, Simplified Chinese, Spanish, Swedish, Thai, Traditional Chinese, Turkish, Ukrainian and Vietnamese.
 
 See [Languages and locale codes](https://github.com/DEVKruidenier/LandWard/wiki/Languages) for setup and automatic fallback behavior.
 
