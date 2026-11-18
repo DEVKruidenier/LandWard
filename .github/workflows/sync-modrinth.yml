@@ -2,6 +2,11 @@ name: Sync Modrinth project
 
 on:
   workflow_dispatch:
+    inputs:
+      version_number:
+        description: Optional existing version whose changelog should match GitHub Releases.
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -35,3 +40,31 @@ jobs:
             --header 'Content-Type: application/json' \
             --data @modrinth-project.json \
             https://api.modrinth.com/v2/project/landward
+
+      - name: Synchronize existing release notes
+        if: inputs.version_number != ''
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          VERSION_NUMBER: ${{ inputs.version_number }}
+        run: |
+          set -euo pipefail
+          encoded_version=$(jq -rn --arg v "$VERSION_NUMBER" '$v | @uri')
+          curl --fail-with-body --silent --show-error \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/$encoded_version" > release.json
+          jq -e --arg v "$VERSION_NUMBER" '.tag_name == $v and .draft == false and (.body | type == "string")' release.json
+          curl --fail-with-body --silent --show-error \
+            --header "Authorization: $MODRINTH_TOKEN" \
+            "https://api.modrinth.com/v2/project/landward/version/$encoded_version" > version.json
+          version_id=$(jq -er --arg v "$VERSION_NUMBER" 'select(.version_number == $v) | .id' version.json)
+          jq '{changelog: .body}' release.json > changelog.json
+          curl --fail-with-body --silent --show-error --request PATCH \
+            --header "Authorization: $MODRINTH_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data @changelog.json \
+            "https://api.modrinth.com/v2/version/$version_id"
+          curl --fail-with-body --silent --show-error \
+            --header "Authorization: $MODRINTH_TOKEN" \
+            "https://api.modrinth.com/v2/version/$version_id" > updated-version.json
+          jq -e --slurpfile expected changelog.json '.changelog == $expected[0].changelog' updated-version.json

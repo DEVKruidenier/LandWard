@@ -26,8 +26,6 @@ All notable changes to LandWard will be documented here.
 
 ### Compatibility
 
-- Tested with Velocity 4.3.1 in front of a Paper 26.2 backend. Install LandWard
-  on the backend server.
 - Modrinth loader metadata now includes Bukkit and Folia alongside Paper and
   Spigot; the same universal JAR is used on each supported backend.
 

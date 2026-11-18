@@ -1,8 +1,7 @@
 # LandWard
 
 LandWard 1.0.5.0 adds Folia and CraftBukkit support in one universal JAR,
-with region-safe warps and preserved clickable chat. Compatible with Velocity
-proxy networks. See the [Wiki](https://github.com/DEVKruidenier/LandWard/wiki)
+with region-safe warps and preserved clickable chat. See the [Wiki](https://github.com/DEVKruidenier/LandWard/wiki)
 for configuration and guidance.
 
 **Simple land claims. Reliable survival protection.**
@@ -12,8 +11,6 @@ create a named land, open a visual chunk map and click the chunks they want to
 protect—no golden shovel, selection wand or claim shop required.
 
 **Supported servers:** Paper 26.2/26.3, Spigot 26.2/26.3, CraftBukkit 26.3 and Folia 26.3. Java 25 required.
-
-**Compatible with Velocity proxy networks** — tested with Velocity 4.3.1 and a Paper 26.2 backend. Install LandWard on the backend server.
 
 ## Languages
 
