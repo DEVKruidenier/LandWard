@@ -32,6 +32,8 @@ public final class NativeProtectionProbe {
   private ProtectionService service;
   private SqliteLandStorage db;
   private Object oldEnabled;
+  private Object oldAutomatic;
+  private boolean online = true;
   private Block chest, hopper, lower, upper, power;
   private Player player;
   private org.bukkit.Chunk chunk;
@@ -58,6 +60,7 @@ public final class NativeProtectionProbe {
             b.setType(Material.AIR, false);
           }
       oldEnabled = plugin.getConfig().get("block-protection.enabled");
+      oldAutomatic = plugin.getConfig().get("block-protection.auto-protect");
       plugin.getConfig().set("block-protection.enabled", true);
       var dir = probe.getDataFolder().toPath();
       java.nio.file.Files.createDirectories(dir);
@@ -109,7 +112,8 @@ public final class NativeProtectionProbe {
                         case "getName" -> "NativeLockProbe";
                         case "getWorld" -> world;
                         case "getLocation" -> lower.getLocation();
-                        case "isOnline" -> true;
+                        case "isOnline" -> online;
+                        case "hasPermission" -> ((String) a[0]).startsWith("landward.protection.");
                         case "getLocale" -> "en_us";
                         case "hashCode" -> owner.hashCode();
                         case "equals" -> p == a[0];
@@ -118,11 +122,34 @@ public final class NativeProtectionProbe {
                                 ? false
                                 : m.getReturnType() == int.class ? 0 : null;
                       });
+      plugin.getConfig().set("block-protection.auto-protect", true);
+      var automatic = world.getBlockAt(x + 2, y, z);
+      var before = automatic.getState();
+      automatic.setType(Material.BARREL, false);
+      var autoKey = ProtectionBlocks.key(automatic);
+      var place =
+          new org.bukkit.event.block.BlockPlaceEvent(
+              automatic,
+              before,
+              automatic.getRelative(BlockFace.DOWN),
+              new ItemStack(Material.BARREL),
+              player,
+              true,
+              EquipmentSlot.HAND);
+      Bukkit.getPluginManager().callEvent(place);
+      check(
+          !place.isCancelled() && service.mechanical(autoKey),
+          "Automatic placement is reserved before persistence completes");
+      online = false;
       power = lower.getRelative(BlockFace.EAST);
       power.setType(Material.REDSTONE_BLOCK, true);
       later(
           40,
           () -> {
+            check(
+                lands.personalProtections().at(autoKey) != null,
+                "Automatic lock persists even after the placing player disconnects");
+            online = true;
             check(
                 !((Door) lower.getBlockData()).isOpen() && !((Door) upper.getBlockData()).isOpen(),
                 "Native redstone must not open either door half");
@@ -195,6 +222,8 @@ public final class NativeProtectionProbe {
       if (db != null) db.close();
       previous.forEach((b, data) -> b.setBlockData(data, false));
       if (chunk != null) chunk.setForceLoaded(forced);
+      if (oldAutomatic != null)
+        plugin.getConfig().set("block-protection.auto-protect", oldAutomatic);
       if (oldEnabled != null) plugin.getConfig().set("block-protection.enabled", oldEnabled);
     } catch (Throwable cleanup) {
       if (error == null) error = cleanup;

@@ -184,7 +184,7 @@ public final class ProtectionRuntimeProbe {
         gui.confirm(lockOwner, "remove-warning", () -> {}, () -> {});
         check(
             top.getItem(12).getType() == Material.LIME_CONCRETE
-                && top.getItem(14).getType() == Material.RED_CONCRETE,
+                && top.getItem(13).getType() == Material.RED_CONCRETE,
             "Final confirmation icons");
         for (Material type :
             List.of(
@@ -265,6 +265,9 @@ public final class ProtectionRuntimeProbe {
         check(offPower.getNewCurrent() == 15, "Disabled feature leaves redstone untouched");
         check(
             lands.personalProtections().get(door.id()) != null, "Disabling preserves stored locks");
+        check(
+            !service.visible(lockOwner, land.id()),
+            "Disabled feature hides personal-protection entry points");
         plugin.getConfig().set("block-protection.enabled", true);
         check(
             service.denied(visitor, ProtectionBlocks.key(chest)),
@@ -332,6 +335,28 @@ public final class ProtectionRuntimeProbe {
     } finally {
       blocks.forEach((b, data) -> b.setBlockData(data, false));
       old.forEach((k, v) -> plugin.getConfig().set(k, v));
+    }
+    var configFile = new java.io.File(plugin.getDataFolder(), "config.yml");
+    var configText = java.nio.file.Files.readString(configFile.toPath());
+    try {
+      var config = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(configFile);
+      config.set("block-protection", null);
+      config.save(configFile);
+      plugin.reloadLandWard();
+      check(
+          !plugin.getConfig().getBoolean("block-protection.enabled"),
+          "Real upgrade merger leaves a missing section disabled");
+      try (var input = plugin.getResource("config.yml")) {
+        var fresh =
+            org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(
+                new java.io.InputStreamReader(input, java.nio.charset.StandardCharsets.UTF_8));
+        check(
+            fresh.getBoolean("block-protection.enabled"),
+            "Fresh bundled configuration enables personal protection");
+      }
+    } finally {
+      java.nio.file.Files.writeString(configFile.toPath(), configText);
+      plugin.reloadLandWard();
     }
     return checks;
   }

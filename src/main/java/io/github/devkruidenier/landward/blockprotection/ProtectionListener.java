@@ -30,6 +30,7 @@ public final class ProtectionListener implements Listener {
   private boolean mechanical(Block b) {
     if (service.mechanical(ProtectionBlocks.key(b))) return true;
     return service.enabled()
+        && plugin.scheduler().ownsBlock(b)
         && ProtectionBlocks.supported(b.getType())
         && ProtectionBlocks.part(b).unit().stream().anyMatch(service::mechanical);
   }
@@ -215,30 +216,12 @@ public final class ProtectionListener implements Listener {
             .toList();
     var p = e.getPlayer();
     var actor = service.actor(p);
-    service.observe(
-        data,
-        List.of(),
-        () -> {
-          if (service.enabled()
-              && plugin.getConfig().getBoolean("block-protection.auto-protect", false)
-              && actor.create())
-            plugin
-                .scheduler()
-                .player(
-                    p,
-                    () ->
-                        service
-                            .inspect(land.id(), key)
-                            .whenComplete((snapshot, error) ->
-                                plugin
-                                    .scheduler()
-                                    .player(
-                                        p,
-                                        () -> {
-                                          if (error == null)
-                                            service.create(p, snapshot, saved -> {});
-                                        })));
-        });
+    if (service.enabled()
+        && plugin.getConfig().getBoolean("block-protection.auto-protect", false)
+        && actor.create())
+      service.automatic(
+          p, actor, land.id(), b.getType().name(), ProtectionBlocks.part(b).unit(), data);
+    else service.observe(data, List.of(), null);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

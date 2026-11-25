@@ -250,6 +250,75 @@ public final class ProtectionService implements AutoCloseable {
     }
   }
 
+  /**
+   * Auto-protection retains its reservation through durable ownership and lock writes, and does not
+   * depend on the placing player remaining online.
+   */
+  public void automatic(
+      Player player,
+      ProtectionActor actor,
+      UUID land,
+      String material,
+      List<BlockKey> unit,
+      List<BlockPlacement> placements) {
+    UUID marker = UUID.randomUUID();
+    synchronized (markers) {
+      unit.forEach(b -> uncertain.put(b, marker));
+    }
+    try {
+      writer.execute(() -> {
+        try {
+          for (var placement : placements) lands.recordPlacement(placement);
+          if (enabled()) {
+            if (unit.stream().anyMatch(b -> !marker.equals(uncertain.get(b))))
+              throw new IllegalArgumentException("changed");
+            var generations = new HashMap<BlockKey, UUID>();
+            for (var b : unit) {
+              var placement = lands.personalProtections().placement(b);
+              if (placement != null) generations.put(b, placement.generation());
+            }
+            var saved =
+                lands.protect(
+                    actor,
+                    land,
+                    material,
+                    unit,
+                    generations,
+                    plugin.getConfig().getInt("block-protection.max-blocks-per-player", -1));
+            seal(saved);
+          }
+          unit.forEach(b -> uncertain.remove(b, marker));
+        } catch (IllegalArgumentException rejected) {
+          unit.forEach(b -> uncertain.remove(b, marker));
+          plugin
+              .scheduler()
+              .player(
+                  player,
+                  () ->
+                      tell(
+                          player,
+                          Set.of("limit", "unknown-owner", "changed", "denied")
+                                  .contains(rejected.getMessage())
+                              ? rejected.getMessage()
+                              : "changed"));
+        } catch (Exception error) {
+          plugin
+              .getLogger()
+              .log(
+                  java.util.logging.Level.SEVERE,
+                  "Automatic personal protection failed at "
+                      + unit
+                      + "; locations remain quarantined",
+                  error);
+        }
+      });
+    } catch (RejectedExecutionException error) {
+      plugin
+          .getLogger()
+          .severe("Automatic personal protection queue is full; locations quarantined: " + unit);
+    }
+  }
+
   public void create(Player p, Selection selected, Consumer<BlockProtection> success) {
     inspect(selected.land(), selected.blocks().getFirst())
         .whenComplete((now, error) ->
@@ -290,31 +359,7 @@ public final class ProtectionService implements AutoCloseable {
                                     plugin
                                         .getConfig()
                                         .getInt("block-protection.max-blocks-per-player", -1));
-                            for (var key : saved.blocks()) {
-                              var world = Bukkit.getWorld(key.world());
-                              if (world != null)
-                                plugin
-                                    .scheduler()
-                                    .atChunk(
-                                        world,
-                                        key.x() >> 4,
-                                        key.z() >> 4,
-                                        () -> {
-                                          if (!enabled()
-                                              || lands.personalProtections().get(saved.id())
-                                                  == null) return false;
-                                          var block = world.getBlockAt(key.x(), key.y(), key.z());
-                                          var data = block.getBlockData();
-                                          if (data instanceof org.bukkit.block.data.Openable open) {
-                                            open.setOpen(false);
-                                            if (data
-                                                instanceof org.bukkit.block.data.Powerable power)
-                                              power.setPowered(false);
-                                            block.setBlockData(data, false);
-                                          }
-                                          return true;
-                                        });
-                            }
+                            seal(saved);
                             plugin
                                 .scheduler()
                                 .player(
@@ -326,6 +371,32 @@ public final class ProtectionService implements AutoCloseable {
                           () -> tell(p, "created"),
                           () -> selected.blocks().forEach(b -> uncertain.remove(b, marker)));
                     }));
+  }
+
+  private void seal(BlockProtection saved) {
+    for (var key : saved.blocks()) {
+      var world = Bukkit.getWorld(key.world());
+      if (world != null)
+        plugin
+            .scheduler()
+            .atChunk(
+                world,
+                key.x() >> 4,
+                key.z() >> 4,
+                () -> {
+                  if (!enabled() || lands.personalProtections().get(saved.id()) == null)
+                    return false;
+                  var block = world.getBlockAt(key.x(), key.y(), key.z());
+                  var data = block.getBlockData();
+                  if (data instanceof org.bukkit.block.data.Openable open) {
+                    open.setOpen(false);
+                    if (data instanceof org.bukkit.block.data.Powerable power)
+                      power.setPowered(false);
+                    block.setBlockData(data, false);
+                  }
+                  return true;
+                });
+    }
   }
 
   @Override

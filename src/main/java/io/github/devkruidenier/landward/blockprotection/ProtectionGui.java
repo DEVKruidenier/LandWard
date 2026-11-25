@@ -438,7 +438,7 @@ public final class ProtectionGui implements Listener {
         GuiText.item(
             Material.IRON_BARS, text(p, "confirm"), NamedTextColor.YELLOW, wrap(text(p, warning))));
     button(h, 12, Material.LIME_CONCRETE, text(p, "confirm"), text(p, "confirm-hint"), yes);
-    button(h, 14, Material.RED_CONCRETE, text(p, "cancel"), text(p, "cancel-hint"), back);
+    button(h, 13, Material.RED_CONCRETE, text(p, "cancel"), text(p, "cancel-hint"), back);
     p.openInventory(h.inventory);
   }
 
