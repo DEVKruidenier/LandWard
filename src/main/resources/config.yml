@@ -249,6 +249,7 @@ integrations:
 # Connected owned hoppers retain private access; unknown/foreign hoppers cannot extract.
 # Place legacy hoppers again to establish their owner; ownership is never guessed.
 block-protection:
+  # Set enabled to true to allow players to create personal block locks.
   # Supports chests (including copper variants), barrels, shulkers, doors,
   # trapdoors, gates, levers and buttons. Ordinary land permissions still apply.
   # Owners may expand their protected chests or break their own protected storage;

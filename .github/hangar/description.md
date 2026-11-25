@@ -62,7 +62,14 @@ Protect individual blocks inside player lands in LandWard 1.0.6.0 and newer. Thi
 
 **My Protected Blocks** lets you review your locks, change who has access or remove a lock. A double chest or a two-block door uses one lock for both halves. Members can protect blocks LandWard recorded them placing.
 
-On existing servers, set `block-protection.enabled` to `true` in `plugins/LandWard/config.yml` if it is disabled. See the [Block Protection guide](https://github.com/DEVKruidenier/LandWard/wiki/Block-Protection) and [FAQ & Troubleshooting](https://github.com/DEVKruidenier/LandWard/wiki/FAQ-and-Troubleshooting).
+If Block Protection is disabled, open `plugins/LandWard/config.yml`. Find the existing `block-protection:` section and change its `enabled` value to `true`.
+
+```yaml
+block-protection:
+  enabled: true
+```
+
+See the [Block Protection guide](https://github.com/DEVKruidenier/LandWard/wiki/Block-Protection) and [FAQ & Troubleshooting](https://github.com/DEVKruidenier/LandWard/wiki/FAQ-and-Troubleshooting).
 
 **Start protecting a block** — select **Protect Block** and follow the prompt to right-click an eligible block.
 
