@@ -3,6 +3,11 @@ name: Sync Modrinth project
 on:
   workflow_dispatch:
     inputs:
+      verify_only:
+        description: Compare the live project with the repository and check links without changing Modrinth.
+        required: false
+        default: false
+        type: boolean
       version_number:
         description: Optional existing version whose changelog should match GitHub Releases.
         required: false
@@ -25,6 +30,7 @@ jobs:
           test -n "$MODRINTH_TOKEN"
 
       - name: Synchronize public project details
+        if: ${{ !inputs.verify_only }}
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
         run: |
@@ -41,8 +47,28 @@ jobs:
             --data @modrinth-project.json \
             https://api.modrinth.com/v2/project/landward
 
+      - name: Verify live description and project links
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 2 --max-time 15 \
+            --header "Authorization: $MODRINTH_TOKEN" \
+            https://api.modrinth.com/v2/project/landward > "${RUNNER_TEMP}/landward-project.json"
+          jq -e --rawfile expected .github/modrinth/description.md '
+            def normalize: gsub("\r\n"; "\n") | sub("\n+$"; "");
+            (.body | normalize) == ($expected | normalize)
+              and .source_url == "https://github.com/DEVKruidenier/LandWard"
+              and .issues_url == "https://github.com/DEVKruidenier/LandWard/issues"
+              and .wiki_url == "https://github.com/DEVKruidenier/LandWard/wiki"
+          ' "${RUNNER_TEMP}/landward-project.json"
+
+      - name: Check public description links and media
+        if: inputs.verify_only
+        run: node .github/modrinth/check-description.mjs
+
       - name: Synchronize existing release notes
-        if: inputs.version_number != ''
+        if: ${{ !inputs.verify_only && inputs.version_number != '' }}
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           GH_TOKEN: ${{ github.token }}
