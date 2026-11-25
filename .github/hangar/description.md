@@ -2,10 +2,6 @@
 
 # LandWard
 
-LandWard 1.0.5.0 adds Folia and CraftBukkit support in one universal JAR,
-with region-safe warps and preserved clickable chat. See the [Wiki](https://github.com/DEVKruidenier/LandWard/wiki)
-for configuration and guidance.
-
 **Simple land claims. Reliable survival protection.**
 
 LandWard is a GUI-first chunk-claim plugin for Paper, Purpur, Bukkit, Folia and Spigot survival servers.
@@ -45,35 +41,35 @@ See [Languages and locale codes](https://github.com/DEVKruidenier/LandWard/wiki/
 **Create a land** — open `/claim`, choose **Create land**, and enter the land name
 in the native Minecraft anvil interface.
 
-![Creating a land in the Minecraft GUI](https://raw.githubusercontent.com/DEVKruidenier/LandWard/main/docs/platform-images/claim.gif)
+![Opening the land menu after creating a land](https://raw.githubusercontent.com/wiki/DEVKruidenier/LandWard/images/gui-showcase/1.0.6.0-beta9/landward-main-menu.gif)
 
 **Claim map** — open the visual map centred on your current chunk, then click an
 available neighbouring chunk to protect it.
 
-![Using the LandWard claim map](https://raw.githubusercontent.com/DEVKruidenier/LandWard/main/docs/platform-images/playerclaims.gif)
+![Using the LandWard claim map](https://raw.githubusercontent.com/wiki/DEVKruidenier/LandWard/images/gui-showcase/1.0.6.0-beta9/landward-chunk-map.gif)
 
 **Player claim settings** — configure the land-wide protection defaults and
 member permissions from the in-game settings menu.
 
-![Player claim settings](https://raw.githubusercontent.com/DEVKruidenier/LandWard/main/docs/platform-images/playerclaimsettings.gif)
+![Player claim settings](https://raw.githubusercontent.com/wiki/DEVKruidenier/LandWard/images/gui-showcase/1.0.6.0-beta9/landward-access-members.gif)
 
 **Administration menu** — open ClaimAdmin to review player lands, manage Safe
 Zones and configure active worlds.
 
-![ClaimAdmin menu](https://raw.githubusercontent.com/DEVKruidenier/LandWard/main/docs/platform-images/adminclaims.gif)
+![ClaimAdmin menu](https://raw.githubusercontent.com/wiki/DEVKruidenier/LandWard/images/gui-showcase/1.0.6.0-beta9/landward-admin-main-menu.gif)
 
 **Player claim administration** — select a player's land, inspect its claim map,
 add or remove individual chunks, or remove the complete land after confirmation.
 
-![Player claim administration](https://raw.githubusercontent.com/DEVKruidenier/LandWard/main/docs/platform-images/admin-playerclaims.gif)
+![Player claim administration](https://raw.githubusercontent.com/wiki/DEVKruidenier/LandWard/images/gui-showcase/1.0.6.0-beta9/landward-admin-player-claim.gif)
 
 **Safe Zone settings** — configure building, entities, containers, doors,
 interactions, mobs and PvP for server-owned areas, with individual member rights.
 World and WorldGuard PvP restrictions remain authoritative.
 
-![Safe Zone settings](https://raw.githubusercontent.com/DEVKruidenier/LandWard/main/docs/platform-images/adminclaimsettings.gif)
+![Safe Zone settings](https://raw.githubusercontent.com/wiki/DEVKruidenier/LandWard/images/gui-showcase/1.0.6.0-beta9/landward-admin-settings.gif)
 
 **Active worlds** — enable or disable LandWard per world without changing the
 server's other worlds.
 
-![Active world settings](https://raw.githubusercontent.com/DEVKruidenier/LandWard/main/docs/platform-images/worldsettings.gif)
+![Active world settings](https://raw.githubusercontent.com/wiki/DEVKruidenier/LandWard/images/gui-showcase/1.0.6.0-beta9/landward-active-worlds.gif)
