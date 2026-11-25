@@ -51,17 +51,20 @@ public final class LandManagementGui {
         inventory.setItem(16, item(Material.ENDER_EYE, message(player, "warps.title"), NamedTextColor.AQUA, List.of(message(player, "warps.open-hint"))));
         inventory.setItem(13, item(Material.ENDER_PEARL, message(player, "gui.management-teleport"), NamedTextColor.AQUA, List.of(message(player, "gui.management-teleport-hint"))));
         inventory.setItem(15, item(Material.COMPARATOR, message(player, "gui.management-settings"), NamedTextColor.YELLOW, List.of(message(player, "gui.management-settings-hint"))));
+        if (plugin.blockProtections().visible(player,land.id())) inventory.setItem(14,plugin.blockProtectionGui().entry(player));
         inventory.setItem(17, item(Material.HOPPER, message(player, "gui.management-delete-land"), NamedTextColor.RED, List.of(message(player, "gui.management-delete-land-hint"))));
         inventory.setItem(26, item(Material.ARROW, message(player, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
     }
 
     /** Read-only land overview for trusted members; ownership controls are deliberately absent. */
-    void openMemberMain(Player player, Land land) {
+    public void openMemberMain(Player player, Land land) {
         LandManagementHolder holder = holder(LandManagementHolder.Screen.MEMBER_MAIN, null,
                 message(player, "gui.management-title", Map.of("name", land.name())), COMPACT_SIZE);
         holder.selectedLandId(land.id());
         Inventory inventory = holder.getInventory();
+        if (plugin.blockProtections().visible(player,land.id())) inventory.setItem(14,plugin.blockProtectionGui().entry(player));
+        if (plugin.blockProtections().enabled()) inventory.setItem(15,item(Material.RED_CONCRETE,message(player,"block-protection.leave"),NamedTextColor.RED,List.of(message(player,"block-protection.leave-warning"))));
         inventory.setItem(13, item(Material.ENDER_EYE, message(player, "warps.title"), NamedTextColor.AQUA, List.of(message(player, "warps.open-hint"))));
         inventory.setItem(4, item(Material.WRITABLE_BOOK, land.name(), NamedTextColor.GOLD, List.of(
                 message(player, "gui.status-member"),
@@ -223,6 +226,7 @@ public final class LandManagementGui {
 
     public void openMemberActions(Player player, UUID memberId) {
         LandManagementHolder holder = holder(LandManagementHolder.Screen.MEMBER, memberId, message(player, "gui.management-members"), COMPACT_SIZE);
+        landManager.ownedBy(player.getUniqueId()).ifPresent(l->holder.selectedLandId(l.id()));
         Inventory inventory = holder.getInventory();
         MemberPermissions permissions = landManager.ownedBy(player.getUniqueId())
                 .flatMap(land -> landManager.members(land.id()).stream().filter(member -> member.playerId().equals(memberId)).findFirst())

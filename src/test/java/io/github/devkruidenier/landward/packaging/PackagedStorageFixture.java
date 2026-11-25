@@ -160,6 +160,22 @@ public final class PackagedStorageFixture {
             check(mysql.load().lands().stream().anyMatch(land -> land.name().equals("Utrecht")), "Pooled JDBC rename failed");
             migration.migrate(mysql, returned);
             equal(mysql.load(), returned.load());
+            var originalLock=mysql.load().protections().getFirst();
+            var collision=new io.github.devkruidenier.landward.blockprotection.BlockProtection(UUID.randomUUID(),originalLock.landId(),originalLock.owner(),originalLock.material(),originalLock.blocks(),Set.of(),1,0);
+            boolean rolledBack=false;
+            try { mysql.writeBlockProtections(List.of(collision),List.of(),List.of(),List.of()); } catch(StorageException duplicate) { rolledBack=true; }
+            check(rolledBack,"SQL duplicate protected position must fail atomically");
+            equal(returned.load(),mysql.load());
+            var manager=new io.github.devkruidenier.landward.claim.LandManager(mysql);manager.load();
+            var owned=manager.playerLands().getFirst();var member=manager.members(owned.id()).getFirst().playerId();
+            var location=new io.github.devkruidenier.landward.blockprotection.BlockKey(originalLock.blocks().getFirst().world(),-509,80,-143);
+            var placed=new io.github.devkruidenier.landward.blockprotection.BlockPlacement(location,owned.id(),member,"BARREL",UUID.randomUUID());manager.recordPlacement(placed);
+            var personal=manager.protect(new io.github.devkruidenier.landward.blockprotection.ProtectionActor(member,true,true,true,false),owned.id(),"BARREL",List.of(location),Map.of(location,placed.generation()),-1);
+            manager.sharePersonal(new io.github.devkruidenier.landward.blockprotection.ProtectionActor(member,true,true,true,false),personal.id(),0,Set.of(owned.ownerId()));
+            manager.removeMember(owned.ownerId(),member);
+            check(mysql.load().protections().size()==1 && mysql.load().protections().getFirst().shared().isEmpty(),"SQL member cleanup retains other locks and removes shares");
+            manager.transferOwnership(owned.id(),UUID.randomUUID());
+            check(mysql.load().protections().isEmpty() && mysql.load().placements().isEmpty(),"SQL transfer cleans former-owner locks and generations");
             mysql.clearSnapshotAtomically();
             check(mysql.load().lands().isEmpty(), "Integration cleanup failed");
         }
@@ -169,7 +185,7 @@ public final class PackagedStorageFixture {
     private static StorageSnapshot snapshot() {
         UUID playerLand = UUID.randomUUID(); UUID adminLand = UUID.randomUUID(); UUID world = UUID.randomUUID();
         Instant now = Instant.ofEpochMilli(System.currentTimeMillis());
-        return new StorageSnapshot(List.of(
+        var base = new StorageSnapshot(List.of(
                 new Land(playerLand, UUID.randomUUID(), "Amsterdam", now, MemberPermissions.FULL, LandProtectionSettings.DEFAULT),
                 new Land(adminLand, UUID.randomUUID(), "Veilige Zone Één", now, MemberPermissions.FULL, LandProtectionSettings.DEFAULT)),
                 List.of(new ClaimedChunk(new ChunkPosition(world, -32, -9), playerLand),
@@ -184,6 +200,12 @@ public final class PackagedStorageFixture {
                                         -490.46875, 83.8125, -130.25, -179.99998F, 0.10000001F))),
                         new io.github.devkruidenier.landward.model.LandFeatures(adminLand,
                                 io.github.devkruidenier.landward.model.EnvironmentSettings.defaults(true), List.of())));
+        var first=base.lands().getFirst(); var a=new io.github.devkruidenier.landward.blockprotection.BlockKey(world,-511,80,-143);
+        var b=new io.github.devkruidenier.landward.blockprotection.BlockKey(world,-510,80,-143);
+        var lock=new io.github.devkruidenier.landward.blockprotection.BlockProtection(UUID.randomUUID(),playerLand,first.ownerId(),"CHEST",List.of(a,b),Set.of(base.members().getFirst().playerId()),now.toEpochMilli(),3);
+        var placements=new java.util.ArrayList<>(List.of(a,b).stream().map(k->new io.github.devkruidenier.landward.blockprotection.BlockPlacement(k,playerLand,first.ownerId(),"CHEST",UUID.randomUUID())).toList());
+        placements.add(new io.github.devkruidenier.landward.blockprotection.BlockPlacement(new io.github.devkruidenier.landward.blockprotection.BlockKey(world,-511,79,-143),playerLand,first.ownerId(),"HOPPER",UUID.randomUUID()));
+        return new StorageSnapshot(base.lands(),base.claims(),base.members(),base.adminLandIds(),base.features(),List.of(lock),placements);
     }
 
     private static void equal(StorageSnapshot expected, StorageSnapshot actual) {
@@ -191,6 +213,8 @@ public final class PackagedStorageFixture {
         check(Set.copyOf(expected.claims()).equals(Set.copyOf(actual.claims())), "Chunk persistence mismatch");
         check(Set.copyOf(expected.members()).equals(Set.copyOf(actual.members())), "Member persistence mismatch");
         check(Set.copyOf(expected.adminLandIds()).equals(Set.copyOf(actual.adminLandIds())), "Safe Zone persistence mismatch");
+        check(Set.copyOf(expected.protections()).equals(Set.copyOf(actual.protections())), "Personal locks mismatch");
+        check(Set.copyOf(expected.placements()).equals(Set.copyOf(actual.placements())), "Block ownership generations mismatch");
         check(Set.copyOf(expected.features()).equals(Set.copyOf(actual.features())), "Environment/warp persistence mismatch");
     }
     private static String env(String key, String fallback) { return System.getenv().getOrDefault(key, fallback); }

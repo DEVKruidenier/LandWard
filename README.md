@@ -1,8 +1,6 @@
 # LandWard
 
-LandWard 1.0.5.0 adds Folia and CraftBukkit support in one universal JAR,
-with region-safe warps and preserved clickable chat. See the [Wiki](https://github.com/DEVKruidenier/LandWard/wiki)
-for configuration and guidance.
+LandWard 1.0.6.0 adds optional [Personal Block Protection](https://github.com/DEVKruidenier/LandWard/wiki/Block-Protection) for private and shared access to individual blocks in player lands.
 
 Update staging and PlaceholderAPI behavior are documented in the
 [Wiki](https://github.com/DEVKruidenier/LandWard/wiki).
@@ -50,7 +48,7 @@ footer controls without teleporting. The configurable center limit defaults to
 The [LandWard Wiki](https://github.com/DEVKruidenier/LandWard/wiki) is the
 central and current documentation source. It covers installation, commands,
 claim management, configuration, integrations, permissions, storage migration
-and updates.
+and updates. See [FAQ & Troubleshooting](https://github.com/DEVKruidenier/LandWard/wiki/FAQ-and-Troubleshooting) for common player and administrator questions.
 
 Completed features, fixes and behaviour changes are listed in the
 [Changelog](CHANGELOG.md).
@@ -94,3 +92,9 @@ includes its own connection pool, metrics client and Adventure support for Spigo
 Copyright © 2026 DEVKruidenier.
 
 LandWard is licensed under the GNU General Public License v3.0. See [LICENSE](LICENSE).
+
+## Development preview
+
+The unreleased **1.0.6.0-beta1** adds optional, GUI-managed private/shared block
+protection. See [Personal Block Protection](https://github.com/DEVKruidenier/LandWard/wiki/Block-Protection)
+for ownership, administrator access and safe upgrade configuration.

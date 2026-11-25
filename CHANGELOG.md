@@ -2,7 +2,20 @@
 
 All notable changes to LandWard will be documented here.
 
-## [Unreleased]
+## [1.0.6.0] - 2026-11-25
+
+### Added and improved
+
+Land owners and members can protect individual blocks in player lands and keep them private or share access with selected members. Personal locks cover normal, trapped and copper chests, barrels, shulker boxes, doors, trapdoors, fence gates, levers and buttons. Normal land permissions still apply.
+
+- Manage locks through the in-game menus. LandWard tracks who placed a block and preserves sharing when your protected chest becomes a double chest.
+- Owners with build rights can break their protected blocks. The surviving half of a double chest keeps its lock, and breaking a protected door removes both halves and its lock.
+- A registered same-owner hopper can transfer items under the storage protection rules. A nearby protected lever can operate a protected iron door in the same land when both blocks share an owner and the player can use both.
+- Lock data is preserved in supported storage migrations and backups. When land or membership is removed, LandWard cleans up the associated locks and shared access.
+
+**Upgrading?** Back up your worlds and LandWard data. On an existing installation, enable the feature explicitly with `block-protection.enabled: true` in `plugins/LandWard/config.yml` if you want to use it.
+
+[Block Protection guide](https://github.com/DEVKruidenier/LandWard/wiki/Block-Protection) · [FAQ & Troubleshooting](https://github.com/DEVKruidenier/LandWard/wiki/FAQ-and-Troubleshooting) · [Installation and updating](https://github.com/DEVKruidenier/LandWard/wiki/Installation)
 
 ## [1.0.5.0] - 2026-11-18
 

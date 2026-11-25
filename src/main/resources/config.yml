@@ -240,3 +240,25 @@ integrations:
         - "%deluxecombat_in_combat%"
         - "%pvpmanager_combat_timeleft%"
         - "%eternalcombat_opponent%"
+
+# Built-in personal block protection; no external lock plugin is required.
+# Disable this when another plugin manages personal block locks.
+# Old configurations without this section are migrated with enabled: false.
+# /claimadmin reload applies these options; stored locks survive disabling.
+# Hoppers placed by the same owner can transfer items between protected storage.
+# Connected owned hoppers retain private access; unknown/foreign hoppers cannot extract.
+# Place legacy hoppers again to establish their owner; ownership is never guessed.
+block-protection:
+  # Supports chests (including copper variants), barrels, shulkers, doors,
+  # trapdoors, gates, levers and buttons. Ordinary land permissions still apply.
+  # Owners may expand their protected chests or break their own protected storage;
+  # a remaining chest half retains the same protection and shared access.
+  enabled: true
+  # Automatically lock eligible blocks placed by players with creation permission.
+  # Otherwise use Block Protection in the land menu.
+  auto-protect: false
+  # Logical units per player across all lands; a double chest counts as one.
+  # -1 means unlimited.
+  max-blocks-per-player: -1
+  # Direct access to other members' personal locks; administrative removal is separate.
+  land-owner-bypass: false

@@ -22,6 +22,10 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 public final class LandManager {
+    private java.util.function.BiConsumer<UUID,ChunkPosition> personalCleanup=(land,chunk)->{};
+    public synchronized void personalCleanup(java.util.function.BiConsumer<UUID,ChunkPosition> cleanup){personalCleanup=cleanup;}
+    private final io.github.devkruidenier.landward.blockprotection.ProtectionIndex personalProtections = new io.github.devkruidenier.landward.blockprotection.ProtectionIndex();
+    public io.github.devkruidenier.landward.blockprotection.ProtectionIndex personalProtections() { return personalProtections; }
 
     private static final Pattern VALID_NAME = Pattern.compile("^[\\p{L}\\p{N} _-]{3,24}$");
 
@@ -29,8 +33,9 @@ public final class LandManager {
     /** Defaults copied into a land when it is first created. Existing lands keep their own choices. */
     private MemberPermissions playerMemberDefaults;
     private MemberPermissions administrativeMemberDefaults;
-    private final Map<UUID, Land> landsById = new HashMap<>();
-    private final Map<UUID, io.github.devkruidenier.landward.model.LandFeatures> featuresByLand = new HashMap<>();
+    // Readers never acquire the durable mutation monitor: slow SQL cannot stall region event checks.
+    private final Map<UUID, Land> landsById = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, io.github.devkruidenier.landward.model.LandFeatures> featuresByLand = new java.util.concurrent.ConcurrentHashMap<>();
     private io.github.devkruidenier.landward.model.EnvironmentSettings playerEnvironmentDefaults = io.github.devkruidenier.landward.model.EnvironmentSettings.defaults(false);
     private io.github.devkruidenier.landward.model.EnvironmentSettings adminEnvironmentDefaults = io.github.devkruidenier.landward.model.EnvironmentSettings.defaults(true);
 
@@ -38,12 +43,12 @@ public final class LandManager {
                                                  io.github.devkruidenier.landward.model.EnvironmentSettings admin) {
         playerEnvironmentDefaults = player; adminEnvironmentDefaults = admin;
     }
-    private final Map<UUID, Land> landsByOwner = new HashMap<>();
-    private final Map<String, Land> landsByName = new HashMap<>();
-    private final Map<ChunkPosition, UUID> claims = new HashMap<>();
-    private final Map<UUID, Integer> claimCounts = new HashMap<>();
-    private final Map<UUID, Map<UUID, MemberPermissions>> membersByLand = new HashMap<>();
-    private final java.util.Set<UUID> administrativeLandIds = new HashSet<>();
+    private final Map<UUID, Land> landsByOwner = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<String, Land> landsByName = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<ChunkPosition, UUID> claims = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, Integer> claimCounts = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<UUID, Map<UUID, MemberPermissions>> membersByLand = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.Set<UUID> administrativeLandIds = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     /**
      * Keeps storage and migration callers backwards-compatible. The plugin
@@ -68,6 +73,10 @@ public final class LandManager {
 
     public synchronized void load() throws StorageException {
         StorageSnapshot snapshot = storage.load();
+        io.github.devkruidenier.landward.blockprotection.ProtectionBackup.validate(snapshot);
+        personalProtections.clear();
+        snapshot.placements().forEach(personalProtections::put);
+        snapshot.protections().forEach(personalProtections::put);
         landsById.clear();
         featuresByLand.clear();
         for (var features : snapshot.features()) featuresByLand.put(features.landId(), features);
@@ -95,7 +104,7 @@ public final class LandManager {
             if (!landsById.containsKey(member.landId())) {
                 throw new StorageException("Member references an unknown land: " + member.landId(), null);
             }
-            membersByLand.computeIfAbsent(member.landId(), ignored -> new HashMap<>())
+            membersByLand.computeIfAbsent(member.landId(), ignored -> new java.util.concurrent.ConcurrentHashMap<>())
                     .put(member.playerId(), member.permissions());
         }
     }
@@ -237,6 +246,7 @@ public final class LandManager {
             return new UnclaimResult(UnclaimStatus.LAST_CHUNK, land, count);
         }
         storage.deleteClaim(new ClaimedChunk(position, land.id()));
+        forgetPersonalChunk(land.id(), position);
         forgetChunkWarps(land.id(), position);
         claims.remove(position);
         claimCounts.put(land.id(), count - 1);
@@ -261,6 +271,8 @@ public final class LandManager {
 
     private void deleteLand(Land land) throws StorageException {
         storage.deleteLand(land.id());
+        personalCleanup.accept(land.id(),null);
+        personalProtections.prune(p -> !p.landId().equals(land.id()), p -> !p.landId().equals(land.id()));
         featuresByLand.remove(land.id());
         claims.entrySet().removeIf(entry -> entry.getValue().equals(land.id()));
         claimCounts.remove(land.id());
@@ -282,17 +294,18 @@ public final class LandManager {
             return new AdminUnclaimResult(AdminUnclaimStatus.LAND_DELETED, land, 0);
         }
         storage.deleteClaim(new ClaimedChunk(position, landId));
+        forgetPersonalChunk(landId, position);
         forgetChunkWarps(landId, position);
         claims.remove(position);
         claimCounts.put(landId, count - 1);
         return new AdminUnclaimResult(AdminUnclaimStatus.CLAIM_REMOVED, land, count - 1);
     }
 
-    public synchronized Optional<Land> landAt(ChunkPosition position) {
+    public Optional<Land> landAt(ChunkPosition position) {
         return Optional.ofNullable(claims.get(position)).map(landsById::get);
     }
 
-    public synchronized io.github.devkruidenier.landward.model.LandFeatures features(UUID landId) {
+    public io.github.devkruidenier.landward.model.LandFeatures features(UUID landId) {
         if (!landsById.containsKey(landId)) throw new IllegalArgumentException("Unknown land");
         return featuresByLand.getOrDefault(landId, new io.github.devkruidenier.landward.model.LandFeatures(landId,
                 io.github.devkruidenier.landward.model.EnvironmentSettings.legacy(), List.of()));
@@ -339,7 +352,7 @@ public final class LandManager {
                 current.warps().stream().filter(warp -> !warp.id().equals(warpId)).toList()));
     }
 
-    public synchronized boolean canUseWarps(UUID player, UUID landId) {
+    public boolean canUseWarps(UUID player, UUID landId) {
         var land = landsById.get(landId);
         return land != null && !isAdministrative(land) && (land.ownerId().equals(player)
                 || membersByLand.getOrDefault(landId, Map.of()).containsKey(player));
@@ -355,12 +368,12 @@ public final class LandManager {
                 current.environment(), current.warps().stream().filter(warp -> !warp.chunk().equals(position)).toList()));
     }
 
-    public synchronized Optional<Land> ownedBy(UUID ownerId) {
+    public Optional<Land> ownedBy(UUID ownerId) {
         return Optional.ofNullable(landsByOwner.get(ownerId));
     }
 
     /** Returns all player-owned lands for administrative review; server claims are excluded. */
-    public synchronized List<Land> playerLands() {
+    public List<Land> playerLands() {
         return landsById.values().stream()
                 .filter(land -> !administrativeLandIds.contains(land.id()))
                 .sorted(java.util.Comparator.comparing(Land::name, String.CASE_INSENSITIVE_ORDER))
@@ -368,7 +381,7 @@ public final class LandManager {
     }
 
     /** Returns every player land where this UUID is a trusted member, never server-owned safe zones. */
-    public synchronized List<Land> memberLands(UUID playerId) {
+    public List<Land> memberLands(UUID playerId) {
         return landsById.values().stream()
                 .filter(land -> !administrativeLandIds.contains(land.id()))
                 .filter(land -> membersByLand.getOrDefault(land.id(), Map.of()).containsKey(playerId))
@@ -394,9 +407,10 @@ public final class LandManager {
         landsByOwner.put(newOwnerId, updated);
         Map<UUID, MemberPermissions> members = membersByLand.get(landId);
         if (members != null && members.containsKey(newOwnerId)) {
-            storage.deleteMember(landId, newOwnerId);
             members.remove(newOwnerId);
         }
+        if (!membersByLand.getOrDefault(landId, Map.of()).containsKey(current.ownerId()))
+            personalProtections.removeMember(landId, current.ownerId());
         return new TransferResult(TransferStatus.TRANSFERRED, updated);
     }
 
@@ -417,28 +431,28 @@ public final class LandManager {
         return new RenameResult(RenameStatus.RENAMED, renamed);
     }
 
-    public synchronized int claimCount(UUID landId) {
+    public int claimCount(UUID landId) {
         return claimCounts.getOrDefault(landId, 0);
     }
 
-    public synchronized int totalClaimCount() {
+    public int totalClaimCount() {
         return claims.size();
     }
 
     /**
      * Returns the number of lands currently loaded from storage.
      */
-    public synchronized int totalLandCount() {
+    public int totalLandCount() {
         return landsById.size();
     }
 
     /** Returns the number of player-owned lands, excluding server Safe Zones. */
-    public synchronized int playerLandCount() {
+    public int playerLandCount() {
         return landsById.size() - administrativeLandIds.size();
     }
 
     /** Aggregate in-memory counts; warp traversal stops as soon as the highest bucket is reached. */
-    public synchronized long[] usageCounts() {
+    public long[] usageCounts() {
         long warps = 0;
         for (var features : featuresByLand.values()) {
             warps += features.warps().size();
@@ -448,22 +462,22 @@ public final class LandManager {
     }
 
     /** Returns the number of server-owned Safe Zones. */
-    public synchronized int administrativeLandCount() {
+    public int administrativeLandCount() {
         return administrativeLandIds.size();
     }
 
     /** Returns the chunks protected by normal player lands only. */
-    public synchronized int playerClaimCount() {
+    public int playerClaimCount() {
         return claims.values().stream().filter(landId -> !administrativeLandIds.contains(landId)).mapToInt(ignored -> 1).sum();
     }
 
     /** Returns the chunks protected by server-owned Safe Zones only. */
-    public synchronized int administrativeClaimCount() {
+    public int administrativeClaimCount() {
         return claims.values().stream().filter(administrativeLandIds::contains).mapToInt(ignored -> 1).sum();
     }
 
     /** Returns all active member records, excluding land owners and Safe Zone members. */
-    public synchronized int playerMembershipCount() {
+    public int playerMembershipCount() {
         return membersByLand.entrySet().stream()
                 .filter(entry -> !administrativeLandIds.contains(entry.getKey()))
                 .mapToInt(entry -> entry.getValue().size())
@@ -473,32 +487,32 @@ public final class LandManager {
     /**
      * Returns the number of lands where the player is a member, excluding land they own.
      */
-    public synchronized int memberLandCount(UUID playerId) {
+    public int memberLandCount(UUID playerId) {
         return (int) membersByLand.entrySet().stream()
                 .filter(entry -> entry.getValue().containsKey(playerId))
                 .filter(entry -> !landsById.get(entry.getKey()).ownerId().equals(playerId))
                 .count();
     }
 
-    public synchronized List<ClaimedChunk> claims() {
+    public List<ClaimedChunk> claims() {
         return claims.entrySet().stream()
                 .map(entry -> new ClaimedChunk(entry.getKey(), entry.getValue()))
                 .toList();
     }
 
-    public synchronized Optional<Land> land(UUID landId) {
+    public Optional<Land> land(UUID landId) {
         return Optional.ofNullable(landsById.get(landId));
     }
 
-    public synchronized LandType typeOf(Land land) {
+    public LandType typeOf(Land land) {
         return administrativeLandIds.contains(land.id()) ? LandType.ADMIN : LandType.PLAYER;
     }
 
-    public synchronized boolean isAdministrative(Land land) {
+    public boolean isAdministrative(Land land) {
         return typeOf(land) == LandType.ADMIN;
     }
 
-    public synchronized Optional<Land> administrativeLand() {
+    public Optional<Land> administrativeLand() {
         return administrativeLandIds.stream().map(landsById::get).filter(java.util.Objects::nonNull).findFirst();
     }
 
@@ -506,7 +520,7 @@ public final class LandManager {
     public synchronized MemberResult addAdministrativeMember(UUID memberId) throws StorageException {
         Land land = administrativeLand().orElse(null);
         if (land == null) return new MemberResult(MemberStatus.NO_LAND, null, MemberPermissions.NONE);
-        Map<UUID, MemberPermissions> members = membersByLand.computeIfAbsent(land.id(), ignored -> new HashMap<>());
+        Map<UUID, MemberPermissions> members = membersByLand.computeIfAbsent(land.id(), ignored -> new java.util.concurrent.ConcurrentHashMap<>());
         if (members.containsKey(memberId)) return new MemberResult(MemberStatus.ALREADY_MEMBER, land, members.get(memberId));
         LandMember member = new LandMember(land.id(), memberId, land.memberPermissions());
         storage.insertMember(member);
@@ -521,18 +535,19 @@ public final class LandManager {
         Map<UUID, MemberPermissions> members = membersByLand.getOrDefault(land.id(), Map.of());
         if (!members.containsKey(memberId)) return new MemberResult(MemberStatus.NOT_MEMBER, land, MemberPermissions.NONE);
         storage.deleteMember(land.id(), memberId);
+        personalProtections.removeMember(land.id(), memberId);
         membersByLand.get(land.id()).remove(memberId);
         return new MemberResult(MemberStatus.REMOVED, land, MemberPermissions.NONE);
     }
 
-    public synchronized List<LandMember> members(UUID landId) {
+    public List<LandMember> members(UUID landId) {
         return membersByLand.getOrDefault(landId, Map.of()).entrySet().stream()
                 .map(entry -> new LandMember(landId, entry.getKey(), entry.getValue()))
                 .sorted(java.util.Comparator.comparing(LandMember::playerId))
                 .toList();
     }
 
-    public synchronized MemberPermissions permissions(UUID playerId, UUID landId) {
+    public MemberPermissions permissions(UUID playerId, UUID landId) {
         Land land = landsById.get(landId);
         if (land != null && land.ownerId().equals(playerId)) {
             return MemberPermissions.FULL;
@@ -548,7 +563,7 @@ public final class LandManager {
         if (ownerId.equals(memberId)) {
             return new MemberResult(MemberStatus.CANNOT_ADD_OWNER, land, MemberPermissions.FULL);
         }
-        Map<UUID, MemberPermissions> members = membersByLand.computeIfAbsent(land.id(), ignored -> new HashMap<>());
+        Map<UUID, MemberPermissions> members = membersByLand.computeIfAbsent(land.id(), ignored -> new java.util.concurrent.ConcurrentHashMap<>());
         if (members.containsKey(memberId)) {
             return new MemberResult(MemberStatus.ALREADY_MEMBER, land, members.get(memberId));
         }
@@ -556,6 +571,13 @@ public final class LandManager {
         storage.insertMember(member);
         members.put(memberId, member.permissions());
         return new MemberResult(MemberStatus.ADDED, land, member.permissions());
+    }
+
+    /** GUI removals remain bound to the land originally selected, including after an ownership change. */
+    public synchronized MemberResult removeMember(UUID ownerId, UUID selectedLand, UUID memberId) throws StorageException {
+        var land=landsById.get(selectedLand);
+        if(land==null || !land.ownerId().equals(ownerId))return new MemberResult(MemberStatus.NO_LAND,land,MemberPermissions.NONE);
+        return removeMember(ownerId,memberId);
     }
 
     public synchronized MemberResult removeMember(UUID ownerId, UUID memberId) throws StorageException {
@@ -568,6 +590,7 @@ public final class LandManager {
             return new MemberResult(MemberStatus.NOT_MEMBER, land, MemberPermissions.NONE);
         }
         storage.deleteMember(land.id(), memberId);
+        personalProtections.removeMember(land.id(), memberId);
         membersByLand.get(land.id()).remove(memberId);
         return new MemberResult(MemberStatus.REMOVED, land, MemberPermissions.NONE);
     }
@@ -640,6 +663,107 @@ public final class LandManager {
         landsById.put(land.id(), land);
         landsByOwner.put(land.ownerId(), land);
         return updated;
+    }
+
+    public boolean personalMember(UUID landId, UUID player) {
+        Land land=landsById.get(landId);
+        return land!=null && !isAdministrative(land) && (land.ownerId().equals(player) || membersByLand.getOrDefault(landId,Map.of()).containsKey(player));
+    }
+    public boolean managePersonal(io.github.devkruidenier.landward.blockprotection.ProtectionActor actor,
+            io.github.devkruidenier.landward.blockprotection.BlockProtection p) {
+        Land land=landsById.get(p.landId());
+        return land!=null && !isAdministrative(land) && (actor.adminManage()
+                || personalMember(p.landId(),actor.id()) && (p.owner().equals(actor.id()) && actor.own()
+                || land.ownerId().equals(actor.id()) && actor.landManage()));
+    }
+    public boolean personalAccess(UUID player, io.github.devkruidenier.landward.blockprotection.BlockProtection p, boolean ownerBypass, boolean adminBypass) {
+        if(adminBypass)return true;
+        var land=landsById.get(p.landId());
+        return personalMember(p.landId(),player) && (p.owner().equals(player) || p.shared().contains(player)
+                || ownerBypass && land!=null && land.ownerId().equals(player));
+    }
+    public synchronized void recordPlacement(io.github.devkruidenier.landward.blockprotection.BlockPlacement p) throws StorageException {
+        if(!personalMember(p.landId(),p.owner()) || !p.landId().equals(claims.get(p.position().chunk())))return;
+        storage.writeBlockProtections(List.of(),List.of(),List.of(p),List.of());
+        personalProtections.forget(p.position()); personalProtections.put(p);
+    }
+    public synchronized void forgetPersonal(java.util.List<io.github.devkruidenier.landward.blockprotection.BlockKey> positions) throws StorageException {
+        storage.writeBlockProtections(List.of(),List.of(),List.of(),positions);
+        positions.forEach(personalProtections::forget);
+    }
+    public synchronized io.github.devkruidenier.landward.blockprotection.BlockProtection protect(
+            io.github.devkruidenier.landward.blockprotection.ProtectionActor actor, UUID landId, String material,
+            java.util.List<io.github.devkruidenier.landward.blockprotection.BlockKey> blocks,
+            java.util.Map<io.github.devkruidenier.landward.blockprotection.BlockKey,UUID> generations, int maximum) throws StorageException {
+        var land=landsById.get(landId);
+        if(!actor.create() || !personalMember(landId,actor.id()) || blocks.isEmpty() || blocks.size()>2)throw new IllegalArgumentException("denied");
+        for(var b:blocks) {
+            if(!landId.equals(claims.get(b.chunk())) || personalProtections.at(b)!=null)throw new IllegalArgumentException("changed");
+            var placement=personalProtections.placement(b);
+            if(placement==null) { if(!land.ownerId().equals(actor.id()) || generations.containsKey(b))throw new IllegalArgumentException("unknown-owner"); }
+            else if(!placement.owner().equals(actor.id()) || !placement.material().equals(material)
+                    || !placement.generation().equals(generations.get(b)))throw new IllegalArgumentException("unknown-owner");
+        }
+        long count=personalProtections.all().stream().filter(p->p.owner().equals(actor.id())).count();
+        if(maximum>=0 && count>=maximum)throw new IllegalArgumentException("limit");
+        var p=new io.github.devkruidenier.landward.blockprotection.BlockProtection(UUID.randomUUID(),landId,actor.id(),material,blocks,java.util.Set.of(),System.currentTimeMillis(),0);
+        storage.writeBlockProtections(List.of(p),List.of(),List.of(),List.of()); personalProtections.put(p);return p;
+    }
+    public synchronized io.github.devkruidenier.landward.blockprotection.BlockProtection extendPersonalChest(
+            io.github.devkruidenier.landward.blockprotection.ProtectionActor actor, UUID id, long revision,
+            io.github.devkruidenier.landward.blockprotection.BlockPlacement placed) throws StorageException {
+        var p=personalProtections.get(id);
+        if(p==null || p.revision()!=revision || !actor.create() || !actor.own()
+                || !p.owner().equals(actor.id()) || !personalMember(p.landId(),actor.id())
+                || !p.storage() || p.blocks().size()!=1 || !p.material().endsWith("CHEST")
+                || !p.landId().equals(placed.landId()) || !p.owner().equals(placed.owner())
+                || !p.material().equals(placed.material()) || personalProtections.at(placed.position())!=null
+                || !p.landId().equals(claims.get(placed.position().chunk())))throw new IllegalArgumentException("changed");
+        var first=p.blocks().getFirst(); var second=placed.position();
+        if(!first.world().equals(second.world()) || first.y()!=second.y()
+                || Math.abs(first.x()-second.x())+Math.abs(first.z()-second.z())!=1)
+            throw new IllegalArgumentException("changed");
+        var expanded=new io.github.devkruidenier.landward.blockprotection.BlockProtection(p.id(),p.landId(),p.owner(),
+                p.material(),List.of(first,second),p.shared(),p.created(),p.revision()+1);
+        storage.writeBlockProtections(List.of(expanded),List.of(),List.of(placed),List.of());
+        personalProtections.put(placed); personalProtections.put(expanded); return expanded;
+    }
+    public synchronized io.github.devkruidenier.landward.blockprotection.BlockProtection breakPersonalStorage(
+            io.github.devkruidenier.landward.blockprotection.ProtectionActor actor, UUID id, long revision,
+            io.github.devkruidenier.landward.blockprotection.BlockKey destroyed) throws StorageException {
+        var p=personalProtections.get(id);
+        if(p==null || p.revision()!=revision || !p.storage() || !actor.own()
+                || !p.owner().equals(actor.id()) || !personalMember(p.landId(),actor.id())
+                || !p.blocks().contains(destroyed))throw new IllegalArgumentException("changed");
+        var remaining=p.blocks().stream().filter(b->!b.equals(destroyed)).toList();
+        var saved=remaining.isEmpty()?null:new io.github.devkruidenier.landward.blockprotection.BlockProtection(
+                p.id(),p.landId(),p.owner(),p.material(),remaining,p.shared(),p.created(),p.revision()+1);
+        storage.writeBlockProtections(saved==null?List.of():List.of(saved),List.of(p.id()),List.of(),List.of(destroyed));
+        personalProtections.forget(destroyed);
+        if(saved!=null) personalProtections.put(saved);
+        return saved;
+    }
+    public synchronized void sharePersonal(io.github.devkruidenier.landward.blockprotection.ProtectionActor actor, UUID id, long revision, java.util.Set<UUID> shared) throws StorageException {
+        var p=personalProtections.get(id);
+        // Land-owner administration may remove locks, but never silently rewrite a member's sharing.
+        if(p==null || p.revision()!=revision || !(actor.adminManage() || p.owner().equals(actor.id()) && actor.own() && personalMember(p.landId(),actor.id())))throw new IllegalArgumentException("changed");
+        if(shared.stream().anyMatch(m->m.equals(p.owner()) || !personalMember(p.landId(),m)))throw new IllegalArgumentException("changed");
+        var updated=p.sharing(shared); storage.writeBlockProtections(List.of(updated),List.of(),List.of(),List.of());personalProtections.put(updated);
+    }
+    public synchronized void removePersonal(io.github.devkruidenier.landward.blockprotection.ProtectionActor actor, UUID id,long revision) throws StorageException {
+        var p=personalProtections.get(id);
+        if(p==null || p.revision()!=revision || !managePersonal(actor,p))throw new IllegalArgumentException("changed");
+        storage.writeBlockProtections(List.of(),List.of(id),List.of(),List.of());personalProtections.remove(id);
+    }
+    public synchronized MemberResult leavePersonalLand(UUID member, UUID landId) throws StorageException {
+        var land=landsById.get(landId);
+        if(land==null || land.ownerId().equals(member))return new MemberResult(MemberStatus.NOT_MEMBER,land,MemberPermissions.NONE);
+        return removeMember(land.ownerId(),member);
+    }
+    private void forgetPersonalChunk(UUID land,ChunkPosition chunk) {
+        personalCleanup.accept(land,chunk);
+        personalProtections.prune(p->!p.landId().equals(land)||p.blocks().stream().noneMatch(b->b.chunk().equals(chunk)),
+                p->!p.landId().equals(land)||!p.position().chunk().equals(chunk));
     }
 
     private boolean isAdjacent(ChunkPosition position, UUID landId) {

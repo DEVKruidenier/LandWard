@@ -53,3 +53,19 @@ permissions:
   landward.dbadmin:
     description: Allows LandWard storage migration and maintenance.
     default: op
+
+  landward.protection.create:
+    description: Create personal locks on eligible blocks in player lands.
+    default: true
+  landward.protection.own:
+    description: Manage personal locks owned by your UUID.
+    default: true
+  landward.protection.manage:
+    description: View and remove personal locks in land you currently own; does not grant inventory access.
+    default: true
+  landward.admin.protection.manage:
+    description: Administratively manage personal lock records; does not grant inventory access.
+    default: op
+  landward.admin.protection.bypass:
+    description: Bypass only personal LandWard locks, subject to normal claim and other plugin rules.
+    default: op

@@ -74,6 +74,11 @@ public final class LandWardPlugin extends JavaPlugin {
     private io.github.devkruidenier.landward.platform.PlayerMessages messages;
     public io.github.devkruidenier.landward.platform.PlayerMessages messages() { return messages; }
     private LocaleService localeService;
+    private io.github.devkruidenier.landward.blockprotection.ProtectionService blockProtections;
+    private io.github.devkruidenier.landward.blockprotection.ProtectionGui blockProtectionGui;
+    private io.github.devkruidenier.landward.blockprotection.ProtectionSelectionManager blockSelection;
+    public io.github.devkruidenier.landward.blockprotection.ProtectionService blockProtections() { return blockProtections; }
+    public io.github.devkruidenier.landward.blockprotection.ProtectionGui blockProtectionGui() { return blockProtectionGui; }
     private MetricsService metricsService;
     private LandWardConsole console;
     private volatile LandStorage storage;
@@ -109,13 +114,28 @@ public final class LandWardPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(playerSnapshots, this);
         getServer().getOnlinePlayers().forEach(player -> scheduler.player(player, () -> playerSnapshots.capture(player)));
 
-        this.storage = createStorage(getConfig().getString("storage.type", "sqlite"));
         try {
+            this.storage = createStorage(getConfig().getString("storage.type", "sqlite"));
             storage.initialize();
             this.landManager = new LandManager(storage, playerMemberDefaults(), administrativeMemberDefaults());
             landManager.load();
             applyEnvironmentDefaults();
-        } catch (StorageException exception) {
+        } catch (StorageException | RuntimeException exception) {
+            if (getConfig().getBoolean("block-protection.enabled", false)) {
+                // With no verifiable snapshot, no location can safely be assumed unprotected.
+                // Keep the listener enabled instead of silently opening previously locked storage.
+                landManager = new LandManager(storage, playerMemberDefaults(), administrativeMemberDefaults());
+                blockProtections = new io.github.devkruidenier.landward.blockprotection.ProtectionService(this, landManager);
+                blockProtections.storageUnavailable();
+                getServer().getPluginManager().registerEvents(new io.github.devkruidenier.landward.blockprotection.ProtectionListener(this,landManager,blockProtections),this);
+                org.bukkit.command.CommandExecutor unavailable=(sender,command,label,args)->{
+                    sender.sendMessage(localeService.message(sender instanceof org.bukkit.entity.Player player ? localeService.localeFor(player) : getConfig().getString("language.console", "en_US"),"general.storage-error"));return true;
+                };
+                if(getCommand("claim")!=null)getCommand("claim").setExecutor(unavailable);
+                if(getCommand("claimadmin")!=null)getCommand("claimadmin").setExecutor(unavailable);
+                getLogger().log(java.util.logging.Level.SEVERE,"LandWard storage unavailable: configured claim worlds are temporarily read-only. Repair storage and restart; personal protection is not silently disabled.",exception);
+                return;
+            }
             throw new IllegalStateException("LandWard storage could not be initialized", exception);
         }
         this.blueMapIntegration = new BlueMapIntegration(this, landManager);
@@ -141,6 +161,14 @@ public final class LandWardPlugin extends JavaPlugin {
             new LandWardExpansion(this, landManager).register();
             console.info("PlaceholderAPI integration enabled: use %landward_<placeholder>%.", Tone.SUCCESS);
         }
+
+        blockProtections = new io.github.devkruidenier.landward.blockprotection.ProtectionService(this, landManager);
+        blockProtectionGui = new io.github.devkruidenier.landward.blockprotection.ProtectionGui(this, landManager, blockProtections);
+        blockSelection = new io.github.devkruidenier.landward.blockprotection.ProtectionSelectionManager(this, landManager, blockProtections, blockProtectionGui);
+        blockProtectionGui.selection(blockSelection);
+        getServer().getPluginManager().registerEvents(blockSelection, this);
+        getServer().getPluginManager().registerEvents(blockProtectionGui, this);
+        getServer().getPluginManager().registerEvents(new io.github.devkruidenier.landward.blockprotection.ProtectionListener(this, landManager, blockProtections), this);
 
         LandCommand landCommand = new LandCommand(this, landManager);
         this.landFeaturesGui = new io.github.devkruidenier.landward.gui.LandFeaturesGui(this, landManager);
@@ -182,6 +210,8 @@ public final class LandWardPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (blockSelection != null) blockSelection.clear();
+        if (blockProtections != null) blockProtections.close();
         if (landFeaturesGui != null) landFeaturesGui.shutdown();
         if (scheduler != null) scheduler.close();
         playerSnapshots.clear();
@@ -292,6 +322,8 @@ public final class LandWardPlugin extends JavaPlugin {
     /** Reloads safe runtime settings without disconnecting players or reopening storage. */
     public void reloadLandWard() {
         reloadConfig();
+        if (blockSelection != null) blockSelection.clear();
+        if (blockProtectionGui != null) blockProtectionGui.closeAll();
         mergeNewConfigDefaults();
         localeService.initialize();
         landManager.memberDefaults(playerMemberDefaults(), administrativeMemberDefaults());
@@ -382,6 +414,9 @@ public final class LandWardPlugin extends JavaPlugin {
                     bundled.set(path, existing.get(path));
                 }
             }
+            // Fresh files already contain enabled=true from saveDefaultConfig. Older files
+            // without explicit opt-in must not silently enable personal protection.
+            if (!existing.contains("block-protection.enabled")) bundled.set("block-protection.enabled", false);
             // This is informational metadata rather than an administrator
             // setting: always show the version of the JAR currently running.
             bundled.set("plugin-version", getDescription().getVersion());

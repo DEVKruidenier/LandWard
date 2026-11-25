@@ -86,6 +86,7 @@ public final class MySqlLandStorage implements LandStorage {
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                         """);
                 io.github.devkruidenier.landward.storage.FeatureStorage.initialize(connection);
+                io.github.devkruidenier.landward.storage.BlockProtectionStorage.initialize(connection);
                 for (String column : List.of("member_build", "member_containers", "member_entities",
                         "member_pvp", "allow_hostile_mob_kills", "allow_passive_mob_kills",
                         "allow_hostile_mob_spawns", "allow_doors", "allow_interactions")) {
@@ -154,7 +155,9 @@ public final class MySqlLandStorage implements LandStorage {
                             new MemberPermissions(result.getBoolean("can_build"), result.getBoolean("can_containers"), result.getBoolean("can_entities"))));
                 }
             }
-            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members), List.copyOf(adminLandIds), io.github.devkruidenier.landward.storage.FeatureStorage.load(connection));
+            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members), List.copyOf(adminLandIds), io.github.devkruidenier.landward.storage.FeatureStorage.load(connection),
+                    io.github.devkruidenier.landward.storage.BlockProtectionStorage.load(connection),
+                    io.github.devkruidenier.landward.storage.BlockProtectionStorage.placements(connection));
         } catch (SQLException | IllegalArgumentException exception) {
             throw new StorageException("Could not load MySQL data", exception);
         }
@@ -187,6 +190,8 @@ public final class MySqlLandStorage implements LandStorage {
                 for (ClaimedChunk claim : snapshot.claims()) insertClaim(connection, claim);
                 for (LandMember member : snapshot.members()) insertMember(connection, member);
                 for (var features : snapshot.features()) io.github.devkruidenier.landward.storage.FeatureStorage.insert(connection, features);
+                for (var placement : snapshot.placements()) io.github.devkruidenier.landward.storage.BlockProtectionStorage.placement(connection, placement);
+                for (var protection : snapshot.protections()) io.github.devkruidenier.landward.storage.BlockProtectionStorage.insert(connection, protection);
                 connection.commit();
             } catch (SQLException exception) {
                 connection.rollback();
@@ -196,6 +201,7 @@ public final class MySqlLandStorage implements LandStorage {
     }
 
     private void clearSnapshot(Connection connection) throws SQLException {
+        io.github.devkruidenier.landward.storage.BlockProtectionStorage.clear(connection);
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("DELETE FROM land_warps");
             statement.executeUpdate("DELETE FROM land_environment");
@@ -255,9 +261,11 @@ public final class MySqlLandStorage implements LandStorage {
 
     @Override
     public void updateLandOwner(UUID landId, UUID ownerId) throws StorageException {
-        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("UPDATE lands SET owner_uuid = ? WHERE id = ?")) {
-            statement.setString(1, ownerId.toString()); statement.setString(2, landId.toString()); statement.executeUpdate();
-        } catch (SQLException exception) { throw new StorageException("Could not change land owner", exception); }
+        try(Connection connection=connection()) {
+            connection.setAutoCommit(false);
+            try { io.github.devkruidenier.landward.storage.BlockProtectionStorage.transfer(connection,landId,ownerId); connection.commit(); }
+            catch(SQLException e) { connection.rollback(); throw e; }
+        } catch(SQLException e) { throw new StorageException("Could not atomically transfer land and reconcile protections",e); }
     }
 
     @Override public void updateLandMemberPermissions(UUID landId, MemberPermissions permissions) throws StorageException {
@@ -282,6 +290,7 @@ public final class MySqlLandStorage implements LandStorage {
             connection.setAutoCommit(false);
             try {
                 io.github.devkruidenier.landward.storage.FeatureStorage.deleteChunkWarps(connection, claim);
+                io.github.devkruidenier.landward.storage.BlockProtectionStorage.removeChunk(connection, claim);
                 try (var statement = connection.prepareStatement("DELETE FROM claims WHERE world_uuid = ? AND chunk_x = ? AND chunk_z = ? AND land_id = ?")) {
                     statement.setString(1, claim.position().worldId().toString()); statement.setInt(2, claim.position().x());
                     statement.setInt(3, claim.position().z()); statement.setString(4, claim.landId().toString()); statement.executeUpdate();
@@ -313,13 +322,36 @@ public final class MySqlLandStorage implements LandStorage {
 
     @Override
     public void deleteMember(UUID landId, UUID playerId) throws StorageException {
-        try (Connection connection = connection(); PreparedStatement statement = connection.prepareStatement("DELETE FROM land_members WHERE land_id = ? AND player_uuid = ?")) {
-            statement.setString(1, landId.toString()); statement.setString(2, playerId.toString()); statement.executeUpdate();
-        } catch (SQLException exception) { throw new StorageException("Could not delete land member", exception); }
+        try (Connection connection = connection()) {
+            connection.setAutoCommit(false);
+            try {
+                io.github.devkruidenier.landward.storage.BlockProtectionStorage.removeMember(connection, landId, playerId);
+                try (var s = connection.prepareStatement("DELETE FROM land_members WHERE land_id=? AND player_uuid=?")) {
+                    s.setString(1,landId.toString()); s.setString(2,playerId.toString()); s.executeUpdate();
+                }
+                connection.commit();
+            } catch(SQLException e) { connection.rollback(); throw e; }
+        } catch(SQLException e) { throw new StorageException("Could not atomically remove member and personal protections",e); }
     }
 
     @Override public String type() { return "MYSQL"; }
     @Override public void close() { closeQuietly(); }
+
+    @Override
+    public void writeBlockProtections(java.util.List<io.github.devkruidenier.landward.blockprotection.BlockProtection> saves,
+            java.util.List<UUID> removes, java.util.List<io.github.devkruidenier.landward.blockprotection.BlockPlacement> placements,
+            java.util.List<io.github.devkruidenier.landward.blockprotection.BlockKey> forget) throws StorageException {
+        try(Connection connection=connection()) {
+            connection.setAutoCommit(false);
+            try {
+                for(var b:forget) io.github.devkruidenier.landward.storage.BlockProtectionStorage.forget(connection,b);
+                for(var id:removes) io.github.devkruidenier.landward.storage.BlockProtectionStorage.delete(connection,id);
+                for(var p:placements) io.github.devkruidenier.landward.storage.BlockProtectionStorage.placement(connection,p);
+                for(var p:saves) io.github.devkruidenier.landward.storage.BlockProtectionStorage.save(connection,p);
+                connection.commit();
+            } catch(SQLException e) { connection.rollback(); throw e; }
+        } catch(SQLException e) { throw new StorageException("Could not persist personal block protection transaction",e); }
+    }
 
     private Connection connection() throws SQLException {
         if (dataSource == null) throw new SQLException("MySQL storage has not been initialized");
@@ -350,6 +382,7 @@ public final class MySqlLandStorage implements LandStorage {
         try (PreparedStatement statement = connection.prepareStatement(LAND_INSERT)) { bindLand(statement, land); statement.executeUpdate(); }
     }
     private static void deleteLandRecords(Connection connection, UUID landId) throws SQLException {
+        io.github.devkruidenier.landward.storage.BlockProtectionStorage.removeLand(connection, landId);
         String id = landId.toString();
         for (String table : List.of("land_warps", "land_environment", "land_members", "claims", "admin_lands", "lands")) {
             String column = table.equals("lands") ? "id" : "land_id";

@@ -1,20 +1,20 @@
 package io.github.devkruidenier.landward.gui;
 
 /** Pure list layout rules shared by every paged inventory. Footer has its own row. */
-final class GuiGrid {
+public final class GuiGrid {
     private GuiGrid() {}
-    static int pages(int total) {
+    public static int pages(int total) {
         if (total < 0) throw new IllegalArgumentException("Negative entry count");
         return Math.max(1, (total + 44) / 45);
     }
-    static int page(int requested, int total) { return Math.max(0, Math.min(requested, pages(total) - 1)); }
-    static int start(int requested, int total) { return page(requested, total) * 45; }
-    static int count(int requested, int total) { return Math.min(45, total - start(requested, total)); }
-    static int size(int count) {
+    public static int page(int requested, int total) { return Math.max(0, Math.min(requested, pages(total) - 1)); }
+    public static int start(int requested, int total) { return page(requested, total) * 45; }
+    public static int count(int requested, int total) { return Math.min(45, total - start(requested, total)); }
+    public static int size(int count) {
         if (count < 0 || count > 45) throw new IllegalArgumentException("Page entry count out of range");
         return Math.max(18, ((count + 8) / 9 + 1) * 9);
     }
-    static int slot(int index, int count) {
+    public static int slot(int index, int count) {
         if (index < 0 || index >= count) throw new IllegalArgumentException("Invalid entry index");
         int row = index / 9;
         int rowCount = Math.min(9, count - row * 9);

@@ -26,6 +26,7 @@ public final class PlatformScheduler implements AutoCloseable {
         folia = detected;
     }
     public boolean folia() { return folia; }
+    public boolean ownsBlock(org.bukkit.block.Block block) { return !folia ? Bukkit.isPrimaryThread() : Folia.ownsBlock(block); }
     public boolean owns(Player player) { return !folia ? Bukkit.isPrimaryThread() : Folia.owns(player); }
     public void sender(CommandSender sender, Runnable action) {
         if (sender instanceof Player player) player(player, action); else global(action);
@@ -110,6 +111,7 @@ public final class PlatformScheduler implements AutoCloseable {
 
     /** Loaded only on Folia: preserves the Spigot classpath contract. */
     private static final class Folia {
+        static boolean ownsBlock(org.bukkit.block.Block block) { return Bukkit.isOwnedByCurrentRegion(block.getLocation()); }
         static boolean owns(Player player) { return Bukkit.isOwnedByCurrentRegion(player); }
         static Runnable schedule(Plugin plugin, Player player, Runnable action, Runnable retired, long delay, long period) {
             io.papermc.paper.threadedregions.scheduler.ScheduledTask task;

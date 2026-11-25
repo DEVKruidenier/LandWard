@@ -31,6 +31,8 @@ final class SnapshotDifference {
                     new Field("x",x.x(),y.x()),new Field("y",x.y(),y.y()),new Field("z",x.z(),y.z()),
                     new Field("yaw",x.yaw(),y.yaw()),new Field("pitch",x.pitch(),y.pitch())));
         });
+        if(difference==null)difference=compare("protection",source.protections(),target.protections(),p->p.id(),(a,b)->fields(new Field("record",a,b)));
+        if(difference==null)difference=compare("placement",source.placements(),target.placements(),p->p.position(),(a,b)->fields(new Field("record",a,b)));
         return counts+(difference==null?"no differing field found":difference);
     }
     private static long warps(StorageSnapshot snapshot){return snapshot.features().stream().mapToLong(f->f.warps().size()).sum();}
