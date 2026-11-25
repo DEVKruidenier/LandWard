@@ -28,7 +28,10 @@ public final class ProtectionListener implements Listener {
   }
 
   private boolean mechanical(Block b) {
-    return service.mechanical(ProtectionBlocks.key(b));
+    if (service.mechanical(ProtectionBlocks.key(b))) return true;
+    return service.enabled()
+        && ProtectionBlocks.supported(b.getType())
+        && ProtectionBlocks.part(b).unit().stream().anyMatch(service::mechanical);
   }
 
   private boolean inventoryDenied(Player player, BlockKey key) {
@@ -41,7 +44,10 @@ public final class ProtectionListener implements Listener {
   }
 
   private boolean denied(Player p, Block b) {
-    return service.denied(p, ProtectionBlocks.key(b));
+    if (service.denied(p, ProtectionBlocks.key(b))) return true;
+    return service.enabled()
+        && ProtectionBlocks.supported(b.getType())
+        && ProtectionBlocks.part(b).unit().stream().anyMatch(k -> service.denied(p, k));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -179,6 +185,12 @@ public final class ProtectionListener implements Listener {
           || lands.personalProtections().placement(key) != null)
         service.observe(List.of(), List.of(key), null);
       return;
+    }
+    if (!service.enabled() && b.getBlockData() instanceof org.bukkit.block.data.type.Chest) {
+      var stale = new ArrayList<BlockKey>();
+      for (var part : ProtectionBlocks.part(b).unit())
+        if (lands.personalProtections().at(part) != null) stale.add(part);
+      if (!stale.isEmpty()) service.observe(List.of(), stale, null);
     }
     var land = lands.landAt(key.chunk()).orElse(null);
     if (land == null || !lands.personalMember(land.id(), e.getPlayer().getUniqueId())) return;
@@ -430,7 +442,11 @@ public final class ProtectionListener implements Listener {
             key.x() >> 4,
             key.z() >> 4,
             () -> {
-              if (!block.getType().name().equals(material))
+              if (!block.getType().name().equals(material)
+                  || lock != null
+                      && ProtectionBlocks.supported(block.getType())
+                      && !Set.copyOf(ProtectionBlocks.part(block).unit())
+                          .equals(Set.copyOf(lock.blocks())))
                 service.observe(List.of(), List.of(key), null);
               return true;
             });

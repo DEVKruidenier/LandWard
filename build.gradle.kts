@@ -122,6 +122,7 @@ tasks.register<Jar>("featureProbeJar") {
     from(sourceSets.test.get().output) {
         include("io/github/devkruidenier/landward/fixture/FeatureServerProbe*.class")
         include("io/github/devkruidenier/landward/fixture/ProtectionRuntimeProbe*.class")
+        include("io/github/devkruidenier/landward/fixture/NativeProtectionProbe*.class")
         include("io/github/devkruidenier/landward/gui/ChunkMapServerProbe*.class")
         include("io/github/devkruidenier/landward/platform/MessageRuntimeProbe*.class")
     }

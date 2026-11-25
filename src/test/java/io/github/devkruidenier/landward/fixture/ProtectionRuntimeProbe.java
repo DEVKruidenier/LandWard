@@ -25,6 +25,7 @@ public final class ProtectionRuntimeProbe {
   private int checks;
   private Inventory top;
   private boolean admin;
+  private boolean sneaking;
 
   public static int run(LandWardPlugin plugin) throws Exception {
     return new ProtectionRuntimeProbe().verify(plugin);
@@ -268,6 +269,65 @@ public final class ProtectionRuntimeProbe {
         check(
             service.denied(visitor, ProtectionBlocks.key(chest)),
             "Re-enable restores restrictions");
+        var listMethod =
+            ProtectionGui.class.getDeclaredMethod(
+                "list", Player.class, UUID.class, boolean.class, UUID.class, int.class);
+        listMethod.setAccessible(true);
+        for (int i = 0; i < 51; i++) {
+          var b =
+              new BlockKey(world.getUID(), (x >> 4) * 16 + i % 8, y + 10, (z >> 4) * 16 + i / 8);
+          lands.protect(
+              new ProtectionActor(owner, true, true, true, false),
+              land.id(),
+              "BARREL",
+              List.of(b),
+              Map.of(),
+              -1);
+        }
+        listMethod.invoke(gui, landOwner, land.id(), false, null, 0);
+        check(top.getSize() == 54, "First protection-list page uses 45 content slots plus footer");
+        check(
+            top.getItem(50).getType() == Material.BLUE_STAINED_GLASS_PANE,
+            "Next page uses final blue icon");
+        for (int i = 45; i < 54; i++)
+          check(
+              top.getItem(i).getType() != Material.BARREL, "No protected-block entries in footer");
+        listMethod.invoke(gui, landOwner, land.id(), false, null, 1);
+        check(
+            top.getSize() == 18 && top.getItem(12).getType() == Material.RED_STAINED_GLASS_PANE,
+            "Small last page dynamically sized with red previous icon");
+        for (int i = 0; i < 50; i++) lands.addMember(owner, UUID.randomUUID());
+        var sharedMethod =
+            ProtectionGui.class.getDeclaredMethod("shared", Player.class, UUID.class, int.class);
+        sharedMethod.setAccessible(true);
+        sharedMethod.invoke(gui, landOwner, door.id(), 0);
+        check(
+            top.getSize() == 54 && top.getItem(50).getType() == Material.BLUE_STAINED_GLASS_PANE,
+            "Shared member pagination uses dedicated footer");
+        for (int i = 45; i < 54; i++)
+          check(
+              top.getItem(i).getType() != Material.PLAYER_HEAD,
+              "No member heads in navigation row");
+        var selector = new ProtectionSelectionManager(plugin, lands, service, gui);
+        gui.selection(selector);
+        var pendingField = ProtectionSelectionManager.class.getDeclaredField("pending");
+        pendingField.setAccessible(true);
+        var pending = (Map<?, ?>) pendingField.get(selector);
+        selector.start(lockOwner, land.id());
+        check(pending.size() == 1, "Selection mode starts");
+        sneaking = true;
+        var cancel =
+            new PlayerInteractEvent(
+                lockOwner, Action.LEFT_CLICK_AIR, null, null, BlockFace.SELF, EquipmentSlot.HAND);
+        cancel.setCancelled(true);
+        selector.select(cancel);
+        check(
+            pending.isEmpty() && cancel.isCancelled(),
+            "Sneak-left-click cancels even a vanilla-cancelled air action");
+        sneaking = false;
+        selector.start(lockOwner, land.id());
+        selector.clear();
+        check(pending.isEmpty(), "Reload cancellation clears all selection state");
       }
     } finally {
       blocks.forEach((b, data) -> b.setBlockData(data, false));
@@ -298,6 +358,7 @@ public final class ProtectionRuntimeProbe {
                   case "getLocale" -> "en_us";
                   case "getWorld" -> world;
                   case "getLocation" -> new Location(world, x, y, z);
+                  case "isSneaking" -> sneaking;
                   case "hasPermission" -> !((String) a[0]).startsWith("landward.admin.") || admin;
                   case "openInventory" -> {
                     top = (Inventory) a[0];

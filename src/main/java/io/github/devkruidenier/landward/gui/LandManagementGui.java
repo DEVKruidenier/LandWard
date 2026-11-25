@@ -226,6 +226,7 @@ public final class LandManagementGui {
 
     public void openMemberActions(Player player, UUID memberId) {
         LandManagementHolder holder = holder(LandManagementHolder.Screen.MEMBER, memberId, message(player, "gui.management-members"), COMPACT_SIZE);
+        landManager.ownedBy(player.getUniqueId()).ifPresent(l->holder.selectedLandId(l.id()));
         Inventory inventory = holder.getInventory();
         MemberPermissions permissions = landManager.ownedBy(player.getUniqueId())
                 .flatMap(land -> landManager.members(land.id()).stream().filter(member -> member.playerId().equals(memberId)).findFirst())

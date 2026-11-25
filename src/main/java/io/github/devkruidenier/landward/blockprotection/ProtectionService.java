@@ -151,8 +151,17 @@ public final class ProtectionService implements AutoCloseable {
     submit(p, action, success, () -> {});
   }
 
+  public void maintenance(Player p, Checked action, Runnable success) {
+    enqueue(p, action, success, () -> {}, false);
+  }
+
   private void submit(Player p, Checked action, Runnable success, Runnable cleanup) {
-    if (!enabled()) {
+    enqueue(p, action, success, cleanup, true);
+  }
+
+  private void enqueue(
+      Player p, Checked action, Runnable success, Runnable cleanup, boolean requiresEnabled) {
+    if (closed || requiresEnabled && !enabled()) {
       cleanup.run();
       tell(p, "disabled");
       return;
@@ -160,14 +169,14 @@ public final class ProtectionService implements AutoCloseable {
     try {
       writer.execute(() -> {
         try {
-          if (!enabled()) return;
+          if (closed || requiresEnabled && !enabled()) return;
           action.run();
           plugin
               .scheduler()
               .player(
                   p,
                   () -> {
-                    if (enabled()) success.run();
+                    if (!closed && (!requiresEnabled || enabled())) success.run();
                   });
         } catch (Exception e) {
           plugin

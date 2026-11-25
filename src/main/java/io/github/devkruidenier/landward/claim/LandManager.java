@@ -570,6 +570,13 @@ public final class LandManager {
         return new MemberResult(MemberStatus.ADDED, land, member.permissions());
     }
 
+    /** GUI removals remain bound to the land originally selected, including after an ownership change. */
+    public synchronized MemberResult removeMember(UUID ownerId, UUID selectedLand, UUID memberId) throws StorageException {
+        var land=landsById.get(selectedLand);
+        if(land==null || !land.ownerId().equals(ownerId))return new MemberResult(MemberStatus.NO_LAND,land,MemberPermissions.NONE);
+        return removeMember(ownerId,memberId);
+    }
+
     public synchronized MemberResult removeMember(UUID ownerId, UUID memberId) throws StorageException {
         Land land = landsByOwner.get(ownerId);
         if (land == null) {

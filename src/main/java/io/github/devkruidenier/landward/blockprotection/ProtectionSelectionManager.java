@@ -49,7 +49,7 @@ public final class ProtectionSelectionManager implements Listener {
     service.tell(p, "select");
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void select(PlayerInteractEvent e) {
     if (e.getHand() != EquipmentSlot.HAND) return;
     var p = e.getPlayer();
@@ -67,6 +67,10 @@ public final class ProtectionSelectionManager implements Listener {
       return;
     }
     if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) return;
+    if (e.useInteractedBlock() == Event.Result.DENY) {
+      service.tell(p, "denied");
+      return;
+    }
     e.setCancelled(true);
     if (!lands.personalMember(selected.land(), p.getUniqueId())
         || !service.actor(p).create()

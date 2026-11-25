@@ -19,6 +19,7 @@ public final class FeatureServerProbe extends JavaPlugin {
     private int assertions;
     @Override public void onEnable() {
         getCommand("featureprobe").setExecutor((sender, command, label, args) -> {
+            if(args.length==1 && args[0].equals("nativelocks")){NativeProtectionProbe.run((LandWardPlugin)Bukkit.getPluginManager().getPlugin("LandWard"),this);return true;}
             if(args.length==1 && args[0].equals("locks")) {
                 try { int checks=ProtectionRuntimeProbe.run((LandWardPlugin)Bukkit.getPluginManager().getPlugin("LandWard"));getLogger().info("LOCKS-PROBE-PASS assertions="+checks); }
                 catch(Throwable error){getLogger().log(java.util.logging.Level.SEVERE,"LOCKS-PROBE-FAIL",error);}return true;

@@ -129,7 +129,18 @@ public final class LandManagementListener implements Listener {
         if (holder.screen() == LandManagementHolder.Screen.MEMBERS) { if (slot == 53) { gui.openSettings(player); return; } UUID member = holder.playersBySlot().get(slot); if (member != null) gui.openMemberActions(player, member); return; }
         if (holder.screen() == LandManagementHolder.Screen.MEMBER) {
             if (slot == 26) { gui.openMemberList(player); return; }
-            if (slot == 22 && holder.memberId() != null) { long removedLocks=landManager.personalProtections().all().stream().filter(p->p.owner().equals(holder.memberId())&&landManager.ownedBy(player.getUniqueId()).map(l->l.id().equals(p.landId())).orElse(false)).count(); landManager.removeMember(player.getUniqueId(), holder.memberId()); plugin.blockProtections().tell(player,"cleanup-count",java.util.Map.of("count",removedLocks)); plugin.refreshAnalyticsIntegration(); gui.openMemberList(player); return; }
+            if (slot == 22 && holder.memberId() != null && holder.selectedLandId()!=null) {
+                UUID actor=player.getUniqueId(), selected=holder.selectedLandId(), member=holder.memberId();
+                var count=new java.util.concurrent.atomic.AtomicLong();
+                plugin.blockProtections().maintenance(player,()->{
+                    synchronized(landManager) {
+                        long before=landManager.personalProtections().all().stream().filter(p->p.landId().equals(selected)&&p.owner().equals(member)).count();
+                        var result=landManager.removeMember(actor,selected,member);
+                        if(result.status()==LandManager.MemberStatus.REMOVED)count.set(before);
+                    }
+                },()->{plugin.blockProtections().tell(player,"cleanup-count",java.util.Map.of("count",count.get()));plugin.refreshAnalyticsIntegration();gui.openMemberList(player);});
+                return;
+            }
             MemberPermissions.Permission individualPermission = switch (slot) {
                 case 10 -> MemberPermissions.Permission.BUILD;
                 case 13 -> MemberPermissions.Permission.CONTAINERS;

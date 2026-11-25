@@ -25,6 +25,18 @@ public final class ProtectionGui implements Listener {
     this.service = service;
   }
 
+  public void closeAll() {
+    for (var player : plugin.getServer().getOnlinePlayers())
+      plugin
+          .scheduler()
+          .player(
+              player,
+              () -> {
+                if (player.getOpenInventory().getTopInventory().getHolder() instanceof Holder)
+                  player.closeInventory();
+              });
+  }
+
   public void selection(ProtectionSelectionManager selection) {
     this.selection = selection;
   }
@@ -68,7 +80,7 @@ public final class ProtectionGui implements Listener {
 
   private void button(
       Holder h, int slot, Material material, String title, String hint, Runnable action) {
-    h.inventory.setItem(slot, GuiText.item(material, title, NamedTextColor.AQUA, List.of(hint)));
+    h.inventory.setItem(slot, GuiText.item(material, title, NamedTextColor.AQUA, wrap(hint)));
     h.actions.put(slot, action);
   }
 
@@ -338,7 +350,12 @@ public final class ProtectionGui implements Listener {
       int slot = GuiGrid.slot(i, count);
       h.inventory.setItem(
           slot,
-          head(p, member, text(p, lock.shared().contains(member) ? "granted" : "denied-access")));
+          head(
+              p,
+              member,
+              text(p, lock.shared().contains(member) ? "granted" : "denied-access")
+                  + "\n"
+                  + text(p, "toggle-hint")));
       h.actions.put(
           slot,
           () -> {
@@ -388,14 +405,25 @@ public final class ProtectionGui implements Listener {
   private ItemStack head(Player p, UUID id, String state) {
     var item =
         GuiText.item(
-            Material.PLAYER_HEAD,
-            name(id),
-            NamedTextColor.AQUA,
-            List.of(state, text(p, "toggle-hint")));
+            Material.PLAYER_HEAD, name(id), NamedTextColor.AQUA, Arrays.asList(state.split("\n")));
     var meta = (SkullMeta) item.getItemMeta();
     meta.setOwningPlayer(Bukkit.getOfflinePlayer(id));
     item.setItemMeta(meta);
     return item;
+  }
+
+  private static List<String> wrap(String text) {
+    var result = new ArrayList<String>();
+    for (var line : text.split("\n")) {
+      while (line.length() > 48) {
+        int cut = line.lastIndexOf(' ', 48);
+        if (cut < 16) cut = 48;
+        result.add(line.substring(0, cut));
+        line = line.substring(cut).stripLeading();
+      }
+      if (!line.isEmpty()) result.add(line);
+    }
+    return result;
   }
 
   private String name(UUID id) {
@@ -408,10 +436,7 @@ public final class ProtectionGui implements Listener {
     h.inventory.setItem(
         4,
         GuiText.item(
-            Material.IRON_BARS,
-            text(p, warning),
-            NamedTextColor.YELLOW,
-            List.of(text(p, "remove-warning"))));
+            Material.IRON_BARS, text(p, "confirm"), NamedTextColor.YELLOW, wrap(text(p, warning))));
     button(h, 12, Material.LIME_CONCRETE, text(p, "confirm"), text(p, "confirm-hint"), yes);
     button(h, 14, Material.RED_CONCRETE, text(p, "cancel"), text(p, "cancel-hint"), back);
     p.openInventory(h.inventory);

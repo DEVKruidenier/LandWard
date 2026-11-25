@@ -308,6 +308,7 @@ public final class LandWardPlugin extends JavaPlugin {
     public void reloadLandWard() {
         reloadConfig();
         if (blockSelection != null) blockSelection.clear();
+        if (blockProtectionGui != null) blockProtectionGui.closeAll();
         mergeNewConfigDefaults();
         localeService.initialize();
         landManager.memberDefaults(playerMemberDefaults(), administrativeMemberDefaults());
