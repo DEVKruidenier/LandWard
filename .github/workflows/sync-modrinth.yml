@@ -3,6 +3,12 @@ name: Sync Modrinth project
 on:
   workflow_dispatch:
     inputs:
+      showcase_mode:
+        description: Compare the live description with the previous commit, then optionally synchronize just the description.
+        required: false
+        type: choice
+        default: standard
+        options: [standard, check, update]
       version_number:
         description: Optional existing version whose changelog should match GitHub Releases.
         required: false
@@ -17,6 +23,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
 
       - name: Verify publishing configuration
         env:
@@ -25,6 +33,7 @@ jobs:
           test -n "$MODRINTH_TOKEN"
 
       - name: Synchronize public project details
+        if: inputs.showcase_mode == 'standard'
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
         run: |
@@ -41,8 +50,43 @@ jobs:
             --data @modrinth-project.json \
             https://api.modrinth.com/v2/project/landward
 
+      - name: Verify and selectively synchronize showcase description
+        if: inputs.showcase_mode != 'standard'
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          SHOWCASE_MODE: ${{ inputs.showcase_mode }}
+        run: |
+          set -euo pipefail
+          project=https://api.modrinth.com/v2/project/landward
+          source=.github/modrinth/description.md
+          git show "HEAD^:$source" > previous-description.md
+          curl --fail --silent --show-error --header "Authorization: $MODRINTH_TOKEN" \
+            "$project" > live-before.json
+          jq -c '{status, gallery: [.gallery[]? | {title, is_gif: (.url | test("\\.gif([?#]|$)"; "i"))}]}' live-before.json
+          jq -e --rawfile expected previous-description.md '
+            def normalize: gsub("\r\n"; "\n") | sub("\n+$"; "");
+            (.body | normalize) == ($expected | normalize)
+          ' live-before.json > /dev/null || {
+            echo 'Live body differs from the previous source. No update was applied.'
+            exit 1
+          }
+          echo 'Live description matches the previous source.'
+          if [[ "$SHOWCASE_MODE" == check ]]; then exit 0; fi
+          jq -n --rawfile body "$source" '{body: $body}' > showcase-description.json
+          curl --fail --silent --show-error --request PATCH \
+            --header "Authorization: $MODRINTH_TOKEN" --header 'Content-Type: application/json' \
+            --data @showcase-description.json "$project"
+          curl --fail --silent --show-error --header "Authorization: $MODRINTH_TOKEN" \
+            "$project" > live-after.json
+          jq -e --rawfile expected "$source" --slurpfile before live-before.json '
+            def normalize: gsub("\r\n"; "\n") | sub("\n+$"; "");
+            ((.body | normalize) == ($expected | normalize)) and
+            (.gallery == $before[0].gallery) and (.status == $before[0].status)
+          ' live-after.json > /dev/null
+          echo 'Live description verified. Gallery and visibility are unchanged.'
+
       - name: Synchronize existing release notes
-        if: inputs.version_number != ''
+        if: inputs.showcase_mode == 'standard' && inputs.version_number != ''
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           GH_TOKEN: ${{ github.token }}
