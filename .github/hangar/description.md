@@ -2,10 +2,6 @@
 
 # LandWard
 
-LandWard 1.0.5.0 adds Folia and CraftBukkit support in one universal JAR,
-with region-safe warps and preserved clickable chat. See the [Wiki](https://github.com/DEVKruidenier/LandWard/wiki)
-for configuration and guidance.
-
 **Simple land claims. Reliable survival protection.**
 
 LandWard is a GUI-first chunk-claim plugin for Paper, Purpur, Bukkit, Folia and Spigot survival servers.
