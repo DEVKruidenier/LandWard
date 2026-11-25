@@ -19,6 +19,15 @@ public final class FeatureServerProbe extends JavaPlugin {
     private int assertions;
     @Override public void onEnable() {
         getCommand("featureprobe").setExecutor((sender, command, label, args) -> {
+            if(args.length==1 && args[0].equals("emergencystart")) {
+                try {
+                    var target=(LandWardPlugin)Bukkit.getPluginManager().getPlugin("LandWard");var world=Bukkit.getWorlds().getFirst();
+                    var player=proxy(Player.class,UUID.randomUUID(),new Location(world,0,100,0),EntityType.PLAYER);
+                    check(target.isEnabled(),"Protection plugin stays enabled when storage is unavailable");
+                    check(target.blockProtections().denied(player,new io.github.devkruidenier.landward.blockprotection.BlockKey(world.getUID(),0,100,0)),"Unverifiable locations fail closed after actual startup storage failure");
+                    getLogger().info("EMERGENCYSTART-PROBE-PASS assertions=2");
+                }catch(Throwable e){getLogger().log(java.util.logging.Level.SEVERE,"EMERGENCYSTART-PROBE-FAIL",e);}return true;
+            }
             if(args.length==1 && args[0].equals("nativelocks")){NativeProtectionProbe.run((LandWardPlugin)Bukkit.getPluginManager().getPlugin("LandWard"),this);return true;}
             if(args.length==1 && args[0].equals("locks")) {
                 try { int checks=ProtectionRuntimeProbe.run((LandWardPlugin)Bukkit.getPluginManager().getPlugin("LandWard"));getLogger().info("LOCKS-PROBE-PASS assertions="+checks); }

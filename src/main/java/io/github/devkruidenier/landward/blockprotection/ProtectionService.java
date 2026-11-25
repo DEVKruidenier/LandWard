@@ -16,10 +16,32 @@ public final class ProtectionService implements AutoCloseable {
   private final Map<BlockKey, UUID> uncertain = new ConcurrentHashMap<>();
   private final Object markers = new Object();
   private volatile boolean closed;
+  private ProtectionQuarantine quarantine;
+  private volatile boolean quarantineUnavailable;
+  private volatile boolean storageUnavailable;
+
+  public void storageUnavailable() {
+    storageUnavailable = true;
+  }
 
   public ProtectionService(LandWardPlugin plugin, LandManager lands) {
     this.plugin = plugin;
     this.lands = lands;
+    try {
+      quarantine =
+          new ProtectionQuarantine(
+              plugin.getDataFolder().toPath().resolve("block-protection-quarantine.txt"));
+      quarantine.locations().forEach(b -> uncertain.put(b, UUID.randomUUID()));
+    } catch (java.io.IOException error) {
+      quarantineUnavailable = true;
+      plugin
+          .getLogger()
+          .log(
+              java.util.logging.Level.SEVERE,
+              "Cannot verify block-protection-quarantine.txt; personal block interactions in player"
+                  + " lands are denied until repaired",
+              error);
+    }
     writer =
         new ThreadPoolExecutor(
             1,
@@ -40,7 +62,13 @@ public final class ProtectionService implements AutoCloseable {
   }
 
   public boolean uncertain(BlockKey b) {
-    return uncertain.containsKey(b);
+    if (storageUnavailable) {
+      var world = Bukkit.getWorld(b.world());
+      return world != null && plugin.isLandWorld(world);
+    }
+    return uncertain.containsKey(b)
+        || quarantineUnavailable
+            && lands.landAt(b.chunk()).filter(l -> !lands.isAdministrative(l)).isPresent();
   }
 
   public ProtectionActor actor(Player p) {
@@ -55,6 +83,7 @@ public final class ProtectionService implements AutoCloseable {
   public boolean visible(Player p, UUID land) {
     var a = actor(p);
     return enabled()
+        && !storageUnavailable
         && (lands.personalMember(land, a.id()) && (a.create() || a.own() || a.landManage())
             || a.adminManage()
                 && lands.land(land).filter(l -> !lands.isAdministrative(l)).isPresent());
@@ -77,6 +106,7 @@ public final class ProtectionService implements AutoCloseable {
   }
 
   public void tell(Player p, String key) {
+    if (storageUnavailable && key.equals("locked")) key = "storage-error";
     p.sendMessage(
         plugin
             .localeService()
@@ -179,6 +209,11 @@ public final class ProtectionService implements AutoCloseable {
                     if (!closed && (!requiresEnabled || enabled())) success.run();
                   });
         } catch (Exception e) {
+          if (e instanceof io.github.devkruidenier.landward.storage.StorageException)
+            failed(
+                lands.personalProtections().all().stream()
+                    .flatMap(lock -> lock.blocks().stream())
+                    .toList());
           plugin
               .getLogger()
               .log(
@@ -230,20 +265,22 @@ public final class ProtectionService implements AutoCloseable {
         try {
           if (!removed.isEmpty()) lands.forgetPersonal(removed);
           for (var p : placements) lands.recordPlacement(p);
-          keys.forEach(k -> uncertain.remove(k, marker));
+          resolved(keys, marker);
           if (committed != null) committed.run();
         } catch (Exception e) {
+          failed(keys);
           plugin
               .getLogger()
               .log(
                   java.util.logging.Level.SEVERE,
                   "Cannot persist block ownership at "
                       + keys
-                      + "; locations remain quarantined until restart/recovery",
+                      + "; locations remain quarantined across restarts until verified recovery",
                   e);
         }
       });
     } catch (RejectedExecutionException e) {
+      failed(keys);
       plugin
           .getLogger()
           .severe("Personal protection writer is full; locations quarantined: " + keys);
@@ -287,7 +324,7 @@ public final class ProtectionService implements AutoCloseable {
                     plugin.getConfig().getInt("block-protection.max-blocks-per-player", -1));
             seal(saved);
           }
-          unit.forEach(b -> uncertain.remove(b, marker));
+          resolved(unit, marker);
         } catch (IllegalArgumentException rejected) {
           unit.forEach(b -> uncertain.remove(b, marker));
           plugin
@@ -302,6 +339,7 @@ public final class ProtectionService implements AutoCloseable {
                               ? rejected.getMessage()
                               : "changed"));
         } catch (Exception error) {
+          failed(unit);
           plugin
               .getLogger()
               .log(
@@ -313,6 +351,7 @@ public final class ProtectionService implements AutoCloseable {
         }
       });
     } catch (RejectedExecutionException error) {
+      failed(unit);
       plugin
           .getLogger()
           .severe("Automatic personal protection queue is full; locations quarantined: " + unit);
@@ -349,16 +388,24 @@ public final class ProtectionService implements AutoCloseable {
                                 || selected.blocks().stream()
                                     .anyMatch(b -> !marker.equals(uncertain.get(b))))
                               throw new IllegalArgumentException("changed");
-                            var saved =
-                                lands.protect(
-                                    currentActor,
-                                    selected.land(),
-                                    selected.material(),
-                                    selected.blocks(),
-                                    selected.generations(),
-                                    plugin
-                                        .getConfig()
-                                        .getInt("block-protection.max-blocks-per-player", -1));
+                            BlockProtection saved;
+                            try {
+                              saved =
+                                  lands.protect(
+                                      currentActor,
+                                      selected.land(),
+                                      selected.material(),
+                                      selected.blocks(),
+                                      selected.generations(),
+                                      plugin
+                                          .getConfig()
+                                          .getInt("block-protection.max-blocks-per-player", -1));
+                            } catch (
+                                io.github.devkruidenier.landward.storage.StorageException
+                                    storageFailure) {
+                              failed(selected.blocks());
+                              throw storageFailure;
+                            }
                             seal(saved);
                             plugin
                                 .scheduler()
@@ -369,8 +416,55 @@ public final class ProtectionService implements AutoCloseable {
                                     });
                           },
                           () -> tell(p, "created"),
-                          () -> selected.blocks().forEach(b -> uncertain.remove(b, marker)));
+                          () ->
+                              selected
+                                  .blocks()
+                                  .forEach(b -> {
+                                    if (quarantine != null && !quarantine.locations().contains(b))
+                                      uncertain.remove(b, marker);
+                                  }));
                     }));
+  }
+
+  private void failed(Collection<BlockKey> blocks) {
+    blocks.forEach(b -> uncertain.put(b, UUID.randomUUID()));
+    try {
+      if (quarantine == null) throw new java.io.IOException("Quarantine journal unavailable");
+      quarantine.fail(blocks);
+    } catch (java.io.IOException error) {
+      quarantineUnavailable = true;
+      plugin
+          .getLogger()
+          .log(
+              java.util.logging.Level.SEVERE,
+              "Cannot persist personal protection failure journal; player-land block access is"
+                  + " denied until administrator recovery",
+              error);
+    }
+  }
+
+  private void resolved(Collection<BlockKey> blocks, UUID marker) {
+    var current = blocks.stream().filter(b -> marker.equals(uncertain.get(b))).toList();
+    try {
+      if (quarantine == null) throw new java.io.IOException("Quarantine journal unavailable");
+      quarantine.resolve(current);
+      current.forEach(b -> uncertain.remove(b, marker));
+    } catch (java.io.IOException error) {
+      quarantineUnavailable = true;
+      plugin
+          .getLogger()
+          .log(
+              java.util.logging.Level.SEVERE,
+              "Cannot clear verified protection failure journal",
+              error);
+    }
+  }
+
+  /** Used only after an explicitly confirmed and committed administrative lock removal. */
+  public void resolvedRemoval(Collection<BlockKey> blocks) throws java.io.IOException {
+    if (quarantine == null) throw new java.io.IOException("Quarantine journal unavailable");
+    quarantine.resolve(blocks);
+    blocks.forEach(uncertain::remove);
   }
 
   private void seal(BlockProtection saved) {

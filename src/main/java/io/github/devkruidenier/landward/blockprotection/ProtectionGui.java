@@ -229,7 +229,10 @@ public final class ProtectionGui implements Listener {
                 var actor = service.actor(p);
                 service.submit(
                     p,
-                    () -> lands.removePersonal(actor, lock.id(), lock.revision()),
+                    () -> {
+                      lands.removePersonal(actor, lock.id(), lock.revision());
+                      service.resolvedRemoval(lock.blocks());
+                    },
                     () -> {
                       service.tell(p, "removed");
                       main(p, selected.land());

@@ -121,6 +121,21 @@ public final class LandWardPlugin extends JavaPlugin {
             landManager.load();
             applyEnvironmentDefaults();
         } catch (StorageException exception) {
+            if (getConfig().getBoolean("block-protection.enabled", false)) {
+                // With no verifiable snapshot, no location can safely be assumed unprotected.
+                // Keep the listener enabled instead of silently opening previously locked storage.
+                landManager = new LandManager(storage, playerMemberDefaults(), administrativeMemberDefaults());
+                blockProtections = new io.github.devkruidenier.landward.blockprotection.ProtectionService(this, landManager);
+                blockProtections.storageUnavailable();
+                getServer().getPluginManager().registerEvents(new io.github.devkruidenier.landward.blockprotection.ProtectionListener(this,landManager,blockProtections),this);
+                org.bukkit.command.CommandExecutor unavailable=(sender,command,label,args)->{
+                    sender.sendMessage(localeService.message(sender instanceof org.bukkit.entity.Player player ? localeService.localeFor(player) : getConfig().getString("language.console", "en_US"),"general.storage-error"));return true;
+                };
+                if(getCommand("claim")!=null)getCommand("claim").setExecutor(unavailable);
+                if(getCommand("claimadmin")!=null)getCommand("claimadmin").setExecutor(unavailable);
+                getLogger().log(java.util.logging.Level.SEVERE,"LandWard storage unavailable: configured claim worlds are temporarily read-only. Repair storage and restart; personal protection is not silently disabled.",exception);
+                return;
+            }
             throw new IllegalStateException("LandWard storage could not be initialized", exception);
         }
         this.blueMapIntegration = new BlueMapIntegration(this, landManager);
