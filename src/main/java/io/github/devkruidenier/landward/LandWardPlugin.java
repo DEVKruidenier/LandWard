@@ -114,13 +114,13 @@ public final class LandWardPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(playerSnapshots, this);
         getServer().getOnlinePlayers().forEach(player -> scheduler.player(player, () -> playerSnapshots.capture(player)));
 
-        this.storage = createStorage(getConfig().getString("storage.type", "sqlite"));
         try {
+            this.storage = createStorage(getConfig().getString("storage.type", "sqlite"));
             storage.initialize();
             this.landManager = new LandManager(storage, playerMemberDefaults(), administrativeMemberDefaults());
             landManager.load();
             applyEnvironmentDefaults();
-        } catch (StorageException exception) {
+        } catch (StorageException | RuntimeException exception) {
             if (getConfig().getBoolean("block-protection.enabled", false)) {
                 // With no verifiable snapshot, no location can safely be assumed unprotected.
                 // Keep the listener enabled instead of silently opening previously locked storage.

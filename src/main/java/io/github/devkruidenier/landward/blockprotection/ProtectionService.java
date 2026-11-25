@@ -27,6 +27,7 @@ public final class ProtectionService implements AutoCloseable {
   public ProtectionService(LandWardPlugin plugin, LandManager lands) {
     this.plugin = plugin;
     this.lands = lands;
+    lands.personalCleanup(this::lifecycleCleanup);
     try {
       quarantine =
           new ProtectionQuarantine(
@@ -424,6 +425,31 @@ public final class ProtectionService implements AutoCloseable {
                                       uncertain.remove(b, marker);
                                   }));
                     }));
+  }
+
+  private void lifecycleCleanup(
+      UUID land, io.github.devkruidenier.landward.model.ChunkPosition chunk) {
+    if (quarantine == null || quarantine.locations().isEmpty()) return;
+    var affected = new HashSet<BlockKey>();
+    for (var key : quarantine.locations())
+      if ((chunk == null || key.chunk().equals(chunk))
+          && lands.landAt(key.chunk()).map(l -> l.id().equals(land)).orElse(false))
+        affected.add(key);
+    for (var lock : lands.personalProtections().all())
+      if (lock.landId().equals(land)
+          && (chunk == null || lock.blocks().stream().anyMatch(b -> b.chunk().equals(chunk))))
+        affected.addAll(lock.blocks());
+    try {
+      resolvedRemoval(affected);
+    } catch (java.io.IOException error) {
+      quarantineUnavailable = true;
+      plugin
+          .getLogger()
+          .log(
+              java.util.logging.Level.SEVERE,
+              "Cannot clear failure markers after committed land/chunk cleanup",
+              error);
+    }
   }
 
   private void failed(Collection<BlockKey> blocks) {

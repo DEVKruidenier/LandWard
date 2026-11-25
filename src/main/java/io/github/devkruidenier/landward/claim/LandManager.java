@@ -22,6 +22,8 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 public final class LandManager {
+    private java.util.function.BiConsumer<UUID,ChunkPosition> personalCleanup=(land,chunk)->{};
+    public synchronized void personalCleanup(java.util.function.BiConsumer<UUID,ChunkPosition> cleanup){personalCleanup=cleanup;}
     private final io.github.devkruidenier.landward.blockprotection.ProtectionIndex personalProtections = new io.github.devkruidenier.landward.blockprotection.ProtectionIndex();
     public io.github.devkruidenier.landward.blockprotection.ProtectionIndex personalProtections() { return personalProtections; }
 
@@ -269,6 +271,7 @@ public final class LandManager {
 
     private void deleteLand(Land land) throws StorageException {
         storage.deleteLand(land.id());
+        personalCleanup.accept(land.id(),null);
         personalProtections.prune(p -> !p.landId().equals(land.id()), p -> !p.landId().equals(land.id()));
         featuresByLand.remove(land.id());
         claims.entrySet().removeIf(entry -> entry.getValue().equals(land.id()));
@@ -724,6 +727,7 @@ public final class LandManager {
         return removeMember(land.ownerId(),member);
     }
     private void forgetPersonalChunk(UUID land,ChunkPosition chunk) {
+        personalCleanup.accept(land,chunk);
         personalProtections.prune(p->!p.landId().equals(land)||p.blocks().stream().noneMatch(b->b.chunk().equals(chunk)),
                 p->!p.landId().equals(land)||!p.position().chunk().equals(chunk));
     }
