@@ -1,7 +1,7 @@
 name: LandWard
 version: '${version}'
 main: io.github.devkruidenier.landward.LandWardPlugin
-description: Simple chunk claims and reliable protection for Paper, Spigot, CraftBukkit and Folia survival servers.
+description: Simple chunk claims and reliable protection for Paper, Purpur, Bukkit, Folia and Spigot survival servers.
 api-version: '26.2'
 folia-supported: true
 author: DEVKruidenier
