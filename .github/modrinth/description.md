@@ -46,6 +46,8 @@ See [Languages and locale codes](https://github.com/DEVKruidenier/LandWard/wiki/
   PlaceholderAPI, bStats and combat-tagger integrations.
 - Localized player-facing messages and configurable protection behaviour.
 
+**Personal Block Protection** — create private or shared locks for individual blocks in player lands. See the [setup guide](https://github.com/DEVKruidenier/LandWard/wiki/Block-Protection) and [FAQ & Troubleshooting](https://github.com/DEVKruidenier/LandWard/wiki/FAQ-and-Troubleshooting).
+
 ## See it in action
 
 **Create a land** — open `/claim`, choose **Create land**, and enter the land name
