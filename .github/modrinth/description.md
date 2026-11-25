@@ -84,19 +84,10 @@ server's other worlds.
 
 ![Active world settings](https://raw.githubusercontent.com/wiki/DEVKruidenier/LandWard/images/gui-showcase/1.0.6.0-beta9/landward-active-worlds.gif)
 
-## Requirements
-
-- Paper 26.2 / 26.3
-- Purpur 26.2 / 26.3
-- Bukkit (CraftBukkit) 26.2 / 26.3
-- Folia 26.2 / 26.3
-- Spigot 26.2 / 26.3
-- Java 25 or newer
+## Documentation and support
 
 For the complete feature list and detailed usage instructions, see the
 [LandWard Wiki](https://github.com/DEVKruidenier/LandWard/wiki).
-
-## Documentation and support
 
 - [Installation, configuration and commands](https://github.com/DEVKruidenier/LandWard/wiki)
 - [Report an issue](https://github.com/DEVKruidenier/LandWard/issues)
