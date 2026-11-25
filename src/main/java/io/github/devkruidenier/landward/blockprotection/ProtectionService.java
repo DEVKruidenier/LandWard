@@ -16,6 +16,10 @@ public final class ProtectionService implements AutoCloseable {
   private final Map<BlockKey, UUID> uncertain = new ConcurrentHashMap<>();
   private final Object markers = new Object();
   private volatile boolean closed;
+  private volatile AutomationOwnership.Snapshot automation =
+      new AutomationOwnership.Snapshot(-1, Map.of());
+  private final java.util.concurrent.atomic.AtomicBoolean automationQueued =
+      new java.util.concurrent.atomic.AtomicBoolean();
   private ProtectionQuarantine quarantine;
   private volatile boolean quarantineUnavailable;
   private volatile boolean storageUnavailable;
@@ -72,6 +76,53 @@ public final class ProtectionService implements AutoCloseable {
             && lands.landAt(b.chunk()).filter(l -> !lands.isAdministrative(l)).isPresent();
   }
 
+  public record AutomationState(UUID owner, boolean uncertain) {}
+
+  public AutomationState automation(BlockKey key) {
+    var placement = lands.personalProtections().placement(key);
+    if (placement == null || !placement.material().equals("HOPPER"))
+      return new AutomationState(null, false);
+    long revision = lands.personalProtections().revision();
+    var snapshot = automation;
+    if (snapshot.revision() != revision) {
+      if (automationQueued.compareAndSet(false, true)) {
+        try {
+          writer.execute(() -> {
+            try {
+              long version = lands.personalProtections().revision();
+              var updated =
+                  AutomationOwnership.build(
+                      version,
+                      lands.personalProtections().placements(),
+                      lands.personalProtections().all());
+              if (version == lands.personalProtections().revision()) automation = updated;
+            } finally {
+              automationQueued.set(false);
+            }
+          });
+        } catch (RejectedExecutionException full) {
+          automationQueued.set(false);
+        }
+      }
+      return new AutomationState(null, true);
+    }
+    return new AutomationState(snapshot.privateHoppers().get(key), false);
+  }
+
+  public Set<UUID> automationOrigins(BlockKey key) {
+    return automation.origins().getOrDefault(key, Set.of());
+  }
+
+  public boolean automationRights(UUID owner, BlockKey key) {
+    var land = lands.landAt(key.chunk()).orElse(null);
+    if (land == null) return true;
+    if (lands.isAdministrative(land))
+      return lands.permissions(owner, land.id()).containers()
+          || plugin.getConfig().getBoolean("admin-claims.protection.allow-containers", false);
+    return lands.personalMember(land.id(), owner)
+        && lands.permissions(owner, land.id()).containers();
+  }
+
   public ProtectionActor actor(Player p) {
     return new ProtectionActor(
         p.getUniqueId(),
@@ -94,16 +145,36 @@ public final class ProtectionService implements AutoCloseable {
     if (!enabled()) return false;
     if (uncertain(b)) return true;
     var lock = lands.personalProtections().at(b);
-    return lock != null
-        && !lands.personalAccess(
-            p.getUniqueId(),
-            lock,
-            plugin.getConfig().getBoolean("block-protection.land-owner-bypass", false),
-            p.hasPermission("landward.admin.protection.bypass"));
+    if (lock != null)
+      return !lands.personalAccess(
+          p.getUniqueId(),
+          lock,
+          plugin.getConfig().getBoolean("block-protection.land-owner-bypass", false),
+          p.hasPermission("landward.admin.protection.bypass"));
+    var state = automation(b);
+    if (state.uncertain()) return true;
+    if (state.owner() == null) return false;
+    var origins = automation.origins().getOrDefault(b, Set.of());
+    if (origins.isEmpty()) return true;
+    for (var id : origins) {
+      var source = lands.personalProtections().get(id);
+      if (source == null
+          || !lands.personalAccess(
+              p.getUniqueId(),
+              source,
+              plugin.getConfig().getBoolean("block-protection.land-owner-bypass", false),
+              p.hasPermission("landward.admin.protection.bypass"))
+          || !plugin.adminBypasses().isEnabled(p.getUniqueId())
+              && !lands.permissions(p.getUniqueId(), source.landId()).containers()) return true;
+    }
+    return false;
   }
 
   public boolean mechanical(BlockKey b) {
-    return enabled() && (uncertain(b) || lands.personalProtections().at(b) != null);
+    if (!enabled()) return false;
+    if (uncertain(b) || lands.personalProtections().at(b) != null) return true;
+    var state = automation(b);
+    return state.uncertain() || state.owner() != null;
   }
 
   public void tell(Player p, String key) {

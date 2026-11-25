@@ -163,29 +163,170 @@ public final class NativeProtectionProbe {
             check(
                 ((Hopper) hopper.getState()).getInventory().isEmpty(),
                 "Native hopper inventory stays empty");
-            power.setType(Material.AIR, true);
-            click();
-            later(
-                10,
-                () -> {
-                  check(
-                      ((Door) lower.getBlockData()).isOpen()
-                          && ((Door) upper.getBlockData()).isOpen(),
-                      "Permitted player interaction opens both iron door halves");
-                  click();
-                  later(
-                      10,
-                      () -> {
-                        check(
-                            !((Door) lower.getBlockData()).isOpen(),
-                            "Permitted player closes iron door");
-                        finish(null);
-                      });
-                });
+            verifyOwnedHopper(lands, land.id(), owner);
           });
     } catch (Throwable failure) {
       finish(failure);
     }
+  }
+
+  private void verifyDoors() {
+    power.setType(Material.AIR, true);
+    click();
+    later(
+        10,
+        () -> {
+          check(
+              ((Door) lower.getBlockData()).isOpen() && ((Door) upper.getBlockData()).isOpen(),
+              "Permitted player interaction opens both iron door halves");
+          click();
+          later(
+              10,
+              () -> {
+                check(!((Door) lower.getBlockData()).isOpen(), "Permitted player closes iron door");
+                finish(null);
+              });
+        });
+  }
+
+  private void verifyOwnedHopper(LandManager lands, UUID land, UUID owner) throws Exception {
+    var key = ProtectionBlocks.key(hopper);
+    lands.recordPlacement(new BlockPlacement(key, land, owner, "HOPPER", UUID.randomUUID()));
+    later(
+        40,
+        () -> {
+          check(
+              ((Hopper) hopper.getState()).getInventory().contains(Material.DIAMOND),
+              "Native hopper owned by lock owner extracts protected items");
+          UUID visitorId = UUID.randomUUID();
+          var handler = Proxy.getInvocationHandler(player);
+          var visitor =
+              (Player)
+                  Proxy.newProxyInstance(
+                      Player.class.getClassLoader(),
+                      new Class<?>[] {Player.class},
+                      (proxy, m, args) ->
+                          m.getName().equals("getUniqueId")
+                              ? visitorId
+                              : handler.invoke(proxy, m, args));
+          var inventory = ((Hopper) hopper.getState()).getInventory();
+          var view =
+              (org.bukkit.inventory.InventoryView)
+                  Proxy.newProxyInstance(
+                      org.bukkit.inventory.InventoryView.class.getClassLoader(),
+                      new Class<?>[] {org.bukkit.inventory.InventoryView.class},
+                      (proxy, m, args) ->
+                          switch (m.getName()) {
+                            case "getPlayer" -> visitor;
+                            case "getTopInventory" -> inventory;
+                            case "getBottomInventory" -> Bukkit.createInventory(null, 36);
+                            case "getType" -> org.bukkit.event.inventory.InventoryType.HOPPER;
+                            default -> null;
+                          });
+          var open = new org.bukkit.event.inventory.InventoryOpenEvent(view);
+          listener.open(open);
+          check(
+              open.isCancelled(),
+              "Other players cannot steal extracted items by opening the owned hopper");
+          var destroy = new org.bukkit.event.block.BlockBreakEvent(hopper, visitor);
+          listener.breakBlock(destroy);
+          check(destroy.isCancelled(), "Other players cannot break the private automation hopper");
+          var ownBreak = new org.bukkit.event.block.BlockBreakEvent(hopper, player);
+          listener.breakBlock(ownBreak);
+          check(!ownBreak.isCancelled(), "The placing owner can move their own hopper");
+          var output = hopper.getRelative(BlockFace.DOWN);
+          output.setType(Material.HOPPER, false);
+          UUID other = UUID.randomUUID();
+          lands.addMember(owner, other);
+          lands.recordPlacement(
+              new BlockPlacement(
+                  ProtectionBlocks.key(output), land, other, "HOPPER", UUID.randomUUID()));
+          later(
+              20,
+              () -> {
+                check(
+                    ((Hopper) output.getState()).getInventory().isEmpty(),
+                    "A different owner's native hopper cannot steal from the private hopper");
+                lands.forgetPersonal(List.of(ProtectionBlocks.key(output)));
+                output.setType(Material.CHEST, false);
+                later(
+                    20,
+                    () -> {
+                      check(
+                          ((org.bukkit.block.Chest) output.getState())
+                              .getBlockInventory()
+                              .isEmpty(),
+                          "Unprotected output storage cannot expose the private pipeline");
+                      lands.protect(
+                          new ProtectionActor(owner, true, true, true, false),
+                          land,
+                          "CHEST",
+                          List.of(ProtectionBlocks.key(output)),
+                          Map.of(),
+                          -1);
+                      later(
+                          20,
+                          () -> {
+                            check(
+                                ((org.bukkit.block.Chest) output.getState())
+                                    .getBlockInventory()
+                                    .contains(Material.DIAMOND),
+                                "Same-owner protected output storage accepts the hopper items");
+                            lands.addMember(owner, visitorId);
+                            var source =
+                                lands.personalProtections().at(ProtectionBlocks.key(chest));
+                            var actor = new ProtectionActor(owner, true, true, true, false);
+                            lands.sharePersonal(
+                                actor, source.id(), source.revision(), Set.of(visitorId));
+                            service.automation(key);
+                            later(
+                                20,
+                                () -> {
+                                  var partial =
+                                      new org.bukkit.event.inventory.InventoryOpenEvent(view);
+                                  listener.open(partial);
+                                  check(
+                                      partial.isCancelled(),
+                                      "Sharing one source cannot expose a different unshared source"
+                                          + " through its hopper");
+                                  var destination =
+                                      lands.personalProtections().at(ProtectionBlocks.key(output));
+                                  lands.sharePersonal(
+                                      actor,
+                                      destination.id(),
+                                      destination.revision(),
+                                      Set.of(visitorId));
+                                  service.automation(key);
+                                  later(
+                                      20,
+                                      () -> {
+                                        var shared =
+                                            new org.bukkit.event.inventory.InventoryOpenEvent(view);
+                                        listener.open(shared);
+                                        check(
+                                            !shared.isCancelled(),
+                                            "Sharing all source inventories grants eligible member"
+                                                + " access to the hopper");
+                                        lands.updateMemberPermission(
+                                            owner,
+                                            visitorId,
+                                            io.github.devkruidenier.landward.model.MemberPermissions
+                                                .Permission.CONTAINERS,
+                                            false);
+                                        var denied =
+                                            new org.bukkit.event.inventory.InventoryOpenEvent(view);
+                                        listener.open(denied);
+                                        check(
+                                            denied.isCancelled(),
+                                            "Shared hopper access never overrides denied normal"
+                                                + " container rights");
+                                        verifyDoors();
+                                      });
+                                });
+                          });
+                    });
+              });
+        });
   }
 
   private void click() {
@@ -196,7 +337,12 @@ public final class NativeProtectionProbe {
     check(!event.isCancelled(), "Authorized click not denied");
   }
 
-  private void later(int ticks, Runnable action) {
+  @FunctionalInterface
+  private interface CheckedStep {
+    void run() throws Exception;
+  }
+
+  private void later(int ticks, CheckedStep action) {
     plugin
         .scheduler()
         .globalLater(

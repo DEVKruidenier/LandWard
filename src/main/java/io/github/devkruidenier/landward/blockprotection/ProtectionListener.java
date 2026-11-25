@@ -39,9 +39,12 @@ public final class ProtectionListener implements Listener {
     var lock = lands.personalProtections().at(key);
     return service.denied(player, key)
         || service.enabled()
-            && lock != null
+            && (lock != null || service.automation(key).owner() != null)
             && !plugin.adminBypasses().isEnabled(player.getUniqueId())
-            && !lands.permissions(player.getUniqueId(), lock.landId()).containers();
+            && !lands
+                .landAt(key.chunk())
+                .map(l -> lands.permissions(player.getUniqueId(), l.id()).containers())
+                .orElse(true);
   }
 
   private boolean denied(Player p, Block b) {
@@ -148,7 +151,17 @@ public final class ProtectionListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void breakBlock(BlockBreakEvent e) {
-    if (mechanical(e.getBlock()) || nearSupportedLock(e.getBlock())) {
+    var key = ProtectionBlocks.key(e.getBlock());
+    var network =
+        e.getBlock().getType() == Material.HOPPER
+            ? service.automation(key)
+            : new ProtectionService.AutomationState(null, false);
+    boolean ownHopper =
+        network.owner() != null
+            && !service.uncertain(key)
+            && (network.owner().equals(e.getPlayer().getUniqueId())
+                || e.getPlayer().hasPermission("landward.admin.protection.bypass"));
+    if (mechanical(e.getBlock()) && !ownHopper || nearSupportedLock(e.getBlock())) {
       e.setCancelled(true);
       service.tell(e.getPlayer(), "locked");
     }
@@ -181,7 +194,7 @@ public final class ProtectionListener implements Listener {
   public void placed(BlockPlaceEvent e) {
     var b = e.getBlockPlaced();
     var key = ProtectionBlocks.key(b);
-    if (!ProtectionBlocks.supported(b.getType())) {
+    if (!ProtectionBlocks.supported(b.getType()) && b.getType() != Material.HOPPER) {
       if (lands.personalProtections().at(key) != null
           || lands.personalProtections().placement(key) != null)
         service.observe(List.of(), List.of(key), null);
@@ -216,7 +229,8 @@ public final class ProtectionListener implements Listener {
             .toList();
     var p = e.getPlayer();
     var actor = service.actor(p);
-    if (service.enabled()
+    if (ProtectionBlocks.supported(b.getType())
+        && service.enabled()
         && plugin.getConfig().getBoolean("block-protection.auto-protect", false)
         && actor.create())
       service.automatic(
@@ -245,16 +259,72 @@ public final class ProtectionListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void move(InventoryMoveItemEvent e) {
-    if (blocked(e.getSource()) || blocked(e.getDestination())) e.setCancelled(true);
+    if (!service.enabled()) return;
+    var source = owners(e.getSource());
+    var target = owners(e.getDestination());
+    if (source == null || target == null) {
+      e.setCancelled(true);
+      return;
+    }
+    var protectedOwners = new HashSet<>(source);
+    protectedOwners.addAll(target);
+    if (protectedOwners.isEmpty()) return;
+    if (protectedOwners.size() != 1) {
+      e.setCancelled(true);
+      return;
+    }
+    var owner = protectedOwners.iterator().next();
+    var initiator = hopperOwner(e.getInitiator());
+    if (!owner.equals(initiator)
+        || !source.isEmpty() && !target.contains(owner)
+        || java.util.stream.Stream.concat(
+                keys(e.getSource()).stream(), keys(e.getDestination()).stream())
+            .anyMatch(b -> !service.automationRights(owner, b))) e.setCancelled(true);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void pickup(InventoryPickupItemEvent e) {
-    if (blocked(e.getInventory())) e.setCancelled(true);
+    if (!service.enabled()) return;
+    var owner = hopperOwner(e.getInventory());
+    var scope = owners(e.getInventory());
+    if (scope == null
+        || scope != null && !scope.isEmpty() && (owner == null || !scope.contains(owner)))
+      e.setCancelled(true);
   }
 
-  private boolean blocked(Inventory inventory) {
-    return keys(inventory).stream().anyMatch(service::mechanical);
+  private Set<UUID> owners(Inventory inventory) {
+    var result = new HashSet<UUID>();
+    for (var b : keys(inventory)) {
+      if (service.uncertain(b)) return null;
+      var p = lands.personalProtections().at(b);
+      if (p != null) result.add(p.owner());
+      else {
+        var network = service.automation(b);
+        if (network.uncertain()) return null;
+        if (network.owner() != null) {
+          for (var id : service.automationOrigins(b)) {
+            var origin = lands.personalProtections().get(id);
+            if (origin == null
+                || !service.automationRights(network.owner(), origin.blocks().getFirst()))
+              return null;
+          }
+          result.add(network.owner());
+        }
+      }
+    }
+    return result;
+  }
+
+  private UUID hopperOwner(Inventory inventory) {
+    if (!(inventory.getHolder() instanceof Hopper)) return null;
+    var positions = keys(inventory);
+    if (positions.size() != 1) return null;
+    var p = lands.personalProtections().placement(positions.getFirst());
+    return p != null
+            && p.material().equals("HOPPER")
+            && service.automationRights(p.owner(), p.position())
+        ? p.owner()
+        : null;
   }
 
   private List<BlockKey> keys(Inventory inventory) {
@@ -316,12 +386,15 @@ public final class ProtectionListener implements Listener {
    */
   @EventHandler(priority = EventPriority.HIGHEST)
   public void redstone(BlockRedstoneEvent e) {
-    if (mechanical(e.getBlock())) e.setNewCurrent(0);
+    if (mechanical(e.getBlock())
+        && e.getBlock().getBlockData() instanceof org.bukkit.block.data.Openable)
+      e.setNewCurrent(0);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void physics(BlockPhysicsEvent e) {
-    if (mechanical(e.getBlock()) || nearSupportedLock(e.getBlock())) e.setCancelled(true);
+    if (mechanical(e.getBlock()) && e.getBlock().getType() != Material.HOPPER
+        || nearSupportedLock(e.getBlock())) e.setCancelled(true);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

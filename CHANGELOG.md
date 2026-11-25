@@ -13,6 +13,8 @@ All notable changes to LandWard will be documented here.
 - Transactional lock/share cleanup when members leave, ownership changes, land is
   deleted or chunks are unclaimed; storage migrations and backups retain lock data.
 - Localized leave/removal/transfer warnings, owner filtering and paginated lists.
+- Same-owner hopper automation with protected output inventories and inherited
+  source access checks; foreign/unrecorded hoppers cannot drain private storage.
 - Conservative automation safeguards and asynchronous personal-lock writes with
   fail-closed diagnostics. Existing installations explicitly opt in; disabling
   personal protection preserves data and leaves normal claim permissions active.

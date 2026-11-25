@@ -245,6 +245,9 @@ integrations:
 # Disable this when another plugin manages personal block locks.
 # Old configurations without this section are migrated with enabled: false.
 # /claimadmin reload applies these options; stored locks survive disabling.
+# Hoppers placed by the same owner can transfer items between protected storage.
+# Connected owned hoppers retain private access; unknown/foreign hoppers cannot extract.
+# Place legacy hoppers again to establish their owner; ownership is never guessed.
 block-protection:
   enabled: true
   # Automatically lock eligible blocks placed by players with creation permission.

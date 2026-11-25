@@ -203,7 +203,8 @@ public final class PackagedStorageFixture {
         var first=base.lands().getFirst(); var a=new io.github.devkruidenier.landward.blockprotection.BlockKey(world,-511,80,-143);
         var b=new io.github.devkruidenier.landward.blockprotection.BlockKey(world,-510,80,-143);
         var lock=new io.github.devkruidenier.landward.blockprotection.BlockProtection(UUID.randomUUID(),playerLand,first.ownerId(),"CHEST",List.of(a,b),Set.of(base.members().getFirst().playerId()),now.toEpochMilli(),3);
-        var placements=List.of(a,b).stream().map(k->new io.github.devkruidenier.landward.blockprotection.BlockPlacement(k,playerLand,first.ownerId(),"CHEST",UUID.randomUUID())).toList();
+        var placements=new java.util.ArrayList<>(List.of(a,b).stream().map(k->new io.github.devkruidenier.landward.blockprotection.BlockPlacement(k,playerLand,first.ownerId(),"CHEST",UUID.randomUUID())).toList());
+        placements.add(new io.github.devkruidenier.landward.blockprotection.BlockPlacement(new io.github.devkruidenier.landward.blockprotection.BlockKey(world,-511,79,-143),playerLand,first.ownerId(),"HOPPER",UUID.randomUUID()));
         return new StorageSnapshot(base.lands(),base.claims(),base.members(),base.adminLandIds(),base.features(),List.of(lock),placements);
     }
 

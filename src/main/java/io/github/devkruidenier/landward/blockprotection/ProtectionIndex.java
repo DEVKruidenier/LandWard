@@ -6,6 +6,13 @@ import java.util.function.Predicate;
 
 /** Read paths are O(1), do no I/O, and never acquire the JDBC mutation monitor. */
 public final class ProtectionIndex {
+  private final java.util.concurrent.atomic.AtomicLong revision =
+      new java.util.concurrent.atomic.AtomicLong();
+
+  public long revision() {
+    return revision.get();
+  }
+
   private final Map<io.github.devkruidenier.landward.model.ChunkPosition, Set<BlockKey>> chunks =
       new ConcurrentHashMap<>();
   private final Map<UUID, BlockProtection> locks = new ConcurrentHashMap<>();
@@ -40,11 +47,13 @@ public final class ProtectionIndex {
           locations.put(b, p.id());
           indexed(b);
         });
+    revision.incrementAndGet();
   }
 
   public void put(BlockPlacement p) {
     placements.put(p.position(), p);
     indexed(p.position());
+    revision.incrementAndGet();
   }
 
   public void remove(UUID id) {
@@ -55,6 +64,7 @@ public final class ProtectionIndex {
             locations.remove(b, id);
             unindexed(b);
           });
+    revision.incrementAndGet();
   }
 
   public void forget(BlockKey b) {
@@ -62,6 +72,7 @@ public final class ProtectionIndex {
     if (p != null) remove(p.id());
     placements.remove(b);
     unindexed(b);
+    revision.incrementAndGet();
   }
 
   public void clear() {
@@ -69,6 +80,7 @@ public final class ProtectionIndex {
     locations.clear();
     placements.clear();
     chunks.clear();
+    revision.incrementAndGet();
   }
 
   public void prune(Predicate<BlockProtection> keep, Predicate<BlockPlacement> keepPlacement) {
@@ -76,6 +88,7 @@ public final class ProtectionIndex {
     for (var p : placements())
       if (!keepPlacement.test(p)) {
         placements.remove(p.position(), p);
+        revision.incrementAndGet();
         unindexed(p.position());
       }
   }
@@ -108,6 +121,7 @@ public final class ProtectionIndex {
     for (var p : placements())
       if (p.landId().equals(land) && p.owner().equals(member)) {
         placements.remove(p.position(), p);
+        revision.incrementAndGet();
         unindexed(p.position());
       }
   }
