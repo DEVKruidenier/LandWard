@@ -42,8 +42,6 @@ See [Languages and locale codes](https://github.com/DEVKruidenier/LandWard/wiki/
 
 ## See it in action
 
-Captured in **1.0.6.0-beta9**. Personal Block Protection shown in the menus is a beta feature.
-
 **Create a land** — open `/claim`, choose **Create land**, and enter the land name
 in the native Minecraft anvil interface.
 
