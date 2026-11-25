@@ -6,11 +6,13 @@ for configuration and guidance.
 
 **Simple land claims. Reliable survival protection.**
 
-LandWard is a GUI-first chunk-claim plugin for Paper, Spigot, CraftBukkit and Folia survival servers. Players
+LandWard is a GUI-first chunk-claim plugin for Paper, Purpur, Bukkit, Folia and Spigot survival servers. Players
 create a named land, open a visual chunk map and click the chunks they want to
 protect—no golden shovel, selection wand or claim shop required.
 
-**Supported servers:** Paper 26.2/26.3, Spigot 26.2/26.3, CraftBukkit 26.3 and Folia 26.3. Java 25 required.
+**Supported servers:** Paper 26.2 / 26.3, Purpur 26.2 / 26.3, Bukkit (CraftBukkit) 26.2 / 26.3, Folia 26.2 / 26.3 and Spigot 26.2 / 26.3. Java 25 required.
+
+**Velocity compatibility:** LandWard runs on a supported backend server behind Velocity. Install LandWard in the backend server's `plugins/` folder.
 
 ## Languages
 
@@ -78,7 +80,7 @@ server's other worlds.
 
 ## Requirements
 
-- Paper 26.2/26.3, Spigot 26.2/26.3, CraftBukkit 26.3 and Folia 26.3
+- Paper 26.2 / 26.3, Purpur 26.2 / 26.3, Bukkit (CraftBukkit) 26.2 / 26.3, Folia 26.2 / 26.3 and Spigot 26.2 / 26.3
 - Java 25 or newer
 
 For the complete feature list and detailed usage instructions, see the
