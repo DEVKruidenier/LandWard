@@ -36,6 +36,8 @@ See [Languages and locale codes](https://github.com/DEVKruidenier/LandWard/wiki/
 - Want your server listed here? Join **play.martialcraft.nl** and use
   `/mail send Kruidenier <yourServerIP>`.
 
+**Personal Block Protection** — create private or shared locks for individual blocks in player lands. See the [setup guide](https://github.com/DEVKruidenier/LandWard/wiki/Block-Protection) and [FAQ & Troubleshooting](https://github.com/DEVKruidenier/LandWard/wiki/FAQ-and-Troubleshooting).
+
 ## See it in action
 
 **Create a land** — open `/claim`, choose **Create land**, and enter the land name

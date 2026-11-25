@@ -2,62 +2,20 @@
 
 All notable changes to LandWard will be documented here.
 
-## [Unreleased]
+## [1.0.6.0] - 2026-11-25
 
-### Changed — 1.0.6.0-beta9 (development preview)
+### Added and improved
 
-- Let owners with build rights break any block they personally protected. The lock is
-  removed automatically when the last block of the protected unit is broken.
+Land owners and members can protect individual blocks in player lands and keep them private or share access with selected members. Personal locks cover normal, trapped and copper chests, barrels, shulker boxes, doors, trapdoors, fence gates, levers and buttons. Normal land permissions still apply.
 
-### Changed — 1.0.6.0-beta8 (development preview)
+- Manage locks through the in-game menus. LandWard tracks who placed a block and preserves sharing when your protected chest becomes a double chest.
+- Owners with build rights can break their protected blocks. The surviving half of a double chest keeps its lock, and breaking a protected door removes both halves and its lock.
+- A registered same-owner hopper can transfer items under the storage protection rules. A nearby protected lever can operate a protected iron door in the same land when both blocks share an owner and the player can use both.
+- Lock data is preserved in supported storage migrations and backups. When land or membership is removed, LandWard cleans up the associated locks and shared access.
 
-- Allow personal owners to break their protected doors when they have build rights.
-  Both door halves and their shared lock are removed.
+**Upgrading?** Back up your worlds and LandWard data. On an existing installation, enable the feature explicitly with `block-protection.enabled: true` in `plugins/LandWard/config.yml` if you want to use it.
 
-### Fixed — 1.0.6.0-beta7 (development preview)
-
-- Let ordinary chests form a double chest while placement ownership is being recorded.
-
-### Fixed — 1.0.6.0-beta6 (development preview)
-
-- Remove both halves of ordinary doors when broken immediately after placement.
-
-### Fixed — 1.0.6.0-beta5 (development preview)
-
-- Keep protected iron doors redstone-operated. Direct clicks do not open them.
-
-### Fixed — 1.0.6.0-beta4 (development preview)
-
-- Allow a protected lever to operate a nearby protected door owned by the same player
-  in the same land, when the user can operate both blocks.
-
-### Fixed — 1.0.6.0-beta3 (development preview)
-
-- Open and close both halves of protected doors within the same click, without a delayed update.
-
-### Changed / Fixed — 1.0.6.0-beta2 (development preview)
-
-- Keep both protected door halves synchronized when a permitted player opens or closes them.
-- Support copper chests, including oxidized/waxed variants, and personal locks on levers/buttons.
-- Allow the personal owner to expand a protected chest and break their own protected storage;
-  retain the original owner/sharing on a double chest's remaining half.
-- Allow separate adjacent chests, end invalid block selections and close the menu after
-  successfully saving private protection. Update the denial text in all 32 languages.
-
-### Added — 1.0.6.0-beta1 (development preview)
-
-- Optional built-in personal protection for storage blocks, doors, trapdoors and
-  fence gates, managed through private/shared access GUIs in all 32 languages.
-- UUID-based block placement ownership, paired chest/door locks, land-owner
-  management and a separate personal-lock administrator bypass.
-- Transactional lock/share cleanup when members leave, ownership changes, land is
-  deleted or chunks are unclaimed; storage migrations and backups retain lock data.
-- Localized leave/removal/transfer warnings, owner filtering and paginated lists.
-- Same-owner hopper automation with protected output inventories and inherited
-  source access checks; foreign/unrecorded hoppers cannot drain private storage.
-- Conservative automation safeguards and asynchronous personal-lock writes with
-  fail-closed diagnostics. Existing installations explicitly opt in; disabling
-  personal protection preserves data and leaves normal claim permissions active.
+[Block Protection guide](https://github.com/DEVKruidenier/LandWard/wiki/Block-Protection) · [FAQ & Troubleshooting](https://github.com/DEVKruidenier/LandWard/wiki/FAQ-and-Troubleshooting) · [Installation and updating](https://github.com/DEVKruidenier/LandWard/wiki/Installation)
 
 ## [1.0.5.0] - 2026-11-18
 
