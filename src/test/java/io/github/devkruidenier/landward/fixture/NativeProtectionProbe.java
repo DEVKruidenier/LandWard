@@ -172,29 +172,15 @@ public final class NativeProtectionProbe {
     }
   }
 
-  private void verifyDoors() {
+  private void verifyDoors() throws Exception {
     power.setType(Material.AIR, true);
-    click();
-    later(
-        10,
-        () -> {
-          check(
-              ((Door) lower.getBlockData()).isOpen() && ((Door) upper.getBlockData()).isOpen(),
-              "Permitted player interaction opens both iron door halves");
-          click();
-          later(
-              10,
-              () -> {
-                check(!((Door) lower.getBlockData()).isOpen(), "Permitted player closes iron door");
-                verifyVanillaDoors(0);
-              });
-        });
+    verifyDoorMaterials(0);
   }
 
-  private void verifyVanillaDoors(int index) throws Exception {
-    var materials = List.of(Material.ACACIA_DOOR, Material.COPPER_DOOR);
+  private void verifyDoorMaterials(int index) throws Exception {
+    var materials = List.of(Material.ACACIA_DOOR, Material.COPPER_DOOR, Material.IRON_DOOR);
     if (index == materials.size()) {
-      verifyStorageResize();
+      verifyProtectedLever();
       return;
     }
     var existing = lands.personalProtections().at(ProtectionBlocks.key(lower));
@@ -213,31 +199,156 @@ public final class NativeProtectionProbe {
         List.of(ProtectionBlocks.key(lower), ProtectionBlocks.key(upper)),
         Map.of(),
         -1);
-    // PlayerInteractEvent precedes vanilla's clicked-half write. Physics is deliberately
-    // denied by the lock, so reproduce that write without updating the other half.
+    var cancelled =
+        new PlayerInteractEvent(
+            player, Action.RIGHT_CLICK_BLOCK, null, lower, BlockFace.NORTH, EquipmentSlot.HAND);
+    cancelled.setCancelled(true);
+    Bukkit.getPluginManager().callEvent(cancelled);
+    check(
+        !((Door) lower.getBlockData()).isOpen() && !((Door) upper.getBlockData()).isOpen(),
+        "An already denied click leaves both halves closed: " + materials.get(index));
+    if (materials.get(index) == Material.IRON_DOOR) {
+      for (var half : List.of(lower, upper)) {
+        var direct =
+            new PlayerInteractEvent(
+                player, Action.RIGHT_CLICK_BLOCK, null, half, BlockFace.NORTH, EquipmentSlot.HAND);
+        Bukkit.getPluginManager().callEvent(direct);
+        checkDoorState(false, "An authorized direct click must not open a protected iron door");
+      }
+      verifyDoorMaterials(index + 1);
+      return;
+    }
     click(lower);
-    bottom.setOpen(true);
-    lower.setBlockData(bottom, false);
+    check(
+        ((Door) lower.getBlockData()).isOpen() && ((Door) upper.getBlockData()).isOpen(),
+        "Both halves open before the lower-half click returns: " + materials.get(index));
+    click(upper);
+    check(
+        !((Door) lower.getBlockData()).isOpen() && !((Door) upper.getBlockData()).isOpen(),
+        "Both halves close before the upper-half click returns: " + materials.get(index));
+    verifyDoorMaterials(index + 1);
+  }
+
+  private void verifyProtectedLever() throws Exception {
+    var door = lands.personalProtections().at(ProtectionBlocks.key(lower));
+    var actor = new ProtectionActor(player.getUniqueId(), true, true, true, false);
+    var backing = upper.getRelative(BlockFace.EAST);
+    backing.setType(Material.STONE, false);
+    var lever = backing.getRelative(BlockFace.EAST);
+    var data = (org.bukkit.block.data.type.Switch) Material.LEVER.createBlockData();
+    data.setAttachedFace(org.bukkit.block.data.FaceAttachable.AttachedFace.WALL);
+    data.setFacing(BlockFace.EAST);
+    lever.setBlockData(data, false);
+    toggleLever(lever, true);
+    later(
+        5,
+        () -> {
+          checkDoorState(false, "Unprotected lever cannot open the protected door");
+          toggleLever(lever, false);
+          var leverLock =
+              lands.protect(
+                  actor,
+                  door.landId(),
+                  "LEVER",
+                  List.of(ProtectionBlocks.key(lever)),
+                  Map.of(),
+                  -1);
+          toggleLever(lever, true);
+          later(
+              5,
+              () -> {
+                checkDoorState(
+                    true, "Protected lever opens both iron door halves through its backing block");
+                toggleLever(lever, false);
+                later(
+                    5,
+                    () -> {
+                      checkDoorState(false, "Protected lever closes both halves when switched off");
+                      verifySingleProtectedBreak(
+                          lever,
+                          leverLock,
+                          () -> {
+                            backing.setType(Material.AIR, false);
+                            verifySingleBlockTypes(lever, actor, door.landId(), 0);
+                          });
+                    });
+              });
+        });
+  }
+
+  private void verifySingleBlockTypes(Block block, ProtectionActor actor, UUID land, int index)
+      throws Exception {
+    var materials =
+        List.of(
+            Material.IRON_TRAPDOOR,
+            Material.OAK_FENCE_GATE,
+            Material.STONE_BUTTON,
+            Material.BARREL,
+            Material.SHULKER_BOX);
+    if (index == materials.size()) {
+      verifyStorageResize();
+      return;
+    }
+    var material = materials.get(index);
+    block.setType(material, false);
+    var lock =
+        lands.protect(
+            actor, land, material.name(), List.of(ProtectionBlocks.key(block)), Map.of(), -1);
+    verifySingleProtectedBreak(
+        block, lock, () -> verifySingleBlockTypes(block, actor, land, index + 1));
+  }
+
+  private void verifySingleProtectedBreak(Block block, BlockProtection lock, CheckedStep next) {
+    UUID visitorId = UUID.randomUUID();
+    var handler = Proxy.getInvocationHandler(player);
+    var visitor =
+        (Player)
+            Proxy.newProxyInstance(
+                Player.class.getClassLoader(),
+                new Class<?>[] {Player.class},
+                (proxy, method, args) ->
+                    method.getName().equals("getUniqueId")
+                        ? visitorId
+                        : handler.invoke(proxy, method, args));
+    var foreign = new org.bukkit.event.block.BlockBreakEvent(block, visitor);
+    Bukkit.getPluginManager().callEvent(foreign);
+    check(foreign.isCancelled(), "A visitor cannot break a protected " + lock.material());
+    var deniedBuild = new org.bukkit.event.block.BlockBreakEvent(block, player);
+    deniedBuild.setCancelled(true);
+    Bukkit.getPluginManager().callEvent(deniedBuild);
+    check(
+        deniedBuild.isCancelled() && lands.personalProtections().get(lock.id()) != null,
+        "A denied build action leaves the lock in place: " + lock.material());
+    var ownerBreak = new org.bukkit.event.block.BlockBreakEvent(block, player);
+    Bukkit.getPluginManager().callEvent(ownerBreak);
+    check(!ownerBreak.isCancelled(), "Owner can break their protected " + lock.material());
+    block.setType(Material.AIR, false);
     later(
         10,
         () -> {
           check(
-              ((Door) lower.getBlockData()).isOpen() && ((Door) upper.getBlockData()).isOpen(),
-              "Both halves open after native lower-half click: " + materials.get(index));
-          click(upper);
-          Door upperClosed = (Door) upper.getBlockData();
-          upperClosed.setOpen(false);
-          upper.setBlockData(upperClosed, false);
-          later(
-              10,
-              () -> {
-                check(
-                    !((Door) lower.getBlockData()).isOpen()
-                        && !((Door) upper.getBlockData()).isOpen(),
-                    "Both halves close after native upper-half click: " + materials.get(index));
-                verifyVanillaDoors(index + 1);
-              });
+              lands.personalProtections().get(lock.id()) == null,
+              "Breaking the block automatically removes its lock: " + lock.material());
+          next.run();
         });
+  }
+
+  private void toggleLever(Block lever, boolean powered) {
+    var click =
+        new PlayerInteractEvent(
+            player, Action.RIGHT_CLICK_BLOCK, null, lever, BlockFace.EAST, EquipmentSlot.HAND);
+    Bukkit.getPluginManager().callEvent(click);
+    check(!click.isCancelled(), "Lever click remains available to vanilla");
+    var data = (org.bukkit.block.data.type.Switch) lever.getBlockData();
+    data.setPowered(powered);
+    lever.setBlockData(data, true);
+  }
+
+  private void checkDoorState(boolean open, String message) {
+    check(
+        ((Door) lower.getBlockData()).isOpen() == open
+            && ((Door) upper.getBlockData()).isOpen() == open,
+        message);
   }
 
   private void verifyStorageResize() throws Exception {
@@ -310,10 +421,172 @@ public final class NativeProtectionProbe {
                       check(
                           lands.personalProtections().get(existing.id()) == null,
                           "Breaking the final half removes the lock");
-                      finish(null);
+                      verifyLockedDoorBreak(false);
                     });
               });
         });
+  }
+
+  private void verifyLockedDoorBreak(boolean upperHalf) {
+    var target = upperHalf ? upper : lower;
+    var lock = lands.personalProtections().at(ProtectionBlocks.key(target));
+    UUID visitorId = UUID.randomUUID();
+    var handler = Proxy.getInvocationHandler(player);
+    var visitor =
+        (Player)
+            Proxy.newProxyInstance(
+                Player.class.getClassLoader(),
+                new Class<?>[] {Player.class},
+                (proxy, method, args) ->
+                    method.getName().equals("getUniqueId")
+                        ? visitorId
+                        : handler.invoke(proxy, method, args));
+    var foreignBreak = new org.bukkit.event.block.BlockBreakEvent(target, visitor);
+    Bukkit.getPluginManager().callEvent(foreignBreak);
+    check(foreignBreak.isCancelled(), "A visitor cannot break a protected door");
+    var deniedBuild = new org.bukkit.event.block.BlockBreakEvent(target, player);
+    deniedBuild.setCancelled(true);
+    Bukkit.getPluginManager().callEvent(deniedBuild);
+    check(
+        deniedBuild.isCancelled(), "A cancelled build action remains cancelled for the lock owner");
+    var approved = new org.bukkit.event.block.BlockBreakEvent(target, player);
+    Bukkit.getPluginManager().callEvent(approved);
+    check(!approved.isCancelled(), "The owner can break either half of their protected door");
+    target.setType(Material.AIR, true);
+    later(
+        10,
+        () -> {
+          check(
+              lower.getType().isAir() && upper.getType().isAir(),
+              "Both protected door halves are removed");
+          check(
+              lands.personalProtections().get(lock.id()) == null,
+              "Breaking the door removes its lock");
+          if (upperHalf) {
+            verifyRapidDoorBreak();
+            return;
+          }
+          var bottom = (Door) Material.COPPER_DOOR.createBlockData();
+          bottom.setHalf(Bisected.Half.BOTTOM);
+          lower.setBlockData(bottom, false);
+          var top = (Door) bottom.clone();
+          top.setHalf(Bisected.Half.TOP);
+          upper.setBlockData(top, false);
+          lands.protect(
+              new ProtectionActor(player.getUniqueId(), true, true, true, false),
+              lock.landId(),
+              "COPPER_DOOR",
+              List.of(ProtectionBlocks.key(lower), ProtectionBlocks.key(upper)),
+              Map.of(),
+              -1);
+          verifyLockedDoorBreak(true);
+        });
+  }
+
+  private void verifyRapidDoorBreak() {
+    plugin.getConfig().set("block-protection.auto-protect", false);
+    var releaseWriter = new java.util.concurrent.CountDownLatch(1);
+    service.observe(
+        List.of(),
+        List.of(),
+        () -> {
+          try {
+            releaseWriter.await(5, java.util.concurrent.TimeUnit.SECONDS);
+          } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+          }
+        });
+    try {
+      for (var broken : List.of(lower, upper)) {
+        lower.getRelative(BlockFace.DOWN).setType(Material.STONE, false);
+        var before = lower.getState();
+        var bottom = (Door) Material.COPPER_DOOR.createBlockData();
+        bottom.setHalf(Bisected.Half.BOTTOM);
+        lower.setBlockData(bottom, false);
+        var top = (Door) bottom.clone();
+        top.setHalf(Bisected.Half.TOP);
+        upper.setBlockData(top, false);
+        Bukkit.getPluginManager()
+            .callEvent(
+                new org.bukkit.event.block.BlockPlaceEvent(
+                    lower,
+                    before,
+                    lower.getRelative(BlockFace.DOWN),
+                    new ItemStack(Material.COPPER_DOOR),
+                    player,
+                    true,
+                    EquipmentSlot.HAND));
+        check(service.metadataOnly(ProtectionBlocks.key(broken)), "Door placement is still queued");
+        var breaking = new org.bukkit.event.block.BlockBreakEvent(broken, player);
+        Bukkit.getPluginManager().callEvent(breaking);
+        check(!breaking.isCancelled(), "Ordinary door can be broken while ownership is queued");
+        broken.setType(Material.AIR, true);
+        check(
+            lower.getType().isAir() && upper.getType().isAir(),
+            "Vanilla physics removes both halves when either half is broken");
+      }
+      verifyRapidChestMerge();
+    } finally {
+      releaseWriter.countDown();
+    }
+    later(
+        10,
+        () -> {
+          check(
+              lands.personalProtections().placement(ProtectionBlocks.key(lower)) == null
+                  && lands.personalProtections().placement(ProtectionBlocks.key(upper)) == null,
+              "Rapid door removal clears both placement records");
+          finish(null);
+        });
+  }
+
+  private void verifyRapidChestMerge() {
+    var first = lower;
+    var second = lower.getRelative(BlockFace.EAST);
+    for (var material : List.of(Material.CHEST, Material.COPPER_CHEST)) {
+      var firstBefore = first.getState();
+      var secondBefore = second.getState();
+      var single = (org.bukkit.block.data.type.Chest) material.createBlockData();
+      single.setFacing(BlockFace.NORTH);
+      first.setBlockData(single, false);
+      check(
+          !chestPlacement(first, firstBefore, material).isCancelled(), "First chest can be placed");
+      check(
+          service.metadataOnly(ProtectionBlocks.key(first)),
+          "First chest placement is still queued");
+      var paired = (org.bukkit.block.data.type.Chest) single.clone();
+      paired.setType(org.bukkit.block.data.type.Chest.Type.RIGHT);
+      second.setBlockData(paired, false);
+      check(
+          !chestPlacement(second, secondBefore, material).isCancelled(),
+          "Second chest can join while ownership is being recorded");
+      second.setType(Material.AIR, false);
+      second.setBlockData(paired, true);
+      check(
+          first.getState() instanceof org.bukkit.block.Chest joined
+              && joined.getInventory().getSize() == 54,
+          "Vanilla joins both inventories while ownership is queued: " + material);
+      for (var chest : List.of(first, second)) {
+        Bukkit.getPluginManager()
+            .callEvent(new org.bukkit.event.block.BlockBreakEvent(chest, player));
+        chest.setType(Material.AIR, true);
+      }
+    }
+  }
+
+  private org.bukkit.event.block.BlockPlaceEvent chestPlacement(
+      Block block, BlockState before, Material material) {
+    var event =
+        new org.bukkit.event.block.BlockPlaceEvent(
+            block,
+            before,
+            block.getRelative(BlockFace.DOWN),
+            new ItemStack(material),
+            player,
+            true,
+            EquipmentSlot.HAND);
+    Bukkit.getPluginManager().callEvent(event);
+    return event;
   }
 
   private void verifyOwnedHopper(LandManager lands, UUID land, UUID owner) throws Exception {
@@ -456,16 +729,14 @@ public final class NativeProtectionProbe {
         });
   }
 
-  private void click() {
-    click(lower);
-  }
-
   private void click(Block target) {
     var event =
         new PlayerInteractEvent(
             player, Action.RIGHT_CLICK_BLOCK, null, target, BlockFace.NORTH, EquipmentSlot.HAND);
     Bukkit.getPluginManager().callEvent(event);
-    check(!event.isCancelled(), "Authorized click not denied");
+    check(
+        event.useInteractedBlock() == org.bukkit.event.Event.Result.DENY,
+        "Handled click suppresses the second vanilla toggle");
   }
 
   @FunctionalInterface

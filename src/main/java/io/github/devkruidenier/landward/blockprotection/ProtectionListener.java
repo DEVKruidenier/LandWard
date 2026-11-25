@@ -20,6 +20,10 @@ public final class ProtectionListener implements Listener {
   private final LandWardPlugin plugin;
   private final LandManager lands;
   private final ProtectionService service;
+  private final Map<BlockKey, DoorBreak> doorBreaks =
+      new java.util.concurrent.ConcurrentHashMap<>();
+
+  private record DoorBreak(BlockBreakEvent event, BlockProtection lock) {}
 
   public ProtectionListener(LandWardPlugin plugin, LandManager lands, ProtectionService service) {
     this.plugin = plugin;
@@ -62,68 +66,166 @@ public final class ProtectionListener implements Listener {
     }
   }
 
-  /**
-   * Physics protection prevents vanilla from updating the partner half of a door. Synchronize
-   * permitted wooden/copper clicks after vanilla, and operate iron doors directly.
-   */
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  /** Update a protected door as one operation on its owning region. */
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void protectedDoor(PlayerInteractEvent e) {
+    var clicked = e.getClickedBlock();
     if (e.getHand() != EquipmentSlot.HAND
         || e.getAction() != Action.RIGHT_CLICK_BLOCK
-        || e.getClickedBlock() == null
-        || !(e.getClickedBlock().getBlockData() instanceof Door)
-        || !mechanical(e.getClickedBlock())) return;
-    var p = e.getPlayer();
-    var key = ProtectionBlocks.key(e.getClickedBlock());
+        || clicked == null
+        || !plugin.scheduler().ownsBlock(clicked)
+        || clicked.getType() == Material.IRON_DOOR
+        || !(clicked.getBlockData() instanceof Door door)
+        || !service.enabled()) return;
+
+    var key = ProtectionBlocks.key(clicked);
+    var lock = lands.personalProtections().at(key);
+    if (lock == null || !lock.material().equals(clicked.getType().name())) return;
+    var player = e.getPlayer();
+    if (player.isSneaking()
+        && (e.hasItem() || !player.getInventory().getItemInOffHand().getType().isAir())
+        && e.useInteractedBlock() != Event.Result.ALLOW) return;
+
+    if (!canUseDoor(player, lock)) return;
+    if (setDoor(clicked, door, lock, !door.isOpen(), player)) {
+      e.setUseInteractedBlock(Event.Result.DENY);
+      e.setUseItemInHand(Event.Result.DENY);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void protectedLever(PlayerInteractEvent event) {
+    var lever = event.getClickedBlock();
+    if (event.getAction() != Action.RIGHT_CLICK_BLOCK
+        || lever == null
+        || !service.enabled()
+        || !plugin.scheduler().ownsBlock(lever)
+        || lever.getType() != Material.LEVER
+        || !(lever.getBlockData() instanceof org.bukkit.block.data.type.Switch before)) return;
+    var key = ProtectionBlocks.key(lever);
+    var lock = lands.personalProtections().at(key);
+    var player = event.getPlayer();
+    if (lock == null || !lock.material().equals("LEVER") || service.denied(player, key)) return;
+
+    // Vanilla toggles the lever after this event. Check the actual outcome before using it.
     plugin
         .scheduler()
         .player(
-            p,
+            player,
             () -> {
-              if (e.isCancelled()
+              if (event.isCancelled()
                   || !service.enabled()
-                  || service.denied(p, key)
-                  || !p.getWorld().getUID().equals(key.world())
-                  || p.getLocation()
-                          .distanceSquared(
-                              new Location(p.getWorld(), key.x() + .5, key.y() + .5, key.z() + .5))
-                      > 64) return;
-              var land = lands.landAt(key.chunk()).orElse(null);
-              if (land == null
-                  || !(plugin.adminBypasses().isEnabled(p.getUniqueId())
-                      || land.ownerId().equals(p.getUniqueId())
-                      || lands.personalMember(land.id(), p.getUniqueId())
-                          && land.protectionSettings().doors())) return;
-              var lock = lands.personalProtections().at(key);
-              if (lock == null) return;
-              plugin
-                  .scheduler()
-                  .atChunk(
-                      p.getWorld(),
-                      key.x() >> 4,
-                      key.z() >> 4,
-                      () -> {
-                        if (e.isCancelled()
-                            || !service.enabled()
-                            || lands.personalProtections().get(lock.id()) == null) return false;
-                        var world = Bukkit.getWorld(key.world());
-                        if (world == null) return false;
-                        var clicked = world.getBlockAt(key.x(), key.y(), key.z());
-                        if (!(clicked.getBlockData() instanceof Door d)
-                            || !clicked.getType().name().equals(lock.material())) return false;
-                        boolean open =
-                            clicked.getType() == Material.IRON_DOOR ? !d.isOpen() : d.isOpen();
-                        for (var b : lock.blocks()) {
-                          var block = world.getBlockAt(b.x(), b.y(), b.z());
-                          if (block.getBlockData() instanceof Door data) {
-                            data.setOpen(open);
-                            data.setPowered(false);
-                            block.setBlockData(data, false);
-                          }
-                        }
-                        return true;
-                      });
+                  || !plugin.scheduler().ownsBlock(lever)
+                  || lever.getType() != Material.LEVER
+                  || !lock.equals(lands.personalProtections().at(key))
+                  || service.denied(player, key)
+                  || !(lever.getBlockData() instanceof org.bukkit.block.data.type.Switch current)
+                  || current.isPowered() == before.isPowered()
+                  || current.getAttachedFace() != before.getAttachedFace()
+                  || current.getFacing() != before.getFacing()) return;
+              var backing = lever.getRelative(supportFace(current));
+              var targets = new LinkedHashSet<Block>();
+              for (var face : DIRECT_NEIGHBORS) targets.add(lever.getRelative(face));
+              if (plugin.scheduler().ownsBlock(backing) && backing.getType().isOccluding()) {
+                for (var face : DIRECT_NEIGHBORS) targets.add(backing.getRelative(face));
+              }
+              for (var target : targets) {
+                if (!plugin.scheduler().ownsBlock(target)) continue;
+                var doorLock = lands.personalProtections().at(ProtectionBlocks.key(target));
+                if (doorLock != null
+                    && doorLock.owner().equals(lock.owner())
+                    && doorLock.landId().equals(lock.landId())
+                    && canUseDoor(player, doorLock)
+                    && target.getBlockData() instanceof Door door
+                    && doorLock.material().equals(target.getType().name())) {
+                  setDoor(target, door, doorLock, current.isPowered(), player);
+                }
+              }
             });
+  }
+
+  private static final List<BlockFace> DIRECT_NEIGHBORS =
+      List.of(
+          BlockFace.UP,
+          BlockFace.DOWN,
+          BlockFace.NORTH,
+          BlockFace.SOUTH,
+          BlockFace.EAST,
+          BlockFace.WEST);
+
+  private static BlockFace supportFace(org.bukkit.block.data.type.Switch control) {
+    return switch (control.getAttachedFace()) {
+      case FLOOR -> BlockFace.DOWN;
+      case CEILING -> BlockFace.UP;
+      case WALL -> control.getFacing().getOppositeFace();
+    };
+  }
+
+  private boolean canUseDoor(Player player, BlockProtection lock) {
+    if (lock.blocks().stream().anyMatch(b -> service.denied(player, b))) return false;
+    var land = lands.landAt(lock.blocks().getFirst().chunk()).orElse(null);
+    return land != null
+        && land.id().equals(lock.landId())
+        && (plugin.adminBypasses().isEnabled(player.getUniqueId())
+            || land.ownerId().equals(player.getUniqueId())
+            || lands.personalMember(land.id(), player.getUniqueId())
+                && land.protectionSettings().doors());
+  }
+
+  private boolean setDoor(
+      Block clicked, Door door, BlockProtection lock, boolean open, Player player) {
+    var partner =
+        clicked.getRelative(door.getHalf() == Bisected.Half.TOP ? BlockFace.DOWN : BlockFace.UP);
+    if (!lock.blocks().contains(ProtectionBlocks.key(partner))
+        || partner.getType() != clicked.getType()
+        || !(partner.getBlockData() instanceof Door otherHalf)
+        || otherHalf.getHalf() == door.getHalf()
+        || otherHalf.getFacing() != door.getFacing()
+        || otherHalf.getHinge() != door.getHinge()) return false;
+    if (door.isOpen() == open && otherHalf.isOpen() == open) return true;
+    door.setOpen(open);
+    otherHalf.setOpen(open);
+    door.setPowered(false);
+    otherHalf.setPowered(false);
+    clicked.setBlockData(door, false);
+    partner.setBlockData(otherHalf, false);
+    var world = clicked.getWorld();
+    var location = clicked.getLocation().add(.5, .5, .5);
+    world.playSound(location, doorSound(clicked.getType(), open), SoundCategory.BLOCKS, 1, 1);
+    if (CAN_SEND_GAME_EVENT) {
+      world.sendGameEvent(
+          Bukkit.getPlayer(player.getUniqueId()),
+          open ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE,
+          location.toVector());
+    }
+    return true;
+  }
+
+  private static final boolean CAN_SEND_GAME_EVENT = canSendGameEvent();
+
+  private static boolean canSendGameEvent() {
+    try {
+      World.class.getMethod(
+          "sendGameEvent",
+          org.bukkit.entity.Entity.class,
+          GameEvent.class,
+          org.bukkit.util.Vector.class);
+      return true;
+    } catch (NoSuchMethodException ignored) {
+      return false;
+    }
+  }
+
+  private static String doorSound(Material material, boolean open) {
+    String family =
+        switch (material) {
+          case IRON_DOOR -> "iron";
+          case BAMBOO_DOOR -> "bamboo_wood";
+          case CHERRY_DOOR -> "cherry_wood";
+          case CRIMSON_DOOR, WARPED_DOOR -> "nether_wood";
+          default -> material.name().endsWith("COPPER_DOOR") ? "copper" : "wooden";
+        };
+    return "minecraft:block." + family + "_door." + (open ? "open" : "close");
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -165,23 +267,29 @@ public final class ProtectionListener implements Listener {
             && (network.owner().equals(e.getPlayer().getUniqueId())
                 || e.getPlayer().hasPermission("landward.admin.protection.bypass"));
     var lock = lands.personalProtections().at(key);
-    boolean ownStorage =
-        lock != null
-            && lock.storage()
-            && lock.owner().equals(e.getPlayer().getUniqueId())
-            && service.actor(e.getPlayer()).own()
-            && lands.personalMember(lock.landId(), e.getPlayer().getUniqueId())
-            && lock.blocks().stream().noneMatch(service::uncertain);
-    if (mechanical(e.getBlock()) && !ownHopper && !ownStorage || nearSupportedLock(e.getBlock())) {
+    boolean ownBlock = canBreakOwnLock(e, lock);
+    if (mechanical(e.getBlock()) && !ownHopper && !ownBlock && !ordinaryPairedBlock(e.getBlock())
+        || nearSupportedLock(e.getBlock())) {
       e.setCancelled(true);
       service.tell(e.getPlayer(), "locked");
     }
+  }
+
+  private boolean canBreakOwnLock(BlockBreakEvent event, BlockProtection lock) {
+    if (lock == null || !lock.material().equals(event.getBlock().getType().name())) return false;
+    var player = event.getPlayer();
+    return ProtectionBlocks.supported(event.getBlock().getType())
+        && lock.owner().equals(player.getUniqueId())
+        && service.actor(player).own()
+        && lands.personalMember(lock.landId(), player.getUniqueId())
+        && lock.blocks().stream().noneMatch(service::uncertain);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void place(BlockPlaceEvent e) {
     if (service.enabled()
         && mechanical(e.getBlockPlaced())
+        && !ordinaryPairedBlock(e.getBlockPlaced())
         && !canExtend(e.getPlayer(), e.getBlockPlaced(), mergedLock(e.getBlockPlaced()))) {
       e.setCancelled(true);
       service.tell(e.getPlayer(), "locked");
@@ -276,6 +384,7 @@ public final class ProtectionListener implements Listener {
         && actor.create())
       service.automatic(
           p, actor, land.id(), b.getType().name(), ProtectionBlocks.part(b).unit(), data);
+    else if (isPairedBlock(b)) service.observePairedBlock(data, List.of());
     else service.observe(data, List.of(), null);
   }
 
@@ -284,6 +393,10 @@ public final class ProtectionListener implements Listener {
     var b = e.getBlock();
     var key = ProtectionBlocks.key(b);
     var p = lands.personalProtections().at(key);
+    if (service.enabled() && p != null && b.getBlockData() instanceof Door) {
+      if (canBreakOwnLock(e, p)) completeDoorBreak(e, p);
+      return;
+    }
     if (service.enabled()
         && p != null
         && p.storage()
@@ -301,8 +414,49 @@ public final class ProtectionListener implements Listener {
               key.x(),
               key.y() + (d.getHalf() == Bisected.Half.TOP ? -1 : 1),
               key.z()));
-    if (p != null || lands.personalProtections().placement(key) != null)
-      service.observe(List.of(), keys, null);
+    if (p != null
+        || keys.stream()
+            .anyMatch(
+                k -> lands.personalProtections().placement(k) != null || service.metadataOnly(k))) {
+      if (p == null && isPairedBlock(b)) service.observePairedBlock(List.of(), keys);
+      else service.observe(List.of(), keys, null);
+    }
+  }
+
+  private void completeDoorBreak(BlockBreakEvent event, BlockProtection lock) {
+    var block = event.getBlock();
+    var key = ProtectionBlocks.key(block);
+    var unit = Set.copyOf(ProtectionBlocks.part(block).unit());
+    if (!unit.equals(Set.copyOf(lock.blocks()))) return;
+
+    // Keep the lock until vanilla has actually removed the door, but let this one approved
+    // break propagate to the other half so vanilla handles the drops.
+    var approved = new DoorBreak(event, lock);
+    unit.forEach(part -> doorBreaks.put(part, approved));
+    plugin
+        .scheduler()
+        .atChunk(
+            block.getWorld(),
+            key.x() >> 4,
+            key.z() >> 4,
+            () -> {
+              if (event.isCancelled()
+                  || block.getType().name().equals(lock.material())
+                  || lands.personalProtections().get(lock.id()) == null) return false;
+              for (var part : unit) {
+                if (part.equals(key)) continue;
+                var other = block.getWorld().getBlockAt(part.x(), part.y(), part.z());
+                if (other.getType().name().equals(lock.material())
+                    && Set.copyOf(ProtectionBlocks.part(other).unit()).equals(unit)) {
+                  // Some servers suppress the neighbour update. This half must not drop a second
+                  // item.
+                  other.setType(Material.AIR, false);
+                }
+              }
+              service.observe(List.of(), lock.blocks(), null);
+              return true;
+            })
+        .whenComplete((result, error) -> unit.forEach(part -> doorBreaks.remove(part, approved)));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -441,8 +595,39 @@ public final class ProtectionListener implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void physics(BlockPhysicsEvent e) {
-    if (mechanical(e.getBlock()) && e.getBlock().getType() != Material.HOPPER
-        || nearSupportedLock(e.getBlock())) e.setCancelled(true);
+    var block = e.getBlock();
+    var key = ProtectionBlocks.key(block);
+    var doorBreak = doorBreaks.get(key);
+    var lock = lands.personalProtections().at(key);
+    boolean approvedDoorRemoval =
+        doorBreak != null
+            && !doorBreak.event().isCancelled()
+            && lock != null
+            && doorBreak.lock().id().equals(lock.id());
+    boolean ordinaryRemoval =
+        block.getType().isAir()
+            && service.metadataOnly(key)
+            && lands.personalProtections().at(key) == null;
+    if ((mechanical(block)
+            && block.getType() != Material.HOPPER
+            && !approvedDoorRemoval
+            && !ordinaryRemoval
+            && !ordinaryPairedBlock(block))
+        || nearSupportedLock(block)) e.setCancelled(true);
+  }
+
+  private static boolean isPairedBlock(Block block) {
+    var data = block.getBlockData();
+    return data instanceof Door || data instanceof org.bukkit.block.data.type.Chest;
+  }
+
+  private boolean ordinaryPairedBlock(Block block) {
+    return plugin.scheduler().ownsBlock(block)
+        && isPairedBlock(block)
+        && ProtectionBlocks.part(block).unit().stream()
+            .allMatch(key ->
+                lands.personalProtections().at(key) == null
+                    && (!service.uncertain(key) || service.metadataOnly(key)));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -577,7 +762,9 @@ public final class ProtectionListener implements Listener {
         new BlockKey(
             support.getWorld().getUID(), support.getX(), support.getY() + 1, support.getZ());
     var p = lands.personalProtections().at(above);
-    if (p != null && p.material().endsWith("_DOOR")) return true;
+    if (p != null
+        && p.material().endsWith("_DOOR")
+        && !p.blocks().contains(ProtectionBlocks.key(support))) return true;
     for (var face :
         List.of(
             BlockFace.UP,

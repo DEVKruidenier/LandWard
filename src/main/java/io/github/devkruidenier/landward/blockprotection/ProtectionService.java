@@ -14,6 +14,7 @@ public final class ProtectionService implements AutoCloseable {
   private final LandManager lands;
   private final ThreadPoolExecutor writer;
   private final Map<BlockKey, UUID> uncertain = new ConcurrentHashMap<>();
+  private final Map<BlockKey, UUID> metadataWrites = new ConcurrentHashMap<>();
   private final Object markers = new Object();
   private volatile boolean closed;
   private volatile AutomationOwnership.Snapshot automation =
@@ -77,6 +78,15 @@ public final class ProtectionService implements AutoCloseable {
   }
 
   public record AutomationState(UUID owner, boolean uncertain) {}
+
+  /** Routine ownership bookkeeping can hold up lock creation without stopping vanilla physics. */
+  public boolean metadataOnly(BlockKey key) {
+    var marker = metadataWrites.get(key);
+    return marker != null
+        && marker.equals(uncertain.get(key))
+        && !storageUnavailable
+        && !quarantineUnavailable;
+  }
 
   public AutomationState automation(BlockKey key) {
     var placement = lands.personalProtections().placement(key);
@@ -326,11 +336,27 @@ public final class ProtectionService implements AutoCloseable {
 
   /** Pending/failed persistence never turns a known lock into an unprotected replacement. */
   public void observe(List<BlockPlacement> placements, List<BlockKey> removed, Runnable committed) {
+    observe(placements, removed, committed, false);
+  }
+
+  void observePairedBlock(List<BlockPlacement> placements, List<BlockKey> removed) {
+    observe(placements, removed, null, true);
+  }
+
+  private void observe(
+      List<BlockPlacement> placements,
+      List<BlockKey> removed,
+      Runnable committed,
+      boolean pairedBlockMetadata) {
     var keys = new HashSet<>(removed);
     placements.forEach(p -> keys.add(p.position()));
     UUID marker = UUID.randomUUID();
     synchronized (markers) {
-      keys.forEach(k -> uncertain.put(k, marker));
+      for (var key : keys) {
+        if (pairedBlockMetadata && (!uncertain(key) || metadataOnly(key)))
+          metadataWrites.put(key, marker);
+        uncertain.put(key, marker);
+      }
     }
     try {
       writer.execute(() -> {
@@ -349,10 +375,13 @@ public final class ProtectionService implements AutoCloseable {
                       + keys
                       + "; locations remain quarantined across restarts until verified recovery",
                   e);
+        } finally {
+          keys.forEach(k -> metadataWrites.remove(k, marker));
         }
       });
     } catch (RejectedExecutionException e) {
       failed(keys);
+      keys.forEach(k -> metadataWrites.remove(k, marker));
       plugin
           .getLogger()
           .severe("Personal protection writer is full; locations quarantined: " + keys);

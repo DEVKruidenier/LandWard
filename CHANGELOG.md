@@ -4,6 +4,37 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+### Changed — 1.0.6.0-beta9 (development preview)
+
+- Let owners with build rights break any block they personally protected. The lock is
+  removed automatically when the last block of the protected unit is broken.
+
+### Changed — 1.0.6.0-beta8 (development preview)
+
+- Allow personal owners to break their protected doors when they have build rights.
+  Both door halves and their shared lock are removed.
+
+### Fixed — 1.0.6.0-beta7 (development preview)
+
+- Let ordinary chests form a double chest while placement ownership is being recorded.
+
+### Fixed — 1.0.6.0-beta6 (development preview)
+
+- Remove both halves of ordinary doors when broken immediately after placement.
+
+### Fixed — 1.0.6.0-beta5 (development preview)
+
+- Keep protected iron doors redstone-operated. Direct clicks do not open them.
+
+### Fixed — 1.0.6.0-beta4 (development preview)
+
+- Allow a protected lever to operate a nearby protected door owned by the same player
+  in the same land, when the user can operate both blocks.
+
+### Fixed — 1.0.6.0-beta3 (development preview)
+
+- Open and close both halves of protected doors within the same click, without a delayed update.
+
 ### Changed / Fixed — 1.0.6.0-beta2 (development preview)
 
 - Keep both protected door halves synchronized when a permitted player opens or closes them.
