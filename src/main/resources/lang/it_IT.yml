@@ -386,7 +386,7 @@ block-protection:
   created: "creazione della protezione privata."
   updated: "Protezione personale aggiornata."
   removed: "Protezione personale rimossa."
-  locked: "questo blocco ha protezione personale. Rimuovere il blocco tramite la sua GUI prima di romperlo."
+  locked: "questo blocco ha protezione personale."
   disabled: "la protezione del blocco personale è disabilitata."
   storage-error: "Impossibile salvare la protezione in modo sicuro. Controlla il registro del server."
   leave: "Lascia il territorio"

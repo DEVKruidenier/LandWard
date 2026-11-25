@@ -19,11 +19,14 @@ public final class ProtectionBlocks {
   public static boolean supported(Material m) {
     return m == Material.CHEST
         || m == Material.TRAPPED_CHEST
+        || Tag.COPPER_CHESTS.isTagged(m)
         || m == Material.BARREL
         || Tag.SHULKER_BOXES.isTagged(m)
         || Tag.DOORS.isTagged(m)
         || Tag.TRAPDOORS.isTagged(m)
-        || Tag.FENCE_GATES.isTagged(m);
+        || Tag.FENCE_GATES.isTagged(m)
+        || m == Material.LEVER
+        || Tag.BUTTONS.isTagged(m);
   }
 
   public record Part(BlockKey key, String material, List<BlockKey> unit, String shape) {}

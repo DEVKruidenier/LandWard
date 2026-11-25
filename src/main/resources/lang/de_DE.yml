@@ -386,7 +386,7 @@ block-protection:
   created: "Privatschutz erstellt."
   updated: "Personenschutz aktualisiert."
   removed: "Personenschutz entfernt."
-  locked: "Dieser Block verfügt über Personenschutz. Entfernen Sie das Schloss über die grafische Benutzeroberfläche, bevor Sie es aufbrechen."
+  locked: "Dieser Block verfügt über Personenschutz."
   disabled: "Persönlicher Blockschutz ist deaktiviert."
   storage-error: "Der Schutz konnte nicht sicher gespeichert werden. Überprüfen Sie das Serverprotokoll."
   leave: "Gebiet verlassen"

@@ -387,7 +387,7 @@ block-protection:
   created: "Private protection created."
   updated: "Personal protection updated."
   removed: "Personal protection removed."
-  locked: "This block has personal protection. Remove the lock through its GUI before breaking it."
+  locked: "This block has personal protection."
   disabled: "Personal block protection is disabled."
   storage-error: "Protection could not be saved safely. Check the server log."
   leave: "Leave land"

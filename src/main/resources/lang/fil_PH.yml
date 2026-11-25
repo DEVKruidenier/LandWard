@@ -386,7 +386,7 @@ block-protection:
   created: "Nagawa ang pribadong proteksyon."
   updated: "Na-update ang personal na proteksyon."
   removed: "Inalis ang personal na proteksyon."
-  locked: "Ang block na ito ay may personal na proteksyon. Alisin ang lock sa pamamagitan ng GUI nito bago ito sirain."
+  locked: "Ang block na ito ay may personal na proteksyon."
   disabled: "Ang proteksyon ng personal na block ay hindi pinagana."
   storage-error: "Hindi mai-save nang ligtas ang proteksyon. Suriin ang log ng server."
   leave: "Umalis sa teritoryo"

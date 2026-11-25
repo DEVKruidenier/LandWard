@@ -54,6 +54,68 @@ class PersonalProtectionTest {
   }
 
   @Test
+  void extendingAndBreakingOwnChestPreservesSharingAndSurvivesRestart() throws Exception {
+    var original = lock(member, 1);
+    lands.sharePersonal(actor(member), original.id(), original.revision(), Set.of(shared));
+    original = lands.personalProtections().get(original.id());
+    var placed = new BlockPlacement(key(2), land.id(), member, "CHEST", UUID.randomUUID());
+    var expanded =
+        lands.extendPersonalChest(actor(member), original.id(), original.revision(), placed);
+    assertEquals(original.id(), expanded.id());
+    assertEquals(Set.of(shared), expanded.shared());
+    assertEquals(Set.of(key(1), key(2)), Set.copyOf(expanded.blocks()));
+    lands.load();
+    assertEquals(expanded, lands.personalProtections().at(key(2)));
+    var single =
+        lands.breakPersonalStorage(actor(member), expanded.id(), expanded.revision(), key(1));
+    assertEquals(List.of(key(2)), single.blocks());
+    assertEquals(Set.of(shared), single.shared());
+    lands.load();
+    assertNull(lands.personalProtections().at(key(1)));
+    assertNull(lands.personalProtections().placement(key(1)));
+    assertEquals(single, lands.personalProtections().at(key(2)));
+    assertEquals(placed, lands.personalProtections().placement(key(2)));
+    assertNull(lands.breakPersonalStorage(actor(member), single.id(), single.revision(), key(2)));
+    lands.load();
+    assertTrue(lands.personalProtections().all().isEmpty());
+  }
+
+  @Test
+  void sharedMembersAndLandOwnerCannotExpandOrBreakAnotherOwnersChest() throws Exception {
+    var original = lock(member, 1);
+    lands.sharePersonal(actor(member), original.id(), original.revision(), Set.of(shared));
+    var current = lands.personalProtections().get(original.id());
+    for (var other : List.of(shared, owner)) {
+      var placed = new BlockPlacement(key(2), land.id(), other, "CHEST", UUID.randomUUID());
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> lands.extendPersonalChest(actor(other), current.id(), current.revision(), placed));
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> lands.breakPersonalStorage(actor(other), current.id(), current.revision(), key(1)));
+    }
+    assertEquals(current, lands.personalProtections().at(key(1)));
+    assertNull(lands.personalProtections().at(key(2)));
+  }
+
+  @Test
+  void chestExpansionRejectsWrongMaterialNonAdjacentAndUnclaimedPositions() throws Exception {
+    var original = lock(member, 1);
+    for (var placed :
+        List.of(
+            new BlockPlacement(key(2), land.id(), member, "TRAPPED_CHEST", UUID.randomUUID()),
+            new BlockPlacement(key(3), land.id(), member, "CHEST", UUID.randomUUID()),
+            new BlockPlacement(key(16), land.id(), member, "CHEST", UUID.randomUUID()))) {
+      assertThrows(
+          IllegalArgumentException.class,
+          () ->
+              lands.extendPersonalChest(actor(member), original.id(), original.revision(), placed));
+    }
+    lands.load();
+    assertEquals(original, lands.personalProtections().at(key(1)));
+  }
+
+  @Test
   void landOwnerCanClaimUnknownLegacyBlocksButMembersCannot() throws Exception {
     assertThrows(
         IllegalArgumentException.class,

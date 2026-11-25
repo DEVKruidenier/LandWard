@@ -67,8 +67,12 @@ public final class ProtectionSelectionManager implements Listener {
       return;
     }
     if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) return;
+    // One block attempt consumes the selection, including an invalid target. Otherwise the
+    // next ordinary placement is intercepted and repeatedly reports the same selection error.
+    if (!pending.remove(p.getUniqueId(), selected)) return;
     if (e.useInteractedBlock() == Event.Result.DENY) {
       service.tell(p, "denied");
+      service.tell(p, "cancelled");
       return;
     }
     e.setCancelled(true);
@@ -76,11 +80,13 @@ public final class ProtectionSelectionManager implements Listener {
         || !service.actor(p).create()
         || !plugin.isLandWorld(p.getWorld())) {
       service.tell(p, "denied");
+      service.tell(p, "cancelled");
       return;
     }
     var b = e.getClickedBlock();
     if (!ProtectionBlocks.supported(b.getType())) {
       service.tell(p, "unsupported");
+      service.tell(p, "cancelled");
       return;
     }
     if (!lands
@@ -88,9 +94,9 @@ public final class ProtectionSelectionManager implements Listener {
         .map(l -> l.id().equals(selected.land()))
         .orElse(false)) {
       service.tell(p, "outside");
+      service.tell(p, "cancelled");
       return;
     }
-    pending.remove(p.getUniqueId());
     service
         .inspect(selected.land(), ProtectionBlocks.key(b))
         .whenComplete((snapshot, error) ->

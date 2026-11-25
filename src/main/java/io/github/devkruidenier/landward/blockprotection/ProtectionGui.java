@@ -197,7 +197,7 @@ public final class ProtectionGui implements Listener {
             || service.actor(p).adminManage();
     if (edits) {
       actions.add(() -> {
-        if (lock == null) service.create(p, selected, saved -> settings(p, selected));
+        if (lock == null) service.create(p, selected, saved -> p.closeInventory());
         else {
           var a = service.actor(p);
           service.submit(
@@ -205,7 +205,7 @@ public final class ProtectionGui implements Listener {
               () -> lands.sharePersonal(a, lock.id(), lock.revision(), Set.of()),
               () -> {
                 service.tell(p, "updated");
-                settings(p, selected);
+                p.closeInventory();
               });
         }
       });

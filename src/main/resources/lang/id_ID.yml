@@ -386,7 +386,7 @@ block-protection:
   created: "Perlindungan pribadi dibuat."
   updated: "Perlindungan pribadi diperbarui."
   removed: "Perlindungan pribadi dihapus."
-  locked: "Blok ini memiliki perlindungan pribadi. Hapus kunci melalui GUI-nya sebelum memecahkannya."
+  locked: "Blok ini memiliki perlindungan pribadi."
   disabled: "Perlindungan blok pribadi dinonaktifkan."
   storage-error: "Perlindungan tidak dapat disimpan dengan aman. Periksa log server."
   leave: "Tinggalkan wilayah"

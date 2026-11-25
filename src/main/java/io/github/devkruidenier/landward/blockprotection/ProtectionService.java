@@ -430,6 +430,99 @@ public final class ProtectionService implements AutoCloseable {
     }
   }
 
+  public void expandChest(
+      ProtectionActor actor,
+      BlockProtection lock,
+      BlockPlacement placed,
+      org.bukkit.block.data.type.Chest shape) {
+    var unit = new ArrayList<>(lock.blocks());
+    unit.add(placed.position());
+    resizeStorage(
+        unit,
+        () -> lands.extendPersonalChest(actor, lock.id(), lock.revision(), placed),
+        saved -> refreshChest(saved, placed.position(), shape));
+  }
+
+  public void breakStorage(ProtectionActor actor, BlockProtection lock, BlockKey destroyed) {
+    resizeStorage(
+        lock.blocks(),
+        () -> lands.breakPersonalStorage(actor, lock.id(), lock.revision(), destroyed),
+        saved -> refreshChest(saved, null, null));
+  }
+
+  /** Reserve both halves before returning to vanilla; commit ownership and shape together. */
+  private void resizeStorage(
+      List<BlockKey> unit, Callable<BlockProtection> change, Consumer<BlockProtection> refresh) {
+    UUID marker = UUID.randomUUID();
+    synchronized (markers) {
+      unit.forEach(b -> uncertain.put(b, marker));
+    }
+    try {
+      writer.execute(() -> {
+        try {
+          if (unit.stream().anyMatch(b -> !marker.equals(uncertain.get(b))))
+            throw new IllegalArgumentException("changed");
+          var saved = change.call();
+          refresh.accept(saved);
+          resolved(unit, marker);
+        } catch (Exception failure) {
+          failed(unit);
+          plugin
+              .getLogger()
+              .log(
+                  java.util.logging.Level.SEVERE,
+                  "Cannot safely resize personal storage protection at "
+                      + unit
+                      + "; locations remain quarantined",
+                  failure);
+        }
+      });
+    } catch (RejectedExecutionException failure) {
+      failed(unit);
+      plugin
+          .getLogger()
+          .log(
+              java.util.logging.Level.SEVERE,
+              "Personal storage resize queue is full at " + unit,
+              failure);
+    }
+  }
+
+  private void refreshChest(
+      BlockProtection saved, BlockKey placed, org.bukkit.block.data.type.Chest shape) {
+    if (saved == null) return;
+    for (var key : saved.blocks()) {
+      var world = Bukkit.getWorld(key.world());
+      if (world == null) continue;
+      plugin
+          .scheduler()
+          .atChunk(
+              world,
+              key.x() >> 4,
+              key.z() >> 4,
+              () -> {
+                var current = lands.personalProtections().get(saved.id());
+                if (current == null || current.revision() != saved.revision()) return false;
+                var block = world.getBlockAt(key.x(), key.y(), key.z());
+                if (!block.getType().name().equals(saved.material())
+                    || !(block.getBlockData() instanceof org.bukkit.block.data.type.Chest chest))
+                  return false;
+                if (saved.blocks().size() == 1)
+                  chest.setType(org.bukkit.block.data.type.Chest.Type.SINGLE);
+                else {
+                  chest.setFacing(shape.getFacing());
+                  var opposite =
+                      shape.getType() == org.bukkit.block.data.type.Chest.Type.LEFT
+                          ? org.bukkit.block.data.type.Chest.Type.RIGHT
+                          : org.bukkit.block.data.type.Chest.Type.LEFT;
+                  chest.setType(key.equals(placed) ? shape.getType() : opposite);
+                }
+                block.setBlockData(chest, false);
+                return true;
+              });
+    }
+  }
+
   public void create(Player p, Selection selected, Consumer<BlockProtection> success) {
     inspect(selected.land(), selected.blocks().getFirst())
         .whenComplete((now, error) ->

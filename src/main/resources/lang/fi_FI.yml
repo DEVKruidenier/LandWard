@@ -386,7 +386,7 @@ block-protection:
   created: "Yksityinen suojaus luotu."
   updated: "Henkilösuojaus päivitetty."
   removed: "Henkilösuojaimet poistettu."
-  locked: "Tässä lohkossa on henkilökohtainen suojaus. Poista lukko sen graafisen käyttöliittymän kautta ennen sen rikkomista."
+  locked: "Tässä lohkossa on henkilökohtainen suojaus."
   disabled: "Henkilökohtainen suojaus on poistettu käytöstä."
   storage-error: "Suojausta ei voitu tallentaa turvallisesti. Tarkista palvelimen loki."
   leave: "Poistu alueelta"

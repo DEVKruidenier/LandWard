@@ -19,7 +19,15 @@ economies.
 - Want your server listed here? Join **play.martialcraft.nl** and use
   `/mail send Kruidenier <yourServerIP>`.
 
-**Supported servers:** Paper 26.2 / 26.3, Purpur 26.2 / 26.3, Bukkit (CraftBukkit) 26.2 / 26.3, Folia 26.2 / 26.3 and Spigot 26.2 / 26.3. Java 25 required.
+**Supported servers:**
+
+- Paper 26.2 / 26.3
+- Purpur 26.2 / 26.3
+- Bukkit (CraftBukkit) 26.2 / 26.3
+- Folia 26.2 / 26.3
+- Spigot 26.2 / 26.3
+
+Java 25 required.
 
 **Velocity compatibility:** LandWard runs on a supported backend server behind Velocity. Install LandWard in the backend server's `plugins/` folder.
 

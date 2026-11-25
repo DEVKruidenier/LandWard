@@ -386,7 +386,7 @@ block-protection:
   created: "已建立私人保護。"
   updated: "更新了個人防護。"
   removed: "取消個人防護。"
-  locked: "此塊具有個人防護功能。在破壞之前透過其 GUI 將鎖移除。"
+  locked: "此塊具有個人防護功能。"
   disabled: "個人區塊保護已停用。"
   storage-error: "無法安全保存保護。檢查伺服器日誌。"
   leave: "離開領土"

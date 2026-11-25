@@ -386,7 +386,7 @@ block-protection:
   created: "Özel koruma oluşturuldu."
   updated: "Kişisel koruma güncellendi."
   removed: "Kişisel koruma kaldırıldı."
-  locked: "Bu blokta kişisel koruma bulunmaktadır. Kilidi kırmadan önce GUI'sinden kaldırın."
+  locked: "Bu blokta kişisel koruma bulunmaktadır."
   disabled: "Kişisel blok koruması devre dışı."
   storage-error: "Koruma güvenli bir şekilde kaydedilemedi. Sunucu günlüğünü kontrol edin."
   leave: "Bölgeyi terk edin"

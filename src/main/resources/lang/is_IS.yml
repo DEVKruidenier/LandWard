@@ -386,7 +386,7 @@ block-protection:
   created: "Einkavernd búin til."
   updated: "Persónuvernd uppfærð."
   removed: "Persónuvernd fjarlægð."
-  locked: "Þessi blokk hefur persónuvernd. Fjarlægðu lásinn í gegnum GUI þess áður en þú brýtur hann."
+  locked: "Þessi blokk hefur persónuvernd."
   disabled: "Persónuleg blokkunarvörn er óvirk."
   storage-error: "Ekki var hægt að vista vernd á öruggan hátt. Athugaðu netþjónaskrána."
   leave: "Yfirgefa landsvæði"

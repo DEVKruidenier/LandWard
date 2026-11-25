@@ -38,4 +38,12 @@ public record BlockProtection(
   public BlockProtection sharing(Set<UUID> members) {
     return new BlockProtection(id, landId, owner, material, blocks, members, created, revision + 1);
   }
+
+  public boolean storage() {
+    return material.equals("CHEST")
+        || material.equals("TRAPPED_CHEST")
+        || material.endsWith("COPPER_CHEST")
+        || material.equals("BARREL")
+        || material.endsWith("SHULKER_BOX");
+  }
 }

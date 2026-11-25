@@ -138,11 +138,28 @@ public final class ProtectionRuntimeProbe {
             new BlockPlaceEvent(
                 adjacent, replaced, chest, new ItemStack(Material.CHEST), lockOwner, true);
         listener.place(merge);
-        check(merge.isCancelled(), "Joining a protected chest is denied");
+        check(!merge.isCancelled(), "Separate chest next to a private chest is allowed");
+        var mergedShape = (Chest) adjacent.getBlockData();
+        mergedShape.setFacing(BlockFace.NORTH);
+        mergedShape.setType(Chest.Type.RIGHT);
+        adjacent.setBlockData(mergedShape, false);
+        var mergedOwner =
+            new BlockPlaceEvent(
+                adjacent, replaced, chest, new ItemStack(Material.CHEST), lockOwner, true);
+        listener.place(mergedOwner);
+        check(!mergedOwner.isCancelled(), "Owner may expand their protected chest");
+        var mergedVisitor =
+            new BlockPlaceEvent(
+                adjacent, replaced, chest, new ItemStack(Material.CHEST), visitor, true);
+        listener.place(mergedVisitor);
+        check(mergedVisitor.isCancelled(), "Another player cannot merge into private storage");
         adjacent.setType(Material.AIR, false);
         var breakEvent = new BlockBreakEvent(chest, lockOwner);
         listener.breakBlock(breakEvent);
-        check(breakEvent.isCancelled(), "Even owner must remove lock before breaking");
+        check(!breakEvent.isCancelled(), "Owner may break their protected storage");
+        var foreignBreak = new BlockBreakEvent(chest, visitor);
+        listener.breakBlock(foreignBreak);
+        check(foreignBreak.isCancelled(), "Another player cannot break protected storage");
         var piston = new BlockPistonExtendEvent(hopper, List.of(chest), BlockFace.EAST);
         listener.extend(piston);
         check(piston.isCancelled(), "Piston cannot move protected unit");
@@ -195,6 +212,10 @@ public final class ProtectionRuntimeProbe {
                 Material.WHITE_SHULKER_BOX,
                 Material.OAK_DOOR,
                 Material.IRON_DOOR,
+                Material.COPPER_DOOR,
+                Material.LEVER,
+                Material.STONE_BUTTON,
+                Material.OAK_BUTTON,
                 Material.OAK_TRAPDOOR,
                 Material.OAK_FENCE_GATE))
           check(ProtectionBlocks.supported(type), "Material classification " + type);
@@ -229,6 +250,61 @@ public final class ProtectionRuntimeProbe {
               "Native double chest inventory pairing " + facing);
         }
         lands.forgetPersonal(List.of(key));
+        for (var type : Tag.COPPER_CHESTS.getValues()) {
+          check(ProtectionBlocks.supported(type), "Copper chest classification " + type);
+          Chest a = (Chest) type.createBlockData();
+          a.setFacing(BlockFace.NORTH);
+          a.setType(Chest.Type.LEFT);
+          chest.setBlockData(a, false);
+          var part = ProtectionBlocks.part(chest);
+          var otherKey = part.unit().get(1);
+          var other = world.getBlockAt(otherKey.x(), otherKey.y(), otherKey.z());
+          blocks.putIfAbsent(other, other.getBlockData());
+          Chest b = (Chest) type.createBlockData();
+          b.setFacing(BlockFace.NORTH);
+          b.setType(Chest.Type.RIGHT);
+          other.setBlockData(b, false);
+          check(
+              Set.copyOf(ProtectionBlocks.part(other).unit()).equals(Set.copyOf(part.unit())),
+              "Copper double chest has symmetric unit: " + type);
+          check(
+              ((org.bukkit.block.Chest) chest.getState()).getInventory().getSize() == 54,
+              "Copper double chest inventory: " + type);
+          var copperLock =
+              lands.protect(
+                  new ProtectionActor(owner, true, true, true, false),
+                  land.id(),
+                  type.name(),
+                  part.unit(),
+                  Map.of(),
+                  -1);
+          for (var half : List.of(chest, other)) {
+            var access =
+                new PlayerInteractEvent(
+                    visitor,
+                    Action.RIGHT_CLICK_BLOCK,
+                    null,
+                    half,
+                    BlockFace.UP,
+                    EquipmentSlot.HAND);
+            listener.interact(access);
+            check(access.isCancelled(), "Copper chest visitor denied from either half: " + type);
+          }
+          var adjacentCopper = chest.getRelative(BlockFace.SOUTH);
+          blocks.putIfAbsent(adjacentCopper, adjacentCopper.getBlockData());
+          var previousCopper = adjacentCopper.getState();
+          adjacentCopper.setType(type, false);
+          var mergeCopper =
+              new BlockPlaceEvent(
+                  adjacentCopper, previousCopper, chest, new ItemStack(type), landOwner, true);
+          listener.place(mergeCopper);
+          check(!mergeCopper.isCancelled(), "Separate adjacent copper chest is allowed: " + type);
+          adjacentCopper.setType(Material.AIR, false);
+          lands.removePersonal(
+              new ProtectionActor(owner, true, true, true, false),
+              copperLock.id(),
+              copperLock.revision());
+        }
         chest.setType(Material.IRON_DOOR, false);
         var lower = (org.bukkit.block.data.type.Door) chest.getBlockData();
         lower.setHalf(org.bukkit.block.data.Bisected.Half.BOTTOM);
@@ -256,6 +332,62 @@ public final class ProtectionRuntimeProbe {
         var support = new BlockBreakEvent(chest.getRelative(BlockFace.DOWN), lockOwner);
         listener.breakBlock(support);
         check(support.isCancelled(), "Door supporting block protected");
+        var controls = new HashSet<>(Tag.BUTTONS.getValues());
+        controls.add(Material.LEVER);
+        var control = world.getBlockAt(x + 6, y, z);
+        for (var type : controls) {
+          check(ProtectionBlocks.supported(type), "Supported personal control: " + type);
+          var shape = (org.bukkit.block.data.type.Switch) type.createBlockData();
+          shape.setAttachedFace(org.bukkit.block.data.FaceAttachable.AttachedFace.FLOOR);
+          control.setBlockData(shape, false);
+          control.getRelative(BlockFace.DOWN).setType(Material.STONE, false);
+          var controlLock =
+              lands.protect(
+                  new ProtectionActor(owner, true, true, true, false),
+                  land.id(),
+                  type.name(),
+                  List.of(ProtectionBlocks.key(control)),
+                  Map.of(),
+                  -1);
+          var unauthorized =
+              new PlayerInteractEvent(
+                  visitor,
+                  Action.RIGHT_CLICK_BLOCK,
+                  null,
+                  control,
+                  BlockFace.UP,
+                  EquipmentSlot.HAND);
+          listener.interact(unauthorized);
+          check(unauthorized.isCancelled(), "Private control denies visitor: " + type);
+          var authorized =
+              new PlayerInteractEvent(
+                  landOwner,
+                  Action.RIGHT_CLICK_BLOCK,
+                  null,
+                  control,
+                  BlockFace.UP,
+                  EquipmentSlot.HAND);
+          listener.interact(authorized);
+          check(!authorized.isCancelled(), "Private control permits owner: " + type);
+          var indirect = new EntityInteractEvent(entity(world), control);
+          listener.entityInteract(indirect);
+          check(
+              indirect.isCancelled(), "Unattributed entity cannot press private control: " + type);
+          var backing = new BlockBreakEvent(control.getRelative(BlockFace.DOWN), visitor);
+          listener.breakBlock(backing);
+          check(backing.isCancelled(), "Control support cannot be broken to bypass lock: " + type);
+          var press = new BlockRedstoneEvent(control, 0, 15);
+          listener.redstone(press);
+          check(
+              press.getNewCurrent() == 15, "Permitted control retains its normal signal: " + type);
+          var release = new BlockRedstoneEvent(control, 15, 0);
+          listener.redstone(release);
+          check(release.getNewCurrent() == 0, "Button release is not forced on: " + type);
+          lands.removePersonal(
+              new ProtectionActor(owner, true, true, true, false),
+              controlLock.id(),
+              controlLock.revision());
+        }
         plugin.getConfig().set("block-protection.enabled", false);
         var offBreak = new BlockBreakEvent(chest, visitor);
         listener.breakBlock(offBreak);
@@ -328,6 +460,30 @@ public final class ProtectionRuntimeProbe {
             pending.isEmpty() && cancel.isCancelled(),
             "Sneak-left-click cancels even a vanilla-cancelled air action");
         sneaking = false;
+        selector.start(lockOwner, land.id());
+        var unsupported = chest.getRelative(BlockFace.DOWN);
+        unsupported.setType(Material.STONE, false);
+        var invalid =
+            new PlayerInteractEvent(
+                lockOwner,
+                Action.RIGHT_CLICK_BLOCK,
+                null,
+                unsupported,
+                BlockFace.UP,
+                EquipmentSlot.HAND);
+        selector.select(invalid);
+        check(
+            pending.isEmpty(), "Unsupported target ends selection instead of trapping placements");
+        var ordinary =
+            new PlayerInteractEvent(
+                lockOwner,
+                Action.RIGHT_CLICK_BLOCK,
+                new ItemStack(Material.CHEST),
+                unsupported,
+                BlockFace.UP,
+                EquipmentSlot.HAND);
+        selector.select(ordinary);
+        check(!ordinary.isCancelled(), "Normal block placement is untouched after selection error");
         selector.start(lockOwner, land.id());
         selector.clear();
         check(pending.isEmpty(), "Reload cancellation clears all selection state");

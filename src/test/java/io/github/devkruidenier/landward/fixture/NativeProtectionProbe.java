@@ -31,6 +31,7 @@ public final class NativeProtectionProbe {
   private ProtectionListener listener;
   private ProtectionService service;
   private SqliteLandStorage db;
+  private LandManager lands;
   private Object oldEnabled;
   private Object oldAutomatic;
   private boolean online = true;
@@ -66,7 +67,7 @@ public final class NativeProtectionProbe {
       java.nio.file.Files.createDirectories(dir);
       db = new SqliteLandStorage(dir.resolve("native-" + UUID.randomUUID() + ".db"));
       db.initialize();
-      var lands = new LandManager(db);
+      lands = new LandManager(db);
       lands.load();
       UUID owner = UUID.randomUUID();
       var land =
@@ -74,7 +75,7 @@ public final class NativeProtectionProbe {
               .create(owner, "Native Lock Probe", new ChunkPosition(world.getUID(), x >> 4, z >> 4))
               .land();
       chest = world.getBlockAt(x, y, z);
-      chest.setType(Material.CHEST, false);
+      chest.setType(Material.COPPER_CHEST, false);
       hopper = world.getBlockAt(x, y - 1, z);
       hopper.setType(Material.HOPPER, false);
       ((org.bukkit.block.Chest) chest.getState())
@@ -90,7 +91,8 @@ public final class NativeProtectionProbe {
       top.setHalf(Bisected.Half.TOP);
       upper.setBlockData(top, false);
       var actor = new ProtectionActor(owner, true, true, true, false);
-      lands.protect(actor, land.id(), "CHEST", List.of(ProtectionBlocks.key(chest)), Map.of(), -1);
+      lands.protect(
+          actor, land.id(), "COPPER_CHEST", List.of(ProtectionBlocks.key(chest)), Map.of(), -1);
       lands.protect(
           actor,
           land.id(),
@@ -184,7 +186,132 @@ public final class NativeProtectionProbe {
               10,
               () -> {
                 check(!((Door) lower.getBlockData()).isOpen(), "Permitted player closes iron door");
-                finish(null);
+                verifyVanillaDoors(0);
+              });
+        });
+  }
+
+  private void verifyVanillaDoors(int index) throws Exception {
+    var materials = List.of(Material.ACACIA_DOOR, Material.COPPER_DOOR);
+    if (index == materials.size()) {
+      verifyStorageResize();
+      return;
+    }
+    var existing = lands.personalProtections().at(ProtectionBlocks.key(lower));
+    var actor = new ProtectionActor(player.getUniqueId(), true, true, true, false);
+    lands.removePersonal(actor, existing.id(), existing.revision());
+    Door bottom = (Door) materials.get(index).createBlockData();
+    bottom.setHalf(Bisected.Half.BOTTOM);
+    lower.setBlockData(bottom, false);
+    Door top = (Door) bottom.clone();
+    top.setHalf(Bisected.Half.TOP);
+    upper.setBlockData(top, false);
+    lands.protect(
+        actor,
+        existing.landId(),
+        materials.get(index).name(),
+        List.of(ProtectionBlocks.key(lower), ProtectionBlocks.key(upper)),
+        Map.of(),
+        -1);
+    // PlayerInteractEvent precedes vanilla's clicked-half write. Physics is deliberately
+    // denied by the lock, so reproduce that write without updating the other half.
+    click(lower);
+    bottom.setOpen(true);
+    lower.setBlockData(bottom, false);
+    later(
+        10,
+        () -> {
+          check(
+              ((Door) lower.getBlockData()).isOpen() && ((Door) upper.getBlockData()).isOpen(),
+              "Both halves open after native lower-half click: " + materials.get(index));
+          click(upper);
+          Door upperClosed = (Door) upper.getBlockData();
+          upperClosed.setOpen(false);
+          upper.setBlockData(upperClosed, false);
+          later(
+              10,
+              () -> {
+                check(
+                    !((Door) lower.getBlockData()).isOpen()
+                        && !((Door) upper.getBlockData()).isOpen(),
+                    "Both halves close after native upper-half click: " + materials.get(index));
+                verifyVanillaDoors(index + 1);
+              });
+        });
+  }
+
+  private void verifyStorageResize() throws Exception {
+    hopper.setType(Material.AIR, false);
+    var existing = lands.personalProtections().at(ProtectionBlocks.key(chest));
+    var second = chest.getRelative(BlockFace.EAST);
+    var before = second.getState();
+    org.bukkit.block.data.type.Chest data =
+        (org.bukkit.block.data.type.Chest) Material.COPPER_CHEST.createBlockData();
+    data.setFacing(BlockFace.NORTH);
+    data.setType(org.bukkit.block.data.type.Chest.Type.RIGHT);
+    second.setBlockData(data, false);
+    var placement =
+        new org.bukkit.event.block.BlockPlaceEvent(
+            second,
+            before,
+            chest,
+            new ItemStack(Material.COPPER_CHEST),
+            player,
+            true,
+            EquipmentSlot.HAND);
+    Bukkit.getPluginManager().callEvent(placement);
+    check(!placement.isCancelled(), "Owner's native copper chest extension is allowed");
+    check(
+        service.uncertain(ProtectionBlocks.key(second)),
+        "New half is reserved before the async protection write");
+    later(
+        20,
+        () -> {
+          var expanded = lands.personalProtections().at(ProtectionBlocks.key(second));
+          check(
+              expanded != null
+                  && expanded.id().equals(existing.id())
+                  && expanded.blocks().size() == 2
+                  && expanded.shared().equals(existing.shared()),
+              "Expanded chest preserves lock identity and sharing");
+          check(
+              ((org.bukkit.block.Chest) second.getState()).getInventory().getSize() == 54,
+              "Expanded native chest has one double inventory");
+          ((org.bukkit.block.Chest) second.getState())
+              .getBlockInventory()
+              .setItem(0, new ItemStack(Material.EMERALD, 3));
+          var breaking = new org.bukkit.event.block.BlockBreakEvent(chest, player);
+          Bukkit.getPluginManager().callEvent(breaking);
+          check(!breaking.isCancelled(), "Owner may break one native protected chest half");
+          chest.setType(Material.AIR, false);
+          later(
+              20,
+              () -> {
+                var remaining = lands.personalProtections().at(ProtectionBlocks.key(second));
+                check(
+                    remaining != null
+                        && remaining.id().equals(existing.id())
+                        && remaining.blocks().equals(List.of(ProtectionBlocks.key(second)))
+                        && remaining.shared().equals(existing.shared()),
+                    "Remaining half retains original access");
+                check(
+                    ((org.bukkit.block.Chest) second.getState()).getInventory().getSize() == 27
+                        && ((org.bukkit.block.Chest) second.getState())
+                            .getBlockInventory()
+                            .contains(Material.EMERALD, 3),
+                    "Remaining native half keeps its contents and becomes single");
+                var last = new org.bukkit.event.block.BlockBreakEvent(second, player);
+                Bukkit.getPluginManager().callEvent(last);
+                check(!last.isCancelled(), "Owner may break the last native protected chest");
+                second.setType(Material.AIR, false);
+                later(
+                    20,
+                    () -> {
+                      check(
+                          lands.personalProtections().get(existing.id()) == null,
+                          "Breaking the final half removes the lock");
+                      finish(null);
+                    });
               });
         });
   }
@@ -330,9 +457,13 @@ public final class NativeProtectionProbe {
   }
 
   private void click() {
+    click(lower);
+  }
+
+  private void click(Block target) {
     var event =
         new PlayerInteractEvent(
-            player, Action.RIGHT_CLICK_BLOCK, null, lower, BlockFace.NORTH, EquipmentSlot.HAND);
+            player, Action.RIGHT_CLICK_BLOCK, null, target, BlockFace.NORTH, EquipmentSlot.HAND);
     Bukkit.getPluginManager().callEvent(event);
     check(!event.isCancelled(), "Authorized click not denied");
   }

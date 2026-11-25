@@ -386,7 +386,7 @@ block-protection:
   created: "Privébeveiliging aangemaakt."
   updated: "Persoonlijke beveiliging bijgewerkt."
   removed: "Persoonlijke beveiliging verwijderd."
-  locked: "Dit blok is persoonlijk beveiligd. Verwijder het slot via het menu voordat je het sloopt."
+  locked: "Dit blok is persoonlijk beveiligd."
   disabled: "Persoonlijke blokbeveiliging is uitgeschakeld."
   storage-error: "De beveiliging kon niet veilig worden opgeslagen. Controleer het serverlogboek."
   leave: "Land verlaten"

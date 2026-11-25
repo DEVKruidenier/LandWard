@@ -386,7 +386,7 @@ block-protection:
   created: "Đã tạo bảo vệ riêng tư."
   updated: "Cập nhật bảo vệ cá nhân."
   removed: "Đã xóa bảo vệ cá nhân."
-  locked: "Khối này có bảo vệ cá nhân. Tháo khóa thông qua GUI của nó trước khi phá khóa."
+  locked: "Khối này có bảo vệ cá nhân."
   disabled: "Bảo vệ khối cá nhân bị tắt."
   storage-error: "Không thể lưu bảo vệ một cách an toàn. Kiểm tra nhật ký máy chủ."
   leave: "Rời khỏi lãnh thổ"

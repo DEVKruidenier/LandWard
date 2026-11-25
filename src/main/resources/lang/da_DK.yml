@@ -386,7 +386,7 @@ block-protection:
   created: "Privat beskyttelse oprettet."
   updated: "Personlig beskyttelse opdateret."
   removed: "Personlig beskyttelse fjernet."
-  locked: "Denne blok har personlig beskyttelse. Fjern låsen gennem dens GUI, før den brydes."
+  locked: "Denne blok har personlig beskyttelse."
   disabled: "Personlig blokeringsbeskyttelse er deaktiveret."
   storage-error: "Beskyttelse kunne ikke gemmes sikkert. Tjek serverloggen."
   leave: "Forlad territorium"

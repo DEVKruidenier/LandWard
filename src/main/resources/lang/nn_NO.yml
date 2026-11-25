@@ -386,7 +386,7 @@ block-protection:
   created: "Privat vern oppretta."
   updated: "Personleg vern oppdatert."
   removed: "Personleg vern fjerna."
-  locked: "Denne blokka har personleg vern. Fjern låsen gjennom GUI-en før du bryt han."
+  locked: "Denne blokka har personleg vern."
   disabled: "Personleg blokkeringsvern er deaktivert."
   storage-error: "Vern kunne ikkje lagrast trygt. Sjekk serverloggen."
   leave: "Forlat territoriet"

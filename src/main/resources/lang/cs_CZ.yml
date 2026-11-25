@@ -386,7 +386,7 @@ block-protection:
   created: "Soukromá ochrana vytvořena."
   updated: "Aktualizace osobní ochrany."
   removed: "Osobní ochrana odstraněna."
-  locked: "Tento blok má osobní ochranu. Odstraňte zámek prostřednictvím jeho GUI, než jej rozbijete."
+  locked: "Tento blok má osobní ochranu."
   disabled: "Ochrana osobních bloků je deaktivována."
   storage-error: "Ochranu nebylo možné bezpečně uložit. Zkontrolujte protokol serveru."
   leave: "Opusťte území"

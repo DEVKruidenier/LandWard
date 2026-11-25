@@ -709,6 +709,40 @@ public final class LandManager {
         var p=new io.github.devkruidenier.landward.blockprotection.BlockProtection(UUID.randomUUID(),landId,actor.id(),material,blocks,java.util.Set.of(),System.currentTimeMillis(),0);
         storage.writeBlockProtections(List.of(p),List.of(),List.of(),List.of()); personalProtections.put(p);return p;
     }
+    public synchronized io.github.devkruidenier.landward.blockprotection.BlockProtection extendPersonalChest(
+            io.github.devkruidenier.landward.blockprotection.ProtectionActor actor, UUID id, long revision,
+            io.github.devkruidenier.landward.blockprotection.BlockPlacement placed) throws StorageException {
+        var p=personalProtections.get(id);
+        if(p==null || p.revision()!=revision || !actor.create() || !actor.own()
+                || !p.owner().equals(actor.id()) || !personalMember(p.landId(),actor.id())
+                || !p.storage() || p.blocks().size()!=1 || !p.material().endsWith("CHEST")
+                || !p.landId().equals(placed.landId()) || !p.owner().equals(placed.owner())
+                || !p.material().equals(placed.material()) || personalProtections.at(placed.position())!=null
+                || !p.landId().equals(claims.get(placed.position().chunk())))throw new IllegalArgumentException("changed");
+        var first=p.blocks().getFirst(); var second=placed.position();
+        if(!first.world().equals(second.world()) || first.y()!=second.y()
+                || Math.abs(first.x()-second.x())+Math.abs(first.z()-second.z())!=1)
+            throw new IllegalArgumentException("changed");
+        var expanded=new io.github.devkruidenier.landward.blockprotection.BlockProtection(p.id(),p.landId(),p.owner(),
+                p.material(),List.of(first,second),p.shared(),p.created(),p.revision()+1);
+        storage.writeBlockProtections(List.of(expanded),List.of(),List.of(placed),List.of());
+        personalProtections.put(placed); personalProtections.put(expanded); return expanded;
+    }
+    public synchronized io.github.devkruidenier.landward.blockprotection.BlockProtection breakPersonalStorage(
+            io.github.devkruidenier.landward.blockprotection.ProtectionActor actor, UUID id, long revision,
+            io.github.devkruidenier.landward.blockprotection.BlockKey destroyed) throws StorageException {
+        var p=personalProtections.get(id);
+        if(p==null || p.revision()!=revision || !p.storage() || !actor.own()
+                || !p.owner().equals(actor.id()) || !personalMember(p.landId(),actor.id())
+                || !p.blocks().contains(destroyed))throw new IllegalArgumentException("changed");
+        var remaining=p.blocks().stream().filter(b->!b.equals(destroyed)).toList();
+        var saved=remaining.isEmpty()?null:new io.github.devkruidenier.landward.blockprotection.BlockProtection(
+                p.id(),p.landId(),p.owner(),p.material(),remaining,p.shared(),p.created(),p.revision()+1);
+        storage.writeBlockProtections(saved==null?List.of():List.of(saved),List.of(p.id()),List.of(),List.of(destroyed));
+        personalProtections.forget(destroyed);
+        if(saved!=null) personalProtections.put(saved);
+        return saved;
+    }
     public synchronized void sharePersonal(io.github.devkruidenier.landward.blockprotection.ProtectionActor actor, UUID id, long revision, java.util.Set<UUID> shared) throws StorageException {
         var p=personalProtections.get(id);
         // Land-owner administration may remove locks, but never silently rewrite a member's sharing.

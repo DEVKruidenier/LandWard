@@ -31,7 +31,7 @@ public final class AutomationOwnership {
     for (var p : placements)
       if (p.material().equals("HOPPER")) hoppers.put(p.position(), p.owner());
     for (var p : protections)
-      if (storage(p.material()))
+      if (p.storage())
         for (var b : p.blocks()) {
           storage.put(b, p.owner());
           storageIds.put(b, p.id());
@@ -63,13 +63,6 @@ public final class AutomationOwnership {
       }
     }
     return new Snapshot(revision, privateHoppers, originsByHopper);
-  }
-
-  private static boolean storage(String material) {
-    return material.equals("CHEST")
-        || material.equals("TRAPPED_CHEST")
-        || material.equals("BARREL")
-        || material.endsWith("SHULKER_BOX");
   }
 
   private static List<BlockKey> neighbors(BlockKey b) {

@@ -4,6 +4,15 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+### Changed / Fixed — 1.0.6.0-beta2 (development preview)
+
+- Keep both protected door halves synchronized when a permitted player opens or closes them.
+- Support copper chests, including oxidized/waxed variants, and personal locks on levers/buttons.
+- Allow the personal owner to expand a protected chest and break their own protected storage;
+  retain the original owner/sharing on a double chest's remaining half.
+- Allow separate adjacent chests, end invalid block selections and close the menu after
+  successfully saving private protection. Update the denial text in all 32 languages.
+
 ### Added — 1.0.6.0-beta1 (development preview)
 
 - Optional built-in personal protection for storage blocks, doors, trapdoors and

@@ -25,6 +25,29 @@ class AutomationOwnershipTest {
   }
 
   @Test
+  void copperChestVariantsProtectTheirSameOwnerHopperNetwork() {
+    for (var material :
+        List.of(
+            "COPPER_CHEST",
+            "EXPOSED_COPPER_CHEST",
+            "WEATHERED_COPPER_CHEST",
+            "OXIDIZED_COPPER_CHEST",
+            "WAXED_COPPER_CHEST",
+            "WAXED_EXPOSED_COPPER_CHEST",
+            "WAXED_WEATHERED_COPPER_CHEST",
+            "WAXED_OXIDIZED_COPPER_CHEST")) {
+      var lock =
+          new BlockProtection(
+              UUID.randomUUID(), land, owner, material, List.of(key(0, 65)), Set.of(), 1, 0);
+      var map =
+          AutomationOwnership.build(
+              1, List.of(hopper(0, 64, owner), hopper(1, 64, other)), List.of(lock));
+      assertEquals(owner, map.privateHoppers().get(key(0, 64)), material);
+      assertFalse(map.privateHoppers().containsKey(key(1, 64)), material);
+    }
+  }
+
+  @Test
   void onlyKnownSameOwnerHoppersJoinThePrivateAutomationNetwork() {
     var map =
         AutomationOwnership.build(

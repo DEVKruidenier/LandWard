@@ -63,14 +63,15 @@ public final class ProtectionListener implements Listener {
   }
 
   /**
-   * Iron doors cannot accept anonymous power, so permitted player clicks operate their two halves.
+   * Physics protection prevents vanilla from updating the partner half of a door. Synchronize
+   * permitted wooden/copper clicks after vanilla, and operate iron doors directly.
    */
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void ironDoor(PlayerInteractEvent e) {
+  public void protectedDoor(PlayerInteractEvent e) {
     if (e.getHand() != EquipmentSlot.HAND
         || e.getAction() != Action.RIGHT_CLICK_BLOCK
         || e.getClickedBlock() == null
-        || e.getClickedBlock().getType() != Material.IRON_DOOR
+        || !(e.getClickedBlock().getBlockData() instanceof Door)
         || !mechanical(e.getClickedBlock())) return;
     var p = e.getPlayer();
     var key = ProtectionBlocks.key(e.getClickedBlock());
@@ -108,8 +109,10 @@ public final class ProtectionListener implements Listener {
                         var world = Bukkit.getWorld(key.world());
                         if (world == null) return false;
                         var clicked = world.getBlockAt(key.x(), key.y(), key.z());
-                        if (!(clicked.getBlockData() instanceof Door d)) return false;
-                        boolean open = !d.isOpen();
+                        if (!(clicked.getBlockData() instanceof Door d)
+                            || !clicked.getType().name().equals(lock.material())) return false;
+                        boolean open =
+                            clicked.getType() == Material.IRON_DOOR ? !d.isOpen() : d.isOpen();
                         for (var b : lock.blocks()) {
                           var block = world.getBlockAt(b.x(), b.y(), b.z());
                           if (block.getBlockData() instanceof Door data) {
@@ -161,7 +164,15 @@ public final class ProtectionListener implements Listener {
             && !service.uncertain(key)
             && (network.owner().equals(e.getPlayer().getUniqueId())
                 || e.getPlayer().hasPermission("landward.admin.protection.bypass"));
-    if (mechanical(e.getBlock()) && !ownHopper || nearSupportedLock(e.getBlock())) {
+    var lock = lands.personalProtections().at(key);
+    boolean ownStorage =
+        lock != null
+            && lock.storage()
+            && lock.owner().equals(e.getPlayer().getUniqueId())
+            && service.actor(e.getPlayer()).own()
+            && lands.personalMember(lock.landId(), e.getPlayer().getUniqueId())
+            && lock.blocks().stream().noneMatch(service::uncertain);
+    if (mechanical(e.getBlock()) && !ownHopper && !ownStorage || nearSupportedLock(e.getBlock())) {
       e.setCancelled(true);
       service.tell(e.getPlayer(), "locked");
     }
@@ -170,30 +181,60 @@ public final class ProtectionListener implements Listener {
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void place(BlockPlaceEvent e) {
     if (service.enabled()
-        && (mechanical(e.getBlockPlaced()) || chestMergeLocked(e.getBlockPlaced()))) {
+        && mechanical(e.getBlockPlaced())
+        && !canExtend(e.getPlayer(), e.getBlockPlaced(), mergedLock(e.getBlockPlaced()))) {
       e.setCancelled(true);
       service.tell(e.getPlayer(), "locked");
     }
   }
 
-  private boolean chestMergeLocked(Block b) {
-    if (b.getType() != Material.CHEST && b.getType() != Material.TRAPPED_CHEST) return false;
-    // Adjacent locked chests may not be joined, including two independently locked single chests.
-    for (var f : List.of(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST)) {
-      var key =
-          new BlockKey(
-              b.getWorld().getUID(), b.getX() + f.getModX(), b.getY(), b.getZ() + f.getModZ());
-      var locked = lands.personalProtections().at(key);
-      if (service.uncertain(key) || locked != null && locked.material().equals(b.getType().name()))
-        return true;
-    }
-    return false;
+  private BlockProtection mergedLock(Block b) {
+    if (!(b.getBlockData() instanceof org.bukkit.block.data.type.Chest)) return null;
+    var key = ProtectionBlocks.key(b);
+    return ProtectionBlocks.part(b).unit().stream()
+        .filter(k -> !k.equals(key))
+        .map(lands.personalProtections()::at)
+        .filter(Objects::nonNull)
+        .findFirst()
+        .orElse(null);
+  }
+
+  private boolean canExtend(Player player, Block b, BlockProtection lock) {
+    if (lock == null
+        || lock.blocks().size() != 1
+        || !lock.owner().equals(player.getUniqueId())
+        || !lock.material().equals(b.getType().name())
+        || !service.actor(player).create()
+        || !service.actor(player).own()
+        || !lands.personalMember(lock.landId(), player.getUniqueId())) return false;
+    var unit = ProtectionBlocks.part(b).unit();
+    return unit.size() == 2
+        && lands.personalProtections().at(ProtectionBlocks.key(b)) == null
+        && unit.stream().noneMatch(service::uncertain)
+        && unit.stream()
+            .allMatch(
+                k -> lands.landAt(k.chunk()).map(l -> l.id().equals(lock.landId())).orElse(false));
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void placed(BlockPlaceEvent e) {
     var b = e.getBlockPlaced();
     var key = ProtectionBlocks.key(b);
+    var merged = service.enabled() ? mergedLock(b) : null;
+    if (canExtend(e.getPlayer(), b, merged)) {
+      var shape = (org.bukkit.block.data.type.Chest) b.getBlockData();
+      service.expandChest(
+          service.actor(e.getPlayer()),
+          merged,
+          new BlockPlacement(
+              key,
+              merged.landId(),
+              e.getPlayer().getUniqueId(),
+              b.getType().name(),
+              UUID.randomUUID()),
+          shape);
+      return;
+    }
     if (!ProtectionBlocks.supported(b.getType()) && b.getType() != Material.HOPPER) {
       if (lands.personalProtections().at(key) != null
           || lands.personalProtections().placement(key) != null)
@@ -243,6 +284,13 @@ public final class ProtectionListener implements Listener {
     var b = e.getBlock();
     var key = ProtectionBlocks.key(b);
     var p = lands.personalProtections().at(key);
+    if (service.enabled()
+        && p != null
+        && p.storage()
+        && p.owner().equals(e.getPlayer().getUniqueId())) {
+      service.breakStorage(service.actor(e.getPlayer()), p, key);
+      return;
+    }
     var keys = new ArrayList<BlockKey>();
     keys.add(key);
     if (p != null) keys.addAll(p.blocks());
@@ -413,6 +461,12 @@ public final class ProtectionListener implements Listener {
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void entityInteract(EntityInteractEvent e) {
+    // Wooden buttons must not be activated by an unattributed arrow or other entity.
+    if (mechanical(e.getBlock())) e.setCancelled(true);
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void dispense(BlockDispenseEvent e) {
     // Limit conservative automation denial to a dispenser aimed at a locked unit/support.
     var data = e.getBlock().getBlockData();
@@ -523,7 +577,38 @@ public final class ProtectionListener implements Listener {
         new BlockKey(
             support.getWorld().getUID(), support.getX(), support.getY() + 1, support.getZ());
     var p = lands.personalProtections().at(above);
-    return p != null && p.material().endsWith("_DOOR");
+    if (p != null && p.material().endsWith("_DOOR")) return true;
+    for (var face :
+        List.of(
+            BlockFace.UP,
+            BlockFace.DOWN,
+            BlockFace.NORTH,
+            BlockFace.SOUTH,
+            BlockFace.EAST,
+            BlockFace.WEST)) {
+      var key =
+          new BlockKey(
+              support.getWorld().getUID(),
+              support.getX() + face.getModX(),
+              support.getY() + face.getModY(),
+              support.getZ() + face.getModZ());
+      var control = lands.personalProtections().at(key);
+      if (control == null
+          || !(control.material().equals("LEVER") || control.material().endsWith("_BUTTON")))
+        continue;
+      var block = support.getWorld().getBlockAt(key.x(), key.y(), key.z());
+      if (!plugin.scheduler().ownsBlock(block)) return true;
+      if (!(block.getBlockData() instanceof org.bukkit.block.data.type.Switch data)) continue;
+      var direction =
+          switch (data.getAttachedFace()) {
+            case FLOOR -> BlockFace.DOWN;
+            case CEILING -> BlockFace.UP;
+            case WALL -> data.getFacing().getOppositeFace();
+          };
+      if (ProtectionBlocks.key(block.getRelative(direction)).equals(ProtectionBlocks.key(support)))
+        return true;
+    }
+    return false;
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

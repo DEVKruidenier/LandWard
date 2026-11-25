@@ -386,7 +386,7 @@ block-protection:
   created: "Privát védelem létrehozva."
   updated: "A személyi védelem frissítve."
   removed: "A személyi védelem eltávolítva."
-  locked: "Ez a blokk személyi védelemmel rendelkezik. Távolítsa el a zárat a grafikus felhasználói felületén keresztül, mielőtt feltörné."
+  locked: "Ez a blokk személyi védelemmel rendelkezik."
   disabled: "A személyi blokkvédelem le van tiltva."
   storage-error: "A védelmet nem sikerült biztonságosan menteni. Ellenőrizze a szervernaplót."
   leave: "Hagyja el a területet"

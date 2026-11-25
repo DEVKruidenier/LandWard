@@ -386,7 +386,7 @@ block-protection:
   created: "已创建私人保护。"
   updated: "更新了个人防护。"
   removed: "取消个人防护。"
-  locked: "该块具有个人防护功能。在破坏之前通过其 GUI 将锁移除。"
+  locked: "该块具有个人防护功能。"
   disabled: "个人块保护已禁用。"
   storage-error: "无法安全保存保护。检查服务器日志。"
   leave: "离开领土"

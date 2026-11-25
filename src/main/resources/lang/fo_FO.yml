@@ -386,7 +386,7 @@ block-protection:
   created: "Privat vernd stovnað."
   updated: "Persónlig vernd dagførd."
   removed: "Persónlig vernd tikin burtur."
-  locked: "Hesin blokkurin hevur persónliga verju. Tak lásið av gjøgnum GUI áðrenn tú brýtur tað."
+  locked: "Hesin blokkurin hevur persónliga verju."
   disabled: "Persónlig blokkverja er sløkt."
   storage-error: "Vernd kundi ikki bjargast á tryggan hátt. Kanna ambætaraloggin."
   leave: "Far úr økinum"
