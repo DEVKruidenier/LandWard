@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.devkruidenier"
-version = "1.0.5.0"
+version = "1.0.6.0-beta1"
 
 val pluginVersion = version.toString()
 
@@ -121,6 +121,7 @@ tasks.register<Jar>("featureProbeJar") {
     destinationDirectory.set(layout.buildDirectory.dir("fixtures/feature-probe"))
     from(sourceSets.test.get().output) {
         include("io/github/devkruidenier/landward/fixture/FeatureServerProbe*.class")
+        include("io/github/devkruidenier/landward/fixture/ProtectionRuntimeProbe*.class")
         include("io/github/devkruidenier/landward/gui/ChunkMapServerProbe*.class")
         include("io/github/devkruidenier/landward/platform/MessageRuntimeProbe*.class")
     }

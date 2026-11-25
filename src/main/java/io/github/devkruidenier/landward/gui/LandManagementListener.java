@@ -42,6 +42,8 @@ public final class LandManagementListener implements Listener {
             return;
         }
         if (holder.screen() == LandManagementHolder.Screen.MEMBER_MAIN) {
+            if (slot == 14 && holder.selectedLandId()!=null) plugin.blockProtectionGui().main(player,holder.selectedLandId());
+            if (slot == 15 && holder.selectedLandId()!=null) plugin.blockProtectionGui().leave(player,holder.selectedLandId());
             if (slot == 13 && holder.selectedLandId() != null) plugin.landFeaturesGui().open(player, holder.selectedLandId(), false);
             if (slot == 26) player.closeInventory();
             return;
@@ -53,6 +55,7 @@ public final class LandManagementListener implements Listener {
             return;
         }
         if (holder.screen() == LandManagementHolder.Screen.MAIN) {
+            if (slot==14) { landManager.ownedBy(player.getUniqueId()).ifPresent(l->plugin.blockProtectionGui().main(player,l.id())); return; }
             if (slot == 11) new LandMapGui(plugin, landManager).open(player);
             else if (slot == 13) {
                 player.closeInventory();
@@ -126,7 +129,7 @@ public final class LandManagementListener implements Listener {
         if (holder.screen() == LandManagementHolder.Screen.MEMBERS) { if (slot == 53) { gui.openSettings(player); return; } UUID member = holder.playersBySlot().get(slot); if (member != null) gui.openMemberActions(player, member); return; }
         if (holder.screen() == LandManagementHolder.Screen.MEMBER) {
             if (slot == 26) { gui.openMemberList(player); return; }
-            if (slot == 22 && holder.memberId() != null) { landManager.removeMember(player.getUniqueId(), holder.memberId()); plugin.refreshAnalyticsIntegration(); gui.openMemberList(player); return; }
+            if (slot == 22 && holder.memberId() != null) { long removedLocks=landManager.personalProtections().all().stream().filter(p->p.owner().equals(holder.memberId())&&landManager.ownedBy(player.getUniqueId()).map(l->l.id().equals(p.landId())).orElse(false)).count(); landManager.removeMember(player.getUniqueId(), holder.memberId()); plugin.blockProtections().tell(player,"cleanup-count",java.util.Map.of("count",removedLocks)); plugin.refreshAnalyticsIntegration(); gui.openMemberList(player); return; }
             MemberPermissions.Permission individualPermission = switch (slot) {
                 case 10 -> MemberPermissions.Permission.BUILD;
                 case 13 -> MemberPermissions.Permission.CONTAINERS;

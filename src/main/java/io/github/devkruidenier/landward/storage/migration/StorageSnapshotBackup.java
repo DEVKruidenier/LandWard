@@ -25,7 +25,7 @@ import java.util.UUID;
 /** Versioned, lossless backup format used before every storage migration. */
 public final class StorageSnapshotBackup {
     private static final String MAGIC = "LANDWARD-BACKUP";
-    private static final int VERSION = 4;
+    private static final int VERSION = 5;
 
     public void write(Path file, StorageSnapshot snapshot) throws StorageException {
         try {
@@ -49,6 +49,7 @@ public final class StorageSnapshotBackup {
                         output.writeFloat(warp.yaw()); output.writeFloat(warp.pitch());
                     }
                 }
+                io.github.devkruidenier.landward.blockprotection.ProtectionBackup.write(output, snapshot);
             }
         } catch (IOException exception) { throw new StorageException("Could not write migration backup", exception); }
     }
@@ -77,8 +78,9 @@ public final class StorageSnapshotBackup {
                     features.add(new io.github.devkruidenier.landward.model.LandFeatures(land, new io.github.devkruidenier.landward.model.EnvironmentSettings(rules), warps));
                 }
             }
+            var personal = version >= 5 ? io.github.devkruidenier.landward.blockprotection.ProtectionBackup.read(input) : new io.github.devkruidenier.landward.blockprotection.ProtectionBackup.Data(List.of(),List.of());
             if (input.read() != -1) throw new StorageException("Migration backup has trailing data", null);
-            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members), List.copyOf(adminIds), List.copyOf(features));
+            return new StorageSnapshot(List.copyOf(lands), List.copyOf(claims), List.copyOf(members), List.copyOf(adminIds), List.copyOf(features), personal.locks(), personal.placements());
         } catch (EOFException exception) { throw new StorageException("Migration backup is incomplete", exception); }
         catch (IOException exception) { throw new StorageException("Could not read migration backup", exception); }
     }

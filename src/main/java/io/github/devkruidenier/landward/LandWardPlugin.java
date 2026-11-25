@@ -74,6 +74,11 @@ public final class LandWardPlugin extends JavaPlugin {
     private io.github.devkruidenier.landward.platform.PlayerMessages messages;
     public io.github.devkruidenier.landward.platform.PlayerMessages messages() { return messages; }
     private LocaleService localeService;
+    private io.github.devkruidenier.landward.blockprotection.ProtectionService blockProtections;
+    private io.github.devkruidenier.landward.blockprotection.ProtectionGui blockProtectionGui;
+    private io.github.devkruidenier.landward.blockprotection.ProtectionSelectionManager blockSelection;
+    public io.github.devkruidenier.landward.blockprotection.ProtectionService blockProtections() { return blockProtections; }
+    public io.github.devkruidenier.landward.blockprotection.ProtectionGui blockProtectionGui() { return blockProtectionGui; }
     private MetricsService metricsService;
     private LandWardConsole console;
     private volatile LandStorage storage;
@@ -142,6 +147,14 @@ public final class LandWardPlugin extends JavaPlugin {
             console.info("PlaceholderAPI integration enabled: use %landward_<placeholder>%.", Tone.SUCCESS);
         }
 
+        blockProtections = new io.github.devkruidenier.landward.blockprotection.ProtectionService(this, landManager);
+        blockProtectionGui = new io.github.devkruidenier.landward.blockprotection.ProtectionGui(this, landManager, blockProtections);
+        blockSelection = new io.github.devkruidenier.landward.blockprotection.ProtectionSelectionManager(this, landManager, blockProtections, blockProtectionGui);
+        blockProtectionGui.selection(blockSelection);
+        getServer().getPluginManager().registerEvents(blockSelection, this);
+        getServer().getPluginManager().registerEvents(blockProtectionGui, this);
+        getServer().getPluginManager().registerEvents(new io.github.devkruidenier.landward.blockprotection.ProtectionListener(this, landManager, blockProtections), this);
+
         LandCommand landCommand = new LandCommand(this, landManager);
         this.landFeaturesGui = new io.github.devkruidenier.landward.gui.LandFeaturesGui(this, landManager);
         getServer().getPluginManager().registerEvents(landFeaturesGui, this);
@@ -182,6 +195,8 @@ public final class LandWardPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (blockSelection != null) blockSelection.clear();
+        if (blockProtections != null) blockProtections.close();
         if (landFeaturesGui != null) landFeaturesGui.shutdown();
         if (scheduler != null) scheduler.close();
         playerSnapshots.clear();
@@ -292,6 +307,7 @@ public final class LandWardPlugin extends JavaPlugin {
     /** Reloads safe runtime settings without disconnecting players or reopening storage. */
     public void reloadLandWard() {
         reloadConfig();
+        if (blockSelection != null) blockSelection.clear();
         mergeNewConfigDefaults();
         localeService.initialize();
         landManager.memberDefaults(playerMemberDefaults(), administrativeMemberDefaults());
@@ -382,6 +398,9 @@ public final class LandWardPlugin extends JavaPlugin {
                     bundled.set(path, existing.get(path));
                 }
             }
+            // Fresh files already contain enabled=true from saveDefaultConfig. Older files
+            // without explicit opt-in must not silently enable personal protection.
+            if (!existing.contains("block-protection.enabled")) bundled.set("block-protection.enabled", false);
             // This is informational metadata rather than an administrator
             // setting: always show the version of the JAR currently running.
             bundled.set("plugin-version", getDescription().getVersion());

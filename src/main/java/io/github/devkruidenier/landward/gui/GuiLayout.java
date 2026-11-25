@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import java.util.function.BooleanSupplier;
 
 /** Presentation mapping keeps domain actions independent of displayed slot positions. */
-final class GuiLayout {
+public final class GuiLayout {
     private static final Map<Inventory, Map<Integer, Integer>> ACTIONS = Collections.synchronizedMap(new WeakHashMap<>());
     private static final Map<Inventory, Runnable[]> PAGES = Collections.synchronizedMap(new WeakHashMap<>());
     private static final Map<UUID, Map<String, Integer>> LAST_PAGES = new java.util.concurrent.ConcurrentHashMap<>();
@@ -139,7 +139,7 @@ final class GuiLayout {
     static void title(Inventory inventory, String title) { TITLES.put(inventory, title); }
     private static String playerTitle(Inventory inventory) { return Objects.requireNonNull(TITLES.get(inventory)); }
 
-    static void fill(Inventory inventory) {
+    public static void fill(Inventory inventory) {
         ItemStack pane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         var meta = pane.getItemMeta();
         meta.setDisplayName(" ");

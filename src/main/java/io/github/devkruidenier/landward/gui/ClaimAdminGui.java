@@ -114,6 +114,7 @@ public final class ClaimAdminGui {
         inventory.setItem(20, item(Material.HOPPER, plugin.localeService().message(locale, "gui.admin-confirm"), NamedTextColor.RED,
                 List.of(plugin.localeService().message(locale, "gui.hint-delete-player-land"),
                         plugin.localeService().message(locale, "gui.unclaim-warning"))));
+        if (plugin.blockProtections().visible(player,landId)) inventory.setItem(23,plugin.blockProtectionGui().entry(player));
         inventory.setItem(26, item(Material.ARROW, plugin.localeService().message(locale, "gui.management-back"), NamedTextColor.YELLOW, List.of()));
         GuiLayout.open(player, inventory, plugin);
     }

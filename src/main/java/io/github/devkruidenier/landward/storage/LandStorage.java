@@ -57,6 +57,14 @@ public interface LandStorage extends AutoCloseable {
 
     void deleteMember(java.util.UUID landId, java.util.UUID playerId) throws StorageException;
 
+    /** Atomically changes personal lock and placement records; never touches physical blocks. */
+    default void writeBlockProtections(java.util.List<io.github.devkruidenier.landward.blockprotection.BlockProtection> saves,
+            java.util.List<java.util.UUID> removes,
+            java.util.List<io.github.devkruidenier.landward.blockprotection.BlockPlacement> placements,
+            java.util.List<io.github.devkruidenier.landward.blockprotection.BlockKey> forget) throws StorageException {
+        throw new StorageException("Block protection persistence unsupported", null);
+    }
+
     String type();
 
     default void updateFeatures(io.github.devkruidenier.landward.model.LandFeatures features) throws StorageException {

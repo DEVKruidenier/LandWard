@@ -4,6 +4,19 @@ All notable changes to LandWard will be documented here.
 
 ## [Unreleased]
 
+### Added — 1.0.6.0-beta1 (development preview)
+
+- Optional built-in personal protection for storage blocks, doors, trapdoors and
+  fence gates, managed through private/shared access GUIs in all 32 languages.
+- UUID-based block placement ownership, paired chest/door locks, land-owner
+  management and a separate personal-lock administrator bypass.
+- Transactional lock/share cleanup when members leave, ownership changes, land is
+  deleted or chunks are unclaimed; storage migrations and backups retain lock data.
+- Localized leave/removal/transfer warnings, owner filtering and paginated lists.
+- Conservative automation safeguards and asynchronous personal-lock writes with
+  fail-closed diagnostics. Existing installations explicitly opt in; disabling
+  personal protection preserves data and leaves normal claim permissions active.
+
 ## [1.0.5.0] - 2026-11-18
 
 ### Added

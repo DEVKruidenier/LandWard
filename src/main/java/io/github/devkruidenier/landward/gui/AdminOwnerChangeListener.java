@@ -87,6 +87,8 @@ public final class AdminOwnerChangeListener implements Listener {
         String name = enteredName(event.getView());
         if (name == null || !PLAYER_NAME.matcher(name).matches()) return;
         OfflinePlayer target = Bukkit.getOfflinePlayer(name);
+        Runnable transfer = () -> {
+            if (!player.hasPermission("landward.admin")) return;
         try {
             LandManager.TransferResult result = lands.transferOwnership(holder.landId(), target.getUniqueId());
             String key = switch (result.status()) {
@@ -104,9 +106,16 @@ public final class AdminOwnerChangeListener implements Listener {
             plugin.getLogger().warning("Could not transfer land ownership: " + exception.getMessage());
             player.sendMessage(plugin.localeService().message(plugin.localeService().localeFor(player), "general.storage-error"));
         }
+
+        };
         clear(event.getView());
         holder.setEnteredName(null);
         player.closeInventory();
+        plugin.scheduler().player(player, () -> {
+            if (lands.personalProtections().all().stream().anyMatch(p -> p.landId().equals(holder.landId())))
+                plugin.blockProtectionGui().confirm(player,"transfer-warning",transfer,player::closeInventory);
+            else transfer.run();
+        });
     }
 
     @EventHandler

@@ -24,13 +24,14 @@ final class GuiPositions {
     static int size(String profile, int original) {
         return switch (profile) {
             case "player:SETTINGS", "admin:ADMIN_SETTINGS" -> 27;
-            case "player:MEMBER_MAIN" -> 18;
+            case "player:MEMBER_MAIN" -> 27;
             default -> original;
         };
     }
     static Map<Integer, Integer> overrides(String profile) {
         return switch (profile) {
-            case "player:MAIN" -> Map.of(4, 4, 11, 11, 13, 12, 15, 13, 16, 14, 17, 22);
+            case "player:MAIN" -> Map.of(4, 4, 11, 10, 13, 11, 15, 12, 16, 13, 14, 14, 17, 22);
+            case "player:MEMBER_MAIN" -> Map.of(4,4,13,12,14,13,15,14);
             case "player:SETTINGS" -> Map.ofEntries(
                     Map.entry(10, 0), Map.entry(19, 1), Map.entry(20, 2),
                     Map.entry(23, 3), Map.entry(24, 4), Map.entry(21, 5),
@@ -44,7 +45,7 @@ final class GuiPositions {
             case "player:WELCOME" -> Map.of(13, 11, 22, 13);
             case "player:MEMBER", "admin:ADMIN_MEMBER" -> Map.of(4, 11, 10, 12, 13, 13, 16, 14, 22, 15);
             case "admin:MAIN" -> Map.of(9, 3, 11, 4, 13, 5, 17, 21, 15, 23, 20, 22);
-            case "admin:PLAYER_CLAIM_DETAILS" -> Map.of(10, 10, 12, 11, 14, 12, 16, 13, 18, 14, 20, 15, 22, 16);
+            case "admin:PLAYER_CLAIM_DETAILS" -> Map.of(10, 9, 12, 10, 14, 11, 16, 12, 18, 13, 20, 14, 22, 15, 23, 16);
             default -> Map.of();
         };
     }

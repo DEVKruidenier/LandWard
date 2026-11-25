@@ -84,3 +84,9 @@ includes its own connection pool, metrics client and Adventure support for Spigo
 Copyright © 2026 DEVKruidenier.
 
 LandWard is licensed under the GNU General Public License v3.0. See [LICENSE](LICENSE).
+
+## Development preview
+
+The unreleased **1.0.6.0-beta1** adds optional, GUI-managed private/shared block
+protection. See [Personal Block Protection](https://github.com/DEVKruidenier/LandWard/wiki/Block-Protection)
+for ownership, administrator access and safe upgrade configuration.

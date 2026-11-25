@@ -61,6 +61,7 @@ public final class ClaimAdminListener implements Listener {
             return;
         }
         if (holder.screen() == ClaimAdminHolder.Screen.PLAYER_CLAIM_DETAILS) {
+            if (slot==23 && holder.selectedLandId()!=null) { plugin.blockProtectionGui().main(player,holder.selectedLandId());return; }
             UUID landId = holder.selectedLandId();
             if (landId == null) { gui.openPlayerClaims(player); return; }
             if (slot == 26) { gui.openPlayerClaims(player); return; }

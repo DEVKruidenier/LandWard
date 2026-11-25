@@ -107,6 +107,7 @@ public final class StorageMigrationService {
     }
 
     private void validate(StorageSnapshot snapshot) throws StorageException {
+        io.github.devkruidenier.landward.blockprotection.ProtectionBackup.validate(snapshot);
         Set<UUID> landIds = new HashSet<>(); Set<String> names = new HashSet<>(); Set<UUID> owners = new HashSet<>();
         Set<UUID> admins = Set.copyOf(snapshot.adminLandIds());
         for (Land land : snapshot.lands()) {
@@ -137,13 +138,15 @@ public final class StorageMigrationService {
         }
     }
 
-    private boolean isEmpty(StorageSnapshot snapshot) { return snapshot.lands().isEmpty() && snapshot.claims().isEmpty() && snapshot.members().isEmpty() && snapshot.adminLandIds().isEmpty() && snapshot.features().isEmpty(); }
+    private boolean isEmpty(StorageSnapshot snapshot) { return snapshot.lands().isEmpty() && snapshot.claims().isEmpty() && snapshot.members().isEmpty() && snapshot.adminLandIds().isEmpty() && snapshot.features().isEmpty() && snapshot.protections().isEmpty() && snapshot.placements().isEmpty(); }
     private boolean sameSnapshot(StorageSnapshot first, StorageSnapshot second) {
         return Set.copyOf(first.lands()).equals(Set.copyOf(second.lands()))
                 && Set.copyOf(first.claims()).equals(Set.copyOf(second.claims()))
                 && Set.copyOf(first.members()).equals(Set.copyOf(second.members()))
                 && Set.copyOf(first.adminLandIds()).equals(Set.copyOf(second.adminLandIds()))
-                && Set.copyOf(first.features()).equals(Set.copyOf(second.features()));
+                && Set.copyOf(first.features()).equals(Set.copyOf(second.features()))
+                && Set.copyOf(first.protections()).equals(Set.copyOf(second.protections()))
+                && Set.copyOf(first.placements()).equals(Set.copyOf(second.placements()));
     }
 
     public record MigrationResult(Path backup, int lands, int claims, int members) { }

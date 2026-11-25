@@ -15,17 +15,17 @@ import java.util.List;
  * Bukkit-string GUI helpers. Paper also supports these legacy API methods,
  * while Spigot does not expose Paper's Adventure Component inventory methods.
  */
-final class GuiText {
+public final class GuiText {
     private GuiText() {
     }
 
-    static Inventory inventory(InventoryHolder holder, int size, String title) {
+    public static Inventory inventory(InventoryHolder holder, int size, String title) {
         Inventory inventory = Bukkit.createInventory(holder, size, ChatColor.DARK_AQUA + title);
         GuiLayout.title(inventory, ChatColor.DARK_AQUA + title);
         return inventory;
     }
 
-    static ItemStack item(Material material, String label, NamedTextColor color, List<String> lore) {
+    public static ItemStack item(Material material, String label, NamedTextColor color, List<String> lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(color(color) + label);
@@ -36,7 +36,7 @@ final class GuiText {
         return item;
     }
 
-    static String color(NamedTextColor color) {
+    public static String color(NamedTextColor color) {
         if (color.equals(NamedTextColor.BLACK)) return ChatColor.BLACK.toString();
         if (color.equals(NamedTextColor.DARK_BLUE)) return ChatColor.DARK_BLUE.toString();
         if (color.equals(NamedTextColor.DARK_GREEN)) return ChatColor.DARK_GREEN.toString();
