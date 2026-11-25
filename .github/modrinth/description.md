@@ -1,3 +1,5 @@
+![LandWard banner](https://raw.githubusercontent.com/wiki/DEVKruidenier/LandWard/images/landward-banner-v2.png)
+
 # LandWard
 
 LandWard 1.0.5.0 adds Folia and CraftBukkit support in one universal JAR,
