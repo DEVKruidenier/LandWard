@@ -8,7 +8,7 @@ on:
         required: false
         type: choice
         default: standard
-        options: [standard, check, update]
+        options: [standard, check, update, gallery]
       version_number:
         description: Optional existing version whose changelog should match GitHub Releases.
         required: false
@@ -51,7 +51,7 @@ jobs:
             https://api.modrinth.com/v2/project/landward
 
       - name: Verify and selectively synchronize showcase description
-        if: inputs.showcase_mode != 'standard'
+        if: inputs.showcase_mode == 'check' || inputs.showcase_mode == 'update'
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           SHOWCASE_MODE: ${{ inputs.showcase_mode }}
@@ -84,6 +84,12 @@ jobs:
             (.gallery == $before[0].gallery) and (.status == $before[0].status)
           ' live-after.json > /dev/null
           echo 'Live description verified. Gallery and visibility are unchanged.'
+
+      - name: Replace verified showcase gallery images
+        if: inputs.showcase_mode == 'gallery'
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: node .github/modrinth/refresh-showcase-gallery.cjs
 
       - name: Synchronize existing release notes
         if: inputs.showcase_mode == 'standard' && inputs.version_number != ''
