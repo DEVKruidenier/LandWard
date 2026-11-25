@@ -12,7 +12,15 @@ LandWard is a GUI-first chunk-claim plugin for Paper, Purpur, Bukkit, Folia and 
 For the complete feature list, commands and configuration guidance, visit the
 [LandWard Wiki](https://github.com/DEVKruidenier/LandWard/wiki).
 
-**Supported servers:** Paper 26.2 / 26.3, Purpur 26.2 / 26.3, Bukkit (CraftBukkit) 26.2 / 26.3, Folia 26.2 / 26.3 and Spigot 26.2 / 26.3. Java 25 required.
+**Supported servers:**
+
+- Paper 26.2 / 26.3
+- Purpur 26.2 / 26.3
+- Bukkit (CraftBukkit) 26.2 / 26.3
+- Folia 26.2 / 26.3
+- Spigot 26.2 / 26.3
+
+Java 25 required.
 
 **Velocity compatibility:** LandWard runs on a supported backend server behind Velocity. Install LandWard in the backend server's `plugins/` folder.
 
